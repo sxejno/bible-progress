@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KJV Word-Weighted Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .tab-active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); }
+        
+        /* Subtle hover lift for books */
+        .book-card { transition: all 0.2s ease-out; }
+        .book-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        
+        /* Animation */
+        .animate-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hide scrollbar for the stats/legend bar but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="sticky top-0 z-50 glass border-b border-indigo-100 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4 sm:px-6">
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-black text-indigo-950 tracking-tighter">KJV PROGRESS</h1>
+                        <p id="books-completed-stat" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">0 OF 66 BOOKS READ</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="total-percent" class="text-3xl font-black text-indigo-600 leading-none">0.00%</span>
+                        <div class="text-[10px] font-bold text-slate-500 uppercase mt-1 tracking-tight">Total Bible Word Count</div>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                    <div id="total-progress-bar" class="bg-indigo-600 h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/50 p-2.5 rounded-xl border border-indigo-50">
+                        <div class="flex justify-between text-[10px] font-black text-slate-400 uppercase mb-1">
+                            <span>Old Testament</span>
+                            <span id="ot-percent">0.00%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                            <div id="ot-progress-bar" class="bg-amber-500 h-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white/50 p-2.5 rounded-xl border border-indigo-50">
+                        <div class="flex justify-between text-[10px] font-black text-slate-400 uppercase mb-1">
+                            <span>New Testament</span>
+                            <span id="nt-percent">0.00%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                            <div id="nt-progress-bar" class="bg-emerald-500 h-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
+        
+        <div class="flex flex-wrap gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-fit">
+            <button onclick="setTab('OT')" id="tab-ot" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all tab-active">Old Testament</button>
+            <button onclick="setTab('NT')" id="tab-nt" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-500">New Testament</button>
+            <button onclick="setTab('PLAN')" id="tab-plan" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-500">Daily Plan</button>
+            <button onclick="setTab('STATS')" id="tab-stats" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-500">Stats</button>
+        </div>
+
+        <div id="view-books" class="animate-in">
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="book-search" onkeyup="handleSearch()" placeholder="Search books..." class="w-full pl-10 pr-4 py-3 rounded-2xl border-none bg-white shadow-sm text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 outline-none transition-all">
+                    <svg class="w-5 h-5 absolute left-3 top-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <div id="subdivision-bar" class="flex gap-3 overflow-x-auto no-scrollbar mb-6 pb-2">
+                </div>
+
+            <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            </div>
+        </div>
+
+        <div id="view-plan" class="hidden animate-in">
+            <div class="bg-indigo-600 rounded-[2.5rem] p-8 shadow-xl shadow-indigo-200 mb-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                <h2 class="text-2xl font-black tracking-tight mb-2 relative z-10">Today's Reading</h2>
+                <p class="text-indigo-100 text-sm mb-6 relative z-10">Based on your current progress, here are the next chapters to read.</p>
+                
+                <div id="daily-plan-list" class="flex flex-col gap-3 relative z-10">
+                    </div>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100">
+                <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button onclick="backupData()" class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-xs uppercase tracking-wide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Backup Progress
+                    </button>
+                    <label class="flex-1 cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-xs uppercase tracking-wide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        Restore Backup
+                        <input type="file" id="restore-input" class="hidden" accept=".json" onchange="restoreData(this)">
+                    </label>
+                </div>
+                <p id="restore-msg" class="text-center text-xs font-bold text-emerald-500 mt-3 hidden"></p>
+            </div>
+        </div>
+
+        <div id="view-stats" class="hidden animate-in">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                <div class="w-full lg:w-5/12 relative min-h-[300px] flex items-center justify-center">
+                    <canvas id="mainDonutChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Read</span>
+                        <span id="stats-page-total-percent" class="text-4xl font-black text-indigo-900">0%</span>
+                    </div>
+                </div>
+                <div class="w-full lg:w-7/12 text-center lg:text-left">
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Bible Completion</h2>
+                    <p class="text-sm text-slate-500 mb-6 max-w-md mx-auto lg:mx-0">Your progress across all categories of the Bible based on weighted word counts.</p>
+                    <div id="legend-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left"></div>
+                </div>
+            </div>
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Category Breakdown</h3>
+            <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+        </div>
+
+        <div id="view-chapters" class="hidden animate-in">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showBooks()" class="flex items-center text-indigo-600 font-bold text-sm hover:-translate-x-1 transition-transform">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Library
+                </button>
+                <div id="book-label" class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">Testament</div>
+            </div>
+            
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                <div class="mb-10 text-center">
+                    <h2 id="active-book-title" class="text-5xl font-black text-slate-900 tracking-tighter mb-4">Genesis</h2>
+                    <div class="flex justify-center items-center gap-4">
+                        <div class="w-48 bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div id="book-inner-bar" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <span id="book-stat-detail" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">0/50 Chapters</span>
+                    </div>
+                </div>
+                
+                <div id="chapter-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-slate-100 flex justify-center gap-4">
+                    <button onclick="toggleAllInBook(true)" class="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:bg-emerald-50 px-4 py-2 rounded-full transition-colors">Mark Book Finished</button>
+                    <button onclick="toggleAllInBook(false)" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 px-4 py-2 rounded-full transition-colors">Reset Book</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DATA: Books & Chapter Word Counts
+        const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,584,586,658,496,606,536,457,607,471,412,679,867,1108,498,775,629,539,1816,706,889,1262,621,829,1022,1417,794,508,790,664,845,942,819,613,563,1024,760,1018,937,735,786,735,618,1022,680]},{"name":"Exodus","testament":"OT","ch":[655,642,650,930,582,770,690,878,977,787,281,1374,560,804,755,989,444,750,753,761,959,882,853,582,1042,915,613,1073,1221,986,496,894,465,856,1137,1083,754,919,1152,964]},{"name":"Leviticus","testament":"OT","ch":[538,411,478,881,574,633,852,871,597,513,1073,237,1512,1317,855,876,446,705,831,626,618,816,1163,575,1227,1159,847]},{"name":"Numbers","testament":"OT","ch":[1161,835,1243,1289,785,801,1926,610,630,866,854,381,824,1095,950,1218,415,811,558,645,839,889,747,650,481,1445,591,797,842,439,1163,1156,1381,672,846,404]},{"name":"Deuteronomy","testament":"OT","ch":[1213,919,790,1236,922,657,684,502,795,613,862,907,507,707,614,644,580,578,659,569,701,820,683,532,531,545,782,1729,767,580,824,1222,762,360]},{"name":"Joshua","testament":"OT","ch":[516,665,472,646,414,689,751,897,760,1137,590,538,773,404,1144,252,452,681,1098,222,873,1007,433,855]},{"name":"Judges","testament":"OT","ch":[867,559,882,635,748,1004,653,946,1317,437,989,440,682,587,586,895,365,780,882,1192,610]},{"name":"Ruth","testament":"OT","ch":[604,619,529,734]},{"name":"1 Samuel","testament":"OT","ch":[725,860,529,552,335,568,442,543,672,700,396,632,538,1163,804,597,1361,757,597,1058,411,573,735,549,1094,674,334,645,335,755,339]},{"name":"2 Samuel","testament":"OT","ch":[650,770,930,333,626,565,681,412,330,480,715,917,850,831,934,667,747,875,1046,638,591,1085,881,608]},{"name":"1 Kings","testament":"OT","ch":[1174,1032,725,764,502,856,1233,1494,663,660,1024,820,858,793,758,788,570,1094,536,1039,664,1109]},{"name":"2 Kings","testament":"OT","ch":[512,635,626,1030,694,811,555,429,908,937,532,529,611,713,977,497,1046,955,939,458,643,494,875,508,751]},{"name":"1 Chronicles","testament":"OT","ch":[1085,971,514,891,642,1500,874,860,929,419,1146,887,344,401,712,887,625,419,441,237,738,470,722,675,655,787,819,534,760]},{"name":"2 Chronicles","testament":"OT","ch":[447,439,396,512,321,1044,554,430,743,463,531,381,551,383,491,346,452,804,303,913,461,313,504,655,643,505,335,651,914,623,510,828,612,615,813,610]},{"name":"Ezra","testament":"OT","ch":[335,1184,339,604,387,549,663,857,410,1034]},{"name":"Nehemiah","testament":"OT","ch":[318,584,879,551,504,456,1261,519,1099,1026,796,1113,824]},{"name":"Esther","testament":"OT","ch":[542,600,398,412,342,331,276,526,811,139]},{"name":"Job","testament":"OT","ch":[545,332,491,419,514,541,471,434,651,451,375,469,536,402,638,442,372,387,532,515,637,516,413,528,149,290,489,509,552,669,740,522,670,731,335,637,432,706,610,511,574,362]},{"name":"Psalms","testament":"OT","ch":[114,198,125,127,172,140,245,146,323,239,102,124,91,119,83,169,227,850,195,150,177,332,116,140,260,185,219,125,154,211,310,305,355,303,388,151,587,309,197,267,199,195,124,376,214,161,146,252,291,354,287,237,119,124,346,203,148,185,272,182,143,210,191,176,193,306,215,482,535,271,348,305,416,377,130,165,300,1073,209,233,250,110,270,226,211,259,117,321,608,192,167,216,95,275,155,177,149,137,182,122,109,419,231,521,749,725,622,273,246,105,176,199,157,121,269,136,33,465,2423,88,154,115,134,103,165,103,101,89,144,136,260,192,164,109,136,110,126,165,133,102,170,132,246,200,183,178,136,105]},{"name":"Proverbs","testament":"OT","ch":[604,395,638,484,435,642,452,605,303,537,497,461,460,574,497,474,510,429,453,442,451,450,537,502,531,545,528,513,495,663,563]},{"name":"Ecclesiastes","testament":"OT","ch":[346,522,349,296,394,206,560,319,400,351,215,315]},{"name":"Song of Songs","testament":"OT","ch":[270,275,157,246,251,178,213,226]},{"name":"Isaiah","testament":"OT","ch":[619,451,423,125,617,296,516,520,509,735,419,149,479,650,196,265,270,180,528,152,417,482,381,537,232,503,295,781,457,796,206,427,512,445,234,467,853,565,246,731,621,562,622,664,575,335,341,550,681,681,597,449,390,507,434,394,528,385,488,629,362,356,451,314,565,696]},{"name":"Jeremiah","testament":"OT","ch":[530,960,770,936,843,769,866,566,689,631,541,419,631,608,521,548,771,534,394,469,413,725,960,254,959,660,578,485,723,620,1024,1121,573,549,526,921,545,687,544,456,488,560,345,933,142,672,171,1145,876,1238,1530,891]},{"name":"Lamentations","testament":"OT","ch":[496,591,542,474,283]},{"name":"Ezekiel","testament":"OT","ch":[645,258,653,401,376,367,635,444,275,460,607,722,584,515,177,1610,602,755,454,1030,689,715,1289,448,433,497,876,555,487,529,440,836,810,786,393,908,773,617,760,1130,631,519,642,762,779,567,589,835]},{"name":"Daniel","testament":"OT","ch":[587,1251,882,934,915,727,766,737,764,594,1184,350]},{"name":"Hosea","testament":"OT","ch":[259,538,129,480,358,259,342,296,357,348,269,319,314,227]},{"name":"Joel","testament":"OT","ch":[447,722,453]},{"name":"Amos","testament":"OT","ch":[343,395,345,329,613,313,410,320,381]},{"name":"Obadiah","testament":"OT","ch":[670]},{"name":"Jonah","testament":"OT","ch":[464,266,237,280]},{"name":"Micah","testament":"OT","ch":[390,323,274,397,364,435,462]},{"name":"Nahum","testament":"OT","ch":[355,303,382]},{"name":"Habakkuk","testament":"OT","ch":[414,468,433]},{"name":"Zephaniah","testament":"OT","ch":[435,359,382]},{"name":"Haggai","testament":"OT","ch":[354,502]},{"name":"Zechariah","testament":"OT","ch":[435,347,236,331,268,386,311,574,420,319,357,423,259,549]},{"name":"Malachi","testament":"OT","ch":[394,427,432,142]},{"name":"Matthew","testament":"NT","ch":[465,442,318,511,914,691,563,678,755,878,622,1017,1097,747,752,576,569,788,629,715,963,911,872,1058,1032,1515,1373,441]},{"name":"Mark","testament":"NT","ch":[864,532,631,743,856,1104,765,758,1024,1021,663,891,712,1391,962,459]},{"name":"Luke","testament":"NT","ch":[1511,961,799,871,786,999,1031,1133,1184,888,1102,1111,735,719,650,617,738,868,930,936,758,1406,1042,1058]},{"name":"John","testament":"NT","ch":[907,447,770,1020,848,1342,920,1021,745,807,1041,1014,638,608,477,565,547,859,858,616,584]},{"name":"Acts","testament":"NT","ch":[555,966,564,725,843,315,1198,777,890,856,518,502,1019,555,804,775,711,529,810,778,840,560,615,542,524,730,982,604]},{"name":"Romans","testament":"NT","ch":[689,580,541,483,459,420,532,831,663,411,664,381,319,449,666,424]},{"name":"1 Corinthians","testament":"NT","ch":[566,312,445,417,303,439,786,271,581,652,650,551,269,771,1040,414]},{"name":"2 Corinthians","testament":"NT","ch":[499,300,363,355,419,321,332,459,318,412,679,474,276]},{"name":"Galatians","testament":"NT","ch":[469,461,595,558,440,316]},{"name":"Ephesians","testament":"NT","ch":[458,413,396,617,564,470]},{"name":"Philippians","testament":"NT","ch":[632,601,483,467]},{"name":"Colossians","testament":"NT","ch":[656,503,457,363]},{"name":"1 Thessalonians","testament":"NT","ch":[253,479,295,396,414]},{"name":"2 Thessalonians","testament":"NT","ch":[291,381,350]},{"name":"1 Timothy","testament":"NT","ch":[432,247,324,310,470,461]},{"name":"2 Timothy","testament":"NT","ch":[438,506,297,425]},{"name":"Titus","testament":"NT","ch":[337,265,294]},{"name":"Philemon","testament":"NT","ch":[430]},{"name":"Hebrews","testament":"NT","ch":[338,472,362,404,299,447,574,332,735,786,856,674,616]},{"name":"James","testament":"NT","ch":[531,513,393,359,488]},{"name":"1 Peter","testament":"NT","ch":[564,532,497,418,428]},{"name":"2 Peter","testament":"NT","ch":[453,509,496]},{"name":"1 John","testament":"NT","ch":[238,603,483,440,440]},{"name":"2 John","testament":"NT","ch":[298]},{"name":"3 John","testament":"NT","ch":[294]},{"name":"Jude","testament":"NT","ch":[610]},{"name":"Revelation","testament":"NT","ch":[447,725,533,269,364,422,396,310,454,287,443,431,447,495,237,515,486,616,520,395,664,518]}];
+
+        // --- HARDCODED STATIC TOTALS (Correct for KJV) ---
+        const WORD_TOTALS = { GLOBAL: 789634, OT: 609252, NT: 180382 };
+
+        let progress = JSON.parse(localStorage.getItem('kjv_v6_progress')) || {};
+        let activeTab = 'OT';
+        let activeBookIdx = null;
+        let searchQuery = "";
+        let mainChart = null;
+        let miniCharts = [];
+
+        // Categories (Renamed to prevent bugs)
+        const OT_CATS = [
+            { name: "Pentateuch", count: 5, style: "bg-slate-200 border-slate-300 text-slate-900", chartColor: "#64748b" },
+            { name: "History (OT)", count: 12, style: "bg-amber-100 border-amber-200 text-amber-900", chartColor: "#d97706" },
+            { name: "Wisdom", count: 5, style: "bg-indigo-100 border-indigo-200 text-indigo-900", chartColor: "#4f46e5" },
+            { name: "Major Prophets", count: 5, style: "bg-rose-100 border-rose-200 text-rose-900", chartColor: "#e11d48" },
+            { name: "Minor Prophets", count: 12, style: "bg-cyan-100 border-cyan-200 text-cyan-900", chartColor: "#0891b2" }
+        ];
+
+        const NT_CATS = [
+            { name: "Gospels", count: 4, style: "bg-emerald-100 border-emerald-200 text-emerald-900", chartColor: "#059669" },
+            { name: "History (NT)", count: 1, style: "bg-yellow-100 border-yellow-200 text-yellow-900", chartColor: "#ca8a04" },
+            { name: "Pauline Epistles", count: 13, style: "bg-sky-100 border-sky-200 text-sky-900", chartColor: "#0284c7" },
+            { name: "General Epistles", count: 8, style: "bg-teal-100 border-teal-200 text-teal-900", chartColor: "#0d9488" },
+            { name: "Prophecy", count: 1, style: "bg-fuchsia-100 border-fuchsia-200 text-fuchsia-900", chartColor: "#c026d3" }
+        ];
+
+        function assignCategories() {
+            let i = 0;
+            OT_CATS.forEach(cat => {
+                for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } }
+            });
+            NT_CATS.forEach(cat => {
+                for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } }
+            });
+        }
+
+        function init() {
+            assignCategories();
+            setTab('OT');
+            updateStats();
+        }
+
+        // --- SEARCH FEATURE ---
+        function handleSearch() {
+            searchQuery = document.getElementById('book-search').value.toLowerCase();
+            renderBookGrid();
+        }
+
+        // --- TAB MANAGEMENT ---
+        function setTab(t) {
+            activeTab = t;
+            ['OT', 'NT', 'PLAN', 'STATS'].forEach(tab => {
+                const el = document.getElementById(`tab-${tab.toLowerCase()}`);
+                if(el) {
+                    if (tab === t) el.className = "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all tab-active";
+                    else el.className = "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-500 hover:text-indigo-600";
+                }
+            });
+
+            const views = ['view-books', 'view-stats', 'view-plan', 'view-chapters'];
+            views.forEach(v => document.getElementById(v).classList.add('hidden'));
+
+            if (t === 'STATS') {
+                document.getElementById('view-stats').classList.remove('hidden');
+                renderStatsPage();
+            } else if (t === 'PLAN') {
+                document.getElementById('view-plan').classList.remove('hidden');
+                renderDailyPlan();
+            } else {
+                document.getElementById('view-books').classList.remove('hidden');
+                renderBookGrid();
+                renderSubdivisionStats();
+            }
+        }
+
+        // --- BACKUP & RESTORE ---
+        function backupData() {
+            const dataStr = JSON.stringify(progress);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'kjv_tracker_backup.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function restoreData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    // Simple validation: check if it's an object
+                    if (typeof data === 'object') {
+                        progress = data;
+                        localStorage.setItem('kjv_v6_progress', JSON.stringify(progress));
+                        const msg = document.getElementById('restore-msg');
+                        msg.innerText = "Success! Progress restored.";
+                        msg.classList.remove('hidden');
+                        setTimeout(() => msg.classList.add('hidden'), 3000);
+                        updateStats();
+                    }
+                } catch(err) {
+                    alert("Invalid backup file.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- DAILY PLAN LOGIC ---
+        function renderDailyPlan() {
+            const list = document.getElementById('daily-plan-list');
+            list.innerHTML = '';
+            
+            // Find next 3 unread chapters
+            let found = 0;
+            const target = 3;
+            const nextChapters = [];
+
+            for (let b = 0; b < bible.length; b++) {
+                const book = bible[b];
+                for (let c = 0; c < book.ch.length; c++) {
+                    if (!progress[`${book.name}-${c+1}`]) {
+                        nextChapters.push({ book: book.name, chapter: c + 1, words: book.ch[c] });
+                        found++;
+                        if (found >= target) break;
+                    }
+                }
+                if (found >= target) break;
+            }
+
+            if (nextChapters.length === 0) {
+                list.innerHTML = `<div class="text-center p-6 bg-white/10 rounded-xl font-bold">🎉 You have finished the entire Bible!</div>`;
+                return;
+            }
+
+            list.innerHTML = nextChapters.map(item => {
+                const blbUrl = getBLBUrl(item.book, item.chapter);
+                return `
+                <a href="${blbUrl}" target="_blank" class="block bg-white text-slate-800 p-4 rounded-xl flex items-center justify-between hover:bg-indigo-50 transition-colors">
+                    <div>
+                        <div class="text-xs font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now</div>
+                        <div class="font-bold text-lg">${item.book} ${item.chapter}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">${item.words} words</div>
+                        <svg class="w-5 h-5 text-indigo-400 inline-block mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </div>
+                </a>`;
+            }).join('');
+        }
+
+        // --- BOOK GRID & SEARCH ---
+        function renderBookGrid() {
+            const grid = document.getElementById('book-grid');
+            // Filter by Tab AND Search Query
+            const books = bible.filter(b => {
+                const matchesTab = (b.testament === activeTab);
+                const matchesSearch = b.name.toLowerCase().includes(searchQuery);
+                return matchesTab && matchesSearch;
+            });
+            
+            if (books.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-10">No books found.</div>`;
+                return;
+            }
+
+            grid.innerHTML = books.map((book) => {
+                const bookIdx = bible.indexOf(book);
+                const readChapters = book.ch.filter((_, cIdx) => progress[`${book.name}-${cIdx + 1}`]).length;
+                const progressPercent = (readChapters / book.ch.length) * 100;
+                const isComplete = readChapters === book.ch.length;
+                const ringColor = isComplete ? 'ring-emerald-400' : 'ring-transparent';
+                
+                return `
+                    <div onclick="openBook(${bookIdx})" class="book-card ${book.style} p-5 rounded-3xl border cursor-pointer ${isComplete ? 'ring-2 ' + ringColor : ''}">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-black opacity-80 text-[11px] uppercase tracking-tight">${book.name}</h3>
+                            ${isComplete ? '<span class="text-xs">✅</span>' : ''}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-grow bg-white/60 h-1.5 rounded-full overflow-hidden">
+                                <div class="h-full transition-all duration-700 ${isComplete ? 'bg-emerald-500' : 'bg-current opacity-50'}" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <span class="text-[9px] font-black opacity-60">${readChapters}/${book.ch.length}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- NAVIGATION & UTILS ---
+        function openBook(idx) {
+            activeBookIdx = idx;
+            const book = bible[idx];
+            ['view-books', 'view-stats', 'view-plan'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('view-chapters').classList.remove('hidden');
+            document.getElementById('active-book-title').innerText = book.name;
+            document.getElementById('book-label').innerText = book.cat;
+            renderChapterGrid();
+            window.scrollTo(0,0);
+        }
+
+        function showBooks() {
+            setTab(activeTab === 'STATS' || activeTab === 'PLAN' ? 'OT' : activeTab);
+        }
+
+        function getBLBUrl(bookName, chapter) {
+            const nameMap = { "Song of Songs": "Song of Solomon" };
+            const cleanName = nameMap[bookName] || bookName;
+            return `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${chapter}/`;
+        }
+
+        function renderChapterGrid() {
+            const book = bible[activeBookIdx];
+            const grid = document.getElementById('chapter-grid');
+            let readInBook = 0;
+
+            grid.innerHTML = book.ch.map((words, cIdx) => {
+                const id = `${book.name}-${cIdx + 1}`;
+                const isRead = progress[id];
+                const blbUrl = getBLBUrl(book.name, cIdx + 1);
+                
+                if (isRead) readInBook++;
+
+                return `
+                    <div class="relative group">
+                        <button onclick="toggleChapter('${id}')" 
+                            class="h-16 w-full rounded-2xl border text-xs font-black transition-all flex flex-col items-center justify-center gap-0.5
+                            ${isRead ? 'bg-indigo-600 text-white border-indigo-700 shadow-lg shadow-indigo-100' : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'}">
+                            ${cIdx + 1}
+                            <span class="text-[7px] opacity-60 font-bold uppercase tracking-tighter">${words}w</span>
+                        </button>
+                        <a href="${blbUrl}" target="_blank" onclick="event.stopPropagation()" title="Read on Blue Letter Bible"
+                           class="absolute top-1 right-1 p-1 rounded-full text-slate-400 hover:text-indigo-600 hover:bg-white/80 transition-all opacity-0 group-hover:opacity-100">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
+                    </div>
+                `;
+            }).join('');
+
+            const bookProgress = (readInBook / book.ch.length) * 100;
+            document.getElementById('book-inner-bar').style.width = bookProgress + '%';
+            document.getElementById('book-stat-detail').innerText = `${readInBook} of ${book.ch.length} Chapters`;
+            updateStats();
+        }
+
+        function toggleChapter(id) {
+            progress[id] = !progress[id];
+            localStorage.setItem('kjv_v6_progress', JSON.stringify(progress));
+            renderChapterGrid();
+        }
+
+        function toggleAllInBook(val) {
+            const book = bible[activeBookIdx];
+            book.ch.forEach((_, i) => progress[`${book.name}-${i+1}`] = val);
+            localStorage.setItem('kjv_v6_progress', JSON.stringify(progress));
+            renderChapterGrid();
+        }
+
+        function updateStats() {
+            let totalRead = 0;
+            let otRead = 0;
+            let ntRead = 0;
+            let finishedBooks = 0;
+
+            bible.forEach(book => {
+                let bookChaptersRead = 0;
+                book.ch.forEach((words, cIdx) => {
+                    if (progress[`${book.name}-${cIdx+1}`]) {
+                        totalRead += words;
+                        if(book.testament === 'OT') otRead += words;
+                        else ntRead += words;
+                        bookChaptersRead++;
+                    }
+                });
+                if (bookChaptersRead === book.ch.length) finishedBooks++;
+            });
+
+            const getPerc = (val, max) => ((val / max) * 100).toFixed(4);
+
+            document.getElementById('total-progress-bar').style.width = (totalRead / WORD_TOTALS.GLOBAL * 100) + '%';
+            document.getElementById('total-percent').innerText = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%';
+            document.getElementById('ot-percent').innerText = getPerc(otRead, WORD_TOTALS.OT) + '%';
+            document.getElementById('ot-progress-bar').style.width = (otRead / WORD_TOTALS.OT * 100) + '%';
+            document.getElementById('nt-percent').innerText = getPerc(ntRead, WORD_TOTALS.NT) + '%';
+            document.getElementById('nt-progress-bar').style.width = (ntRead / WORD_TOTALS.NT * 100) + '%';
+            document.getElementById('books-completed-stat').innerText = `${finishedBooks} OF 66 BOOKS READ`;
+        }
+
+        // STATS PAGE RENDERING
+        function renderSubdivisionStats() {
+            const cats = activeTab === 'OT' ? OT_CATS : NT_CATS;
+            const container = document.getElementById('subdivision-bar');
+            
+            let catStats = cats.map(c => {
+                let totalW = 0, readW = 0;
+                bible.filter(b => b.cat === c.name).forEach(b => {
+                    b.ch.forEach((w, idx) => {
+                        totalW += w;
+                        if(progress[`${b.name}-${idx+1}`]) readW += w;
+                    });
+                });
+                return { ...c, percent: (readW/totalW*100).toFixed(1) };
+            });
+
+            container.innerHTML = catStats.map(c => `
+                <div class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wide ${c.style}">
+                    <span class="opacity-70">${c.name}</span>
+                    <span>${c.percent}%</span>
+                </div>
+            `).join('');
+        }
+
+        function renderStatsPage() {
+            const allCats = [...OT_CATS, ...NT_CATS];
+            const dataset = [];
+            const labels = [];
+            const colors = [];
+            let chartTotalRead = 0;
+
+            miniCharts.forEach(c => c.destroy());
+            miniCharts = [];
+
+            allCats.forEach(cat => {
+                let catRead = 0;
+                let catTotal = 0;
+                const catBooks = bible.filter(b => b.cat === cat.name);
+                catBooks.forEach(b => {
+                    b.ch.forEach((w, idx) => {
+                        catTotal += w;
+                        if (progress[`${b.name}-${idx+1}`]) catRead += w;
+                    });
+                });
+                dataset.push(catRead);
+                labels.push(cat.name);
+                colors.push(cat.chartColor);
+                chartTotalRead += catRead;
+                cat.stats = { read: catRead, total: catTotal, pct: (catTotal > 0 ? (catRead/catTotal*100).toFixed(1) : 0) };
+            });
+
+            const unreadWords = WORD_TOTALS.GLOBAL - chartTotalRead;
+            dataset.push(unreadWords);
+            labels.push("Unread");
+            colors.push("#f1f5f9"); 
+
+            if (mainChart) mainChart.destroy();
+            const ctx = document.getElementById('mainDonutChart').getContext('2d');
+            mainChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataset,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const globalPercent = ((chartTotalRead / WORD_TOTALS.GLOBAL) * 100).toFixed(4);
+            document.getElementById('stats-page-total-percent').innerText = globalPercent + '%';
+
+            const legendGrid = document.getElementById('legend-grid');
+            legendGrid.innerHTML = allCats.map(cat => `
+                <div class="flex items-center gap-2 text-xs">
+                    <div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${cat.chartColor}"></div>
+                    <span class="text-slate-600 font-bold truncate">${cat.name}</span>
+                </div>
+            `).join('');
+
+            const grid = document.getElementById('category-stats-grid');
+            grid.innerHTML = allCats.map((cat, i) => `
+                <div class="bg-white p-4 rounded-3xl border border-slate-100 flex flex-col items-center justify-center relative">
+                    <div class="h-24 w-24 relative mb-2">
+                        <canvas id="miniChart-${i}"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-400">${cat.stats.pct}%</div>
+                    </div>
+                    <span class="text-[10px] font-black uppercase text-center ${cat.style.split(' ')[2]}">${cat.name}</span>
+                </div>
+            `).join('');
+
+            allCats.forEach((cat, i) => {
+                const miniCtx = document.getElementById(`miniChart-${i}`).getContext('2d');
+                miniCharts.push(new Chart(miniCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Read", "Remaining"],
+                        datasets: [{
+                            data: [cat.stats.read, cat.stats.total - cat.stats.read],
+                            backgroundColor: [cat.chartColor, "#f1f5f9"],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { cutout: '70%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, events: [] }
+                }));
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
