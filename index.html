@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KJV Word-Weighted Tracker</title>
-    
+    <title>Bible Progress</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <link rel="manifest" href="manifest.json">
     
     <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,10 +19,16 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
         .tab-active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
         .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); }
+        
+        /* Subtle hover lift for books */
         .book-card { transition: all 0.2s ease-out; }
         .book-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        
+        /* Animation */
         .animate-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hide scrollbar for the stats/legend bar but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -36,14 +40,14 @@
             <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-xl font-black text-indigo-950 tracking-tighter">KJV PROGRESS</h1>
+                        <h1 class="text-xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
                         <p id="books-completed-stat" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">0 OF 66 BOOKS READ</p>
                     </div>
                     
                     <div class="flex items-center gap-3">
                         <button id="login-btn" class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
-                            <span class="hidden sm:inline">Sync</span> Google
+                            <span id="login-text">Sync</span>
                         </button>
                         <div id="user-profile" class="hidden flex items-center gap-3">
                             <img id="user-photo" src="" alt="User" class="w-8 h-8 rounded-full border-2 border-indigo-200">
@@ -181,9 +185,9 @@
     </main>
 
     <script type="module">
-        // --- FIREBASE IMPORTS (Latest CDN) ---
+        // --- FIREBASE IMPORTS (Using Popup instead of Redirect) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
@@ -212,22 +216,25 @@
 
         // --- UI ELEMENTS ---
         const loginBtn = document.getElementById('login-btn');
+        const loginText = document.getElementById('login-text');
         const logoutBtn = document.getElementById('logout-btn');
         const userProfile = document.getElementById('user-profile');
         const userPhoto = document.getElementById('user-photo');
         const syncStatus = document.getElementById('sync-status');
 
-        // --- AUTH LOGIC (Redirect Method for Mobile/PWA) ---
+        // --- AUTH LOGIC (POPUP METHOD - MORE RELIABLE) ---
         loginBtn.addEventListener('click', () => {
-            signInWithRedirect(auth, provider);
-        });
-
-        // Check for redirect result on page load
-        getRedirectResult(auth).then((result) => {
-            if(result) console.log("Logged in via redirect");
-        }).catch((error) => {
-            console.error(error);
-            alert("Login Error: " + error.message);
+            loginText.innerText = "Connecting...";
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    console.log("Logged in:", result.user.email);
+                    // UI updates happen in onAuthStateChanged
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error);
+                    loginText.innerText = "Sync Google";
+                    alert("Login Failed: " + error.message);
+                });
         });
 
         logoutBtn.addEventListener('click', () => {
@@ -244,11 +251,13 @@
                 userProfile.classList.remove('hidden');
                 userPhoto.src = user.photoURL;
                 syncStatus.innerHTML = `<span class="text-emerald-500">● Cloud Synced</span>`;
+                
                 initCloudSync(user.uid);
             } else {
                 // USER LOGGED OUT
                 currentUser = null;
                 loginBtn.classList.remove('hidden');
+                loginText.innerText = "Sync";
                 userProfile.classList.add('hidden');
                 syncStatus.innerHTML = `<span class="text-slate-400">● Local Only</span>`;
                 if(unsubscribe) unsubscribe(); 
@@ -262,14 +271,13 @@
             unsubscribe = onSnapshot(userDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const cloudData = docSnap.data().progress || {};
-                    // Merge strategies could be complex, here we assume Cloud is "Truth" if it exists
-                    // But if Cloud is empty and Local is full (first sync), we want local to win.
+                    // If cloud has data, it wins.
                     if (Object.keys(cloudData).length > 0) {
                         progress = cloudData;
                         localStorage.setItem('kjv_v6_progress', JSON.stringify(progress));
                         refreshUI();
                     } else if (Object.keys(progress).length > 0) {
-                        // Cloud empty, Local has data -> Upload Local
+                        // Cloud empty but Local has data -> Upload Local
                         setDoc(userDocRef, { progress: progress }, { merge: true });
                     }
                 } else {
@@ -307,7 +315,6 @@
         let mainChart = null;
         let miniCharts = [];
 
-        // Categories (Renamed to prevent bugs)
         const OT_CATS = [
             { name: "Pentateuch", count: 5, style: "bg-slate-200 border-slate-300 text-slate-900", chartColor: "#64748b" },
             { name: "History (OT)", count: 12, style: "bg-amber-100 border-amber-200 text-amber-900", chartColor: "#d97706" },
@@ -326,12 +333,8 @@
 
         function assignCategories() {
             let i = 0;
-            OT_CATS.forEach(cat => {
-                for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } }
-            });
-            NT_CATS.forEach(cat => {
-                for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } }
-            });
+            OT_CATS.forEach(cat => { for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } } });
+            NT_CATS.forEach(cat => { for(let j=0; j<cat.count; j++) { if(bible[i]) { bible[i].cat = cat.name; bible[i].style = cat.style; bible[i].chartColor = cat.chartColor; i++; } } });
         }
 
         // --- GLOBAL EXPORTS (Because type="module" isolates scope) ---
