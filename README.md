@@ -20,8 +20,8 @@ Unlike standard trackers that treat every chapter equally (where Psalm 117's 33 
 
 ### Option 1: Use it Online (Recommended)
 Simply visit the hosted webpage here: 
-> **[Insert Your GitHub Pages Link Here]**
-*(e.g., https://yourusername.github.io/kjv-tracker/)*
+> **bibleprogress.com**
+
 
 ### Option 2: Run Locally
 1.  Download the `index.html` file from this repository.
