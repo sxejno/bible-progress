@@ -14,10 +14,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
+        .tab-active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); }
         
         /* Subtle hover lift for books */
@@ -31,13 +31,6 @@
         /* Hide scrollbar for the stats/legend bar but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Badge Styles */
-        .badge-unlocked { background: linear-gradient(135deg, var(--theme-color) 0%, var(--theme-light) 100%); color: white; box-shadow: 0 4px 10px rgba(0,0,0, 0.1); transform: scale(1.02); }
-        .badge-locked { background-color: #f1f5f9; color: #94a3b8; border: 2px dashed #cbd5e1; }
-        
-        /* Dynamic Tab Active Class - will be set by JS */
-        .tab-active { color: white !important; box-shadow: 0 4px 10px rgba(0,0,0, 0.2); }
     </style>
 </head>
 <body class="pb-24">
@@ -64,7 +57,7 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <button onclick="window.handleEmailAuth('LOGIN')" id="btn-login-email" class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg transition-all">Log In</button>
+                <button onclick="window.handleEmailAuth('LOGIN')" id="btn-login-email" class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all">Log In</button>
                 <button onclick="window.handleEmailAuth('REGISTER')" id="btn-signup-email" class="bg-white border border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all">Sign Up</button>
             </div>
 
@@ -81,45 +74,28 @@
         </div>
     </div>
 
-    <header class="sticky top-0 z-50 glass border-b border-slate-100 shadow-sm">
+    <header class="sticky top-0 z-50 glass border-b border-indigo-100 shadow-sm">
         <div class="max-w-5xl mx-auto px-4 py-4 sm:px-6">
             <div class="flex flex-col gap-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex justify-between items-center">
                         <div>
-                            <h1 id="app-title" class="text-2xl font-black text-indigo-950 tracking-tighter transition-colors">BIBLE PROGRESS</h1>
+                            <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
                             <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-3 self-end sm:self-auto">
-                        <div id="streak-container" class="hidden flex items-center gap-1.5 bg-orange-50 border border-orange-100 px-3 py-1.5 rounded-full">
-                            <span class="text-lg">🔥</span>
-                            <span id="streak-count" class="text-sm font-black text-orange-600">0</span>
-                        </div>
-
                         <div class="relative group">
                             <button id="profile-menu-btn" onclick="window.toggleProfileMenu()" class="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-200 transition-colors border border-slate-200">
-                                <div id="active-profile-dot" class="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 <span id="current-profile-name">Default</span>
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
                             
-                            <div id="profile-menu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in ring-1 ring-black/5">
-                                <div class="px-3 py-3 border-b border-slate-100 mb-2">
-                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Profile Color</div>
-                                    <div class="flex justify-between items-center gap-2">
-                                        <button onclick="window.setTheme('indigo')" class="w-6 h-6 rounded-full bg-indigo-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-indigo-300"></button>
-                                        <button onclick="window.setTheme('emerald')" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-emerald-300"></button>
-                                        <button onclick="window.setTheme('rose')" class="w-6 h-6 rounded-full bg-rose-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-rose-300"></button>
-                                        <button onclick="window.setTheme('blue')" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-blue-300"></button>
-                                        <button onclick="window.setTheme('violet')" class="w-6 h-6 rounded-full bg-violet-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-violet-300"></button>
-                                        <button onclick="window.setTheme('amber')" class="w-6 h-6 rounded-full bg-amber-500 hover:scale-110 transition-transform ring-2 ring-transparent focus:ring-amber-300"></button>
-                                    </div>
-                                </div>
-
+                            <div id="profile-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in ring-1 ring-black/5">
                                 <div id="profile-list" class="flex flex-col gap-1 mb-2 border-b border-slate-100 pb-2"></div>
-                                <button onclick="window.createNewProfile()" id="new-profile-btn" class="w-full text-left px-3 py-3 text-sm font-bold text-indigo-600 hover:bg-slate-50 rounded-xl flex items-center gap-2 transition-colors">
+                                <button onclick="window.createNewProfile()" class="w-full text-left px-3 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-xl flex items-center gap-2 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     New Profile
                                 </button>
@@ -151,19 +127,19 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/60 p-3 rounded-2xl border border-slate-100">
+                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50">
                         <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
                             <span>Old Testament</span>
-                            <span id="ot-percent" class="text-slate-900 font-black">0.00%</span>
+                            <span id="ot-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
                         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div id="ot-progress-bar" class="bg-amber-500 h-full transition-all duration-700" style="width: 0%"></div>
                         </div>
                     </div>
-                    <div class="bg-white/60 p-3 rounded-2xl border border-slate-100">
+                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50">
                         <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
                             <span>New Testament</span>
-                            <span id="nt-percent" class="text-slate-900 font-black">0.00%</span>
+                            <span id="nt-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
                         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div id="nt-progress-bar" class="bg-emerald-500 h-full transition-all duration-700" style="width: 0%"></div>
@@ -189,7 +165,7 @@
         <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative">
-                    <input type="text" id="book-search" onkeyup="window.handleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm text-base font-medium text-slate-700 focus:ring-2 focus:ring-current placeholder-slate-400 outline-none transition-all">
+                    <input type="text" id="book-search" onkeyup="window.handleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 outline-none transition-all">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
@@ -198,26 +174,26 @@
         </div>
 
         <div id="view-plan" class="hidden animate-in">
-            <div id="plan-header-card" class="bg-indigo-600 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200 mb-8 text-white relative overflow-hidden transition-colors">
+            <div class="bg-indigo-600 rounded-[2.5rem] p-8 shadow-xl shadow-indigo-200 mb-8 text-white relative overflow-hidden">
                 <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                 
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4 relative z-10">
                     <div>
                         <h2 class="text-3xl font-black tracking-tight mb-2">Today's Reading</h2>
-                        <p class="text-white/80 text-sm font-medium">Your customized daily chapters.</p>
+                        <p class="text-indigo-100 text-sm font-medium">Your customized daily chapters.</p>
                     </div>
                     <select id="plan-selector" onchange="window.changePlan()" class="bg-white/20 text-white border border-white/30 rounded-xl text-sm font-bold uppercase tracking-wide py-3 px-5 outline-none focus:bg-white/30 focus:ring-2 focus:ring-white/50 cursor-pointer w-full md:w-auto">
-                        <option value="SEQUENTIAL" class="text-slate-900">Canonical</option>
+                        <option value="SEQUENTIAL" class="text-slate-900">Canonical (Default)</option>
                         <option value="MCHEYNE" class="text-slate-900">M'Cheyne (1 Year)</option>
                         <option value="HORNER" class="text-slate-900">Prof. Horner (10 Lists)</option>
-                        </select>
+                    </select>
                 </div>
                 
-                <div id="plan-description-box" class="relative z-10 mb-8 mt-4 p-4 bg-white/10 rounded-2xl border border-white/10 text-sm text-white/90 leading-relaxed hidden">
+                <div id="plan-description-box" class="relative z-10 mb-8 mt-4 p-4 bg-white/10 rounded-2xl border border-white/10 text-sm text-indigo-50 leading-relaxed hidden">
                     </div>
 
                 <div id="daily-plan-list" class="flex flex-col gap-3 relative z-10"></div>
-                <p id="plan-footer-msg" class="text-center text-xs font-bold text-white/60 mt-6 uppercase tracking-widest relative z-10"></p>
+                <p id="plan-footer-msg" class="text-center text-xs font-bold text-indigo-200 mt-6 uppercase tracking-widest relative z-10 opacity-70"></p>
             </div>
 
             <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
@@ -238,17 +214,12 @@
         </div>
 
         <div id="view-stats" class="hidden animate-in">
-            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight mb-6">Achievements</h2>
-                <div id="achievements-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4"></div>
-            </div>
-
-            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-100 border border-slate-100 mb-8 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
                 <div class="w-full lg:w-5/12 relative min-h-[300px] flex items-center justify-center">
                     <canvas id="mainDonutChart"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Read</span>
-                        <span id="stats-page-total-percent" id="total-percent-big" class="text-4xl font-black text-slate-900">0%</span>
+                        <span id="stats-page-total-percent" class="text-4xl font-black text-indigo-900">0%</span>
                     </div>
                 </div>
                 <div class="w-full lg:w-7/12 text-center lg:text-left">
@@ -262,13 +233,13 @@
         </div>
         
         <div id="view-about" class="hidden animate-in">
-             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-100 border border-slate-100 mb-8">
+             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">About</h2>
                 
                 <div class="mb-10">
-                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                    <div class="bg-indigo-50 p-8 rounded-3xl border border-indigo-100">
                         <p class="text-slate-900 font-bold mb-2 text-lg">Who made this website?</p>
-                        <p id="person" class="text-2xl font-black text-slate-900 mb-4 cursor-default">
+                        <p id="person" class="text-2xl font-black text-indigo-900 mb-4 cursor-default">
 							  a humble servant of the Lord
 						</p>
 
@@ -289,8 +260,8 @@
 							
                         <p class="text-sm text-slate-600 leading-relaxed">I just wanted a simple way of keeping track of Bible reading progress. I found something that let me mark chapters done, but it considered all chapters equal. Psalm 117 is not equal to Psalm 119 in word count! It seems fair to "give credit" for progress according to word count. Thus, this tool tracks Bible reading progress by chapter, weighted according to word count.</p>
                     
-						<div class="mt-6 pt-6 border-t border-slate-200/50 flex flex-col items-center">
-							<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Enjoying the app?</p>
+						<div class="mt-6 pt-6 border-t border-indigo-200/50 flex flex-col items-center">
+							<p class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Enjoying the app?</p>
 							<a href="https://www.buymeacoffee.com/bibleprogress" target="_blank" class="group relative inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#FFDD00] text-black font-[Cookie] text-xl rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
 								<svg class="w-5 h-5 text-black opacity-80 group-hover:rotate-12 transition-transform" viewBox="0 0 20 20" fill="currentColor">
 									<path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
@@ -309,7 +280,7 @@
                     <div class="space-y-6">
                         <div class="border border-slate-100 rounded-3xl p-6 hover:border-indigo-100 transition-colors">
                             <div class="font-bold text-slate-900 mb-2 text-lg">Canonical (Sequential)</div>
-                            <p class="text-sm text-slate-500 leading-relaxed">This tracker simply looks for the first unread chapter starting from Genesis 1 and moving forward to Revelation.</p>
+                            <p class="text-sm text-slate-500 leading-relaxed">The default method. This tracker simply looks for the first unread chapter starting from Genesis 1 and moving forward to Revelation.</p>
                         </div>
 
                         <div class="border border-slate-100 rounded-3xl p-6 hover:border-indigo-100 transition-colors">
@@ -334,7 +305,7 @@
 
         <div id="view-chapters" class="hidden animate-in">
             <div class="flex items-center justify-between mb-8">
-                <button onclick="window.showBooks()" class="flex items-center text-indigo-600 font-bold text-sm hover:-translate-x-1 transition-transform bg-slate-100 px-4 py-2 rounded-full">
+                <button onclick="window.showBooks()" class="flex items-center text-indigo-600 font-bold text-sm hover:-translate-x-1 transition-transform bg-indigo-50 px-4 py-2 rounded-full">
                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     Back to Library
                 </button>
@@ -387,48 +358,21 @@
         const analytics = getAnalytics(app);
         const provider = new GoogleAuthProvider();
 
-        // --- THEME & DATA LOGIC ---
-        const THEMES = [
-            { name: 'indigo', color: '#4f46e5', light: '#818cf8', class: 'bg-indigo-600', text: 'text-indigo-600', border: 'border-indigo-200' },
-            { name: 'emerald', color: '#059669', light: '#34d399', class: 'bg-emerald-600', text: 'text-emerald-600', border: 'border-emerald-200' },
-            { name: 'rose', color: '#e11d48', light: '#fb7185', class: 'bg-rose-600', text: 'text-rose-600', border: 'border-rose-200' },
-            { name: 'blue', color: '#2563eb', light: '#60a5fa', class: 'bg-blue-600', text: 'text-blue-600', border: 'border-blue-200' },
-            { name: 'violet', color: '#7c3aed', light: '#a78bfa', class: 'bg-violet-600', text: 'text-violet-600', border: 'border-violet-200' },
-            { name: 'amber', color: '#d97706', light: '#fbbf24', class: 'bg-amber-600', text: 'text-amber-600', border: 'border-amber-200' }
-        ];
-
         // --- APP STATE & MIGRATION ---
         let savedData = JSON.parse(localStorage.getItem('kjv_v6_data'));
         let oldProgress = JSON.parse(localStorage.getItem('kjv_v6_progress'));
-        let oldPlan = localStorage.getItem('kjv_v6_active_plan');
         
-        // --- FUTURE PLAN EXPANSION: Change default fallback here if desired ---
-        const DEFAULT_PLAN = 'SEQUENTIAL'; 
-
         let appData = savedData || { 
-            profiles: { "Default": { progress: oldProgress || {}, streak: 0, lastReadDate: null, achievements: [], plan: oldPlan || DEFAULT_PLAN, theme: 'indigo' } },
+            profiles: { "Default": oldProgress || {} },
             activeProfileId: "Default"
         };
         
-        // Ensure structure validity & Migrations
         if(!appData.profiles || Object.keys(appData.profiles).length === 0) {
-            appData.profiles = { "Default": { progress: {}, streak: 0, lastReadDate: null, achievements: [], plan: DEFAULT_PLAN, theme: 'indigo' } };
+            appData.profiles = { "Default": {} };
             appData.activeProfileId = "Default";
         }
-
-        // Migration for existing profiles
-        for (const pid in appData.profiles) {
-            const p = appData.profiles[pid];
-            if (!p.progress) { // Legacy raw structure fix
-                const raw = { ...p };
-                appData.profiles[pid] = { progress: raw, streak: 0, lastReadDate: null, achievements: [], plan: DEFAULT_PLAN, theme: 'indigo' };
-            }
-            if (p.streak === undefined) p.streak = 0;
-            if (p.achievements === undefined) p.achievements = [];
-            if (p.plan === undefined) p.plan = DEFAULT_PLAN;
-            if (p.theme === undefined) p.theme = 'indigo';
-        }
         
+        let activePlan = localStorage.getItem('kjv_v6_active_plan') || 'SEQUENTIAL';
         let currentUser = null;
         let unsubscribe = null; 
 
@@ -440,43 +384,62 @@
         const currentProfileName = document.getElementById('current-profile-name');
         
         const planSelector = document.getElementById('plan-selector');
+        if(planSelector) planSelector.value = activePlan;
 
         // --- HELPER FOR CURRENT PROGRESS ---
-        function getProfile() {
-            return appData.profiles[appData.activeProfileId];
-        }
         function getProgress() {
-            return appData.profiles[appData.activeProfileId].progress || {};
+            return appData.profiles[appData.activeProfileId] || {};
         }
         function setProgress(newProg) {
-            appData.profiles[appData.activeProfileId].progress = newProg;
+            appData.profiles[appData.activeProfileId] = newProg;
         }
 
-        // --- AUTH LOGIC ---
+        // --- AUTH LOGIC (GOOGLE + EMAIL) ---
+        
         window.toggleAuthModal = (show) => {
             const modal = document.getElementById('auth-modal');
             const errBox = document.getElementById('auth-error');
-            if(show) { modal.classList.remove('hidden'); errBox.classList.add('hidden'); } else { modal.classList.add('hidden'); }
+            if(show) {
+                modal.classList.remove('hidden');
+                errBox.classList.add('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
         };
 
         window.handleGoogleLogin = () => {
-            signInWithPopup(auth, provider).then(() => window.toggleAuthModal(false)).catch(e => alert("Error: " + e.message));
+            signInWithPopup(auth, provider)
+                .then((result) => { window.toggleAuthModal(false); })
+                .catch((error) => {
+                    alert("Google Login Failed: " + error.message);
+                });
         };
 
         window.handleEmailAuth = async (mode) => {
             const email = document.getElementById('email-input').value;
             const pass = document.getElementById('pass-input').value;
             const errBox = document.getElementById('auth-error');
-            if (!email || !pass) { errBox.innerText = "Enter email & password."; errBox.classList.remove('hidden'); return; }
+            
+            if (!email || !pass) {
+                errBox.innerText = "Please enter both email and password.";
+                errBox.classList.remove('hidden');
+                return;
+            }
+
             try {
-                if (mode === 'REGISTER') await createUserWithEmailAndPassword(auth, email, pass);
-                else await signInWithEmailAndPassword(auth, email, pass);
+                if (mode === 'REGISTER') {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
                 window.toggleAuthModal(false);
             } catch (error) {
                 let msg = error.message;
                 if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
-                if (error.code === 'auth/email-already-in-use') msg = "Email already registered.";
-                errBox.innerText = msg; errBox.classList.remove('hidden');
+                if (error.code === 'auth/email-already-in-use') msg = "That email is already registered.";
+                if (error.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
+                errBox.innerText = msg;
+                errBox.classList.remove('hidden');
             }
         };
 
@@ -490,7 +453,13 @@
                 currentUser = user;
                 loginBtn.classList.add('hidden');
                 userProfile.classList.remove('hidden');
-                userPhoto.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=e0e7ff&color=4f46e5`;
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                } else {
+                    // Fallback for email users
+                    userPhoto.src = `https://ui-avatars.com/api/?name=${user.email}&background=e0e7ff&color=4f46e5`;
+                }
+                
                 syncStatus.innerHTML = `<span class="text-emerald-500 font-bold">Cloud Synced</span>`;
                 syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
                 initCloudSync(user.uid);
@@ -511,9 +480,9 @@
                     const cloudData = docSnap.data().appData || {};
                     if (Object.keys(cloudData).length > 0) {
                         appData = cloudData;
-                        // Basic repair if corrupted
-                        if(!appData.profiles) appData.profiles = { "Default": { progress: {}, streak: 0, plan: 'SEQUENTIAL', theme: 'indigo' } };
+                        if(!appData.profiles) appData.profiles = { "Default": {} };
                         if(!appData.activeProfileId) appData.activeProfileId = "Default";
+                        
                         localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
                         refreshUI();
                     } else {
@@ -525,120 +494,8 @@
             });
         }
 
-        // --- GAMIFICATION LOGIC ---
-        const ACHIEVEMENTS_LIST = [
-            { id: 'first_steps', icon: '🦶', title: 'First Steps', desc: 'Read 1 chapter' },
-            { id: 'bookworm', icon: '🐛', title: 'Bookworm', desc: 'Finish any 1 book' },
-            { id: 'the_law', icon: '📜', title: 'The Law', desc: 'Finish the Pentateuch' },
-            { id: 'gospel_truth', icon: '✝️', title: 'Gospel Truth', desc: 'Finish all 4 Gospels' },
-            { id: 'centurion', icon: '💯', title: 'Centurion', desc: 'Read 100 chapters' },
-            { id: 'halfway', icon: '⛰️', title: 'Halfway There', desc: '50% Total Completion' }
-        ];
-
-        function checkGamification() {
-            const profile = getProfile();
-            const prog = profile.progress;
-            
-            let chaptersRead = 0;
-            let finishedBooks = 0;
-            let finishedPentateuch = true;
-            let finishedGospels = true;
-            let totalWordsRead = 0;
-
-            const pentateuchNames = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
-            const gospelNames = ["Matthew", "Mark", "Luke", "John"];
-
-            bible.forEach(book => {
-                let bookRead = true;
-                book.ch.forEach((words, idx) => {
-                    if (prog[`${book.name}-${idx+1}`]) {
-                        chaptersRead++;
-                        totalWordsRead += words;
-                    } else {
-                        bookRead = false;
-                    }
-                });
-                if (bookRead) finishedBooks++;
-                else {
-                    if (pentateuchNames.includes(book.name)) finishedPentateuch = false;
-                    if (gospelNames.includes(book.name)) finishedGospels = false;
-                }
-            });
-
-            const unlock = (id) => {
-                if (!profile.achievements.includes(id)) {
-                    profile.achievements.push(id);
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                }
-            };
-
-            if (chaptersRead >= 1) unlock('first_steps');
-            if (finishedBooks >= 1) unlock('bookworm');
-            if (finishedPentateuch) unlock('the_law');
-            if (finishedGospels) unlock('gospel_truth');
-            if (chaptersRead >= 100) unlock('centurion');
-            if ((totalWordsRead / WORD_TOTALS.GLOBAL) >= 0.5) unlock('halfway');
-        }
-
-        function updateStreak() {
-            const profile = getProfile();
-            const today = new Date().toISOString().split('T')[0];
-            if (profile.lastReadDate !== today) {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                if (profile.lastReadDate === yesterdayStr) profile.streak += 1;
-                else profile.streak = 1;
-                profile.lastReadDate = today;
-            }
-        }
-
         function refreshUI() {
-            const profile = getProfile();
-            const theme = THEMES.find(t => t.name === profile.theme) || THEMES[0];
-            
             currentProfileName.innerText = appData.activeProfileId;
-            planSelector.value = profile.plan;
-
-            // Apply Theme
-            const totalBar = document.getElementById('total-progress-bar');
-            totalBar.className = `h-full transition-all duration-1000 ease-out ${theme.class}`;
-            
-            const loginBtn = document.getElementById('login-btn');
-            if(loginBtn) loginBtn.className = `flex items-center gap-2 text-white px-5 py-2 rounded-full text-sm font-bold hover:shadow-md transition-colors shadow-sm ${theme.class}`;
-
-            const title = document.getElementById('app-title');
-            title.className = `text-2xl font-black tracking-tighter transition-colors text-${theme.name}-900`;
-
-            const activeTabBtn = document.querySelector('.tab-active');
-            if(activeTabBtn) {
-                activeTabBtn.style.backgroundColor = theme.color;
-                activeTabBtn.style.borderColor = theme.color;
-            }
-
-            // Update profile dot color
-            document.getElementById('active-profile-dot').className = `w-2.5 h-2.5 rounded-full ${theme.class}`;
-
-            // Update Plan Header Color
-            const planHeader = document.getElementById('plan-header-card');
-            planHeader.className = `${theme.class} rounded-[2.5rem] p-8 shadow-xl shadow-slate-200 mb-8 text-white relative overflow-hidden transition-colors`;
-
-            // CSS Variable for badges
-            document.documentElement.style.setProperty('--theme-color', theme.color);
-            document.documentElement.style.setProperty('--theme-light', theme.light);
-            
-            // Meta theme color for mobile browser
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', theme.color);
-
-            // Streak
-            const streakContainer = document.getElementById('streak-container');
-            if (profile.streak > 0) {
-                streakContainer.classList.remove('hidden');
-                document.getElementById('streak-count').innerText = profile.streak;
-            } else {
-                streakContainer.classList.add('hidden');
-            }
-
             if(window.activeTab === 'STATS') window.renderStatsPage();
             else if(window.activeTab === 'PLAN') window.renderDailyPlan();
             else if(window.activeTab === 'ABOUT') { }
@@ -646,14 +503,11 @@
             window.updateStats();
         }
 
-        window.setTheme = (colorName) => {
-            appData.profiles[appData.activeProfileId].theme = colorName;
-            window.saveProgress();
-        };
-
+        // --- GLOBAL FUNCTIONS ---
         window.saveProgress = () => {
-            checkGamification();
             localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+            localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress())); 
+            
             if (currentUser) {
                 const userDocRef = doc(db, "users", currentUser.uid);
                 setDoc(userDocRef, { appData: appData }, { merge: true });
@@ -661,6 +515,7 @@
             refreshUI();
         };
 
+        // --- PROFILE MANAGEMENT ---
         window.toggleProfileMenu = () => {
             const menu = document.getElementById('profile-menu');
             menu.classList.toggle('hidden');
@@ -671,13 +526,10 @@
             const list = document.getElementById('profile-list');
             list.innerHTML = Object.keys(appData.profiles).map(name => {
                 const isActive = name === appData.activeProfileId;
-                const pTheme = appData.profiles[name].theme || 'indigo';
-                const themeData = THEMES.find(t => t.name === pTheme) || THEMES[0];
                 return `
-                    <div class="flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-slate-50' : ''}">
-                        <button onclick="window.switchProfile('${name}')" class="text-left flex-1 text-sm font-bold flex items-center gap-2 ${isActive ? themeData.text : 'text-slate-600'}">
-                            <div class="w-2 h-2 rounded-full ${themeData.class}"></div>
-                            ${name}
+                    <div class="flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-indigo-50/50' : ''}">
+                        <button onclick="window.switchProfile('${name}')" class="text-left flex-1 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'}">
+                            ${name} ${isActive ? '<span class="ml-2 text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>' : ''}
                         </button>
                         ${(name !== 'Default' && !isActive) ? `<button onclick="window.deleteProfile('${name}')" class="text-slate-300 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : ''}
                     </div>
@@ -695,8 +547,7 @@
             const name = prompt("Enter new profile name (e.g. 'Family', 'Kids'):");
             if(name && name.trim() !== "") {
                 if(appData.profiles[name]) { alert("Profile already exists!"); return; }
-                const randomTheme = THEMES[Math.floor(Math.random() * THEMES.length)].name;
-                appData.profiles[name] = { progress: {}, streak: 0, lastReadDate: null, achievements: [], plan: DEFAULT_PLAN, theme: randomTheme };
+                appData.profiles[name] = {};
                 window.switchProfile(name);
             }
         };
@@ -717,9 +568,8 @@
         });
 
         window.changePlan = () => {
-            const newPlan = document.getElementById('plan-selector').value;
-            appData.profiles[appData.activeProfileId].plan = newPlan;
-            window.saveProgress();
+            activePlan = document.getElementById('plan-selector').value;
+            localStorage.setItem('kjv_v6_active_plan', activePlan);
             window.renderDailyPlan();
         };
 
@@ -739,8 +589,6 @@
             ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"],
             ["Acts"]
         ];
-
-        // --- FUTURE PLAN EXPANSION: Add new plan data array here ---
 
         // M'Cheyne Data (Minified)
         const PLAN_MCHEYNE=[{d:1,r:["Genesis 1","Matthew 1","Ezra 1","Acts 1"]},{d:2,r:["Genesis 2","Matthew 2","Ezra 2","Acts 2"]},{d:3,r:["Genesis 3","Matthew 3","Ezra 3","Acts 3"]},{d:4,r:["Genesis 4","Matthew 4","Ezra 4","Acts 4"]},{d:5,r:["Genesis 5","Matthew 5","Ezra 5","Acts 5"]},{d:6,r:["Genesis 6","Matthew 6","Ezra 6","Acts 6"]},{d:7,r:["Genesis 7","Matthew 7","Ezra 7","Acts 7"]},{d:8,r:["Genesis 8","Matthew 8","Ezra 8","Acts 8"]},{d:9,r:["Genesis 9-10","Matthew 9","Ezra 9","Acts 9"]},{d:10,r:["Genesis 11","Matthew 10","Ezra 10","Acts 10"]},{d:11,r:["Genesis 12","Matthew 11","Nehemiah 1","Acts 11"]},{d:12,r:["Genesis 13","Matthew 12","Nehemiah 2","Acts 12"]},{d:13,r:["Genesis 14","Matthew 13","Nehemiah 3","Acts 13"]},{d:14,r:["Genesis 15","Matthew 14","Nehemiah 4","Acts 14"]},{d:15,r:["Genesis 16","Matthew 15","Nehemiah 5","Acts 15"]},{d:16,r:["Genesis 17","Matthew 16","Nehemiah 6","Acts 16"]},{d:17,r:["Genesis 18","Matthew 17","Nehemiah 7","Acts 17"]},{d:18,r:["Genesis 19","Matthew 18","Nehemiah 8","Acts 18"]},{d:19,r:["Genesis 20","Matthew 19","Nehemiah 9","Acts 19"]},{d:20,r:["Genesis 21","Matthew 20","Nehemiah 10","Acts 20"]},{d:21,r:["Genesis 22","Matthew 21","Nehemiah 11","Acts 21"]},{d:22,r:["Genesis 23","Matthew 22","Nehemiah 12","Acts 22"]},{d:23,r:["Genesis 24","Matthew 23","Nehemiah 13","Acts 23"]},{d:24,r:["Genesis 25","Matthew 24","Esther 1","Acts 24"]},{d:25,r:["Genesis 26","Matthew 25","Esther 2","Acts 25"]},{d:26,r:["Genesis 27","Matthew 26","Esther 3","Acts 26"]},{d:27,r:["Genesis 28","Matthew 27","Esther 4","Acts 27"]},{d:28,r:["Genesis 29","Matthew 28","Esther 5","Acts 28"]},{d:29,r:["Genesis 30","Mark 1","Esther 6","Romans 1"]},{d:30,r:["Genesis 31","Mark 2","Esther 7","Romans 2"]},{d:31,r:["Genesis 32","Mark 3","Esther 8","Romans 3"]},{d:32,r:["Genesis 33","Mark 4","Esther 9-10","Romans 4"]},{d:33,r:["Genesis 34","Mark 5","Job 1","Romans 5"]},{d:34,r:["Genesis 35-36","Mark 6","Job 2","Romans 6"]},{d:35,r:["Genesis 37","Mark 7","Job 3","Romans 7"]},{d:36,r:["Genesis 38","Mark 8","Job 4","Romans 8"]},{d:37,r:["Genesis 39","Mark 9","Job 5","Romans 9"]},{d:38,r:["Genesis 40","Mark 10","Job 6","Romans 10"]},{d:39,r:["Genesis 41","Mark 11","Job 7","Romans 11"]},{d:40,r:["Genesis 42","Mark 12","Job 8","Romans 12"]},{d:41,r:["Genesis 43","Mark 13","Job 9","Romans 13"]},{d:42,r:["Genesis 44","Mark 14","Job 10","Romans 14"]},{d:43,r:["Genesis 45","Mark 15","Job 11","Romans 15"]},{d:44,r:["Genesis 46","Mark 16","Job 12","Romans 16"]},{d:45,r:["Genesis 47","Luke 1:1-38","Job 13","1Corinthians 1"]},{d:46,r:["Genesis 48","Luke 1:39-80","Job 14","1Corinthians 2"]},{d:47,r:["Genesis 49","Luke 2","Job 15","1Corinthians 3"]},{d:48,r:["Genesis 50","Luke 3","Job 16-17","1Corinthians 4"]},{d:49,r:["Exodus 1","Luke 4","Job 18","1Corinthians 5"]},{d:50,r:["Exodus 2","Luke 5","Job 19","1Corinthians 6"]},{d:51,r:["Exodus 3","Luke 6","Job 20","1Corinthians 7"]},{d:52,r:["Exodus 4","Luke 7","Job 21","1Corinthians 8"]},{d:53,r:["Exodus 5","Luke 8","Job 22","1Corinthians 9"]},{d:54,r:["Exodus 6","Luke 9","Job 23","1Corinthians 10"]},{d:55,r:["Exodus 7","Luke 10","Job 24","1Corinthians 11"]},{d:56,r:["Exodus 8","Luke 11","Job 25-26","1Corinthians 12"]},{d:57,r:["Exodus 9","Luke 12","Job 27","1Corinthians 13"]},{d:58,r:["Exodus 10","Luke 13","Job 28","1Corinthians 14"]},{d:59,r:["Exodus 11","Luke 14","Job 29","1Corinthians 15"]},{d:60,r:["Exodus 12","Luke 15","Job 30","1Corinthians 16"]},{d:61,r:["Exodus 13","Luke 16","Job 31","2Corinthians 1"]},{d:62,r:["Exodus 14","Luke 17","Job 32","2Corinthians 2"]},{d:63,r:["Exodus 15","Luke 18","Job 33","2Corinthians 3"]},{d:64,r:["Exodus 16","Luke 19","Job 34","2Corinthians 4"]},{d:65,r:["Exodus 17","Luke 20","Job 35","2Corinthians 5"]},{d:66,r:["Exodus 18","Luke 21","Job 36","2Corinthians 6"]},{d:67,r:["Exodus 19","Luke 22","Job 37","2Corinthians 7"]},{d:68,r:["Exodus 20","Luke 23","Job 38","2Corinthians 8"]},{d:69,r:["Exodus 21","Luke 24","Job 39","2Corinthians 9"]},{d:70,r:["Exodus 22","John 1","Job 40","2Corinthians 10"]},{d:71,r:["Exodus 23","John 2","Job 41","2Corinthians 11"]},{d:72,r:["Exodus 24","John 3","Job 42","2Corinthians 12"]},{d:73,r:["Exodus 25","John 4","Proverbs 1","2Corinthians 13"]},{d:74,r:["Exodus 26","John 5","Proverbs 2","Galatians 1"]},{d:75,r:["Exodus 27","John 6","Proverbs 3","Galatians 2"]},{d:76,r:["Exodus 28","John 7","Proverbs 4","Galatians 3"]},{d:77,r:["Exodus 29","John 8","Proverbs 5","Galatians 4"]},{d:78,r:["Exodus 30","John 9","Proverbs 6","Galatians 5"]},{d:79,r:["Exodus 31","John 10","Proverbs 7","Galatians 6"]},{d:80,r:["Exodus 32","John 11","Proverbs 8","Ephesians 1"]},{d:81,r:["Exodus 33","John 12","Proverbs 9","Ephesians 2"]},{d:82,r:["Exodus 34","John 13","Proverbs 10","Ephesians 3"]},{d:83,r:["Exodus 35","John 14","Proverbs 11","Ephesians 4"]},{d:84,r:["Exodus 36","John 15","Proverbs 12","Ephesians 5"]},{d:85,r:["Exodus 37","John 16","Proverbs 13","Ephesians 6"]},{d:86,r:["Exodus 38","John 17","Proverbs 14","Philippians 1"]},{d:87,r:["Exodus 39","John 18","Proverbs 15","Philippians 2"]},{d:88,r:["Exodus 40","John 19","Proverbs 16","Philippians 3"]},{d:89,r:["Leviticus 1","John 20","Proverbs 17","Philippians 4"]},{d:90,r:["Leviticus 2-3","John 21","Proverbs 18","Colossians 1"]},{d:91,r:["Leviticus 4","Psalm 1-2","Proverbs 19","Colossians 2"]},{d:92,r:["Leviticus 5","Psalm 3-4","Proverbs 20","Colossians 3"]},{d:93,r:["Leviticus 6","Psalm 5-6","Proverbs 21","Colossians 4"]},{d:94,r:["Leviticus 7","Psalm 7-8","Proverbs 22","1Thessalonians 1"]},{d:95,r:["Leviticus 8","Psalm 9","Proverbs 23","1Thessalonians 2"]},{d:96,r:["Leviticus 9","Psalm 10","Proverbs 24","1Thessalonians 3"]},{d:97,r:["Leviticus 10","Psalm 11-12","Proverbs 25","1Thessalonians 4"]},{d:98,r:["Leviticus 11-12","Psalm 13-14","Proverbs 26","1Thessalonians 5"]},{d:99,r:["Leviticus 13","Psalm 15-16","Proverbs 27","2Thessalonians 1"]},{d:100,r:["Leviticus 14","Psalm 17","Proverbs 28","2Thessalonians 2"]},{d:101,r:["Leviticus 15","Psalm 18","Proverbs 29","2Thessalonians 3"]},{d:102,r:["Leviticus 16","Psalm 19","Proverbs 30","1Timothy 1"]},{d:103,r:["Leviticus 17","Psalm 20-21","Proverbs 31","1Timothy 2"]},{d:104,r:["Leviticus 18","Psalm 22","Ecclesiastes 1","1Timothy 3"]},{d:105,r:["Leviticus 19","Psalm 23-24","Ecclesiastes 2","1Timothy 4"]},{d:106,r:["Leviticus 20","Psalm 25","Ecclesiastes 3","1Timothy 5"]},{d:107,r:["Leviticus 21","Psalm 26-27","Ecclesiastes 4","1Timothy 6"]},{d:108,r:["Leviticus 22","Psalm 28-29","Ecclesiastes 5","2Timothy 1"]},{d:109,r:["Leviticus 23","Psalm 30","Ecclesiastes 6","2Timothy 2"]},{d:110,r:["Leviticus 24","Psalm 31","Ecclesiastes 7","2Timothy 3"]},{d:111,r:["Leviticus 25","Psalm 32","Ecclesiastes 8","2Timothy 4"]},{d:112,r:["Leviticus 26","Psalm 33","Ecclesiastes 9","Titus 1"]},{d:113,r:["Leviticus 27","Psalm 34","Ecclesiastes 10","Titus 2"]},{d:114,r:["Numbers 1","Psalm 35","Ecclesiastes 11","Titus 3"]},{d:115,r:["Numbers 2","Psalm 36","Ecclesiastes 12","Philemon 1"]},{d:116,r:["Numbers 3","Psalm 37","SongOfSongs 1","Hebrews 1"]},{d:117,r:["Numbers 4","Psalm 38","SongOfSongs 2","Hebrews 2"]},{d:118,r:["Numbers 5","Psalm 39","SongOfSongs 3","Hebrews 3"]},{d:119,r:["Numbers 6","Psalm 40-41","SongOfSongs 4","Hebrews 4"]},{d:120,r:["Numbers 7","Psalm 42-43","SongOfSongs 5","Hebrews 5"]},{d:121,r:["Numbers 8","Psalm 44","SongOfSongs 6","Hebrews 6"]},{d:122,r:["Numbers 9","Psalm 45","SongOfSongs 7","Hebrews 7"]},{d:123,r:["Numbers 10","Psalm 46-47","SongOfSongs 8","Hebrews 8"]},{d:124,r:["Numbers 11","Psalm 48","Isaiah 1","Hebrews 9"]},{d:125,r:["Numbers 12-13","Psalm 49","Isaiah 2","Hebrews 10"]},{d:126,r:["Numbers 14","Psalm 50","Isaiah 3-4","Hebrews 11"]},{d:127,r:["Numbers 15","Psalm 51","Isaiah 5","Hebrews 12"]},{d:128,r:["Numbers 16","Psalm 52-54","Isaiah 6","Hebrews 13"]},{d:129,r:["Numbers 17-18","Psalm 55","Isaiah 7","James 1"]},{d:130,r:["Numbers 19","Psalm 56-57","Isaiah 8","James 2"]},{d:131,r:["Numbers 20","Psalm 58-59","Isaiah 9","James 3"]},{d:132,r:["Numbers 21","Psalm 60-61","Isaiah 10","James 4"]},{d:133,r:["Numbers 22","Psalm 62-63","Isaiah 11-12","James 5"]},{d:134,r:["Numbers 23","Psalm 64-65","Isaiah 13","1Peter 1"]},{d:135,r:["Numbers 24","Psalm 66-67","Isaiah 14","1Peter 2"]},{d:136,r:["Numbers 25","Psalm 68","Isaiah 15","1Peter 3"]},{d:137,r:["Numbers 26","Psalm 69","Isaiah 16","1Peter 4"]},{d:138,r:["Numbers 27","Psalm 70-71","Isaiah 17-18","1Peter 5"]},{d:139,r:["Numbers 28","Psalm 72","Isaiah 19-20","2Peter 1"]},{d:140,r:["Numbers 29","Psalm 73","Isaiah 21","2Peter 2"]},{d:141,r:["Numbers 30","Psalm 74","Isaiah 22","2Peter 3"]},{d:142,r:["Numbers 31","Psalm 75-76","Isaiah 23","1John 1"]},{d:143,r:["Numbers 32","Psalm 77","Isaiah 24","1John 2"]},{d:144,r:["Numbers 33","Psalm 78:1-39","Isaiah 25","1John 3"]},{d:145,r:["Numbers 34","Psalm 78:40-72","Isaiah 26","1John 4"]},{d:146,r:["Numbers 35","Psalm 79","Isaiah 27","1John 5"]},{d:147,r:["Numbers 36","Psalm 80","Isaiah 28","2John 1"]},{d:148,r:["Deuteronomy 1","Psalm 81-82","Isaiah 29","3John 1"]},{d:149,r:["Deuteronomy 2","Psalm 83-84","Isaiah 30","Jude 1"]},{d:150,r:["Deuteronomy 3","Psalm 85","Isaiah 31","Revelation 1"]},{d:151,r:["Deuteronomy 4","Psalm 86-87","Isaiah 32","Revelation 2"]},{d:152,r:["Deuteronomy 5","Psalm 88","Isaiah 33","Revelation 3"]},{d:153,r:["Deuteronomy 6","Psalm 89","Isaiah 34","Revelation 4"]},{d:154,r:["Deuteronomy 7","Psalm 90","Isaiah 35","Revelation 5"]},{d:155,r:["Deuteronomy 8","Psalm 91","Isaiah 36","Revelation 6"]},{d:156,r:["Deuteronomy 9","Psalm 92-93","Isaiah 37","Revelation 7"]},{d:157,r:["Deuteronomy 10","Psalm 94","Isaiah 38","Revelation 8"]},{d:158,r:["Deuteronomy 11","Psalm 95-96","Isaiah 39","Revelation 9"]},{d:159,r:["Deuteronomy 12","Psalm 97-98","Isaiah 40","Revelation 10"]},{d:160,r:["Deuteronomy 13-14","Psalm 99-101","Isaiah 41","Revelation 11"]},{d:161,r:["Deuteronomy 15","Psalm 102","Isaiah 42","Revelation 12"]},{d:162,r:["Deuteronomy 16","Psalm 103","Isaiah 43","Revelation 13"]},{d:163,r:["Deuteronomy 17","Psalm 104","Isaiah 44","Revelation 14"]},{d:164,r:["Deuteronomy 18","Psalm 105","Isaiah 45","Revelation 15"]},{d:165,r:["Deuteronomy 19","Psalm 106","Isaiah 46","Revelation 16"]},{d:166,r:["Deuteronomy 20","Psalm 107","Isaiah 47","Revelation 17"]},{d:167,r:["Deuteronomy 21","Psalm 108-109","Isaiah 48","Revelation 18"]},{d:168,r:["Deuteronomy 22","Psalm 110-111","Isaiah 49","Revelation 19"]},{d:169,r:["Deuteronomy 23","Psalm 112-113","Isaiah 50","Revelation 20"]},{d:170,r:["Deuteronomy 24","Psalm 114-115","Isaiah 51","Revelation 21"]},{d:171,r:["Deuteronomy 25","Psalm 116","Isaiah 52","Revelation 22"]},{d:172,r:["Deuteronomy 26","Psalm 117-118","Isaiah 53","Matthew 1"]},{d:173,r:["Deuteronomy 27","Psalm 119:1-24","Isaiah 54","Matthew 2"]},{d:174,r:["Deuteronomy 28","Psalm 119:25-48","Isaiah 55","Matthew 3"]},{d:175,r:["Deuteronomy 29","Psalm 119:49-72","Isaiah 56","Matthew 4"]},{d:176,r:["Deuteronomy 30","Psalm 119:73-96","Isaiah 57","Matthew 5"]},{d:177,r:["Deuteronomy 31","Psalm 119:97-120","Isaiah 58","Matthew 6"]},{d:178,r:["Deuteronomy 32","Psalm 119:121-144","Isaiah 59","Matthew 7"]},{d:179,r:["Deuteronomy 33-34","Psalm 119:145-176","Isaiah 60","Matthew 8"]},{d:180,r:["Joshua 1","Psalm 120-122","Isaiah 61","Matthew 9"]},{d:181,r:["Joshua 2","Psalm 123-125","Isaiah 62","Matthew 10"]},{d:182,r:["Joshua 3","Psalm 126-128","Isaiah 63","Matthew 11"]},{d:183,r:["Joshua 4","Psalm 129-131","Isaiah 64","Matthew 12"]},{d:184,r:["Joshua 5","Psalm 132-134","Isaiah 65","Matthew 13"]},{d:185,r:["Joshua 6","Psalm 135-136","Isaiah 66","Matthew 14"]},{d:186,r:["Joshua 7","Psalm 137-138","Jeremiah 1","Matthew 15"]},{d:187,r:["Joshua 8","Psalm 139","Jeremiah 2","Matthew 16"]},{d:188,r:["Joshua 9","Psalm 140-141","Jeremiah 3","Matthew 17"]},{d:189,r:["Joshua 10","Psalm 142-143","Jeremiah 4","Matthew 18"]},{d:190,r:["Joshua 11","Psalm 144","Jeremiah 5","Matthew 19"]},{d:191,r:["Joshua 12-13","Psalm 145","Jeremiah 6","Matthew 20"]},{d:192,r:["Joshua 14-15","Psalm 146-147","Jeremiah 7","Matthew 21"]},{d:193,r:["Joshua 16-17","Psalm 148","Jeremiah 8","Matthew 22"]},{d:194,r:["Joshua 18-19","Psalm 149-150","Jeremiah 9","Matthew 23"]},{d:195,r:["Joshua 20-21","Acts 1","Jeremiah 10","Matthew 24"]},{d:196,r:["Joshua 22","Acts 2","Jeremiah 11","Matthew 25"]},{d:197,r:["Joshua 23","Acts 3","Jeremiah 12","Matthew 26"]},{d:198,r:["Joshua 24","Acts 4","Jeremiah 13","Matthew 27"]},{d:199,r:["Judges 1","Acts 5","Jeremiah 14","Matthew 28"]},{d:200,r:["Judges 2","Acts 6","Jeremiah 15","Mark 1"]},{d:201,r:["Judges 3","Acts 7","Jeremiah 16","Mark 2"]},{d:202,r:["Judges 4","Acts 8","Jeremiah 17","Mark 3"]},{d:203,r:["Judges 5","Acts 9","Jeremiah 18","Mark 4"]},{d:204,r:["Judges 6","Acts 10","Jeremiah 19","Mark 5"]},{d:205,r:["Judges 7","Acts 11","Jeremiah 20","Mark 6"]},{d:206,r:["Judges 8","Acts 12","Jeremiah 21","Mark 7"]},{d:207,r:["Judges 9","Acts 13","Jeremiah 22","Mark 8"]},{d:208,r:["Judges 10","Acts 14","Jeremiah 23","Mark 9"]},{d:209,r:["Judges 11","Acts 15","Jeremiah 24","Mark 10"]},{d:210,r:["Judges 12","Acts 16","Jeremiah 25","Mark 11"]},{d:211,r:["Judges 13","Acts 17","Jeremiah 26","Mark 12"]},{d:212,r:["Judges 14","Acts 18","Jeremiah 27","Mark 13"]},{d:213,r:["Judges 15","Acts 19","Jeremiah 28","Mark 14"]},{d:214,r:["Judges 16","Acts 20","Jeremiah 29","Mark 15"]},{d:215,r:["Judges 17","Acts 21","Jeremiah 30-31","Mark 16"]},{d:216,r:["Judges 18","Acts 22","Jeremiah 32","Luke 1"]},{d:217,r:["Judges 19","Acts 23","Jeremiah 33","Luke 2"]},{d:218,r:["Judges 20","Acts 24","Jeremiah 34","Luke 3"]},{d:219,r:["Judges 21","Acts 25","Jeremiah 35","Luke 4"]},{d:220,r:["Ruth 1","Acts 26","Jeremiah 36","Luke 5"]},{d:221,r:["Ruth 2","Acts 27","Jeremiah 37","Luke 6"]},{d:222,r:["Ruth 3-4","Acts 28","Jeremiah 38","Luke 7"]},{d:223,r:["1Samuel 1","Romans 1","Jeremiah 39","Luke 8"]},{d:224,r:["1Samuel 2","Romans 2","Jeremiah 40","Luke 9"]},{d:225,r:["1Samuel 3","Romans 3","Jeremiah 41","Luke 10"]},{d:226,r:["1Samuel 4","Romans 4","Jeremiah 42","Luke 11"]},{d:227,r:["1Samuel 5-6","Romans 5","Jeremiah 43","Luke 12"]},{d:228,r:["1Samuel 7-8","Romans 6","Jeremiah 44-45","Luke 13"]},{d:229,r:["1Samuel 9","Romans 7","Jeremiah 46","Luke 14"]},{d:230,r:["1Samuel 10","Romans 8","Jeremiah 47","Luke 15"]},{d:231,r:["1Samuel 11","Romans 9","Jeremiah 48","Luke 16"]},{d:232,r:["1Samuel 12","Romans 10","Jeremiah 49","Luke 17"]},{d:233,r:["1Samuel 13","Romans 11","Jeremiah 50","Luke 18"]},{d:234,r:["1Samuel 14","Romans 12","Jeremiah 51","Luke 19"]},{d:235,r:["1Samuel 15","Romans 13","Jeremiah 52","Luke 20"]},{d:236,r:["1Samuel 16","Romans 14","Lamentations 1","Luke 21"]},{d:237,r:["1Samuel 17","Romans 15","Lamentations 2","Luke 22"]},{d:238,r:["1Samuel 18","Romans 16","Lamentations 3","Luke 23"]},{d:239,r:["1Samuel 19","1Corinthians 1","Lamentations 4","Luke 24"]},{d:240,r:["1Samuel 20","1Corinthians 2","Lamentations 5","John 1"]},{d:241,r:["1Samuel 21-22","1Corinthians 3","Ezekiel 1","John 2"]},{d:242,r:["1Samuel 23","1Corinthians 4","Ezekiel 2","John 3"]},{d:243,r:["1Samuel 24","1Corinthians 5","Ezekiel 3","John 4"]},{d:244,r:["1Samuel 25","1Corinthians 6","Ezekiel 4","John 5"]},{d:245,r:["1Samuel 26","1Corinthians 7","Ezekiel 5","John 6"]},{d:246,r:["1Samuel 27","1Corinthians 8","Ezekiel 6","John 7"]},{d:247,r:["1Samuel 28","1Corinthians 9","Ezekiel 7","John 8"]},{d:248,r:["1Samuel 29-30","1Corinthians 10","Ezekiel 8","John 9"]},{d:249,r:["1Samuel 31","1Corinthians 11","Ezekiel 9","John 10"]},{d:250,r:["2Samuel 1","1Corinthians 12","Ezekiel 10","John 11"]},{d:251,r:["2Samuel 2","1Corinthians 13","Ezekiel 11","John 12"]},{d:252,r:["2Samuel 3","1Corinthians 14","Ezekiel 12","John 13"]},{d:253,r:["2Samuel 4-5","1Corinthians 15","Ezekiel 13","John 14"]},{d:254,r:["2Samuel 6","1Corinthians 16","Ezekiel 14","John 15"]},{d:255,r:["2Samuel 7","2Corinthians 1","Ezekiel 15","John 16"]},{d:256,r:["2Samuel 8-9","2Corinthians 2","Ezekiel 16","John 17"]},{d:257,r:["2Samuel 10","2Corinthians 3","Ezekiel 17","John 18"]},{d:258,r:["2Samuel 11","2Corinthians 4","Ezekiel 18","John 19"]},{d:259,r:["2Samuel 12","2Corinthians 5","Ezekiel 19","John 20"]},{d:260,r:["2Samuel 13","2Corinthians 6","Ezekiel 20","John 21"]},{d:261,r:["2Samuel 14","2Corinthians 7","Ezekiel 21","Psalm 1-2"]},{d:262,r:["2Samuel 15","2Corinthians 8","Ezekiel 22","Psalm 3-4"]},{d:263,r:["2Samuel 16","2Corinthians 9","Ezekiel 23","Psalm 5-6"]},{d:264,r:["2Samuel 17","2Corinthians 10","Ezekiel 24","Psalm 7-8"]},{d:265,r:["2Samuel 18","2Corinthians 11","Ezekiel 25","Psalm 9"]},{d:266,r:["2Samuel 19","2Corinthians 12","Ezekiel 26","Psalm 10"]},{d:267,r:["2Samuel 20","2Corinthians 13","Ezekiel 27","Psalm 11-12"]},{d:268,r:["2Samuel 21","Galatians 1","Ezekiel 28","Psalm 13-14"]},{d:269,r:["2Samuel 22","Galatians 2","Ezekiel 29","Psalm 15-16"]},{d:270,r:["2Samuel 23","Galatians 3","Ezekiel 30","Psalm 17"]},{d:271,r:["2Samuel 24","Galatians 4","Ezekiel 31","Psalm 18"]},{d:272,r:["1Kings 1","Galatians 5","Ezekiel 32","Psalm 19"]},{d:273,r:["1Kings 2","Galatians 6","Ezekiel 33","Psalm 20-21"]},{d:274,r:["1Kings 3","Ephesians 1","Ezekiel 34","Psalm 22"]},{d:275,r:["1Kings 4-5","Ephesians 2","Ezekiel 35","Psalm 23-24"]},{d:276,r:["1Kings 6","Ephesians 3","Ezekiel 36","Psalm 25"]},{d:277,r:["1Kings 7","Ephesians 4","Ezekiel 37","Psalm 26-27"]},{d:278,r:["1Kings 8","Ephesians 5","Ezekiel 38","Psalm 28-29"]},{d:279,r:["1Kings 9","Ephesians 6","Ezekiel 39","Psalm 30"]},{d:280,r:["1Kings 10","Philippians 1","Ezekiel 40","Psalm 31"]},{d:281,r:["1Kings 11","Philippians 2","Ezekiel 41","Psalm 32"]},{d:282,r:["1Kings 12","Philippians 3","Ezekiel 42","Psalm 33"]},{d:283,r:["1Kings 13","Philippians 4","Ezekiel 43","Psalm 34"]},{d:284,r:["1Kings 14","Colossians 1","Ezekiel 44","Psalm 35"]},{d:285,r:["1Kings 15","Colossians 2","Ezekiel 45","Psalm 36"]},{d:286,r:["1Kings 16","Colossians 3","Ezekiel 46","Psalm 37"]},{d:287,r:["1Kings 17","Colossians 4","Ezekiel 47","Psalm 38"]},{d:288,r:["1Kings 18","1Thessalonians 1","Ezekiel 48","Psalm 39"]},{d:289,r:["1Kings 19","1Thessalonians 2","Daniel 1","Psalm 40-41"]},{d:290,r:["1Kings 20","1Thessalonians 3","Daniel 2","Psalm 42-43"]},{d:291,r:["1Kings 21","1Thessalonians 4","Daniel 3","Psalm 44"]},{d:292,r:["1Kings 22","1Thessalonians 5","Daniel 4","Psalm 45"]},{d:293,r:["2Kings 1","2Thessalonians 1","Daniel 5","Psalm 46-47"]},{d:294,r:["2Kings 2","2Thessalonians 2","Daniel 6","Psalm 48"]},{d:295,r:["2Kings 3","2Thessalonians 3","Daniel 7","Psalm 49"]},{d:296,r:["2Kings 4","1Timothy 1","Daniel 8","Psalm 50"]},{d:297,r:["2Kings 5","1Timothy 2","Daniel 9","Psalm 51"]},{d:298,r:["2Kings 6","1Timothy 3","Daniel 10","Psalm 52-54"]},{d:299,r:["2Kings 7","1Timothy 4","Daniel 11","Psalm 55"]},{d:300,r:["2Kings 8","1Timothy 5","Daniel 12","Psalm 56-57"]},{d:301,r:["2Kings 9","1Timothy 6","Hosea 1","Psalm 58-59"]},{d:302,r:["2Kings 10-11","2Timothy 1","Hosea 2","Psalm 60-61"]},{d:303,r:["2Kings 12","2Timothy 2","Hosea 3-4","Psalm 62-63"]},{d:304,r:["2Kings 13","2Timothy 3","Hosea 5-6","Psalm 64-65"]},{d:305,r:["2Kings 14","2Timothy 4","Hosea 7","Psalm 66-67"]},{d:306,r:["2Kings 15","Titus 1","Hosea 8","Psalm 68"]},{d:307,r:["2Kings 16","Titus 2","Hosea 9","Psalm 69"]},{d:308,r:["2Kings 17","Titus 3","Hosea 10","Psalm 70-71"]},{d:309,r:["2Kings 18","Philemon 1","Hosea 11","Psalm 72"]},{d:310,r:["2Kings 19","Hebrews 1","Hosea 12","Psalm 73"]},{d:311,r:["2Kings 20","Hebrews 2","Hosea 13","Psalm 74"]},{d:312,r:["2Kings 21","Hebrews 3","Hosea 14","Psalm 75-76"]},{d:313,r:["2Kings 22","Hebrews 4","Joel 1","Psalm 77"]},{d:314,r:["2Kings 23","Hebrews 5","Joel 2","Psalm 78"]},{d:315,r:["2Kings 24","Hebrews 6","Joel 3","Psalm 79"]},{d:316,r:["2Kings 25","Hebrews 7","Amos 1","Psalm 80"]},{d:317,r:["1Chronicles 1-2","Hebrews 8","Amos 2","Psalm 81-82"]},{d:318,r:["1Chronicles 3-4","Hebrews 9","Amos 3","Psalm 83-84"]},{d:319,r:["1Chronicles 5-6","Hebrews 10","Amos 4","Psalm 85"]},{d:320,r:["1Chronicles 7-8","Hebrews 11","Amos 5","Psalm 86"]},{d:321,r:["1Chronicles 9-10","Hebrews 12","Amos 6","Psalm 87-88"]},{d:322,r:["1Chronicles 11-12","Hebrews 13","Amos 7","Psalm 89"]},{d:323,r:["1Chronicles 13-14","James 1","Amos 8","Psalm 90"]},{d:324,r:["1Chronicles 15","James 2","Amos 9","Psalm 91"]},{d:325,r:["1Chronicles 16","James 3","Obadiah 1","Psalm 92-93"]},{d:326,r:["1Chronicles 17","James 4","Jonah 1","Psalm 94"]},{d:327,r:["1Chronicles 18","James 5","Jonah 2","Psalm 95-96"]},{d:328,r:["1Chronicles 19-20","1Peter 1","Jonah 3","Psalm 97-98"]},{d:329,r:["1Chronicles 21","1Peter 2","Jonah 4","Psalm 99-101"]},{d:330,r:["1Chronicles 22","1Peter 3","Micah 1","Psalm 102"]},{d:331,r:["1Chronicles 23","1Peter 4","Micah 2","Psalm 103"]},{d:332,r:["1Chronicles 24-25","1Peter 5","Micah 3","Psalm 104"]},{d:333,r:["1Chronicles 26-27","2Peter 1","Micah 4","Psalm 105"]},{d:334,r:["1Chronicles 28","2Peter 2","Micah 5","Psalm 106"]},{d:335,r:["1Chronicles 29","2Peter 3","Micah 6","Psalm 107"]},{d:336,r:["2Chronicles 1","1John 1","Micah 7","Psalm 108-109"]},{d:337,r:["2Chronicles 2","1John 2","Nahum 1","Psalm 110-111"]},{d:338,r:["2Chronicles 3-4","1John 3","Nahum 2","Psalm 112-113"]},{d:339,r:["2Chronicles 5","1John 4","Nahum 3","Psalm 114-115"]},{d:340,r:["2Chronicles 6","1John 5","Habakkuk 1","Psalm 116"]},{d:341,r:["2Chronicles 7","2John 1","Habakkuk 2","Psalm 117-118"]},{d:342,r:["2Chronicles 8","3John 1","Habakkuk 3","Psalm 119:1-24"]},{d:343,r:["2Chronicles 9","Jude 1","Zephaniah 1","Psalm 119:25-48"]},{d:344,r:["2Chronicles 10","Revelation 1","Zephaniah 2","Psalm 119:49-72"]},{d:345,r:["2Chronicles 11-12","Revelation 2","Zephaniah 3","Psalm 119:73-96"]},{d:346,r:["2Chronicles 13","Revelation 3","Haggai 1","Psalm 119:97-120"]},{d:347,r:["2Chronicles 14-15","Revelation 4","Haggai 2","Psalm 119:121-144"]},{d:348,r:["2Chronicles 16","Revelation 5","Zechariah 1","Psalm 119:145-176"]},{d:349,r:["2Chronicles 17","Revelation 6","Zechariah 2","Psalm 120-122"]},{d:350,r:["2Chronicles 18","Revelation 7","Zechariah 3","Psalm 123-125"]},{d:351,r:["2Chronicles 19-20","Revelation 8","Zechariah 4","Psalm 126-128"]},{d:352,r:["2Chronicles 21","Revelation 9","Zechariah 5","Psalm 129-131"]},{d:353,r:["2Chronicles 22-23","Revelation 10","Zechariah 6","Psalm 132-134"]},{d:354,r:["2Chronicles 24","Revelation 11","Zechariah 7","Psalm 135-136"]},{d:355,r:["2Chronicles 25","Revelation 12","Zechariah 8","Psalm 137-138"]},{d:356,r:["2Chronicles 26","Revelation 13","Zechariah 9","Psalm 139"]},{d:357,r:["2Chronicles 27-28","Revelation 14","Zechariah 10","Psalm 140-141"]},{d:358,r:["2Chronicles 29","Revelation 15","Zechariah 11","Psalm 142"]},{d:359,r:["2Chronicles 30","Revelation 16","Zechariah 12","Psalm 143"]},{d:360,r:["2Chronicles 31","Revelation 17","Zechariah 13","Psalm 144"]},{d:361,r:["2Chronicles 32","Revelation 18","Zechariah 14","Psalm 145"]},{d:362,r:["2Chronicles 33","Revelation 19","Malachi 1","Psalm 146-147"]},{d:363,r:["2Chronicles 34","Revelation 20","Malachi 2","Psalm 148"]},{d:364,r:["2Chronicles 35","Revelation 21","Malachi 3","Psalm 149"]},{d:365,r:["2Chronicles 36","Revelation 22","Malachi 4","Psalm 150"]}];
@@ -780,11 +628,7 @@
             window.activeTab = t;
             ['OT', 'NT', 'PLAN', 'STATS', 'ABOUT'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
-                if(el) {
-                    el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
-                    // Reset inline styles for inactive tabs
-                    if (tab !== t) { el.style.backgroundColor = ''; el.style.borderColor = ''; el.style.color = ''; }
-                }
+                if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
             ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about'].forEach(v => document.getElementById(v).classList.add('hidden'));
             
@@ -792,9 +636,6 @@
             else if (t === 'PLAN') { document.getElementById('view-plan').classList.remove('hidden'); window.renderDailyPlan(); }
             else if (t === 'ABOUT') { document.getElementById('view-about').classList.remove('hidden'); }
             else { document.getElementById('view-books').classList.remove('hidden'); window.renderBookGrid(); window.renderSubdivisionStats(); }
-            
-            // Re-apply theme color to the new active tab
-            refreshUI(); 
         };
 
         window.handleSearch = () => {
@@ -817,7 +658,6 @@
 
         window.toggleChapter = (id) => {
             const prog = getProgress();
-            if (!prog[id]) updateStreak();
             prog[id] = !prog[id];
             setProgress(prog);
             window.saveProgress();
@@ -827,7 +667,6 @@
         window.toggleAllInBook = (val) => {
             const book = bible[activeBookIdx];
             const prog = getProgress();
-            if (val) { updateStreak(); confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } }); }
             book.ch.forEach((_, i) => prog[`${book.name}-${i+1}`] = val);
             setProgress(prog);
             window.saveProgress();
@@ -851,10 +690,11 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (typeof data === 'object') {
+                        // Support both old simple backup and new full app backup
                         if(data.profiles) {
                             appData = data;
                         } else {
-                            appData.profiles[appData.activeProfileId] = { progress: data, streak: 0, lastReadDate: null, achievements: [], plan: DEFAULT_PLAN, theme: 'indigo' };
+                            appData.profiles[appData.activeProfileId] = data;
                         }
                         window.saveProgress();
                         const msg = document.getElementById('restore-msg');
@@ -904,16 +744,13 @@
             const descBox = document.getElementById('plan-description-box');
             const currentProg = getProgress();
             
-            // USE PROFILE PLAN INSTEAD OF GLOBAL
-            const currentPlan = getProfile().plan;
-            
             list.innerHTML = '';
             footerMsg.innerText = '';
             
             let nextChapters = [];
             let descText = "";
 
-            if (currentPlan === 'SEQUENTIAL') {
+            if (activePlan === 'SEQUENTIAL') {
                 descText = "<strong>Canonical Order:</strong> Reading straight through from Genesis to Revelation. The next 3 unread chapters are shown.";
                 let found = 0; const target = 3;
                 for (let b = 0; b < bible.length; b++) {
@@ -930,7 +767,7 @@
                 if (nextChapters.length === 0) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`; return; }
             } 
             
-            else if (currentPlan === 'MCHEYNE') {
+            else if (activePlan === 'MCHEYNE') {
                 descText = "<strong>M'Cheyne Plan:</strong> 4 chapters daily (Family/Secret) covering NT/Psalms twice and OT once per year.";
                 let currentDay = null;
                 
@@ -983,7 +820,7 @@
                 });
             }
 
-            else if (currentPlan === 'HORNER') {
+            else if (activePlan === 'HORNER') {
                 descText = "<strong>Prof. Horner's System:</strong> Reading 1 chapter from each of 10 lists daily for maximum immersion.";
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     let foundForList = false;
@@ -1008,9 +845,6 @@
                 });
                 footerMsg.innerText = "Professor Horner's System (10 Chapters / Day)";
             }
-            
-            // --- FUTURE PLAN EXPANSION: Add logic for new plan type here ---
-            // else if (currentPlan === 'NEW_PLAN') { ... }
 
             if(descBox) {
                 descBox.innerHTML = descText;
@@ -1021,27 +855,24 @@
                 const nameMap = { "Song of Songs": "Song of Solomon" };
                 const cleanName = nameMap[item.book] || item.book;
                 const blbUrl = `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${item.chapter}/`;
-                // Add theme color to badges
-                const profile = getProfile();
-                const theme = THEMES.find(t => t.name === profile.theme) || THEMES[0];
-                const badgeHtml = item.badge ? `<span class="${theme.class} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ml-2 opacity-90">${item.badge}</span>` : '';
+                const badgeHtml = item.badge ? `<span class="bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ml-2 opacity-90">${item.badge}</span>` : '';
                 
                 const opacityClass = item.isComplete ? "opacity-60 grayscale" : "";
                 const strikeClass = item.isComplete ? "line-through text-slate-400 decoration-slate-300" : "text-slate-800";
                 const checkMark = item.isComplete ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
-                const bgClass = item.isComplete ? "bg-slate-50" : `bg-white hover:${theme.class.replace('bg-','bg-').replace('600','50')} hover:${theme.border} hover:scale-[1.01] hover:shadow-md`;
+                const bgClass = item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md";
 
-                return `<a href="${blbUrl}" target="_blank" onclick="updateStreak()" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass}">
+                return `<a href="${blbUrl}" target="_blank" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass}">
                     <div>
-                        <div class="text-[10px] font-black ${theme.text} uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
+                        <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
                     </div>
                     <div class="text-right flex flex-col items-end">
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">~${item.words} words</div>
                         ${!item.isComplete ? `
                         <div class="flex items-center gap-1 mt-2">
-                            <span class="text-xs font-bold ${theme.text}">Go</span>
-                            <svg class="w-4 h-4 ${theme.text}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                            <span class="text-xs font-bold text-indigo-500">Go</span>
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                         </div>` : ''}
                     </div>
                 </a>`;
@@ -1058,7 +889,7 @@
                 const readChapters = book.ch.filter((_, cIdx) => currentProg[`${book.name}-${cIdx + 1}`]).length;
                 const progressPercent = (readChapters / book.ch.length) * 100;
                 const isComplete = readChapters === book.ch.length;
-                const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-100 hover:ring-current';
+                const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-100 hover:ring-indigo-300';
                 return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-60 backdrop-blur-sm relative overflow-hidden">
                     <div class="flex justify-between items-start mb-4 relative z-10">
                         <h3 class="font-black text-sm uppercase tracking-tight leading-tight">${book.name}</h3>
@@ -1078,11 +909,6 @@
             const book = bible[activeBookIdx];
             const grid = document.getElementById('chapter-grid');
             const currentProg = getProgress();
-            
-            // Dynamic theme for chapter buttons
-            const profile = getProfile();
-            const theme = THEMES.find(t => t.name === profile.theme) || THEMES[0];
-
             let readInBook = 0;
             grid.innerHTML = book.ch.map((words, cIdx) => {
                 const id = `${book.name}-${cIdx + 1}`;
@@ -1092,25 +918,17 @@
                 const cleanName = nameMap[book.name] || book.name;
                 const blbUrl = `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${cIdx+1}/`;
                 return `<div class="relative group">
-                    <button onclick="window.toggleChapter('${id}')" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? `${theme.class} text-white border-transparent shadow-md shadow-slate-200 scale-95` : `bg-white text-slate-300 border-slate-100 hover:${theme.border} hover:${theme.text} hover:shadow-lg hover:-translate-y-1`}">
-                        <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : `text-slate-700 group-hover:${theme.text}`}">${cIdx + 1}</span>
-                        <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-white/80' : 'text-slate-400'}">${words}w</span>
+                    <button onclick="window.toggleChapter('${id}')" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}">
+                        <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : 'text-slate-700 group-hover:text-indigo-600'}">${cIdx + 1}</span>
+                        <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-indigo-200' : 'text-slate-400'}">${words}w</span>
                     </button>
-                    <a href="${blbUrl}" target="_blank" onclick="event.stopPropagation(); updateStreak();" title="Read on Blue Letter Bible" class="absolute top-2 right-2 p-1.5 rounded-full text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all opacity-0 group-hover:opacity-100">
+                    <a href="${blbUrl}" target="_blank" onclick="event.stopPropagation()" title="Read on Blue Letter Bible" class="absolute top-2 right-2 p-1.5 rounded-full text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all opacity-0 group-hover:opacity-100">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                     </a>
                 </div>`;
             }).join('');
-            
-            // Color inner bar
-            const bar = document.getElementById('book-inner-bar');
-            bar.className = `h-full transition-all duration-500 ${theme.class}`;
-            bar.style.width = (readInBook / book.ch.length) * 100 + '%';
-            
-            const detail = document.getElementById('book-stat-detail');
-            detail.className = `text-xs font-black uppercase tracking-widest ${theme.text}`;
-            detail.innerText = `${readInBook} of ${book.ch.length} Chapters`;
-            
+            document.getElementById('book-inner-bar').style.width = (readInBook / book.ch.length) * 100 + '%';
+            document.getElementById('book-stat-detail').innerText = `${readInBook} of ${book.ch.length} Chapters`;
             window.updateStats();
         }
 
@@ -1136,10 +954,6 @@
             document.getElementById('nt-percent').innerText = getPerc(ntRead, WORD_TOTALS.NT) + '%';
             document.getElementById('nt-progress-bar').style.width = (ntRead / WORD_TOTALS.NT * 100) + '%';
             document.getElementById('books-completed-stat').innerText = `${finishedBooks} OF 66 BOOKS READ`;
-            
-            // Stats page big percentage
-            const statsPageBig = document.getElementById('total-percent-big');
-            if(statsPageBig) statsPageBig.innerText = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%';
         }
 
         window.renderSubdivisionStats = () => {
@@ -1160,22 +974,6 @@
             const allCats = [...OT_CATS, ...NT_CATS];
             const dataset = []; const labels = []; const colors = []; let chartTotalRead = 0;
             const currentProg = getProgress();
-            
-            // Achievements Render
-            const profile = getProfile();
-            const badgeGrid = document.getElementById('achievements-grid');
-            badgeGrid.innerHTML = ACHIEVEMENTS_LIST.map(badge => {
-                const unlocked = profile.achievements.includes(badge.id);
-                const statusClass = unlocked ? 'badge-unlocked' : 'badge-locked';
-                return `
-                    <div class="p-3 rounded-2xl flex flex-col items-center text-center transition-all ${statusClass}">
-                        <div class="text-3xl mb-1 ${unlocked ? '' : 'opacity-50 grayscale'}">${badge.icon}</div>
-                        <div class="text-[10px] font-black uppercase tracking-wider mb-0.5">${badge.title}</div>
-                        <div class="text-[8px] font-bold opacity-60 leading-tight">${badge.desc}</div>
-                    </div>
-                `;
-            }).join('');
-
             miniCharts.forEach(c => c.destroy()); miniCharts = [];
             allCats.forEach(cat => {
                 let catRead = 0; let catTotal = 0;
@@ -1190,7 +988,7 @@
             if (mainChart) mainChart.destroy();
             const ctx = document.getElementById('mainDonutChart').getContext('2d');
             mainChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataset, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] }, options: { cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-            
+            document.getElementById('stats-page-total-percent').innerText = ((chartTotalRead / WORD_TOTALS.GLOBAL) * 100).toFixed(4) + '%';
             document.getElementById('legend-grid').innerHTML = allCats.map(cat => `<div class="flex items-center gap-3 text-sm p-2 bg-slate-50 rounded-lg"><div class="w-4 h-4 rounded-full flex-shrink-0 shadow-sm" style="background-color: ${cat.chartColor}"></div><span class="text-slate-700 font-bold truncate">${cat.name}</span></div>`).join('');
             document.getElementById('category-stats-grid').innerHTML = allCats.map((cat, i) => `<div class="bg-white p-5 rounded-3xl border border-slate-100 flex flex-col items-center justify-center relative shadow-sm"><div class="h-24 w-24 relative mb-3"><canvas id="miniChart-${i}"></canvas><div class="absolute inset-0 flex items-center justify-center text-xs font-black text-slate-400">${cat.stats.pct}%</div></div><span class="text-[10px] font-black uppercase text-center ${cat.style.split(' ')[2]}">${cat.name}</span></div>`).join('');
             allCats.forEach((cat, i) => {
