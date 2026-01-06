@@ -385,7 +385,6 @@
 
         // --- SANITIZE PROFILE NAME (ALPHANUMERIC ONLY, MAX 20 CHARS) ---
         function sanitizeProfileName(name) {
-            // Remove all non-alphanumeric characters and limit to 20 chars
             const cleaned = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
             return cleaned;
         }
@@ -445,6 +444,7 @@
         let currentUser = null;
         let unsubscribe = null;
         let saveTimeout = null;
+        let userIsEditing = false; // NEW: Prevent cloud sync during edits
 
         // --- UI ELEMENTS ---
         const logoutBtn = document.getElementById('logout-btn');
@@ -553,6 +553,12 @@
         async function initCloudSync(uid) {
             const userDocRef = doc(db, "users", uid);
             unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+                // Skip sync if user is actively editing
+                if(userIsEditing) {
+                    console.log('⏸️ Skipping sync - user editing');
+                    return;
+                }
+                
                 if (docSnap.exists()) {
                     const cloudData = docSnap.data().appData || {};
                     if (Object.keys(cloudData).length > 0 && validateAppData(cloudData)) {
@@ -599,18 +605,26 @@
         }
 
         // --- GLOBAL FUNCTIONS ---
-        window.saveProgress = () => {
+        window.saveProgress = (immediate = false) => {
             localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
             localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress())); 
             
-            // Debounced Firebase save
             if (currentUser) {
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(() => {
+                if(immediate) {
+                    // Immediate save for plan changes - no debounce
                     const userDocRef = doc(db, "users", currentUser.uid);
                     setDoc(userDocRef, { appData: appData }, { merge: true })
+                        .then(() => console.log('✅ Saved immediately'))
                         .catch(err => console.error('Firebase save error:', err));
-                }, 1000);
+                } else {
+                    // Debounced save for chapter toggles
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        setDoc(userDocRef, { appData: appData }, { merge: true })
+                            .catch(err => console.error('Firebase save error:', err));
+                    }, 1000);
+                }
             }
             refreshUI();
         };
@@ -624,27 +638,23 @@
 
         function renderProfileList() {
             const list = document.getElementById('profile-list');
-            list.innerHTML = ''; // Clear first
+            list.innerHTML = '';
             
             Object.keys(appData.profiles).forEach(name => {
                 const isActive = name === appData.activeProfileId;
                 const color = stringToColor(name);
                 
-                // Create container
                 const itemDiv = document.createElement('div');
                 itemDiv.className = `flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-indigo-50/50' : ''}`;
                 
-                // Create profile button
                 const btn = document.createElement('button');
                 btn.className = `text-left flex-1 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2`;
                 btn.onclick = () => window.switchProfile(name);
                 
-                // Color dot
                 const dot = document.createElement('div');
                 dot.className = 'w-3 h-3 rounded-full profile-dot flex-shrink-0';
                 dot.style.backgroundColor = color.solid;
                 
-                // Name span
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'truncate';
                 nameSpan.textContent = name;
@@ -652,7 +662,6 @@
                 btn.appendChild(dot);
                 btn.appendChild(nameSpan);
                 
-                // Active badge
                 if(isActive) {
                     const badge = document.createElement('span');
                     badge.className = 'ml-2 text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
@@ -662,7 +671,6 @@
                 
                 itemDiv.appendChild(btn);
                 
-                // Delete button (only for non-Default and non-active profiles)
                 if(name !== 'Default' && !isActive) {
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'text-slate-300 hover:text-red-500 p-1 ml-2';
@@ -676,9 +684,11 @@
         }
 
         window.switchProfile = (name) => {
+            userIsEditing = true;
             appData.activeProfileId = name;
-            window.saveProgress();
+            window.saveProgress(true); // Immediate save
             document.getElementById('profile-menu').classList.add('hidden');
+            setTimeout(() => { userIsEditing = false; }, 2000);
         };
 
         window.createNewProfile = () => {
@@ -708,26 +718,23 @@
         };
 
         window.deleteProfile = (name) => {
-            // Prevent deleting active profile
             if(name === appData.activeProfileId) {
                 alert("⚠️ Cannot delete the active profile.\n\nPlease switch to another profile first.");
                 return;
             }
             
-            // Prevent deleting last profile
             if(Object.keys(appData.profiles).length <= 1) {
                 alert("⚠️ Cannot delete the last profile.\n\nYou must have at least one profile.");
                 return;
             }
             
-            // Two-step confirmation for safety
             const confirmMsg = `⚠️ DELETE PROFILE: "${name}"?\n\nThis will permanently delete:\n• All reading progress\n• Reading plan settings\n\nThis action CANNOT be undone.\n\nType the profile name to confirm:`;
             const userInput = prompt(confirmMsg);
             
             if(userInput === name) {
                 delete appData.profiles[name];
                 delete appData.profilePlans[name];
-                window.saveProgress();
+                window.saveProgress(true); // Immediate save
                 alert(`✅ Profile "${name}" has been deleted.`);
             } else if(userInput !== null) {
                 alert("❌ Profile name did not match. Deletion cancelled.");
@@ -743,10 +750,19 @@
         });
 
         window.changePlan = () => {
+            userIsEditing = true; // Block cloud sync
             activePlan = document.getElementById('plan-selector').value;
             appData.profilePlans[appData.activeProfileId] = activePlan;
-            window.saveProgress();
+            
+            console.log('📝 Plan changed to:', activePlan);
+            window.saveProgress(true); // Immediate save (no debounce!)
             window.renderDailyPlan();
+            
+            // Clear flag after 2 seconds (allows Firebase to propagate)
+            setTimeout(() => {
+                userIsEditing = false;
+                console.log('✅ Edit complete');
+            }, 2000);
         };
 
         // --- CORE DATA ---
