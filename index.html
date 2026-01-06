@@ -35,6 +35,45 @@
 </head>
 <body class="pb-24">
 
+    <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl animate-in border border-white/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
+                <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-3 mb-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                    <input type="email" id="email-input" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                    <input type="password" id="pass-input" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300">
+                </div>
+                <div id="auth-error" class="text-xs font-bold text-red-500 bg-red-50 p-2 rounded-lg hidden"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="window.handleEmailAuth('LOGIN')" id="btn-login-email" class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all">Log In</button>
+                <button onclick="window.handleEmailAuth('REGISTER')" id="btn-signup-email" class="bg-white border border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all">Sign Up</button>
+            </div>
+
+            <div class="relative flex py-2 items-center mb-6">
+                <div class="flex-grow border-t border-slate-100"></div>
+                <span class="flex-shrink-0 mx-4 text-[9px] font-black text-slate-300 uppercase tracking-widest">Or continue with</span>
+                <div class="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all hover:border-slate-300 group">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 group-hover:scale-110 transition-transform">
+                Google
+            </button>
+        </div>
+    </div>
+
     <header class="sticky top-0 z-50 glass border-b border-indigo-100 shadow-sm">
         <div class="max-w-5xl mx-auto px-4 py-4 sm:px-6">
             <div class="flex flex-col gap-5">
@@ -44,7 +83,7 @@
                             <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
                             <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
                         </div>
-                        </div>
+                    </div>
                     
                     <div class="flex items-center gap-3 self-end sm:self-auto">
                         <div class="relative group">
@@ -63,7 +102,7 @@
                             </div>
                         </div>
 
-                        <button id="login-btn" class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
+                        <button id="login-btn" onclick="window.toggleAuthModal(true)" class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
                             <span id="login-text">Sync</span>
                         </button>
                         <div id="user-profile" class="hidden flex items-center gap-3">
@@ -220,7 +259,19 @@
 						</script>
 							
                         <p class="text-sm text-slate-600 leading-relaxed">I just wanted a simple way of keeping track of Bible reading progress. I found something that let me mark chapters done, but it considered all chapters equal. Psalm 117 is not equal to Psalm 119 in word count! It seems fair to "give credit" for progress according to word count. Thus, this tool tracks Bible reading progress by chapter, weighted according to word count.</p>
-                    </div>
+                    
+						<div class="mt-6 pt-6 border-t border-indigo-200/50 flex flex-col items-center">
+							<p class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Enjoying the app?</p>
+							<a href="https://www.buymeacoffee.com/bibleprogress" target="_blank" class="group relative inline-flex items-center justify-center gap-2 px-8 py-3 bg-[#FFDD00] text-black font-[Cookie] text-xl rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+								<svg class="w-5 h-5 text-black opacity-80 group-hover:rotate-12 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+									<path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+									<path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+								</svg>
+								<span class="font-sans font-bold text-sm text-slate-900">Buy me a coffee</span>
+							</a>
+						</div>
+					
+					</div>
                 </div>
 
                 <div class="mb-8">
@@ -285,7 +336,7 @@
     <script type="module">
         // --- FIREBASE IMPORTS (Using Popup instead of Redirect) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
@@ -326,8 +377,6 @@
         let unsubscribe = null; 
 
         // --- UI ELEMENTS ---
-        const loginBtn = document.getElementById('login-btn');
-        const loginText = document.getElementById('login-text');
         const logoutBtn = document.getElementById('logout-btn');
         const userProfile = document.getElementById('user-profile');
         const userPhoto = document.getElementById('user-photo');
@@ -345,35 +394,78 @@
             appData.profiles[appData.activeProfileId] = newProg;
         }
 
-        // --- AUTH LOGIC ---
-        loginBtn.addEventListener('click', () => {
-            loginText.innerText = "Connecting...";
+        // --- AUTH LOGIC (GOOGLE + EMAIL) ---
+        
+        window.toggleAuthModal = (show) => {
+            const modal = document.getElementById('auth-modal');
+            const errBox = document.getElementById('auth-error');
+            if(show) {
+                modal.classList.remove('hidden');
+                errBox.classList.add('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.handleGoogleLogin = () => {
             signInWithPopup(auth, provider)
-                .then((result) => { })
+                .then((result) => { window.toggleAuthModal(false); })
                 .catch((error) => {
-                    console.error("Login Error:", error);
-                    loginText.innerText = "Sync Google";
-                    alert("Login Failed: " + error.message);
+                    alert("Google Login Failed: " + error.message);
                 });
-        });
+        };
+
+        window.handleEmailAuth = async (mode) => {
+            const email = document.getElementById('email-input').value;
+            const pass = document.getElementById('pass-input').value;
+            const errBox = document.getElementById('auth-error');
+            
+            if (!email || !pass) {
+                errBox.innerText = "Please enter both email and password.";
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                if (mode === 'REGISTER') {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+                window.toggleAuthModal(false);
+            } catch (error) {
+                let msg = error.message;
+                if (error.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+                if (error.code === 'auth/email-already-in-use') msg = "That email is already registered.";
+                if (error.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
+                errBox.innerText = msg;
+                errBox.classList.remove('hidden');
+            }
+        };
 
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => window.location.reload());
         });
 
         onAuthStateChanged(auth, (user) => {
+            const loginBtn = document.getElementById('login-btn');
             if (user) {
                 currentUser = user;
                 loginBtn.classList.add('hidden');
                 userProfile.classList.remove('hidden');
-                userPhoto.src = user.photoURL;
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                } else {
+                    // Fallback for email users
+                    userPhoto.src = `https://ui-avatars.com/api/?name=${user.email}&background=e0e7ff&color=4f46e5`;
+                }
+                
                 syncStatus.innerHTML = `<span class="text-emerald-500 font-bold">Cloud Synced</span>`;
                 syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
                 initCloudSync(user.uid);
             } else {
                 currentUser = null;
                 loginBtn.classList.remove('hidden');
-                loginText.innerText = "Sync";
                 userProfile.classList.add('hidden');
                 syncStatus.innerHTML = `Local Only`;
                 syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-slate-100 text-slate-400 px-2 py-1 rounded-full";
