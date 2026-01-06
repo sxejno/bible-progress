@@ -606,28 +606,52 @@
 
         // --- GLOBAL FUNCTIONS ---
         window.saveProgress = (immediate = false) => {
-            localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
-            localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress())); 
-            
-            if (currentUser) {
-                if(immediate) {
-                    // Immediate save for plan changes - no debounce
-                    const userDocRef = doc(db, "users", currentUser.uid);
-                    setDoc(userDocRef, { appData: appData }, { merge: true })
-                        .then(() => console.log('✅ Saved immediately'))
-                        .catch(err => console.error('Firebase save error:', err));
-                } else {
-                    // Debounced save for chapter toggles
-                    clearTimeout(saveTimeout);
-                    saveTimeout = setTimeout(() => {
-                        const userDocRef = doc(db, "users", currentUser.uid);
-                        setDoc(userDocRef, { appData: appData }, { merge: true })
-                            .catch(err => console.error('Firebase save error:', err));
-                    }, 1000);
-                }
-            }
-            refreshUI();
-        };
+			// Always save to localStorage first (never fails)
+			localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+			localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress())); 
+			
+			// Try to save to Firebase if user is logged in
+			if (currentUser) {
+				if(immediate) {
+					// Immediate save for plan changes - no debounce
+					const userDocRef = doc(db, "users", currentUser.uid);
+					setDoc(userDocRef, { appData: appData }, { merge: true })
+						.then(() => {
+							console.log('✅ Saved immediately to Firebase');
+						})
+						.catch(err => {
+							console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
+							// Update sync status to show warning
+							if(syncStatus) {
+								syncStatus.innerHTML = `<span class="text-amber-500">⚠️ Sync Issue</span>`;
+								syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-100";
+							}
+						});
+				} else {
+					// Debounced save for chapter toggles
+					clearTimeout(saveTimeout);
+					saveTimeout = setTimeout(() => {
+						const userDocRef = doc(db, "users", currentUser.uid);
+						setDoc(userDocRef, { appData: appData }, { merge: true })
+							.then(() => {
+								console.log('✅ Saved to Firebase');
+								if(syncStatus) {
+									syncStatus.innerHTML = `<span class="text-emerald-500">Cloud Synced</span>`;
+									syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
+								}
+							})
+							.catch(err => {
+								console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
+								if(syncStatus) {
+									syncStatus.innerHTML = `<span class="text-amber-500">⚠️ Sync Issue</span>`;
+									syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-100";
+								}
+							});
+					}, 1000);
+				}
+			}
+			refreshUI();
+		};
 
         // --- PROFILE MANAGEMENT ---
         window.toggleProfileMenu = () => {
