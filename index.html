@@ -1110,7 +1110,11 @@
             grid.innerHTML = books.map((book) => {
                 const bookIdx = bible.indexOf(book);
                 const readChapters = book.ch.filter((_, cIdx) => currentProg[`${book.name}-${cIdx + 1}`]).length;
-                const progressPercent = (readChapters / book.ch.length) * 100;
+                const readWords = book.ch.reduce((sum, words, cIdx) => {
+                    return sum + (currentProg[`${book.name}-${cIdx + 1}`] ? words : 0);
+                }, 0);
+                const totalWords = book.ch.reduce((sum, words) => sum + words, 0);
+                const progressPercent = (readWords / totalWords) * 100;
                 const isComplete = readChapters === book.ch.length;
                 const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-100 hover:ring-indigo-300';
                 return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-60 backdrop-blur-sm relative overflow-hidden">
