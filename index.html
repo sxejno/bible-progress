@@ -390,6 +390,16 @@
             return cleaned;
         }
 
+        // --- VALIDATE URL (MUST BE HTTPS) ---
+        function isValidHttpsUrl(urlString) {
+            try {
+                const url = new URL(urlString);
+                return url.protocol === 'https:';
+            } catch (e) {
+                return false;
+            }
+        }
+
         // --- VALIDATE APP DATA ---
         function validateAppData(data) {
             if(!data || typeof data !== 'object') return false;
@@ -400,13 +410,31 @@
         }
 
         // --- APP STATE & MIGRATION ---
-        let savedData = JSON.parse(localStorage.getItem('kjv_v6_data'));
-        if(savedData && !validateAppData(savedData)) {
-            console.warn('Invalid saved data, resetting to defaults');
+        let savedData = null;
+        try {
+            const rawData = localStorage.getItem('kjv_v6_data');
+            if (rawData) {
+                savedData = JSON.parse(rawData);
+                if(savedData && !validateAppData(savedData)) {
+                    console.warn('Invalid saved data, resetting to defaults');
+                    savedData = null;
+                }
+            }
+        } catch (e) {
+            console.error('Failed to parse saved data:', e);
             savedData = null;
         }
 
-        let oldProgress = JSON.parse(localStorage.getItem('kjv_v6_progress'));
+        let oldProgress = null;
+        try {
+            const rawProgress = localStorage.getItem('kjv_v6_progress');
+            if (rawProgress) {
+                oldProgress = JSON.parse(rawProgress);
+            }
+        } catch (e) {
+            console.error('Failed to parse old progress:', e);
+            oldProgress = null;
+        }
         let oldPlan = localStorage.getItem('kjv_v6_active_plan') || 'SEQUENTIAL';
 
         let appData = savedData || { 
@@ -532,20 +560,21 @@
                 currentUser = user;
                 loginBtn.classList.add('hidden');
                 userProfile.classList.remove('hidden');
-                if (user.photoURL) {
+                // Validate photoURL is HTTPS before using it (prevent XSS/open redirect)
+                if (user.photoURL && isValidHttpsUrl(user.photoURL)) {
                     userPhoto.src = user.photoURL;
                 } else {
                     userPhoto.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}&background=e0e7ff&color=4f46e5`;
                 }
                 
-                syncStatus.innerHTML = `<span class="text-emerald-500 font-bold">Cloud Synced</span>`;
+                syncStatus.textContent = "Cloud Synced";
                 syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
                 initCloudSync(user.uid);
             } else {
                 currentUser = null;
                 loginBtn.classList.remove('hidden');
                 userProfile.classList.add('hidden');
-                syncStatus.innerHTML = `Local Only`;
+                syncStatus.textContent = "Local Only";
                 syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-slate-100 text-slate-400 px-2 py-1 rounded-full";
                 if(unsubscribe) unsubscribe(); 
             }
@@ -624,7 +653,7 @@
 							console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
 							// Update sync status to show warning
 							if(syncStatus) {
-								syncStatus.innerHTML = `<span class="text-amber-500">⚠️ Sync Issue</span>`;
+								syncStatus.textContent = "⚠️ Sync Issue";
 								syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-100";
 							}
 						});
@@ -637,14 +666,14 @@
 							.then(() => {
 								console.log('✅ Saved to Firebase');
 								if(syncStatus) {
-									syncStatus.innerHTML = `<span class="text-emerald-500">Cloud Synced</span>`;
+									syncStatus.textContent = "Cloud Synced";
 									syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
 								}
 							})
 							.catch(err => {
 								console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
 								if(syncStatus) {
-									syncStatus.innerHTML = `<span class="text-amber-500">⚠️ Sync Issue</span>`;
+									syncStatus.textContent = "⚠️ Sync Issue";
 									syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-100";
 								}
 							});
@@ -910,15 +939,34 @@
         window.restoreData = (input) => {
             const file = input.files[0];
             if (!file) return;
+
+            // Security: Validate file type
+            if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+                alert("Invalid file type. Please upload a .json file.");
+                input.value = ''; // Clear the input
+                return;
+            }
+
+            // Security: Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (file.size > maxSize) {
+                alert("File too large. Maximum size is 5MB.");
+                input.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (typeof data === 'object') {
+                    if (typeof data === 'object' && data !== null) {
                         if(data.profiles && validateAppData(data)) {
                             appData = data;
-                        } else {
+                        } else if (typeof data === 'object') {
+                            // Legacy format: single profile data
                             appData.profiles[appData.activeProfileId] = data;
+                        } else {
+                            throw new Error("Invalid data structure");
                         }
                         window.saveProgress();
                         const msg = document.getElementById('restore-msg');
@@ -926,9 +974,15 @@
                         msg.classList.remove('hidden');
                         setTimeout(() => msg.classList.add('hidden'), 3000);
                         window.updateStats();
-                        window.location.reload(); 
+                        window.location.reload();
+                    } else {
+                        throw new Error("Invalid JSON structure");
                     }
-                } catch(err) { alert("Invalid backup file."); }
+                } catch(err) {
+                    console.error("Restore error:", err);
+                    alert("Invalid backup file. Please check the file format.");
+                }
+                input.value = ''; // Clear input after processing
             };
             reader.readAsText(file);
         };
