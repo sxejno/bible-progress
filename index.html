@@ -1137,10 +1137,14 @@
             const grid = document.getElementById('chapter-grid');
             const currentProg = getProgress();
             let readInBook = 0;
+            let readWordsInBook = 0;
             grid.innerHTML = book.ch.map((words, cIdx) => {
                 const id = `${book.name}-${cIdx + 1}`;
                 const isRead = currentProg[id];
-                if (isRead) readInBook++;
+                if (isRead) {
+                    readInBook++;
+                    readWordsInBook += words;
+                }
                 const nameMap = { "Song of Songs": "Song of Solomon" };
                 const cleanName = nameMap[book.name] || book.name;
                 const blbUrl = `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${cIdx+1}/`;
@@ -1154,7 +1158,8 @@
                     </a>
                 </div>`;
             }).join('');
-            document.getElementById('book-inner-bar').style.width = (readInBook / book.ch.length) * 100 + '%';
+            const totalWordsInBook = book.ch.reduce((sum, words) => sum + words, 0);
+            document.getElementById('book-inner-bar').style.width = (readWordsInBook / totalWordsInBook) * 100 + '%';
             document.getElementById('book-stat-detail').innerText = `${readInBook} of ${book.ch.length} Chapters`;
             window.updateStats();
         }
