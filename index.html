@@ -855,6 +855,28 @@
             appData.activeProfileId = name;
             window.saveProgress(true); // Immediate save
             document.getElementById('profile-menu').classList.add('hidden');
+
+            // Re-render current view to show new profile's data
+            const viewChapters = document.getElementById('view-chapters');
+            const viewBooks = document.getElementById('view-books');
+            const viewStats = document.getElementById('view-stats');
+            const viewPlan = document.getElementById('view-plan');
+
+            if (!viewChapters.classList.contains('hidden')) {
+                // In chapter view - update chapter checkboxes
+                window.renderChapterGrid();
+            } else if (!viewBooks.classList.contains('hidden')) {
+                // In book grid view - update book grid and stats
+                window.renderBookGrid();
+                window.renderSubdivisionStats();
+            } else if (!viewStats.classList.contains('hidden')) {
+                // In stats view - update stats
+                window.renderStatsPage();
+            } else if (!viewPlan.classList.contains('hidden')) {
+                // In plan view - update plan
+                window.renderDailyPlan();
+            }
+
             setTimeout(() => { userIsEditing = false; }, 2000);
         };
 
