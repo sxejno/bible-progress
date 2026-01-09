@@ -524,8 +524,10 @@
         function validateAppData(data) {
             if(!data || typeof data !== 'object') return false;
             if(!data.profiles || typeof data.profiles !== 'object') return false;
+            // Must have at least one profile
+            if(Object.keys(data.profiles).length === 0) return false;
+            // activeProfileId should be a string (but doesn't need to exist in profiles - we'll fix that in migration)
             if(!data.activeProfileId || typeof data.activeProfileId !== 'string') return false;
-            if(!data.profiles[data.activeProfileId]) return false;
             return true;
         }
 
@@ -606,6 +608,10 @@
                 appData.profilePlans[name] = 'SEQUENTIAL';
             }
         });
+
+        // Save any migration fixes to localStorage immediately
+        // This prevents the "Default" profile from being recreated on reload
+        localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
 
         let activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
         let currentUser = null;
