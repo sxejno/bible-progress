@@ -253,6 +253,7 @@
                 <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Daily Plan</button>
                 <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Stats</button>
                 <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">About</button>
+                <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Settings</button>
             </div>
         </div>
 
@@ -288,22 +289,6 @@
 
                 <div id="daily-plan-list" class="flex flex-col gap-3 relative z-10"></div>
                 <p id="plan-footer-msg" class="text-center text-xs font-bold text-indigo-200 mt-6 uppercase tracking-widest relative z-10 opacity-70"></p>
-            </div>
-
-            <div class="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Manual Backup & Restore</h3>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <button onclick="window.backupData()" class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Download Data
-                    </button>
-                    <label class="flex-1 cursor-pointer flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m-4-4v12"></path></svg>
-                        Restore File
-                        <input type="file" id="restore-input" class="hidden" accept=".json" onchange="window.restoreData(this)">
-                    </label>
-                </div>
-                <p id="restore-msg" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
             </div>
         </div>
 
@@ -395,6 +380,31 @@
                 </div>
 
              </div>
+        </div>
+
+        <div id="view-settings" class="hidden animate-in">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Settings</h2>
+
+                <div class="mb-8">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="window.backupData()" class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download Backup
+                        </button>
+                        <label class="flex-1 cursor-pointer flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m-4-4v12"></path></svg>
+                            Restore from File
+                            <input type="file" id="restore-input-settings" class="hidden" accept=".json" onchange="window.restoreData(this)">
+                        </label>
+                    </div>
+                    <p id="restore-msg-settings" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
+                    <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
+                        Backup your reading progress to a JSON file. Restore from a backup to recover your data or transfer between devices.
+                    </p>
+                </div>
+            </div>
         </div>
 
         <div id="view-chapters" class="hidden animate-in">
@@ -806,46 +816,61 @@
         function renderProfileList() {
             const list = document.getElementById('profile-list');
             list.innerHTML = '';
-            
+
+            const hasMultipleProfiles = Object.keys(appData.profiles).length > 1;
+
             Object.keys(appData.profiles).forEach(name => {
                 const isActive = name === appData.activeProfileId;
                 const color = stringToColor(name);
-                
+
                 const itemDiv = document.createElement('div');
                 itemDiv.className = `flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-indigo-50/50' : ''}`;
-                
+
                 const btn = document.createElement('button');
                 btn.className = `text-left flex-1 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2`;
                 btn.onclick = () => window.switchProfile(name);
-                
+
                 const dot = document.createElement('div');
                 dot.className = 'w-3 h-3 rounded-full profile-dot flex-shrink-0';
                 dot.style.backgroundColor = color.solid;
-                
+
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'truncate';
                 nameSpan.textContent = name;
-                
+
                 btn.appendChild(dot);
                 btn.appendChild(nameSpan);
-                
+
                 if(isActive) {
                     const badge = document.createElement('span');
                     badge.className = 'ml-2 text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
                     badge.textContent = 'Active';
                     btn.appendChild(badge);
                 }
-                
+
                 itemDiv.appendChild(btn);
-                
+
+                // Show rename button for all profiles when there are multiple profiles, or for non-default profiles
+                const canRename = (name !== 'Default' || hasMultipleProfiles) && !isActive;
+
+                if(canRename) {
+                    const renameBtn = document.createElement('button');
+                    renameBtn.className = 'text-slate-300 hover:text-indigo-500 p-1 ml-1 opacity-0 group-hover/item:opacity-100 transition-opacity';
+                    renameBtn.onclick = () => window.renameProfile(name);
+                    renameBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>';
+                    renameBtn.title = 'Rename profile';
+                    itemDiv.appendChild(renameBtn);
+                }
+
                 if(name !== 'Default' && !isActive) {
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'text-slate-300 hover:text-red-500 p-1 ml-2';
+                    deleteBtn.className = 'text-slate-300 hover:text-red-500 p-1 ml-1 opacity-0 group-hover/item:opacity-100 transition-opacity';
                     deleteBtn.onclick = () => window.deleteProfile(name);
                     deleteBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
+                    deleteBtn.title = 'Delete profile';
                     itemDiv.appendChild(deleteBtn);
                 }
-                
+
                 list.appendChild(itemDiv);
             });
         }
@@ -911,15 +936,15 @@
                 alert("⚠️ Cannot delete the active profile.\n\nPlease switch to another profile first.");
                 return;
             }
-            
+
             if(Object.keys(appData.profiles).length <= 1) {
                 alert("⚠️ Cannot delete the last profile.\n\nYou must have at least one profile.");
                 return;
             }
-            
+
             const confirmMsg = `⚠️ DELETE PROFILE: "${name}"?\n\nThis will permanently delete:\n• All reading progress\n• Reading plan settings\n\nThis action CANNOT be undone.\n\nType the profile name to confirm:`;
             const userInput = prompt(confirmMsg);
-            
+
             if(userInput === name) {
                 delete appData.profiles[name];
                 delete appData.profilePlans[name];
@@ -928,6 +953,46 @@
             } else if(userInput !== null) {
                 alert("❌ Profile name did not match. Deletion cancelled.");
             }
+        };
+
+        window.renameProfile = (oldName) => {
+            if(oldName === appData.activeProfileId) {
+                alert("⚠️ Cannot rename the active profile.\n\nPlease switch to another profile first.");
+                return;
+            }
+
+            const rawName = prompt(`Enter new name for "${oldName}":\n(alphanumeric only, max 20 characters)`, oldName);
+            if(!rawName || rawName.trim() === "") return;
+
+            const newName = sanitizeProfileName(rawName);
+
+            if(newName === "") {
+                alert("Profile name must contain at least one alphanumeric character.");
+                return;
+            }
+
+            if(newName === oldName) {
+                return; // No change
+            }
+
+            if(appData.profiles[newName]) {
+                alert(`Profile "${newName}" already exists!`);
+                return;
+            }
+
+            // Rename the profile
+            appData.profiles[newName] = appData.profiles[oldName];
+            delete appData.profiles[oldName];
+
+            // Rename in profilePlans if exists
+            if(appData.profilePlans[oldName]) {
+                appData.profilePlans[newName] = appData.profilePlans[oldName];
+                delete appData.profilePlans[oldName];
+            }
+
+            window.saveProgress(true); // Immediate save
+            renderProfileList(); // Re-render the list
+            alert(`✅ Profile renamed from "${oldName}" to "${newName}".`);
         };
 
         document.addEventListener('click', (e) => {
@@ -1015,15 +1080,16 @@
         window.setTab = (t) => {
             activeTab = t;
             window.activeTab = t;
-            ['ALL', 'OT', 'NT', 'PLAN', 'STATS', 'ABOUT'].forEach(tab => {
+            ['ALL', 'OT', 'NT', 'PLAN', 'STATS', 'ABOUT', 'SETTINGS'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
                 if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
-            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about'].forEach(v => document.getElementById(v).classList.add('hidden'));
-            
+            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about', 'view-settings'].forEach(v => document.getElementById(v).classList.add('hidden'));
+
             if (t === 'STATS') { document.getElementById('view-stats').classList.remove('hidden'); window.renderStatsPage(); }
             else if (t === 'PLAN') { document.getElementById('view-plan').classList.remove('hidden'); window.renderDailyPlan(); }
             else if (t === 'ABOUT') { document.getElementById('view-about').classList.remove('hidden'); }
+            else if (t === 'SETTINGS') { document.getElementById('view-settings').classList.remove('hidden'); }
             else { document.getElementById('view-books').classList.remove('hidden'); window.renderBookGrid(); window.renderSubdivisionStats(); }
         };
 
@@ -1035,7 +1101,7 @@
         window.openBook = (idx) => {
             activeBookIdx = idx;
             const book = bible[idx];
-            ['view-books', 'view-stats', 'view-plan', 'view-about'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['view-books', 'view-stats', 'view-plan', 'view-about', 'view-settings'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById('view-chapters').classList.remove('hidden');
             document.getElementById('active-book-title').innerText = book.name;
             document.getElementById('book-label').innerText = book.cat;
@@ -1043,7 +1109,7 @@
             window.scrollTo(0,0);
         };
 
-        window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'ABOUT' ? 'ALL' : activeTab);
+        window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'ABOUT' || activeTab === 'SETTINGS' ? 'ALL' : activeTab);
 
         window.toggleChapter = (id) => {
             const prog = getProgress();
@@ -1104,10 +1170,15 @@
                             throw new Error("Invalid data structure");
                         }
                         window.saveProgress();
-                        const msg = document.getElementById('restore-msg');
-                        msg.innerText = "Success! Progress restored.";
-                        msg.classList.remove('hidden');
-                        setTimeout(() => msg.classList.add('hidden'), 3000);
+
+                        // Show success message in settings view if present
+                        const msgSettings = document.getElementById('restore-msg-settings');
+                        if(msgSettings) {
+                            msgSettings.innerText = "Success! Progress restored.";
+                            msgSettings.classList.remove('hidden');
+                            setTimeout(() => msgSettings.classList.add('hidden'), 3000);
+                        }
+
                         window.updateStats();
                         window.location.reload();
                     } else {
