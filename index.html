@@ -35,6 +35,23 @@
         /* Profile color dot animation */
         .profile-dot { transition: all 0.3s ease; }
         .profile-dot:hover { transform: scale(1.2); }
+
+        /* Tab scroll indicator - shows gradient fade on mobile when more tabs are available */
+        .tab-scroll-container { position: relative; }
+        .tab-scroll-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 60px;
+            background: linear-gradient(to right, rgba(248, 250, 252, 0), rgba(248, 250, 252, 1));
+            pointer-events: none;
+            opacity: 1;
+        }
+        @media (min-width: 640px) {
+            .tab-scroll-container::after { display: none; }
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -245,7 +262,7 @@
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
         
-        <div class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div class="tab-scroll-container overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit">
                 <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap">All Books</button>
                 <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">OT Books</button>
