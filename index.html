@@ -602,6 +602,17 @@
             appData.defaultProfileId = appData.activeProfileId;
         }
 
+        // If "Default" is active/default but other profiles exist, switch away from it
+        const allProfileNames = Object.keys(appData.profiles);
+        if(allProfileNames.length > 1 && appData.activeProfileId === 'Default') {
+            // Switch to the first non-Default profile
+            const nonDefaultProfile = allProfileNames.find(name => name !== 'Default');
+            if(nonDefaultProfile) {
+                appData.activeProfileId = nonDefaultProfile;
+                appData.defaultProfileId = nonDefaultProfile;
+            }
+        }
+
         // Ensure all profiles have a plan
         Object.keys(appData.profiles).forEach(name => {
             if(!appData.profilePlans[name]) {
@@ -862,9 +873,15 @@
             const list = document.getElementById('profile-list');
             list.innerHTML = '';
 
-            const hasMultipleProfiles = Object.keys(appData.profiles).length > 1;
+            const allProfileNames = Object.keys(appData.profiles);
+            const hasMultipleProfiles = allProfileNames.length > 1;
 
-            Object.keys(appData.profiles).forEach(name => {
+            // Hide "Default" profile from dropdown if other profiles exist
+            const visibleProfiles = hasMultipleProfiles
+                ? allProfileNames.filter(name => name !== 'Default')
+                : allProfileNames;
+
+            visibleProfiles.forEach(name => {
                 const isActive = name === appData.activeProfileId;
                 const color = stringToColor(name);
 
