@@ -35,6 +35,22 @@
         /* Profile color dot animation */
         .profile-dot { transition: all 0.3s ease; }
         .profile-dot:hover { transform: scale(1.2); }
+
+        /* Scroll indicator for tab bar */
+        .tab-scroll-wrapper { position: relative; }
+        .tab-scroll-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 60px;
+            background: linear-gradient(to left, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0) 100%);
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        .tab-scroll-indicator.hidden { opacity: 0; }
     </style>
 </head>
 <body class="pb-24">
@@ -244,17 +260,20 @@
     </header>
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
-        
-        <div class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit">
-                <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap">All Books</button>
-                <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">OT Books</button>
-                <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">NT Books</button>
-                <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Daily Plan</button>
-                <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Stats</button>
-                <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Settings</button>
-                <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">About</button>
+
+        <div class="tab-scroll-wrapper">
+            <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+                <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit">
+                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap">All Books</button>
+                    <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">OT Books</button>
+                    <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">NT Books</button>
+                    <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Daily Plan</button>
+                    <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Stats</button>
+                    <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Settings</button>
+                    <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">About</button>
+                </div>
             </div>
+            <div id="tab-scroll-indicator" class="tab-scroll-indicator"></div>
         </div>
 
         <div id="view-books" class="animate-in">
@@ -1497,6 +1516,33 @@
         window.updateStats();
         updateProfileColor();
         checkFirstVisit();
+
+        // --- TAB SCROLL INDICATOR ---
+        function updateTabScrollIndicator() {
+            const container = document.getElementById('tab-scroll-container');
+            const indicator = document.getElementById('tab-scroll-indicator');
+
+            if (!container || !indicator) return;
+
+            const isScrollable = container.scrollWidth > container.clientWidth;
+            const isScrolledToEnd = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
+
+            if (isScrollable && !isScrolledToEnd) {
+                indicator.classList.remove('hidden');
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }
+
+        // Update indicator on scroll
+        const tabScrollContainer = document.getElementById('tab-scroll-container');
+        if (tabScrollContainer) {
+            tabScrollContainer.addEventListener('scroll', updateTabScrollIndicator);
+        }
+
+        // Update on load and resize
+        updateTabScrollIndicator();
+        window.addEventListener('resize', updateTabScrollIndicator);
 
 		// ============================================
 		// 🥚 EASTER EGGS - Add fun secrets to discover!
