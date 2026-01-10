@@ -906,7 +906,7 @@
                 // Show "Active" badge for active profile
                 if(isActive) {
                     const badge = document.createElement('span');
-                    badge.className = 'ml-2 text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
+                    badge.className = 'ml-2 text-[8px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
                     badge.textContent = 'Active';
                     btn.appendChild(badge);
                 }
@@ -915,7 +915,7 @@
                 const isDefault = name === appData.defaultProfileId;
                 if(isDefault && !isActive) {
                     const defaultBadge = document.createElement('span');
-                    defaultBadge.className = 'ml-2 text-[10px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
+                    defaultBadge.className = 'ml-2 text-[8px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
                     defaultBadge.textContent = 'Default';
                     btn.appendChild(defaultBadge);
                 }
@@ -923,7 +923,7 @@
                 // Show both badges if profile is both active and default
                 if(isActive && isDefault) {
                     const defaultBadge = document.createElement('span');
-                    defaultBadge.className = 'ml-2 text-[10px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
+                    defaultBadge.className = 'ml-2 text-[8px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
                     defaultBadge.textContent = 'Default';
                     btn.appendChild(defaultBadge);
                 }
