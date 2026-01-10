@@ -884,12 +884,17 @@
             visibleProfiles.forEach(name => {
                 const isActive = name === appData.activeProfileId;
                 const color = stringToColor(name);
+                const isDefault = name === appData.defaultProfileId;
 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = `flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-indigo-50/50' : ''}`;
 
+                // Create a container for the profile name and badges
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'flex items-center gap-2 flex-1 min-w-0';
+
                 const btn = document.createElement('button');
-                btn.className = `text-left flex-1 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2`;
+                btn.className = `text-left text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2 min-w-0`;
                 btn.onclick = () => window.switchProfile(name);
 
                 const dot = document.createElement('div');
@@ -902,33 +907,34 @@
 
                 btn.appendChild(dot);
                 btn.appendChild(nameSpan);
+                contentWrapper.appendChild(btn);
+
+                // Create badges container
+                const badgesWrapper = document.createElement('div');
+                badgesWrapper.className = 'flex items-center gap-1 flex-shrink-0';
 
                 // Show "Active" badge for active profile
                 if(isActive) {
                     const badge = document.createElement('span');
-                    badge.className = 'ml-2 text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
+                    badge.className = 'text-[10px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider';
                     badge.textContent = 'Active';
-                    btn.appendChild(badge);
+                    badgesWrapper.appendChild(badge);
                 }
 
                 // Show "Default" badge for default profile
-                const isDefault = name === appData.defaultProfileId;
-                if(isDefault && !isActive) {
+                if(isDefault) {
                     const defaultBadge = document.createElement('span');
-                    defaultBadge.className = 'ml-2 text-[10px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
+                    defaultBadge.className = 'text-[10px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider';
                     defaultBadge.textContent = 'Default';
-                    btn.appendChild(defaultBadge);
+                    badgesWrapper.appendChild(defaultBadge);
                 }
 
-                // Show both badges if profile is both active and default
-                if(isActive && isDefault) {
-                    const defaultBadge = document.createElement('span');
-                    defaultBadge.className = 'ml-2 text-[10px] text-emerald-500 bg-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0';
-                    defaultBadge.textContent = 'Default';
-                    btn.appendChild(defaultBadge);
+                // Only append badges wrapper if it has badges
+                if(isActive || isDefault) {
+                    contentWrapper.appendChild(badgesWrapper);
                 }
 
-                itemDiv.appendChild(btn);
+                itemDiv.appendChild(contentWrapper);
 
                 // Show rename button for all profiles
                 const renameBtn = document.createElement('button');
