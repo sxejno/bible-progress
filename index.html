@@ -298,6 +298,7 @@
                     </div>
                     <select id="plan-selector" onchange="window.changePlan()" class="bg-white/20 text-white border border-white/30 rounded-xl text-sm font-bold uppercase tracking-wide py-3 px-5 outline-none focus:bg-white/30 focus:ring-2 focus:ring-white/50 cursor-pointer w-full md:w-auto">
                         <option value="SEQUENTIAL" class="text-slate-900">Canonical (Default)</option>
+                        <option value="ONE_YEAR" class="text-slate-900">One Year (OT+NT Daily)</option>
                         <option value="MCHEYNE" class="text-slate-900">M'Cheyne (1 Year)</option>
                         <option value="HORNER" class="text-slate-900">Prof. Horner (10 Lists)</option>
                     </select>
@@ -1361,8 +1362,64 @@
                     if (found >= target) break;
                 }
                 if (nextChapters.length === 0) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`; return; }
-            } 
-            
+            }
+
+            else if (activePlan === 'ONE_YEAR') {
+                descText = "<strong>One Year Plan:</strong> Read through the entire Bible in one year with daily OT and NT readings (3 OT chapters + 1 NT chapter per day).";
+
+                // Find next 3 unread OT chapters
+                let otFound = 0;
+                for (let b = 0; b < bible.length; b++) {
+                    const book = bible[b];
+                    if (book.testament !== 'OT') continue;
+                    for (let c = 0; c < book.ch.length; c++) {
+                        if (!currentProg[`${book.name}-${c+1}`]) {
+                            nextChapters.push({
+                                book: book.name,
+                                chapter: c + 1,
+                                words: book.ch[c],
+                                label: `${book.name} ${c+1}`,
+                                badge: "Old Testament"
+                            });
+                            otFound++;
+                            if (otFound >= 3) break;
+                        }
+                    }
+                    if (otFound >= 3) break;
+                }
+
+                // Find next 1 unread NT chapter
+                let ntFound = 0;
+                for (let b = 0; b < bible.length; b++) {
+                    const book = bible[b];
+                    if (book.testament !== 'NT') continue;
+                    for (let c = 0; c < book.ch.length; c++) {
+                        if (!currentProg[`${book.name}-${c+1}`]) {
+                            nextChapters.push({
+                                book: book.name,
+                                chapter: c + 1,
+                                words: book.ch[c],
+                                label: `${book.name} ${c+1}`,
+                                badge: "New Testament"
+                            });
+                            ntFound++;
+                            if (ntFound >= 1) break;
+                        }
+                    }
+                    if (ntFound >= 1) break;
+                }
+
+                if (nextChapters.length === 0) {
+                    list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`;
+                    return;
+                }
+
+                const totalChaptersRead = Object.keys(currentProg).filter(k => currentProg[k]).length;
+                const totalChapters = bible.reduce((sum, b) => sum + b.ch.length, 0);
+                const daysElapsed = Math.ceil(totalChaptersRead / 4); // Approximate days (4 chapters/day)
+                footerMsg.innerText = `Approximately Day ${daysElapsed} of 365 • ${totalChapters - totalChaptersRead} chapters remaining`;
+            }
+
             else if (activePlan === 'MCHEYNE') {
                 descText = "<strong>M'Cheyne Plan:</strong> 4 chapters daily (Family/Secret) covering NT/Psalms twice and OT once per year.";
                 let currentDay = null;
