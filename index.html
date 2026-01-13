@@ -337,8 +337,38 @@
             </div>
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Category Breakdown</h3>
             <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+
+            <div class="mt-12">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Activity</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div class="flex flex-col lg:flex-row gap-8 mb-8">
+                        <div class="flex-1 text-center lg:text-left">
+                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-indigo-100/50 px-6 py-4 rounded-2xl border border-indigo-100">
+                                <span class="text-3xl">🔥</span>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Current Streak</div>
+                                    <div id="current-streak" class="text-2xl font-black text-indigo-900">0 days</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 text-center lg:text-left">
+                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-amber-100/50 px-6 py-4 rounded-2xl border border-amber-100">
+                                <span class="text-3xl">⭐</span>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Longest Streak</div>
+                                    <div id="longest-streak" class="text-2xl font-black text-amber-900">0 days</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div id="heatmap-container" class="min-w-[600px]"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4 text-center">Each square represents a day. Darker colors indicate more chapters read.</p>
+                </div>
+            </div>
         </div>
-        
+
         <div id="view-about" class="hidden animate-in">
              <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">About</h2>
@@ -610,6 +640,17 @@
         if(!appData.profiles[appData.defaultProfileId]) {
             appData.defaultProfileId = appData.activeProfileId;
         }
+
+        // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+        Object.keys(appData.profiles).forEach(profileName => {
+            const profile = appData.profiles[profileName];
+            Object.keys(profile).forEach(chapterKey => {
+                if(profile[chapterKey] === true) {
+                    // Convert true to current timestamp (one-time migration)
+                    profile[chapterKey] = Date.now();
+                }
+            });
+        });
 
         // If "Default" is active/default but other profiles exist, switch away from it
         const allProfileNames = Object.keys(appData.profiles);
@@ -1245,7 +1286,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.toggleChapter = (id) => {
             const prog = getProgress();
-            prog[id] = !prog[id];
+            // Store timestamp when marking as read, false when unmarking
+            prog[id] = prog[id] ? false : Date.now();
             setProgress(prog);
             window.saveProgress();
             window.renderChapterGrid();
@@ -1254,7 +1296,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.toggleAllInBook = (val) => {
             const book = bible[activeBookIdx];
             const prog = getProgress();
-            book.ch.forEach((_, i) => prog[`${book.name}-${i+1}`] = val);
+            // Store timestamp when marking as read (val=true), false when clearing (val=false)
+            book.ch.forEach((_, i) => prog[`${book.name}-${i+1}`] = val ? Date.now() : false);
             setProgress(prog);
             window.saveProgress();
             window.renderChapterGrid();
@@ -1651,6 +1694,188 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             container.innerHTML = catStats.map(c => `<div class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${c.style}"><span class="opacity-70">${c.name}</span><span>${c.percent}%</span></div>`).join('');
         }
 
+        // --- HEATMAP & STREAK FUNCTIONS ---
+
+        function getReadingActivity() {
+            // Returns a map of date string (YYYY-MM-DD) to chapter count
+            const currentProg = getProgress();
+            const activityMap = {};
+
+            Object.keys(currentProg).forEach(chapterKey => {
+                const timestamp = currentProg[chapterKey];
+                if(timestamp && typeof timestamp === 'number') {
+                    const date = new Date(timestamp);
+                    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
+                }
+            });
+
+            return activityMap;
+        }
+
+        function calculateStreaks() {
+            const activityMap = getReadingActivity();
+            const dates = Object.keys(activityMap).sort();
+
+            if(dates.length === 0) {
+                return { current: 0, longest: 0 };
+            }
+
+            let currentStreak = 0;
+            let longestStreak = 0;
+            let tempStreak = 0;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Check if there's activity today or yesterday
+            const todayStr = today.toISOString().split('T')[0];
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            const hasRecentActivity = activityMap[todayStr] || activityMap[yesterdayStr];
+
+            // Calculate longest streak and current streak
+            for(let i = 0; i < dates.length; i++) {
+                if(i === 0) {
+                    tempStreak = 1;
+                } else {
+                    const prevDate = new Date(dates[i-1]);
+                    const currDate = new Date(dates[i]);
+                    const diffDays = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+
+                    if(diffDays === 1) {
+                        tempStreak++;
+                    } else {
+                        tempStreak = 1;
+                    }
+                }
+
+                longestStreak = Math.max(longestStreak, tempStreak);
+            }
+
+            // Calculate current streak (only if recent activity)
+            if(hasRecentActivity) {
+                let checkDate = new Date(today);
+                currentStreak = 0;
+
+                for(let i = 0; i < 365; i++) {
+                    const checkStr = checkDate.toISOString().split('T')[0];
+                    if(activityMap[checkStr]) {
+                        currentStreak++;
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    } else if(i > 0) {
+                        // Allow one day grace (yesterday), but break if older
+                        break;
+                    } else {
+                        // No activity today, check yesterday
+                        checkDate.setDate(checkDate.getDate() - 1);
+                    }
+                }
+            }
+
+            return { current: currentStreak, longest: longestStreak };
+        }
+
+        function renderHeatmap() {
+            const activityMap = getReadingActivity();
+            const container = document.getElementById('heatmap-container');
+
+            if(!container) return;
+
+            // Generate last 365 days
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const days = [];
+
+            for(let i = 364; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const count = activityMap[dateStr] || 0;
+                days.push({ date: dateStr, count, dayOfWeek: date.getDay() });
+            }
+
+            // Group by week
+            const weeks = [];
+            let currentWeek = [];
+
+            // Pad start to align with Sunday
+            const firstDayOfWeek = days[0].dayOfWeek;
+            for(let i = 0; i < firstDayOfWeek; i++) {
+                currentWeek.push({ empty: true });
+            }
+
+            days.forEach((day, idx) => {
+                currentWeek.push(day);
+                if(currentWeek.length === 7 || idx === days.length - 1) {
+                    // Pad end of last week
+                    while(currentWeek.length < 7) {
+                        currentWeek.push({ empty: true });
+                    }
+                    weeks.push(currentWeek);
+                    currentWeek = [];
+                }
+            });
+
+            // Determine max count for color scaling
+            const maxCount = Math.max(...days.map(d => d.count), 1);
+
+            // Generate HTML
+            const getColor = (count) => {
+                if(count === 0) return '#f1f5f9'; // slate-100
+                const intensity = Math.min(count / Math.max(maxCount, 4), 1);
+                if(intensity < 0.25) return '#bfdbfe'; // blue-200
+                if(intensity < 0.5) return '#93c5fd';  // blue-300
+                if(intensity < 0.75) return '#60a5fa'; // blue-400
+                return '#3b82f6'; // blue-500
+            };
+
+            const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            let html = '<div class="flex gap-1">';
+
+            // Day labels (S M T W T F S)
+            html += '<div class="flex flex-col gap-1 text-[10px] text-slate-400 font-medium pr-1 justify-around" style="height: 105px;">';
+            ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => {
+                html += `<div style="height: 11px; line-height: 11px;">${day}</div>`;
+            });
+            html += '</div>';
+
+            // Weeks
+            html += '<div class="flex-1 relative"><div class="flex gap-1">';
+
+            weeks.forEach((week, weekIdx) => {
+                html += '<div class="flex flex-col gap-1">';
+                week.forEach(day => {
+                    if(day.empty) {
+                        html += '<div style="width: 11px; height: 11px;"></div>';
+                    } else {
+                        const color = getColor(day.count);
+                        const title = `${day.date}: ${day.count} chapter${day.count !== 1 ? 's' : ''}`;
+                        html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" title="${title}" class="cursor-pointer hover:ring-2 hover:ring-indigo-400 transition-all"></div>`;
+                    }
+                });
+                html += '</div>';
+            });
+
+            html += '</div></div></div>';
+
+            // Legend
+            html += '<div class="mt-4 flex items-center gap-2 text-xs text-slate-500">';
+            html += '<span>Less</span>';
+            [0, 0.25, 0.5, 0.75, 1].forEach(intensity => {
+                const count = Math.ceil(intensity * maxCount);
+                const color = getColor(count);
+                html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" class="border border-slate-200"></div>`;
+            });
+            html += '<span>More</span>';
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
         window.renderStatsPage = () => {
             const allCats = [...OT_CATS, ...NT_CATS];
             const dataset = []; const labels = []; const colors = []; let chartTotalRead = 0;
@@ -1689,6 +1914,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const miniCtx = document.getElementById(`miniChart-${i}`).getContext('2d');
                 miniCharts.push(new Chart(miniCtx, { type: 'doughnut', data: { labels: ["Read", "Remaining"], datasets: [{ data: [cat.stats.read, cat.stats.total - cat.stats.read], backgroundColor: [cat.chartColor, "#cbd5e1"], borderWidth: 0 }] }, options: { cutout: '70%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, events: [] } }));
             });
+
+            // Render heatmap and streak stats
+            const streaks = calculateStreaks();
+            document.getElementById('current-streak').innerText = `${streaks.current} day${streaks.current !== 1 ? 's' : ''}`;
+            document.getElementById('longest-streak').innerText = `${streaks.longest} day${streaks.longest !== 1 ? 's' : ''}`;
+            renderHeatmap();
         }
 
         assignCategories();
