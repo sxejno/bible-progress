@@ -341,22 +341,40 @@
             <div class="mt-12">
                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Activity</h3>
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
-                    <div class="flex flex-col lg:flex-row gap-8 mb-8">
-                        <div class="flex-1 text-center lg:text-left">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-indigo-100/50 px-6 py-4 rounded-2xl border border-indigo-100">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div class="text-center lg:text-left">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-indigo-50 to-indigo-100/50 px-6 py-4 rounded-2xl border border-indigo-100 w-full">
                                 <span class="text-3xl">🔥</span>
-                                <div>
+                                <div class="text-center">
                                     <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Current Streak</div>
                                     <div id="current-streak" class="text-2xl font-black text-indigo-900">0 days</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-1 text-center lg:text-left">
-                            <div class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-50 to-amber-100/50 px-6 py-4 rounded-2xl border border-amber-100">
+                        <div class="text-center lg:text-left">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-amber-50 to-amber-100/50 px-6 py-4 rounded-2xl border border-amber-100 w-full">
                                 <span class="text-3xl">⭐</span>
-                                <div>
+                                <div class="text-center">
                                     <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Longest Streak</div>
                                     <div id="longest-streak" class="text-2xl font-black text-amber-900">0 days</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center lg:text-left">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-emerald-50 to-emerald-100/50 px-6 py-4 rounded-2xl border border-emerald-100 w-full">
+                                <span class="text-3xl">📅</span>
+                                <div class="text-center">
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">This Year</div>
+                                    <div id="year-chapters" class="text-2xl font-black text-emerald-900">0 ch</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center lg:text-left">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-rose-50 to-rose-100/50 px-6 py-4 rounded-2xl border border-rose-100 w-full">
+                                <span class="text-3xl">📊</span>
+                                <div class="text-center">
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Best Day</div>
+                                    <div id="best-day" class="text-2xl font-black text-rose-900">0 ch</div>
                                 </div>
                             </div>
                         </div>
@@ -364,7 +382,7 @@
                     <div class="overflow-x-auto">
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
-                    <p class="text-xs text-slate-400 mt-4 text-center">Each square represents a day. Darker colors indicate more chapters read.</p>
+                    <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity for the past year. Each square represents a day of Bible reading.</p>
                 </div>
             </div>
         </div>
@@ -1829,17 +1847,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             });
 
-            // Determine max count for color scaling
+            // Determine max count for statistics
             const maxCount = Math.max(...days.map(d => d.count), 1);
 
-            // Generate HTML
+            // Generate HTML with improved color scale based on meaningful thresholds
             const getColor = (count) => {
-                if(count === 0) return '#f1f5f9'; // slate-100
-                const intensity = Math.min(count / Math.max(maxCount, 4), 1);
-                if(intensity < 0.25) return '#bfdbfe'; // blue-200
-                if(intensity < 0.5) return '#93c5fd';  // blue-300
-                if(intensity < 0.75) return '#60a5fa'; // blue-400
-                return '#3b82f6'; // blue-500
+                if(count === 0) return '#f1f5f9'; // slate-100 (no reading)
+                if(count <= 2) return '#bfdbfe'; // blue-200 (light day: 1-2 chapters)
+                if(count <= 5) return '#60a5fa'; // blue-400 (standard day: 3-5 chapters, M'Cheyne plan)
+                if(count <= 10) return '#3b82f6'; // blue-500 (intensive day: 6-10 chapters)
+                return '#1e40af'; // blue-800 (very intensive: 11+ chapters)
             };
 
             const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -1872,15 +1889,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             html += '</div></div></div>';
 
-            // Legend
-            html += '<div class="mt-4 flex items-center gap-2 text-xs text-slate-500">';
-            html += '<span>Less</span>';
-            [0, 0.25, 0.5, 0.75, 1].forEach(intensity => {
-                const count = Math.ceil(intensity * maxCount);
+            // Legend with meaningful labels
+            html += '<div class="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500">';
+            [
+                { count: 0, label: 'None' },
+                { count: 1, label: '1-2' },
+                { count: 3, label: '3-5' },
+                { count: 6, label: '6-10' },
+                { count: 11, label: '11+' }
+            ].forEach(({ count, label }) => {
                 const color = getColor(count);
+                html += `<div class="flex items-center gap-1.5">`;
                 html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" class="border border-slate-200"></div>`;
+                html += `<span class="text-[10px] font-medium">${label}</span>`;
+                html += `</div>`;
             });
-            html += '<span>More</span>';
             html += '</div>';
 
             container.innerHTML = html;
@@ -1929,6 +1952,24 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const streaks = calculateStreaks();
             document.getElementById('current-streak').innerText = `${streaks.current} day${streaks.current !== 1 ? 's' : ''}`;
             document.getElementById('longest-streak').innerText = `${streaks.longest} day${streaks.longest !== 1 ? 's' : ''}`;
+
+            // Calculate additional statistics
+            const activityMap = getReadingActivity();
+            const yearStart = new Date(new Date().getFullYear(), 0, 1);
+            let yearChapters = 0;
+            let bestDayChapters = 0;
+
+            Object.keys(activityMap).forEach(dateStr => {
+                const date = new Date(dateStr);
+                if(date >= yearStart) {
+                    yearChapters += activityMap[dateStr];
+                }
+                bestDayChapters = Math.max(bestDayChapters, activityMap[dateStr]);
+            });
+
+            document.getElementById('year-chapters').innerText = `${yearChapters} ch`;
+            document.getElementById('best-day').innerText = `${bestDayChapters} ch`;
+
             renderHeatmap();
         }
 
