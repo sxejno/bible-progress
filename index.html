@@ -382,7 +382,7 @@
                     <div class="overflow-x-auto">
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
-                    <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity for the past year. Each square represents a day of Bible reading.</p>
+                    <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity over time. Each square represents a day of Bible reading.</p>
                 </div>
             </div>
         </div>
@@ -1812,12 +1812,31 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             if(!container) return;
 
-            // Generate last 365 days
+            // Find the earliest reading date
+            const activityDates = Object.keys(activityMap);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const days = [];
 
-            for(let i = 364; i >= 0; i--) {
+            let daysToShow = 365; // Default to 365 days
+
+            if(activityDates.length > 0) {
+                // Find earliest date
+                const earliestDate = new Date(Math.min(...activityDates.map(d => new Date(d))));
+                earliestDate.setHours(0, 0, 0, 0);
+
+                // Calculate days between earliest and today
+                const daysSinceFirst = Math.floor((today - earliestDate) / (1000 * 60 * 60 * 24)) + 1;
+
+                // Use adaptive range: minimum 30 days, maximum 365 days
+                daysToShow = Math.min(Math.max(daysSinceFirst, 30), 365);
+            } else {
+                // No reading activity yet, show last 30 days
+                daysToShow = 30;
+            }
+
+            // Generate days based on adaptive range
+            const days = [];
+            for(let i = daysToShow - 1; i >= 0; i--) {
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
                 const dateStr = date.toISOString().split('T')[0];
