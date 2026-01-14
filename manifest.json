@@ -1,20 +1,26 @@
 {
   "name": "Bible Progress",
   "short_name": "Bible Progress",
+  "description": "Word-weighted Bible reading tracker",
   "start_url": "./index.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["education", "lifestyle"],
+  "screenshots": []
 }

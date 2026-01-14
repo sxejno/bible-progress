@@ -474,6 +474,19 @@
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Settings</h2>
 
+                <div class="mb-8 pb-8 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Appearance</h3>
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div>
+                            <div class="font-bold text-slate-700 text-sm mb-1">Dark Mode</div>
+                            <div class="text-xs text-slate-500">Enable dark theme for reduced eye strain</div>
+                        </div>
+                        <button onclick="window.toggleDarkModeSetting()" id="dark-mode-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300">
+                            <span id="dark-mode-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -2037,6 +2050,47 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         updateProfileColor();
         checkFirstVisit();
 
+        // --- DARK MODE TOGGLE UI HELPER ---
+        function updateDarkModeToggleUI(isDark) {
+            const toggle = document.getElementById('dark-mode-toggle');
+            const circle = document.getElementById('dark-mode-toggle-circle');
+
+            if(toggle && circle) {
+                if(isDark) {
+                    toggle.classList.remove('bg-slate-300');
+                    toggle.classList.add('bg-indigo-600');
+                    circle.classList.remove('translate-x-1');
+                    circle.classList.add('translate-x-7');
+                } else {
+                    toggle.classList.remove('bg-indigo-600');
+                    toggle.classList.add('bg-slate-300');
+                    circle.classList.remove('translate-x-7');
+                    circle.classList.add('translate-x-1');
+                }
+            }
+        }
+
+        // --- INITIALIZE DARK MODE FROM LOCALSTORAGE ---
+        const darkModePreference = localStorage.getItem('darkMode');
+        if (darkModePreference === 'enabled') {
+            document.body.classList.add('dark-mode');
+            updateDarkModeToggleUI(true);
+
+            // Add dark mode styles if not already present
+            if(!document.getElementById('dark-mode-style')) {
+                const style = document.createElement('style');
+                style.id = 'dark-mode-style';
+                style.textContent = `
+                    .dark-mode {
+                        filter: invert(0.9) hue-rotate(180deg);
+                        background: #1a1a1a !important;
+                    }
+                    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
         // --- TAB SCROLL INDICATOR ---
         function updateTabScrollIndicator() {
             const container = document.getElementById('tab-scroll-container');
@@ -2420,33 +2474,58 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			});
 		}
 
-		function toggleDarkMode() {
+		function toggleDarkMode(showNotification = true) {
 			document.body.classList.toggle('dark-mode');
 			const isDark = document.body.classList.contains('dark-mode');
-			
+
+			// Save preference to localStorage
+			localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+
+			// Update toggle button UI if it exists
+			updateDarkModeToggleUI(isDark);
+
 			if(!document.getElementById('dark-mode-style')) {
 				const style = document.createElement('style');
 				style.id = 'dark-mode-style';
 				style.textContent = `
-					.dark-mode { 
-						filter: invert(0.9) hue-rotate(180deg); 
+					.dark-mode {
+						filter: invert(0.9) hue-rotate(180deg);
 						background: #1a1a1a !important;
 					}
 					.dark-mode img { filter: invert(1) hue-rotate(180deg); }
 				`;
 				document.head.appendChild(style);
 			}
-			
-			const notification = document.createElement('div');
-			notification.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm animate-in';
-			notification.textContent = isDark ? '🌙 Dark Mode Enabled' : '☀️ Light Mode Enabled';
-			document.body.appendChild(notification);
-			setTimeout(() => notification.remove(), 2000);
+
+			if(showNotification) {
+				const notification = document.createElement('div');
+				notification.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm animate-in';
+				notification.textContent = isDark ? '🌙 Dark Mode Enabled' : '☀️ Light Mode Enabled';
+				document.body.appendChild(notification);
+				setTimeout(() => notification.remove(), 2000);
+			}
 		}
 
+		// Settings page dark mode toggle (without Easter egg notification)
+		window.toggleDarkModeSetting = () => {
+			toggleDarkMode(false);
+		};
+
 		console.log('🥚 Easter eggs loaded! Try: Konami Code, click profile dot 7x, complete Psalm 119, finish the Bible, type SHANE, triple-click logo, or visit on Christmas/Easter!');
-		
-		
+
+		// --- SERVICE WORKER REGISTRATION FOR PWA ---
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('./service-worker.js')
+					.then(registration => {
+						console.log('✅ Service Worker registered successfully:', registration.scope);
+					})
+					.catch(error => {
+						console.log('❌ Service Worker registration failed:', error);
+					});
+			});
+		}
+
     </script>
 </body>
 
