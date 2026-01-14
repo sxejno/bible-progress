@@ -896,17 +896,107 @@
         function refreshUI() {
             currentProfileName.innerText = appData.activeProfileId;
             updateProfileColor();
-            
+
             // Update active plan for current profile
             activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
             const planSelector = document.getElementById('plan-selector');
             if(planSelector) planSelector.value = activePlan;
-            
+
             if(window.activeTab === 'STATS') window.renderStatsPage();
             else if(window.activeTab === 'PLAN') window.renderDailyPlan();
             else if(window.activeTab === 'ABOUT') { }
             else { window.renderBookGrid(); window.renderSubdivisionStats(); }
             window.updateStats();
+        }
+
+        // --- OFFLINE/ONLINE DETECTION & TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'info') {
+            // Remove any existing toasts
+            const existingToast = document.getElementById('connection-toast');
+            if(existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'connection-toast';
+            toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[150] transition-all duration-300';
+
+            const bgColors = {
+                'offline': 'bg-amber-50 border-amber-200',
+                'online': 'bg-emerald-50 border-emerald-200',
+                'info': 'bg-slate-50 border-slate-200'
+            };
+
+            const textColors = {
+                'offline': 'text-amber-900',
+                'online': 'text-emerald-900',
+                'info': 'text-slate-900'
+            };
+
+            const icons = {
+                'offline': '📡',
+                'online': '✅',
+                'info': 'ℹ️'
+            };
+
+            toast.innerHTML = `
+                <div class="${bgColors[type]} ${textColors[type]} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 animate-in max-w-md">
+                    <span class="text-2xl">${icons[type]}</span>
+                    <p class="text-sm font-bold leading-relaxed">${message}</p>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if(toast && toast.parentNode) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        function updateOfflineStatus() {
+            if(!navigator.onLine) {
+                if(syncStatus) {
+                    syncStatus.textContent = "Offline Mode";
+                    syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-100";
+                }
+            } else if(currentUser) {
+                if(syncStatus) {
+                    syncStatus.textContent = "Cloud Synced";
+                    syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full border border-emerald-100";
+                }
+            } else {
+                if(syncStatus) {
+                    syncStatus.textContent = "Local Only";
+                    syncStatus.className = "text-[10px] font-bold uppercase tracking-widest mb-1 bg-slate-100 text-slate-400 px-2 py-1 rounded-full";
+                }
+            }
+        }
+
+        // Offline event listener
+        window.addEventListener('offline', () => {
+            console.log('📡 Connection lost - entering offline mode');
+            updateOfflineStatus();
+            showToast('You are offline. All changes are saved locally and will sync when you\'re back online.', 'offline');
+        });
+
+        // Online event listener
+        window.addEventListener('online', () => {
+            console.log('✅ Connection restored - back online');
+            updateOfflineStatus();
+            showToast('Connection restored! Your progress is syncing to the cloud.', 'online');
+
+            // Trigger a save to sync any pending changes
+            if(currentUser) {
+                window.saveProgress(true);
+            }
+        });
+
+        // Check initial offline status on load
+        if(!navigator.onLine) {
+            console.log('📡 Starting in offline mode');
+            updateOfflineStatus();
         }
 
         // --- GLOBAL FUNCTIONS ---
