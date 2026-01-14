@@ -529,6 +529,21 @@
                         Backup your reading progress to a JSON file. Restore from a backup to recover your data or transfer between devices.
                     </p>
                 </div>
+
+                <div id="advanced-settings-container" class="mb-8" style="display: none;">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Advanced: Cross-Profile Sync</h3>
+                    <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                        Configure one-way chapter syncing between profiles. When you mark a chapter as read in the <strong>source profile</strong>, it will automatically be marked as read in the <strong>target profile</strong> (but not vice versa).
+                    </p>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-100">
+                        <strong>Example:</strong> If you have a "Family" profile and a "Private" profile, you can set Family → Private so that chapters read with the family also count toward your private progress.
+                    </p>
+                    <div id="profile-sync-rules" class="space-y-3"></div>
+                    <button onclick="window.addProfileSyncRule()" class="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-100 transition-colors text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Sync Rule
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -672,7 +687,8 @@
             profiles: { "Default": oldProgress || {} },
             activeProfileId: "Default",
             profilePlans: { "Default": oldPlan },
-            defaultProfileId: "Default"
+            defaultProfileId: "Default",
+            profileSyncRules: {}
         };
 
         // Ensure data structure is valid
@@ -694,6 +710,11 @@
         if(!appData.defaultProfileId) {
             // Set the first profile as default (or current active profile)
             appData.defaultProfileId = appData.activeProfileId || Object.keys(appData.profiles)[0];
+        }
+
+        // Migrate existing users to have profileSyncRules
+        if(!appData.profileSyncRules) {
+            appData.profileSyncRules = {};
         }
 
         // On app load, use defaultProfileId if it exists and is valid
@@ -1259,6 +1280,19 @@
                     appData.defaultProfileId = appData.activeProfileId;
                 }
 
+                // Clean up sync rules involving this profile
+                if(appData.profileSyncRules) {
+                    // Remove if this profile is a source
+                    delete appData.profileSyncRules[name];
+
+                    // Remove if this profile is a target
+                    Object.keys(appData.profileSyncRules).forEach(sourceProfile => {
+                        if(appData.profileSyncRules[sourceProfile] === name) {
+                            delete appData.profileSyncRules[sourceProfile];
+                        }
+                    });
+                }
+
                 window.saveProgress(true); // Immediate save
                 renderProfileList(); // Re-render the list
                 alert(`✅ Profile "${name}" has been deleted.`);
@@ -1309,6 +1343,22 @@
                 appData.defaultProfileId = newName;
             }
 
+            // Update sync rules if this profile is involved
+            if(appData.profileSyncRules) {
+                // Update if this profile is a source
+                if(appData.profileSyncRules[oldName]) {
+                    appData.profileSyncRules[newName] = appData.profileSyncRules[oldName];
+                    delete appData.profileSyncRules[oldName];
+                }
+
+                // Update if this profile is a target
+                Object.keys(appData.profileSyncRules).forEach(sourceProfile => {
+                    if(appData.profileSyncRules[sourceProfile] === oldName) {
+                        appData.profileSyncRules[sourceProfile] = newName;
+                    }
+                });
+            }
+
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
             alert(`✅ Profile renamed from "${oldName}" to "${newName}".`);
@@ -1323,6 +1373,151 @@
             appData.defaultProfileId = name;
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
+        };
+
+        // --- PROFILE SYNC FUNCTIONS ---
+        window.renderProfileSyncSettings = () => {
+            const container = document.getElementById('advanced-settings-container');
+            const rulesContainer = document.getElementById('profile-sync-rules');
+
+            if(!container || !rulesContainer) return;
+
+            const profileCount = Object.keys(appData.profiles).length;
+
+            // Only show if there are 2+ profiles
+            if(profileCount < 2) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+
+            // Render existing sync rules
+            rulesContainer.innerHTML = '';
+
+            const syncRules = appData.profileSyncRules || {};
+            const allProfileNames = Object.keys(appData.profiles).sort();
+
+            if(Object.keys(syncRules).length === 0) {
+                rulesContainer.innerHTML = '<p class="text-xs text-slate-400 italic p-4 text-center bg-slate-50 rounded-lg border border-slate-200">No sync rules configured. Click "Add Sync Rule" to create one.</p>';
+                return;
+            }
+
+            Object.entries(syncRules).forEach(([sourceProfile, targetProfile]) => {
+                // Skip if either profile no longer exists
+                if(!appData.profiles[sourceProfile] || !appData.profiles[targetProfile]) {
+                    delete appData.profileSyncRules[sourceProfile];
+                    return;
+                }
+
+                const ruleDiv = document.createElement('div');
+                ruleDiv.className = 'flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200';
+
+                const ruleText = document.createElement('div');
+                ruleText.className = 'flex-1 flex items-center gap-2 text-sm';
+
+                const sourceSpan = document.createElement('span');
+                sourceSpan.className = 'font-bold text-slate-700';
+                sourceSpan.textContent = sourceProfile;
+
+                const arrow = document.createElement('span');
+                arrow.className = 'text-indigo-500 font-black';
+                arrow.innerHTML = '→';
+
+                const targetSpan = document.createElement('span');
+                targetSpan.className = 'font-bold text-indigo-600';
+                targetSpan.textContent = targetProfile;
+
+                ruleText.appendChild(sourceSpan);
+                ruleText.appendChild(arrow);
+                ruleText.appendChild(targetSpan);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'text-slate-400 hover:text-red-500 p-1 transition-colors';
+                deleteBtn.onclick = () => window.removeProfileSyncRule(sourceProfile);
+                deleteBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                deleteBtn.title = 'Remove sync rule';
+
+                ruleDiv.appendChild(ruleText);
+                ruleDiv.appendChild(deleteBtn);
+                rulesContainer.appendChild(ruleDiv);
+            });
+        };
+
+        window.addProfileSyncRule = () => {
+            const allProfileNames = Object.keys(appData.profiles).sort();
+            const syncRules = appData.profileSyncRules || {};
+
+            // Find profiles that don't already have a sync rule as source
+            const availableSourceProfiles = allProfileNames.filter(name => !syncRules[name]);
+
+            if(availableSourceProfiles.length === 0) {
+                alert("⚠️ All profiles already have sync rules.\n\nEach profile can only be the source for one sync rule. Remove an existing rule to create a new one.");
+                return;
+            }
+
+            let sourceProfile = availableSourceProfiles[0];
+            if(availableSourceProfiles.length > 1) {
+                const sourceMsg = "Select SOURCE profile (chapters marked here will sync):\n\n" +
+                    availableSourceProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
+                const sourceInput = prompt(sourceMsg, '1');
+
+                if(!sourceInput) return;
+
+                const sourceIdx = parseInt(sourceInput) - 1;
+                if(sourceIdx < 0 || sourceIdx >= availableSourceProfiles.length) {
+                    alert("❌ Invalid selection.");
+                    return;
+                }
+                sourceProfile = availableSourceProfiles[sourceIdx];
+            }
+
+            // Find profiles that can be targets (all except the source and existing targets)
+            const existingTargets = Object.values(syncRules);
+            const availableTargetProfiles = allProfileNames.filter(name =>
+                name !== sourceProfile && !existingTargets.includes(name)
+            );
+
+            if(availableTargetProfiles.length === 0) {
+                alert("⚠️ No available target profiles.\n\nAll other profiles are already targets of existing sync rules.");
+                return;
+            }
+
+            let targetProfile = availableTargetProfiles[0];
+            if(availableTargetProfiles.length > 1) {
+                const targetMsg = `Select TARGET profile (will receive synced chapters from "${sourceProfile}"):\n\n` +
+                    availableTargetProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
+                const targetInput = prompt(targetMsg, '1');
+
+                if(!targetInput) return;
+
+                const targetIdx = parseInt(targetInput) - 1;
+                if(targetIdx < 0 || targetIdx >= availableTargetProfiles.length) {
+                    alert("❌ Invalid selection.");
+                    return;
+                }
+                targetProfile = availableTargetProfiles[targetIdx];
+            }
+
+            // Confirm the rule
+            const confirmMsg = `Create sync rule?\n\n${sourceProfile} → ${targetProfile}\n\nChapters marked in "${sourceProfile}" will automatically be marked in "${targetProfile}".`;
+            if(!confirm(confirmMsg)) return;
+
+            appData.profileSyncRules[sourceProfile] = targetProfile;
+            window.saveProgress(true);
+            window.renderProfileSyncSettings();
+        };
+
+        window.removeProfileSyncRule = (sourceProfile) => {
+            const targetProfile = appData.profileSyncRules[sourceProfile];
+
+            if(!confirm(`Remove sync rule?\n\n${sourceProfile} → ${targetProfile}\n\nChapters will no longer sync automatically.`)) {
+                return;
+            }
+
+            delete appData.profileSyncRules[sourceProfile];
+            window.saveProgress(true);
+            window.renderProfileSyncSettings();
         };
 
         document.addEventListener('click', (e) => {
@@ -1418,7 +1613,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (t === 'STATS') { document.getElementById('view-stats').classList.remove('hidden'); window.renderStatsPage(); }
             else if (t === 'PLAN') { document.getElementById('view-plan').classList.remove('hidden'); window.renderDailyPlan(); }
             else if (t === 'ABOUT') { document.getElementById('view-about').classList.remove('hidden'); }
-            else if (t === 'SETTINGS') { document.getElementById('view-settings').classList.remove('hidden'); }
+            else if (t === 'SETTINGS') { document.getElementById('view-settings').classList.remove('hidden'); window.renderProfileSyncSettings(); }
             else { document.getElementById('view-books').classList.remove('hidden'); window.renderBookGrid(); window.renderSubdivisionStats(); }
         };
 
@@ -1455,8 +1650,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.toggleChapter = (id) => {
             const prog = getProgress();
             // Store timestamp when marking as read, false when unmarking
-            prog[id] = prog[id] ? false : Date.now();
+            const timestamp = prog[id] ? false : Date.now();
+            prog[id] = timestamp;
             setProgress(prog);
+
+            // Apply cross-profile sync if rule exists and chapter is being marked as read
+            if(timestamp && appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
+                const targetProfile = appData.profileSyncRules[appData.activeProfileId];
+                if(appData.profiles[targetProfile]) {
+                    // Mark the same chapter in the target profile with the same timestamp
+                    appData.profiles[targetProfile][id] = timestamp;
+                }
+            }
+
             window.saveProgress();
             window.renderChapterGrid();
         };
@@ -1465,7 +1671,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const book = bible[activeBookIdx];
             const prog = getProgress();
             // Store timestamp when marking as read (val=true), false when clearing (val=false)
-            book.ch.forEach((_, i) => prog[`${book.name}-${i+1}`] = val ? Date.now() : false);
+            const timestamp = val ? Date.now() : false;
+            book.ch.forEach((_, i) => {
+                const chapterId = `${book.name}-${i+1}`;
+                prog[chapterId] = timestamp;
+
+                // Apply cross-profile sync if rule exists and chapters are being marked as read
+                if(timestamp && appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
+                    const targetProfile = appData.profileSyncRules[appData.activeProfileId];
+                    if(appData.profiles[targetProfile]) {
+                        appData.profiles[targetProfile][chapterId] = timestamp;
+                    }
+                }
+            });
             setProgress(prog);
             window.saveProgress();
             window.renderChapterGrid();
