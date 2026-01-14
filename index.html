@@ -1344,7 +1344,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Add timestamp to filename
             const timestamp = new Date().toISOString().split('T')[0];
-            linkElement.setAttribute('download', `kjv_tracker_backup_${timestamp}.json`);
+            linkElement.setAttribute('download', `bibleprogress_backup_${timestamp}.json`);
             linkElement.click();
 
             // Log backup details for debugging
