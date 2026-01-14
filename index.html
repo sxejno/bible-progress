@@ -28,6 +28,22 @@
         .animate-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Verse fade in/out animation */
+        .verse-fade-in {
+            animation: verseFadeIn 2s ease-in-out forwards;
+        }
+        .verse-fade-out {
+            animation: verseFadeOut 2s ease-in-out forwards;
+        }
+        @keyframes verseFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes verseFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
         /* Hide scrollbar for the stats/legend bar but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -234,6 +250,9 @@
                          <div class="text-left">
                             <span id="total-percent" class="text-4xl font-black text-indigo-600 leading-none">0.00%</span>
                             <div class="text-xs font-bold text-slate-500 uppercase tracking-tight mt-1">Total Words Read</div>
+                            <div id="verse-content" class="mt-2 min-h-[24px] verse-fade-container">
+                                <div class="text-xs text-slate-400 italic leading-relaxed max-w-md"></div>
+                            </div>
                         </div>
                         <div id="sync-status" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 bg-slate-100 px-2 py-1 rounded-full">Local Only</div>
                     </div>
@@ -264,33 +283,6 @@
     </header>
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
-
-        <div id="verse-of-day" class="mb-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-[2rem] p-6 sm:p-8 shadow-xl shadow-emerald-200 text-white relative overflow-hidden animate-in">
-            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
-                        <h2 class="text-xl sm:text-2xl font-black tracking-tight">Verse of the Day</h2>
-                    </div>
-                    <button onclick="window.refreshVerseOfDay()" class="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-all hover:rotate-180 transform duration-500" title="Get new verse">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    </button>
-                </div>
-
-                <div id="verse-content" class="min-h-[80px]">
-                    <div class="flex items-center justify-center py-8">
-                        <div class="animate-pulse flex gap-2">
-                            <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                            <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                            <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="tab-scroll-wrapper">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -2201,16 +2193,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Clean up the verse text (remove extra whitespace and newlines)
             const cleanText = text.trim().replace(/\s+/g, ' ');
 
-            verseContent.innerHTML = `
-                <div class="space-y-4">
-                    <p class="text-base sm:text-lg leading-relaxed font-medium text-white/95 italic">
-                        "${cleanText}"
-                    </p>
-                    <p class="text-sm font-bold text-emerald-100 tracking-wide">
-                        — ${reference}
-                    </p>
-                </div>
-            `;
+            // Fade out the old verse first
+            verseContent.classList.remove('verse-fade-in');
+            verseContent.classList.add('verse-fade-out');
+
+            // After fade out completes, update content and fade in
+            setTimeout(() => {
+                verseContent.innerHTML = `
+                    <div class="text-xs text-slate-400 italic leading-relaxed">
+                        "${cleanText}" <span class="text-slate-300 font-semibold">— ${reference}</span>
+                    </div>
+                `;
+
+                verseContent.classList.remove('verse-fade-out');
+                verseContent.classList.add('verse-fade-in');
+            }, 2000);
         }
 
         function displayFallbackVerse() {
@@ -2221,18 +2218,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         window.refreshVerseOfDay = function() {
-            const verseContent = document.getElementById('verse-content');
-            verseContent.innerHTML = `
-                <div class="flex items-center justify-center py-8">
-                    <div class="animate-pulse flex gap-2">
-                        <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                        <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                        <div class="w-2 h-2 bg-white/60 rounded-full"></div>
-                    </div>
-                </div>
-            `;
             loadVerseOfDay();
         };
+
+        // Auto-rotate verses every 15 seconds
+        setInterval(() => {
+            loadVerseOfDay();
+        }, 15000);
 
         assignCategories();
         window.setTab('ALL');
