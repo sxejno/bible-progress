@@ -1,7 +1,7 @@
 {
   "name": "Bible Progress",
   "short_name": "Bible Progress",
-  "description": "Word-weighted KJV Bible reading tracker",
+  "description": "Word-weighted Bible reading tracker",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
