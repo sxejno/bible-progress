@@ -246,38 +246,40 @@
                 </div>
 
                 <div class="space-y-1">
-                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                        <div id="total-progress-bar" class="bg-indigo-600 h-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div id="total-progress-bar" class="bg-indigo-600 h-full transition-all duration-1000 ease-out shadow-sm" style="width: 0%"></div>
                     </div>
 
                     <div class="flex justify-between items-end px-1">
                          <div class="text-left">
                             <span id="total-percent" class="text-4xl font-black text-indigo-600 leading-none">0.00%</span>
                             <div class="text-xs font-bold text-slate-500 uppercase tracking-tight mt-1">Total Words Read</div>
-                            <div id="verse-content" class="mt-2 h-[60px] verse-fade-container flex items-start">
-                                <div class="text-xs text-slate-400 italic leading-relaxed max-w-md"></div>
-                            </div>
                         </div>
+                    </div>
+
+                    <!-- Centered verse with proper spacing -->
+                    <div id="verse-content" class="mt-4 mb-6 min-h-[60px] verse-fade-container flex items-center justify-center px-4">
+                        <div class="text-xs text-slate-400 italic leading-relaxed text-center"></div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50">
+                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
                         <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
                             <span>Old Testament</span>
                             <span id="ot-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                            <div id="ot-progress-bar" class="bg-amber-500 h-full transition-all duration-700" style="width: 0%"></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div id="ot-progress-bar" class="bg-amber-500 h-full transition-all duration-700 ease-out" style="width: 0%"></div>
                         </div>
                     </div>
-                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50">
+                    <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
                         <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
                             <span>New Testament</span>
                             <span id="nt-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
-                        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                            <div id="nt-progress-bar" class="bg-emerald-500 h-full transition-all duration-700" style="width: 0%"></div>
+                        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div id="nt-progress-bar" class="bg-emerald-500 h-full transition-all duration-700 ease-out" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -305,7 +307,7 @@
         <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative">
-                    <input type="text" id="book-search" onkeyup="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 outline-none transition-all">
+                    <input type="text" id="book-search" onkeyup="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm hover:shadow-md text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md placeholder-slate-400 outline-none transition-all">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
@@ -2289,7 +2291,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // After fade out completes, update content and fade in
             setTimeout(() => {
                 verseContent.innerHTML = `
-                    <div class="text-xs text-slate-400 italic leading-relaxed">
+                    <div class="text-xs text-slate-400 italic leading-relaxed text-center">
                         "${cleanText}" <span class="text-slate-300 font-semibold">— ${reference}</span>
                     </div>
                 `;
