@@ -595,6 +595,11 @@
             if(Object.keys(data.profiles).length === 0) return false;
             // activeProfileId should be a string (but doesn't need to exist in profiles - we'll fix that in migration)
             if(!data.activeProfileId || typeof data.activeProfileId !== 'string') return false;
+            // Validate each profile contains valid chapter data
+            for(const profileName in data.profiles) {
+                const profile = data.profiles[profileName];
+                if(typeof profile !== 'object') return false;
+            }
             return true;
         }
 
@@ -1336,8 +1341,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', 'kjv_tracker_backup.json');
+
+            // Add timestamp to filename
+            const timestamp = new Date().toISOString().split('T')[0];
+            linkElement.setAttribute('download', `kjv_tracker_backup_${timestamp}.json`);
             linkElement.click();
+
+            // Log backup details for debugging
+            const profileCount = Object.keys(appData.profiles).length;
+            console.log(`✅ Backed up ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
         };
 
         window.restoreData = (input) => {
@@ -1366,9 +1378,34 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     if (typeof data === 'object' && data !== null) {
                         if(data.profiles && validateAppData(data)) {
                             appData = data;
+
+                            // Ensure profilePlans exists for all profiles
+                            if(!appData.profilePlans) {
+                                appData.profilePlans = {};
+                            }
+                            Object.keys(appData.profiles).forEach(profileName => {
+                                if(!appData.profilePlans[profileName]) {
+                                    appData.profilePlans[profileName] = 'SEQUENTIAL';
+                                }
+                            });
+
+                            // Ensure defaultProfileId exists and is valid
+                            if(!appData.defaultProfileId || !appData.profiles[appData.defaultProfileId]) {
+                                appData.defaultProfileId = appData.activeProfileId || Object.keys(appData.profiles)[0];
+                            }
+
+                            // Ensure activeProfileId is valid
+                            if(!appData.profiles[appData.activeProfileId]) {
+                                appData.activeProfileId = Object.keys(appData.profiles)[0];
+                            }
+
+                            // Log restore details for debugging
+                            const profileCount = Object.keys(appData.profiles).length;
+                            console.log(`✅ Restored ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
                         } else if (typeof data === 'object') {
                             // Legacy format: single profile data
                             appData.profiles[appData.activeProfileId] = data;
+                            console.log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
                         } else {
                             throw new Error("Invalid data structure");
                         }
@@ -1377,7 +1414,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         // Show success message in settings view if present
                         const msgSettings = document.getElementById('restore-msg-settings');
                         if(msgSettings) {
-                            msgSettings.innerText = "Success! Progress restored.";
+                            const profileCount = Object.keys(appData.profiles).length;
+                            const profileWord = profileCount === 1 ? 'profile' : 'profiles';
+                            msgSettings.innerText = `Success! Restored ${profileCount} ${profileWord}.`;
                             msgSettings.classList.remove('hidden');
                             setTimeout(() => msgSettings.classList.add('hidden'), 3000);
                         }
