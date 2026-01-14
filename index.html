@@ -2165,19 +2165,96 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         // --- VERSE OF THE DAY ---
-        const POPULAR_VERSES = [
-            'John 3:16', 'Psalms 23:1', 'Philippians 4:13', 'Proverbs 3:5-6',
-            'Jeremiah 29:11', 'Romans 8:28', 'Isaiah 41:10', 'Matthew 6:33',
-            'Psalms 46:1', 'Romans 12:2', '2 Timothy 1:7', 'Joshua 1:9',
-            'Psalms 119:105', 'Proverbs 16:3', 'Matthew 11:28', 'John 14:6',
-            'Galatians 5:22-23', 'Ephesians 2:8-9', '1 Corinthians 13:4-7',
-            'Psalms 37:4', 'Isaiah 40:31', 'Romans 5:8', 'Matthew 28:19-20'
+        // Local verse list - no API needed, works offline
+        const LOCAL_VERSES = [
+            {
+                "reference": "Psalm 119:105",
+                "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+                "theme": "Guidance"
+            },
+            {
+                "reference": "2 Timothy 3:16-17",
+                "text": "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness: That the man of God may be perfect, throughly furnished unto all good works.",
+                "theme": "Scripture Purpose"
+            },
+            {
+                "reference": "Psalm 119:11",
+                "text": "Thy word have I hid in mine heart, that I might not sin against thee.",
+                "theme": "Devotion"
+            },
+            {
+                "reference": "Psalm 19:7",
+                "text": "The law of the LORD is perfect, converting the soul: the testimony of the LORD is sure, making wise the simple.",
+                "theme": "Wisdom"
+            },
+            {
+                "reference": "Joshua 1:8",
+                "text": "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.",
+                "theme": "Meditation"
+            },
+            {
+                "reference": "Psalm 1:1-2",
+                "text": "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful. But his delight is in the law of the LORD; and in his law doth he meditate day and night.",
+                "theme": "Meditation"
+            },
+            {
+                "reference": "Colossians 3:16",
+                "text": "Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another in psalms and hymns and spiritual songs, singing with grace in your hearts to the Lord.",
+                "theme": "Indwelling Word"
+            },
+            {
+                "reference": "James 1:22",
+                "text": "But be ye doers of the word, and not hearers only, deceiving your own selves.",
+                "theme": "Application"
+            },
+            {
+                "reference": "Proverbs 2:1-6",
+                "text": "My son, if thou wilt receive my words, and hide my commandments with thee; So that thou incline thine ear unto wisdom, and apply thine heart to understanding; Yea, if thou criest after knowledge, and liftest up thy voice for understanding; If thou seekest her as silver, and searchest for her as for hid treasures; Then shalt thou understand the fear of the LORD, and find the knowledge of God. For the LORD giveth wisdom: out of his mouth cometh knowledge and understanding.",
+                "theme": "Seeking Wisdom"
+            },
+            {
+                "reference": "Proverbs 4:7",
+                "text": "Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding.",
+                "theme": "Wisdom"
+            },
+            {
+                "reference": "Acts 17:11",
+                "text": "These were more noble than those in Thessalonica, in that they received the word with all readiness of mind, and searched the scriptures daily, whether those things were so.",
+                "theme": "Study"
+            },
+            {
+                "reference": "John 5:39",
+                "text": "Search the scriptures; for in them ye think ye have eternal life: and they are they which testify of me.",
+                "theme": "Christ in Scripture"
+            },
+            {
+                "reference": "Hebrews 4:12",
+                "text": "For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.",
+                "theme": "Power of Scripture"
+            },
+            {
+                "reference": "Romans 10:17",
+                "text": "So then faith cometh by hearing, and hearing by the word of God.",
+                "theme": "Faith"
+            },
+            {
+                "reference": "1 Peter 2:2",
+                "text": "As newborn babes, desire the sincere milk of the word, that ye may grow thereby.",
+                "theme": "Desire for the Word"
+            }
         ];
 
         async function loadVerseOfDay() {
             const verseContent = document.getElementById('verse-content');
 
             try {
+                // Pick a random verse from local list (no API needed - works offline!)
+                const randomVerse = LOCAL_VERSES[Math.floor(Math.random() * LOCAL_VERSES.length)];
+
+                // Display the verse directly from local data
+                displayVerse(randomVerse.text, randomVerse.reference);
+
+                /* COMMENTED OUT - OLD API CODE (kept for reference)
                 // Pick a random popular verse
                 const randomVerse = POPULAR_VERSES[Math.floor(Math.random() * POPULAR_VERSES.length)];
 
@@ -2192,6 +2269,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 // Display the verse
                 displayVerse(data.text, data.reference);
+                */
             } catch (error) {
                 console.error('Error loading verse of the day:', error);
                 displayFallbackVerse();
