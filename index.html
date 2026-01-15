@@ -2015,11 +2015,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </div>
                     ${!item.isComplete ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}'); window.renderDailyPlan();"
-                        class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-emerald-600/70 hover:bg-emerald-600/90 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 sm:gap-2 z-10 group-hover:opacity-100 opacity-80">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
+                        title="Mark as Read">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
-                        <span>Mark Read</span>
+                        <span class="hidden sm:inline">Mark Read</span>
                     </button>
                     ` : ''}
                     <div class="text-right flex flex-col items-end ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
@@ -2039,7 +2040,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const currentProg = getProgress();
             const books = bible.filter(b => (activeTab === 'ALL' || b.testament === activeTab) && b.name.toLowerCase().includes(searchQuery));
             if (books.length === 0) { grid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-12 bg-white/50 rounded-3xl border border-dashed border-slate-300">No books found.</div>`; return; }
-            grid.innerHTML = books.map((book) => {
+
+            // Helper function to render a book card
+            const renderBookCard = (book) => {
                 const bookIdx = bible.indexOf(book);
                 const readChapters = book.ch.filter((_, cIdx) => currentProg[`${book.name}-${cIdx + 1}`]).length;
                 const readWords = book.ch.reduce((sum, words, cIdx) => {
@@ -2061,7 +2064,46 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         </div>
                     </div>
                 </div>`;
-            }).join('');
+            };
+
+            // If showing ALL books, render with testament dividers
+            if (activeTab === 'ALL' && searchQuery === '') {
+                const otBooks = books.filter(b => b.testament === 'OT');
+                const ntBooks = books.filter(b => b.testament === 'NT');
+
+                let html = '';
+
+                if (otBooks.length > 0) {
+                    html += `<div class="col-span-full mb-2">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent via-amber-400/40 to-amber-400/60 rounded-full"></div>
+                            <h2 class="text-sm sm:text-base font-black uppercase tracking-wider text-amber-800 bg-gradient-to-br from-amber-50 to-amber-100/80 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-amber-300/50 shadow-sm backdrop-blur-sm">
+                                <span class="hidden sm:inline">📜 </span>Old Testament
+                            </h2>
+                            <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent via-amber-400/40 to-amber-400/60 rounded-full"></div>
+                        </div>
+                    </div>`;
+                    html += otBooks.map(renderBookCard).join('');
+                }
+
+                if (ntBooks.length > 0) {
+                    html += `<div class="col-span-full mb-2 mt-8 sm:mt-10">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent via-sky-400/40 to-sky-400/60 rounded-full"></div>
+                            <h2 class="text-sm sm:text-base font-black uppercase tracking-wider text-sky-800 bg-gradient-to-br from-sky-50 to-sky-100/80 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-sky-300/50 shadow-sm backdrop-blur-sm">
+                                <span class="hidden sm:inline">✨ </span>New Testament
+                            </h2>
+                            <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent via-sky-400/40 to-sky-400/60 rounded-full"></div>
+                        </div>
+                    </div>`;
+                    html += ntBooks.map(renderBookCard).join('');
+                }
+
+                grid.innerHTML = html;
+            } else {
+                // Original behavior for OT/NT specific tabs or when searching
+                grid.innerHTML = books.map(renderBookCard).join('');
+            }
         }
 
         window.renderChapterGrid = () => {
