@@ -915,7 +915,7 @@
                     const cloudData = docSnap.data().appData || {};
                     if (Object.keys(cloudData).length > 0 && validateAppData(cloudData)) {
                         appData = cloudData;
-                        
+
                         // Ensure data integrity
                         if(!appData.profilePlans) {
                             appData.profilePlans = {};
@@ -923,12 +923,17 @@
                                 appData.profilePlans[name] = 'SEQUENTIAL';
                             });
                         }
-                        
+
+                        // Ensure profileSyncRules exists (migration for existing users)
+                        if(!appData.profileSyncRules) {
+                            appData.profileSyncRules = {};
+                        }
+
                         // Ensure active profile exists
                         if(!appData.profiles[appData.activeProfileId]) {
                             appData.activeProfileId = Object.keys(appData.profiles)[0];
                         }
-                        
+
                         localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
                         refreshUI();
                     } else {
@@ -1741,6 +1746,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                     appData.profilePlans[profileName] = 'SEQUENTIAL';
                                 }
                             });
+
+                            // Ensure profileSyncRules exists (migration for existing backups)
+                            if(!appData.profileSyncRules) {
+                                appData.profileSyncRules = {};
+                            }
 
                             // Ensure defaultProfileId exists and is valid
                             if(!appData.defaultProfileId || !appData.profiles[appData.defaultProfileId]) {
