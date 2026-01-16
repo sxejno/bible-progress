@@ -975,10 +975,21 @@
                             appData.profileSyncRules = {};
                         }
 
+                        // Ensure hornerDailyProgress exists (migration for existing users)
+                        if(!appData.hornerDailyProgress) {
+                            appData.hornerDailyProgress = {
+                                date: new Date().toISOString().split('T')[0],
+                                completedLists: []
+                            };
+                        }
+
                         // Ensure active profile exists
                         if(!appData.profiles[appData.activeProfileId]) {
                             appData.activeProfileId = Object.keys(appData.profiles)[0];
                         }
+
+                        // Reset daily progress if needed after loading from cloud
+                        resetHornerDailyProgressIfNeeded();
 
                         localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
                         refreshUI();
