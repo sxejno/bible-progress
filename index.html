@@ -717,6 +717,14 @@
             appData.profileSyncRules = {};
         }
 
+        // Migrate existing users to have hornerDailyProgress
+        if(!appData.hornerDailyProgress) {
+            appData.hornerDailyProgress = {
+                date: new Date().toISOString().split('T')[0],
+                completedLists: []
+            };
+        }
+
         // On app load, use defaultProfileId if it exists and is valid
         if(appData.defaultProfileId && appData.profiles[appData.defaultProfileId]) {
             appData.activeProfileId = appData.defaultProfileId;
@@ -767,6 +775,44 @@
 
         let activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
         let currentUser = null;
+
+        // --- HORNER DAILY PROGRESS HELPERS ---
+        const getTodaysDate = () => new Date().toISOString().split('T')[0];
+
+        const resetHornerDailyProgressIfNeeded = () => {
+            const today = getTodaysDate();
+            if(!appData.hornerDailyProgress || appData.hornerDailyProgress.date !== today) {
+                appData.hornerDailyProgress = {
+                    date: today,
+                    completedLists: []
+                };
+            }
+        };
+
+        const getHornerListForChapter = (chapterId) => {
+            const [bookName] = chapterId.split('-');
+            for(let i = 0; i < PLAN_HORNER.length; i++) {
+                if(PLAN_HORNER[i].includes(bookName)) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+
+        const markHornerListComplete = (listIndex) => {
+            resetHornerDailyProgressIfNeeded();
+            if(!appData.hornerDailyProgress.completedLists.includes(listIndex)) {
+                appData.hornerDailyProgress.completedLists.push(listIndex);
+            }
+        };
+
+        const isHornerListComplete = (listIndex) => {
+            resetHornerDailyProgressIfNeeded();
+            return appData.hornerDailyProgress.completedLists.includes(listIndex);
+        };
+
+        // Reset daily progress on load if it's a new day
+        resetHornerDailyProgressIfNeeded();
         let unsubscribe = null;
         let saveTimeout = null;
         let userIsEditing = false; // NEW: Prevent cloud sync during edits
@@ -1668,6 +1714,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
+            // If using Horner plan and marking as read, track daily completion
+            if(timestamp && activePlan === 'HORNER') {
+                const listIndex = getHornerListForChapter(id);
+                if(listIndex >= 0) {
+                    markHornerListComplete(listIndex);
+                }
+            }
+
             window.saveProgress();
             window.renderChapterGrid();
         };
@@ -1967,6 +2021,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             else if (activePlan === 'HORNER') {
                 descText = "<strong>Prof. Horner's System:</strong> Reading 1 chapter from each of 10 lists daily for maximum immersion.";
+                resetHornerDailyProgressIfNeeded();
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     let foundForList = false;
                     for(let bName of listBooks) {
@@ -1979,7 +2034,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                     chapter: c+1,
                                     words: appBook.ch[c],
                                     label: `${appBook.name} ${c+1}`,
-                                    badge: `List ${listIdx+1}`
+                                    badge: `List ${listIdx+1}`,
+                                    isComplete: isHornerListComplete(listIdx)
                                 });
                                 foundForList = true;
                                 break;
@@ -1988,7 +2044,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         if(foundForList) break;
                     }
                 });
-                footerMsg.innerText = "Professor Horner's System (10 Chapters / Day)";
+                const completedCount = appData.hornerDailyProgress.completedLists.length;
+                footerMsg.innerText = `Professor Horner's System (${completedCount}/10 lists completed today)`;
             }
 
             if(descBox) {
