@@ -67,12 +67,86 @@
             z-index: 10;
         }
         .tab-scroll-indicator.hidden { opacity: 0; }
+
+        /* Enhanced tab content transitions */
+        .slide-in-right { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Checkbox celebration animations */
+        @keyframes checkboxCelebrate {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2) rotate(5deg); }
+            50% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.15) rotate(3deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .checkbox-celebrate { animation: checkboxCelebrate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+
+        /* Confetti-style celebration particles */
+        @keyframes confetti {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx, 0), var(--ty, -100px)) rotate(720deg) scale(0);
+                opacity: 0;
+            }
+        }
+        .confetti-particle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #4f46e5;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            animation: confetti 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        /* Progress bar smooth transitions */
+        .progress-bar {
+            transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        /* Button press effect */
+        .btn-press:active {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
+        }
+
+        /* Enhanced modal entrance */
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .modal-in { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* Shimmer effect for loading states */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
     </style>
 </head>
 <body class="pb-24">
 
     <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl animate-in border border-white/50">
+        <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl modal-in border border-white/50">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
                 <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
@@ -111,7 +185,7 @@
     </div>
 
     <div id="intro-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl animate-in border border-white/50 relative overflow-hidden">
+        <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl modal-in border border-white/50 relative overflow-hidden">
             <!-- Decorative background elements -->
             <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-200/20 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl"></div>
@@ -229,7 +303,7 @@
 
                 <div class="space-y-1">
                     <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
-                        <div id="total-progress-bar" class="bg-indigo-600 h-full transition-all duration-1000 ease-out shadow-sm" style="width: 0%"></div>
+                        <div id="total-progress-bar" class="bg-indigo-600 h-full progress-bar shadow-sm" style="width: 0%"></div>
                     </div>
 
                     <div class="flex justify-between items-end px-1">
@@ -252,7 +326,7 @@
                             <span id="ot-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
                         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
-                            <div id="ot-progress-bar" class="bg-amber-500 h-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                            <div id="ot-progress-bar" class="bg-amber-500 h-full progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
                     <div class="bg-white/60 p-3 rounded-2xl border border-indigo-50/50 shadow-sm hover:shadow-md transition-shadow">
@@ -261,7 +335,7 @@
                             <span id="nt-percent" class="text-indigo-900 font-black">0.00%</span>
                         </div>
                         <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden shadow-inner">
-                            <div id="nt-progress-bar" class="bg-emerald-500 h-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                            <div id="nt-progress-bar" class="bg-emerald-500 h-full progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -660,7 +734,7 @@
                     <h2 id="active-book-title" class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter mb-4">Genesis</h2>
                     <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
                         <div class="w-full sm:w-64 bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div id="book-inner-bar" class="bg-indigo-500 h-full transition-all duration-500" style="width: 0%"></div>
+                            <div id="book-inner-bar" class="bg-indigo-500 h-full progress-bar" style="width: 0%"></div>
                         </div>
                         <span id="book-stat-detail" class="text-xs font-black text-indigo-600 uppercase tracking-widest">0/50 Chapters</span>
                     </div>
@@ -1162,7 +1236,7 @@
             };
 
             toast.innerHTML = `
-                <div class="${bgColors[type]} ${textColors[type]} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 animate-in max-w-md">
+                <div class="${bgColors[type]} ${textColors[type]} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
                     <span class="text-2xl">${icons[type]}</span>
                     <p class="text-sm font-bold leading-relaxed">${message}</p>
                 </div>
@@ -1785,13 +1859,45 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
                 if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
-            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about', 'view-settings'].forEach(v => document.getElementById(v).classList.add('hidden'));
 
-            if (t === 'STATS') { document.getElementById('view-stats').classList.remove('hidden'); window.renderStatsPage(); }
-            else if (t === 'PLAN') { document.getElementById('view-plan').classList.remove('hidden'); window.renderDailyPlan(); }
-            else if (t === 'ABOUT') { document.getElementById('view-about').classList.remove('hidden'); }
-            else if (t === 'SETTINGS') { document.getElementById('view-settings').classList.remove('hidden'); window.renderProfileSyncSettings(); }
-            else { document.getElementById('view-books').classList.remove('hidden'); window.renderBookGrid(); window.renderSubdivisionStats(); }
+            // Remove slide-in class from all views first, then hide them
+            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about', 'view-settings'].forEach(v => {
+                const view = document.getElementById(v);
+                view.classList.remove('slide-in-right');
+                view.classList.add('hidden');
+            });
+
+            // Show the selected view with slide-in animation
+            if (t === 'STATS') {
+                const view = document.getElementById('view-stats');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
+                window.renderStatsPage();
+            }
+            else if (t === 'PLAN') {
+                const view = document.getElementById('view-plan');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
+                window.renderDailyPlan();
+            }
+            else if (t === 'ABOUT') {
+                const view = document.getElementById('view-about');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
+            }
+            else if (t === 'SETTINGS') {
+                const view = document.getElementById('view-settings');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
+                window.renderProfileSyncSettings();
+            }
+            else {
+                const view = document.getElementById('view-books');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
+                window.renderBookGrid();
+                window.renderSubdivisionStats();
+            }
         };
 
         // Debounce utility function
@@ -1840,12 +1946,53 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'ABOUT' || activeTab === 'SETTINGS' ? 'ALL' : activeTab);
 
-        window.toggleChapter = (id) => {
+        // Helper function to create celebration confetti
+        window.createConfetti = (event) => {
+            const button = event.target.closest('button');
+            if (!button) return;
+
+            const rect = button.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Create 8 confetti particles
+            const colors = ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'confetti-particle';
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random direction
+                const angle = (i * 45) + Math.random() * 45;
+                const distance = 60 + Math.random() * 40;
+                const radians = angle * Math.PI / 180;
+                particle.style.setProperty('--tx', Math.cos(radians) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(radians) * distance - 80 + 'px');
+
+                document.body.appendChild(particle);
+
+                // Remove particle after animation
+                setTimeout(() => particle.remove(), 1000);
+            }
+
+            // Add celebration class to button
+            button.classList.add('checkbox-celebrate');
+            setTimeout(() => button.classList.remove('checkbox-celebrate'), 500);
+        };
+
+        window.toggleChapter = (id, event) => {
             const prog = getProgress();
             // Store timestamp when marking as read, false when unmarking
             const timestamp = prog[id] ? false : Date.now();
             prog[id] = timestamp;
             setProgress(prog);
+
+            // Show celebration animation when marking as read
+            if (timestamp && event) {
+                window.createConfetti(event);
+            }
 
             // Apply cross-profile sync if rule exists and chapter is being marked as read
             if(timestamp && appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
@@ -2239,7 +2386,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         ${readingTimeHtml}
                     </div>
                     ${!item.isComplete ? `
-                    <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}'); window.renderDailyPlan();"
+                    <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}', event); window.renderDailyPlan();"
                         class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
                         title="Mark as Read">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2348,7 +2495,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const cleanName = nameMap[book.name] || book.name;
                 const blbUrl = `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${cIdx+1}/`;
                 return `<div class="relative group">
-                    <button onclick="window.toggleChapter('${id}')" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}">
+                    <button onclick="window.toggleChapter('${id}', event)" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}">
                         <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : 'text-slate-700 group-hover:text-indigo-600'}">${cIdx + 1}</span>
                         <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-indigo-200' : 'text-slate-400'}">${words}w</span>
                     </button>
@@ -3027,7 +3174,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			const modal = document.createElement('div');
 			modal.className = 'fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4';
 			modal.innerHTML = `
-				<div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-3xl p-8 max-w-lg text-center shadow-2xl border-4 border-amber-400 animate-in">
+				<div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-3xl p-8 max-w-lg text-center shadow-2xl border-4 border-amber-400 modal-in">
 					<div class="text-7xl mb-4">📜</div>
 					<h2 class="text-3xl font-black text-amber-900 mb-3">MIGHTY ACHIEVEMENT!</h2>
 					<p class="text-lg font-bold text-amber-800 mb-4">You've conquered Psalm 119!</p>
@@ -3081,7 +3228,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				const modal = document.createElement('div');
 				modal.className = 'fixed inset-0 z-[400] bg-gradient-to-br from-indigo-900/98 to-purple-900/98 flex items-center justify-center p-4';
 				modal.innerHTML = `
-					<div class="bg-white rounded-[3rem] p-12 max-w-2xl text-center shadow-2xl animate-in">
+					<div class="bg-white rounded-[3rem] p-12 max-w-2xl text-center shadow-2xl modal-in">
 						<div class="text-8xl mb-6">✨📖✨</div>
 						<h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">BIBLE COMPLETE!</h1>
 						<p class="text-2xl font-bold text-slate-700 mb-6">All 66 books. 789,634 words. One amazing journey!</p>
@@ -3167,7 +3314,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		  modal.className = 'fixed inset-0 z-[200] bg-slate-900/90 flex items-center justify-center p-4';
 
 		  modal.innerHTML = `
-			<div class="bg-white rounded-3xl p-8 max-w-md text-center shadow-2xl animate-in">
+			<div class="bg-white rounded-3xl p-8 max-w-md text-center shadow-2xl modal-in">
 			  <div class="text-6xl mb-4">👋</div>
 			  <h2 class="text-2xl font-black text-indigo-900 mb-3">${escapeHtml(p.headline)}</h2>
 			  <p class="text-slate-600 mb-4">${escapeHtml(p.body)}</p>
