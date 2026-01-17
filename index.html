@@ -3158,11 +3158,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
 		// --- EASTER EGG 3: Psalm 119 Achievement ---
 		const originalToggleChapter = window.toggleChapter;
-		window.toggleChapter = (id) => {
+		window.toggleChapter = (id, event) => {
 			const prog = getProgress();
 			const wasRead = prog[id];
-			
-			originalToggleChapter(id);
+
+			originalToggleChapter(id, event);
 			
 			// Check if just completed Psalm 119
 			if(id === 'Psalms-119' && !wasRead && getProgress()[id]) {
