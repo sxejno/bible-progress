@@ -577,6 +577,33 @@
                     </div>
                 </div>
 
+                <div class="mb-8 pb-8 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Reading Time Estimates</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div>
+                                <div class="font-bold text-slate-700 text-sm mb-1">Show Reading Times</div>
+                                <div class="text-xs text-slate-500">Display estimated reading time on daily plan</div>
+                            </div>
+                            <button onclick="window.toggleReadingTimeEstimates()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300">
+                                <span id="reading-time-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
+                            </button>
+                        </div>
+                        <div id="reading-speed-container" class="p-4 rounded-xl bg-slate-50 border border-slate-200" style="display: none;">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="font-bold text-slate-700 text-sm mb-1">Reading Speed</div>
+                                    <div class="text-xs text-slate-500">Words per minute (typical: 200-250)</div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="number" id="reading-speed-input" value="200" min="50" max="500" step="10" class="w-20 px-3 py-2 border border-slate-300 rounded-lg text-center font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" onchange="window.updateReadingSpeed(this.value)">
+                                    <span class="text-xs font-bold text-slate-500">WPM</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -788,6 +815,14 @@
             appData.hornerDailyProgress = {
                 date: new Date().toISOString().split('T')[0],
                 completedLists: []
+            };
+        }
+
+        // Migrate existing users to have reading time settings
+        if(!appData.settings) {
+            appData.settings = {
+                readingTimeEnabled: false,
+                readingSpeed: 200  // words per minute
             };
         }
 
@@ -1076,6 +1111,9 @@
             activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
             const planSelector = document.getElementById('plan-selector');
             if(planSelector) planSelector.value = activePlan;
+
+            // Update reading time toggle UI
+            updateReadingTimeToggleUI();
 
             if(window.activeTab === 'STATS') window.renderStatsPage();
             else if(window.activeTab === 'PLAN') window.renderDailyPlan();
@@ -1929,6 +1967,81 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             reader.readAsText(file);
         };
 
+        // --- READING TIME ESTIMATE FUNCTIONS ---
+        window.toggleReadingTimeEstimates = () => {
+            appData.settings.readingTimeEnabled = !appData.settings.readingTimeEnabled;
+            saveProgress();
+            updateReadingTimeToggleUI();
+
+            // Show/hide the reading speed container
+            const container = document.getElementById('reading-speed-container');
+            if (container) {
+                container.style.display = appData.settings.readingTimeEnabled ? 'block' : 'none';
+            }
+
+            // Re-render daily plan if we're on that tab
+            if (window.activeTab === 'PLAN') {
+                window.renderDailyPlan();
+            }
+        };
+
+        window.updateReadingSpeed = (value) => {
+            const speed = parseInt(value, 10);
+            if (speed >= 50 && speed <= 500) {
+                appData.settings.readingSpeed = speed;
+                saveProgress();
+
+                // Re-render daily plan if we're on that tab
+                if (window.activeTab === 'PLAN') {
+                    window.renderDailyPlan();
+                }
+            }
+        };
+
+        function calculateReadingTime(wordCount) {
+            const minutes = wordCount / appData.settings.readingSpeed;
+
+            // Format the time nicely
+            if (minutes < 1) {
+                return '<1 min';
+            } else if (minutes < 60) {
+                return Math.round(minutes) + ' min';
+            } else {
+                const hours = Math.floor(minutes / 60);
+                const mins = Math.round(minutes % 60);
+                return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+            }
+        }
+
+        function updateReadingTimeToggleUI() {
+            const toggle = document.getElementById('reading-time-toggle');
+            const circle = document.getElementById('reading-time-toggle-circle');
+            const container = document.getElementById('reading-speed-container');
+            const input = document.getElementById('reading-speed-input');
+
+            if (toggle && circle) {
+                if (appData.settings.readingTimeEnabled) {
+                    toggle.classList.remove('bg-slate-300');
+                    toggle.classList.add('bg-indigo-600');
+                    circle.classList.remove('translate-x-1');
+                    circle.classList.add('translate-x-7');
+                } else {
+                    toggle.classList.add('bg-slate-300');
+                    toggle.classList.remove('bg-indigo-600');
+                    circle.classList.add('translate-x-1');
+                    circle.classList.remove('translate-x-7');
+                }
+            }
+
+            if (container) {
+                container.style.display = appData.settings.readingTimeEnabled ? 'block' : 'none';
+            }
+
+            if (input) {
+                input.value = appData.settings.readingSpeed;
+            }
+        }
+
         // --- RENDER FUNCTIONS ---
         function normalizeBookName(name) {
             let base = name.split(':')[0];
@@ -2130,6 +2243,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 descBox.classList.remove('hidden');
             }
 
+            // Calculate total reading time if enabled
+            if (appData.settings.readingTimeEnabled && nextChapters.length > 0) {
+                const totalWords = nextChapters.reduce((sum, ch) => sum + ch.words, 0);
+                const totalTime = calculateReadingTime(totalWords);
+                const currentFooterText = footerMsg.innerText;
+                if (currentFooterText) {
+                    footerMsg.innerText = `${currentFooterText} • Total: ${totalTime}`;
+                } else {
+                    footerMsg.innerText = `Total reading time: ${totalTime}`;
+                }
+            }
+
             list.innerHTML = nextChapters.map(item => {
                 const nameMap = { "Song of Songs": "Song of Solomon" };
                 const cleanName = nameMap[item.book] || item.book;
@@ -2158,7 +2283,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </button>
                     ` : ''}
                     <div class="text-right flex flex-col items-end ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">~${item.words} words</div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            ${appData.settings.readingTimeEnabled
+                                ? `~${calculateReadingTime(item.words)} • ${item.words} words`
+                                : `~${item.words} words`
+                            }
+                        </div>
                         ${!item.isComplete ? `
                         <div class="flex items-center gap-1 mt-2">
                             <span class="text-xs font-bold text-indigo-500">Go</span>
