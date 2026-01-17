@@ -2055,6 +2055,44 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.renderChapterGrid();
         };
 
+        // Mark multiple chapters as read (for daily plans with chapter ranges)
+        window.markChaptersAsRead = (bookName, chapters, event) => {
+            const prog = getProgress();
+            const timestamp = Date.now();
+
+            // Mark all chapters in the range
+            chapters.forEach(chapterNum => {
+                const chapterId = `${bookName}-${chapterNum}`;
+                prog[chapterId] = timestamp;
+
+                // Apply cross-profile sync if rule exists
+                if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
+                    const targetProfile = appData.profileSyncRules[appData.activeProfileId];
+                    if(appData.profiles[targetProfile]) {
+                        appData.profiles[targetProfile][chapterId] = timestamp;
+                    }
+                }
+
+                // If using Horner plan, track daily completion
+                if(activePlan === 'HORNER') {
+                    const listIndex = getHornerListForChapter(chapterId);
+                    if(listIndex >= 0) {
+                        markHornerListComplete(listIndex);
+                    }
+                }
+            });
+
+            setProgress(prog);
+
+            // Show celebration animation
+            if (event) {
+                window.createConfetti(event);
+            }
+
+            window.saveProgress();
+            window.renderChapterGrid();
+        };
+
         window.toggleAllInBook = (val) => {
             const book = bible[activeBookIdx];
             const prog = getProgress();
@@ -2237,7 +2275,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     const book = bible[b];
                     for (let c = 0; c < book.ch.length; c++) {
                         if (!currentProg[`${book.name}-${c+1}`]) {
-                            nextChapters.push({ book: book.name, chapter: c + 1, words: book.ch[c], label: `${book.name} ${c+1}` });
+                            nextChapters.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
                             found++;
                             if (found >= target) break;
                         }
@@ -2260,6 +2298,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             nextChapters.push({
                                 book: book.name,
                                 chapter: c + 1,
+                                chapters: [c + 1],
                                 words: book.ch[c],
                                 label: `${book.name} ${c+1}`,
                                 badge: "Old Testament"
@@ -2281,6 +2320,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             nextChapters.push({
                                 book: book.name,
                                 chapter: c + 1,
+                                chapters: [c + 1],
                                 words: book.ch[c],
                                 label: `${book.name} ${c+1}`,
                                 badge: "New Testament"
@@ -2344,10 +2384,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                          
                          const type = idx < 2 ? "Family" : "Secret";
                          
-                         nextChapters.push({ 
-                             book: appBook.name, 
-                             chapter: firstCh, 
-                             words: appBook.ch[firstCh-1] * chs.length, 
+                         nextChapters.push({
+                             book: appBook.name,
+                             chapter: firstCh,
+                             chapters: chs,
+                             words: appBook.ch[firstCh-1] * chs.length,
                              label: refStr,
                              badge: type,
                              isComplete: isRead
@@ -2369,6 +2410,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 nextChapters.push({
                                     book: appBook.name,
                                     chapter: c+1,
+                                    chapters: [c+1],
                                     words: appBook.ch[c],
                                     label: `${appBook.name} ${c+1}`,
                                     badge: `List ${listIdx+1}`,
@@ -2428,7 +2470,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         ${readingTimeHtml}
                     </div>
                     ${!item.isComplete ? `
-                    <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}', event); window.renderDailyPlan();"
+                    <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event); window.renderDailyPlan();"
                         class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
                         title="Mark as Read" aria-label="Mark ${item.label} as read">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
