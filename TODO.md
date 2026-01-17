@@ -10,10 +10,10 @@ This document tracks known issues, improvements, and feature requests for the Bi
 
 ### Performance
 
-- [ ] **Implement search debouncing** - `index.html:1757-1763`
-  - Debounce utility function exists but is not being used
-  - Search input updates on every keystroke causing unnecessary re-renders
-  - Solution: Change `oninput="window.handleSearch()"` to `oninput="window.debouncedHandleSearch()"`
+- [x] **Implement search debouncing** - `index.html:292, 1797-1825` ✅ **COMPLETED 2026-01-17**
+  - ~~Debounce utility function exists but is not being used~~
+  - Changed from `onkeyup` to `oninput` for better input handling (paste, cut, autocomplete)
+  - Debounced search was already implemented, improved event handler for comprehensive input detection
 
 - [ ] **Cache chart instances** - `index.html:~1741-1745`
   - Charts re-render completely on every tab switch
@@ -282,9 +282,10 @@ This document tracks known issues, improvements, and feature requests for the Bi
   - Easter egg might trigger unexpectedly
   - Should reset counter on page load or profile switch
 
-- [ ] **Search results don't show count**
-  - Users don't know how many results match
-  - Add "X books found" below search box
+- [x] **Search results don't show count** ✅ **COMPLETED 2026-01-17**
+  - ~~Users don't know how many results match~~
+  - Added "X books found" counter below search box (`index.html:295, 1810-1822`)
+  - Counter shows/hides automatically based on search query presence
 
 - [ ] **Long profile names overflow UI**
   - Profile dropdown might not handle 50+ character names well
