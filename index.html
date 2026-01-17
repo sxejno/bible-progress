@@ -2830,7 +2830,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         loadVerseOfDay();
         updateReadingTimeToggleUI();
 
-        // --- DARK MODE TOGGLE UI HELPER ---
+        // --- DARK MODE UI HELPER ---
+        // Updates the settings page toggle button to reflect current dark mode state
         function updateDarkModeToggleUI(isDark) {
             const toggle = document.getElementById('dark-mode-toggle');
             const circle = document.getElementById('dark-mode-toggle-circle');
@@ -2851,6 +2852,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         // --- INITIALIZE DARK MODE FROM LOCALSTORAGE ---
+        // Restore user's dark mode preference on page load
         const darkModePreference = localStorage.getItem('darkMode');
         if (darkModePreference === 'enabled') {
             document.body.classList.add('dark-mode');
@@ -3235,7 +3237,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			setTimeout(() => modal.remove(), 10000);
 		}
 
-		// --- EASTER EGG 7: Triple-click Logo for Dark Mode ---
+		// --- DARK MODE FEATURE ---
+		// Dark mode is accessible via:
+		// 1. Settings page toggle (primary, user-friendly method)
+		// 2. EASTER EGG: Triple-click logo (fun alternative with notification)
+		// Both methods use the same toggleDarkMode() function but with different notification behaviors
+
+		// Easter egg: Triple-click logo for dark mode with celebration notification
 		let logoClicks = 0;
 		let logoClickTimeout;
 		const logo = document.querySelector('h1');
@@ -3246,24 +3254,27 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				logoClicks++;
 				clearTimeout(logoClickTimeout);
 				logoClickTimeout = setTimeout(() => logoClicks = 0, 1000);
-				
+
 				if(logoClicks === 3) {
-					toggleDarkMode();
+					toggleDarkMode(true); // Show celebration notification for easter egg
 					logoClicks = 0;
 				}
 			});
 		}
 
+		// Core dark mode toggle function
+		// @param {boolean} showNotification - If true, shows a celebration notification (for easter egg)
 		function toggleDarkMode(showNotification = true) {
 			document.body.classList.toggle('dark-mode');
 			const isDark = document.body.classList.contains('dark-mode');
 
-			// Save preference to localStorage
+			// Save preference to localStorage for persistence across sessions
 			localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
 
-			// Update toggle button UI if it exists
+			// Update settings toggle UI to reflect current state
 			updateDarkModeToggleUI(isDark);
 
+			// Inject dark mode styles if not already present
 			if(!document.getElementById('dark-mode-style')) {
 				const style = document.createElement('style');
 				style.id = 'dark-mode-style';
@@ -3277,6 +3288,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				document.head.appendChild(style);
 			}
 
+			// Show celebration notification for easter egg activation
 			if(showNotification) {
 				const notification = document.createElement('div');
 				notification.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm animate-in';
@@ -3286,9 +3298,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			}
 		}
 
-		// Settings page dark mode toggle (without Easter egg notification)
+		// Settings page dark mode toggle (silent toggle without notification)
 		window.toggleDarkModeSetting = () => {
-			toggleDarkMode(false);
+			toggleDarkMode(false); // No notification for regular settings toggle
 		};
 
 		// Reading time estimate functions
