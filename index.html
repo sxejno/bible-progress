@@ -289,9 +289,10 @@
         <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative">
-                    <input type="text" id="book-search" onkeyup="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm hover:shadow-md text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md placeholder-slate-400 outline-none transition-all">
+                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm hover:shadow-md text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md placeholder-slate-400 outline-none transition-all">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
+                <div id="search-results-count" class="mt-2 text-sm text-slate-500 hidden"></div>
             </div>
             <div id="subdivision-bar" class="hidden sm:flex flex-wrap gap-3 overflow-y-auto max-h-40 mb-8 pb-2 pr-2"></div>
             <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
@@ -1804,6 +1805,22 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.handleSearch = () => {
             searchQuery = document.getElementById('book-search').value.toLowerCase();
+
+            // Calculate and display search results count
+            const resultsCountEl = document.getElementById('search-results-count');
+            if (searchQuery) {
+                const matchingBooks = bible.filter(b =>
+                    (activeTab === 'ALL' || b.testament === activeTab) &&
+                    b.name.toLowerCase().includes(searchQuery)
+                );
+                const count = matchingBooks.length;
+                const bookText = count === 1 ? 'book' : 'books';
+                resultsCountEl.textContent = `${count} ${bookText} found`;
+                resultsCountEl.classList.remove('hidden');
+            } else {
+                resultsCountEl.classList.add('hidden');
+            }
+
             window.renderBookGrid();
         };
 
