@@ -1,13 +1,23 @@
 {
-  "name": "Bible Progress",
+  "name": "Bible Progress - Word-Weighted KJV Tracker",
   "short_name": "Bible Progress",
-  "description": "Word-weighted Bible reading tracker",
+  "description": "Track your Bible reading progress with word-weighted precision. Features reading plans (Sequential, M'Cheyne, Horner), streak tracking, multi-profile support, and optional cloud sync.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",
@@ -21,6 +31,29 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "lifestyle"],
-  "screenshots": []
+  "categories": ["education", "lifestyle", "productivity"],
+  "iarc_rating_id": "",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Today's Reading",
+      "short_name": "Plan",
+      "description": "View your daily reading plan",
+      "url": "./index.html?tab=PLAN",
+      "icons": []
+    },
+    {
+      "name": "Statistics",
+      "short_name": "Stats",
+      "description": "View your reading statistics",
+      "url": "./index.html?tab=STATS",
+      "icons": []
+    }
+  ],
+  "related_applications": [],
+  "share_target": {
+    "action": "./",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded"
+  }
 }

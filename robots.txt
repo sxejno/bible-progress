@@ -1,0 +1,19 @@
+# robots.txt for Bible Progress (bibleprogress.com)
+# Allow all web crawlers to access all content
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://bibleprogress.com/sitemap.xml
+
+# Crawl delay (be nice to the server)
+Crawl-delay: 1
+
+# Specific paths
+Allow: /index.html
+Allow: /privacy.html
+Allow: /terms.html
+Allow: /accessibility.html
+
+# Disallow nothing - all content is public
