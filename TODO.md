@@ -35,10 +35,14 @@ This document tracks known issues, improvements, and feature requests for the Bi
   - Custom modals would provide better UX and brand consistency
   - Should match existing auth-modal styling
 
-- [ ] **Fix dark mode inconsistency**
-  - Settings UI shows dark mode toggle (`index.html:571-577`)
-  - But dark mode is currently an easter egg (triple-click logo)
-  - Either: Remove from settings OR make it a real feature
+- [x] **Fix dark mode inconsistency** ✅ **COMPLETED 2026-01-17**
+  - ~~Settings UI shows dark mode toggle (`index.html:571-577`)~~
+  - ~~But dark mode is currently an easter egg (triple-click logo)~~
+  - **Resolution**: Both methods are now intentionally supported
+    - Settings toggle is the primary, user-friendly access method (no notification)
+    - Triple-click logo easter egg remains as a fun alternative (with notification)
+    - Code comments clarified to document both access methods (`index.html:3238-3302`)
+    - CLAUDE.md updated to document dark mode as a standard feature (Section 5)
 
 - [ ] **Enable user scaling on mobile**
   - `index.html:5` has `user-scalable=no` which is an accessibility issue

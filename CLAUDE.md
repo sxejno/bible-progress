@@ -121,7 +121,15 @@ setDoc(doc(db, "users", uid), { appData }, { merge: true })
 
 **Important**: Local data always takes precedence. Cloud is only for backup/cross-device sync.
 
-### 5. Easter Eggs
+### 5. Dark Mode
+- **Location**: Lines ~571-577 (Settings UI), ~2833-3302 (Implementation)
+- **Access Methods**:
+  - **Primary**: Settings page toggle (user-friendly, no notification)
+  - **Easter Egg**: Triple-click logo (fun alternative with celebration notification)
+- **Persistence**: Saved to localStorage, restored on page load
+- **Implementation**: CSS filter-based inversion with custom styles
+
+### 6. Easter Eggs
 Seven hidden features (lines ~1271-1608):
 1. Konami Code (↑↑↓↓←→←→BA)
 2. Click profile dot 7 times
@@ -129,7 +137,7 @@ Seven hidden features (lines ~1271-1608):
 4. Finish entire Bible
 5. Type creator names (SHANE, MEGAN, DOM, DAVID)
 6. Christmas/Easter greetings (date-based)
-7. Triple-click logo for dark mode
+7. Triple-click logo for dark mode (also accessible via Settings)
 
 ## Development Conventions
 
@@ -342,6 +350,8 @@ Quick reference for common code locations in `index.html`:
 | Profile Functions | 461-477 |
 | Auth Functions | 478-552 |
 | Cloud Sync | 553-590 |
+| Dark Mode (Settings UI) | 571-577 |
+| Dark Mode (Implementation) | 2833-3302 |
 | Rendering Functions | 935-1270 |
 | Easter Eggs | 1271-1608 |
 
@@ -380,7 +390,7 @@ Based on code structure and commit history:
 7. **Multiple Bible versions** (currently only KJV)
 8. **Audio integration** (link to audio Bible)
 9. **Social features** (share progress)
-10. **Dark mode toggle** (currently hidden easter egg)
+10. **Enhanced dark mode** (currently basic CSS inversion, could add custom theme colors)
 
 ## Support & Resources
 
