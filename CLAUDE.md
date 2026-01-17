@@ -1,5 +1,37 @@
 # CLAUDE.md - AI Assistant Guide for Bible Progress
 
+## Recent Updates (January 2026)
+
+This documentation has been comprehensively updated to reflect the latest state of the codebase:
+
+**New Features:**
+- ✅ Horner plan daily progress tracking (tracks which of the 10 lists are completed each day)
+- ✅ Reading streak system with heatmap visualization
+- ✅ Comprehensive ARIA labels for accessibility
+- ✅ Delightful animations and transitions
+- ✅ Chart instance caching for better performance
+- ✅ Dark mode (accessible via Settings or triple-click logo easter egg)
+
+**Bug Fixes:**
+- ✅ Fixed Horner plan incorrectly showing chapters as read (#69)
+- ✅ Fixed daily plan "Mark as Read" button for chapter ranges (#68)
+- ✅ Fixed popup background color flickering (#65)
+
+**Security Improvements:**
+- ✅ XSS prevention with HTML escaping utilities
+- ✅ HTTPS-only URL validation for user photos
+- ✅ File upload validation for JSON backups
+- ✅ Comprehensive SECURITY.md documentation
+
+**Documentation:**
+- ✅ Added TODO.md for development tracking
+- ✅ Added SECURITY.md for security guidelines
+- ✅ Updated all line number references
+- ✅ Documented Horner daily progress feature
+- ✅ Updated testing checklist
+
+---
+
 ## Project Overview
 
 **Bible Progress** is a word-weighted King James Version (KJV) Bible reading tracker. Unlike traditional chapter-based trackers, this application tracks progress by word count, providing mathematically accurate progress metrics. For example, Psalm 117 (33 words) is weighted differently than Psalm 119 (2,423 words).
@@ -31,16 +63,20 @@
 
 ```
 bible-progress/
-├── index.html           # Main application (3,804 lines)
+├── index.html           # Main application (3,847 lines)
 │                        # Contains all HTML, CSS, and JavaScript
 ├── manifest.json        # PWA manifest for app installation
 ├── service-worker.js    # Service worker for offline capabilities
 ├── README.md            # User-facing documentation
 ├── CLAUDE.md           # AI assistant documentation (this file)
+├── TODO.md             # Development roadmap and issue tracking
+├── SECURITY.md         # Security documentation and best practices
 ├── CNAME               # GitHub Pages domain config
 ├── favicon.png         # App icon (used as favicon and apple-touch-icon)
 ├── icon-192.png        # PWA icon (192x192)
-└── icon-512.png        # PWA icon (512x512)
+├── icon-512.png        # PWA icon (512x512)
+├── kjv_chapter_word_counts.csv  # Source data for Bible word counts
+└── kjvwordcount        # Word count verification data
 ```
 
 ## Core Data Model
@@ -61,6 +97,10 @@ appData = {
     defaultProfileId: string,
     profileColors: {
         [profileId]: string  // hex color
+    },
+    hornerDailyProgress: {  // NEW: Tracks Horner plan daily completion
+        date: string,       // YYYY-MM-DD format
+        completedLists: number[]  // Array of list indices (0-9) completed today
     }
 }
 ```
@@ -103,6 +143,10 @@ Three built-in plans:
 - **SEQUENTIAL**: Genesis → Revelation (canonical order)
 - **MCHEYNE**: 365-day plan, 4 chapters/day (M'Cheyne's Bible Reading Plan)
 - **HORNER**: 10 lists, rotating through different Bible sections
+  - **Daily Progress Tracking**: Horner plan includes `hornerDailyProgress` feature
+  - Tracks which lists have been completed today
+  - Resets daily at midnight (local timezone)
+  - Shows checkmarks next to completed lists in the plan view
 
 ### 3. Progress Tracking
 - **Book Level**: 66 books with category groupings
@@ -214,21 +258,24 @@ Seven hidden features (lines ~1271-1608):
 ### Branching Strategy
 - **Production**: Deployed directly from repository root (main branch)
 - **Feature branches**: `claude/*` prefix (for AI-assisted development)
-- **Current branch**: `claude/update-claude-md-O5aeA`
+- **Current branch**: `claude/claude-md-mkilpns53p2gmhja-jNAWQ`
 
 ### Recent Development Focus (Last 20 commits)
-1. ARIA labels for accessibility (#66)
-2. Popup background color fix (#65)
-3. Copy progress updates and reading estimates (#64)
-4. Streak badge in header (#63)
-5. Reading streak tracking with milestones (#62)
-6. Delightful animations and transitions (#59)
-7. Chart instance caching for performance (#58)
-8. User scaling enabled on mobile (#57)
-9. Easter eggs implementation
-10. Profile color picker
-11. Email/password authentication
-12. Google OAuth integration
+1. **Fix Horner plan showing chapters as read incorrectly** (#69) - January 2026
+2. **Fix daily plan mark as read bug for chapter ranges** (#68) - January 2026
+3. **Update CLAUDE.md with recent features** (#67) - January 2026
+4. **ARIA labels for accessibility** (#66) - January 2026
+5. **Popup background color fix** (#65) - January 2026
+6. **Copy progress updates and reading estimates** (#64) - January 2026
+7. **Streak badge in header** (#63) - January 2026
+8. **Reading streak tracking with milestones** (#62) - January 2026
+9. **Delightful animations and transitions** (#59)
+10. **Chart instance caching for performance** (#58)
+11. **User scaling enabled on mobile** (#57)
+12. **Easter eggs implementation**
+13. **Profile color picker**
+14. **Email/password authentication**
+15. **Google OAuth integration**
 
 ### Deployment
 - **Platform**: GitHub Pages
@@ -256,13 +303,34 @@ Seven hidden features (lines ~1271-1608):
 
 1. **Define plan constant** (follow `PLAN_MCHEYNE` or `PLAN_HORNER` format)
 2. **Add plan to selector** in HTML (search for `plan-selector`)
-3. **Implement logic** in `renderDailyPlan()` function (~line 964)
+3. **Implement logic** in `renderDailyPlan()` function (~line 1750-1900)
+4. **Consider daily tracking**: If plan needs daily progress (like Horner), add to `appData` structure
+
+### Working with Horner Daily Progress
+
+The Horner plan includes special daily tracking functionality:
+
+```javascript
+// Reset daily progress if date changed (call before rendering Horner plan)
+resetHornerDailyProgressIfNeeded();
+
+// Check if a list is completed today
+const isListCompleted = appData.hornerDailyProgress.completedLists.includes(listIndex);
+
+// Mark a list as completed (when all chapters in that list are read today)
+if(!appData.hornerDailyProgress.completedLists.includes(listIndex)) {
+    appData.hornerDailyProgress.completedLists.push(listIndex);
+}
+```
+
+**Important**: Horner daily progress resets at midnight (local timezone) and is independent of the chapter completion timestamps. A chapter can be marked as read without affecting list completion status.
 
 ### Styling Changes
 
-- **Inline styles**: In `<style>` tag (lines 17-38)
+- **Inline styles**: In `<style>` tag (lines 17-100+)
 - **Tailwind classes**: Applied directly to HTML elements
 - **Custom animations**: Defined in `@keyframes` blocks
+- **Glass-morphism design**: Uses backdrop-blur and transparency
 
 ## Data Migration
 
@@ -282,9 +350,28 @@ Object.keys(appData.profiles).forEach(profileName => {
         }
     });
 });
+
+// Ensure all profiles have a reading plan assigned
+Object.keys(appData.profiles).forEach(name => {
+    if(!appData.profilePlans[name]) {
+        appData.profilePlans[name] = 'SEQUENTIAL';
+    }
+});
+
+// Initialize Horner daily progress if not present
+if(!appData.hornerDailyProgress) {
+    appData.hornerDailyProgress = {
+        date: getTodaysDate(),
+        completedLists: []
+    };
+}
 ```
 
-**Important**: The migration from boolean to timestamp values happens automatically on page load and is saved immediately to prevent re-migration.
+**Important**:
+- The migration from boolean to timestamp values happens automatically on page load and is saved immediately to prevent re-migration
+- All profiles are automatically assigned the SEQUENTIAL plan if they don't have one
+- Horner daily progress is initialized on first use and resets daily at midnight
+- Migration changes are saved to localStorage immediately (line ~974)
 
 ## Firebase Configuration
 
@@ -330,6 +417,13 @@ When making changes, verify:
 - [ ] Plan selector shows correct next chapters
 - [ ] Plan persists per profile
 - [ ] All three plans function correctly
+- [ ] Sequential plan shows books in canonical order
+- [ ] M'Cheyne plan shows 4 chapters per day
+- [ ] Horner plan shows 10 lists with proper rotation
+- [ ] Horner daily progress tracks completed lists correctly
+- [ ] Horner daily progress resets at midnight (local time)
+- [ ] Horner plan correctly shows chapter read status (independent of list completion)
+- [ ] Daily plan "Mark as Read" button works for single chapters and ranges
 - [ ] Heatmap displays reading activity correctly
 - [ ] Streak calculations are accurate (test across midnight, multi-day gaps)
 
@@ -387,11 +481,21 @@ console.log(calculateStreaks())
 // View reading activity (heatmap data)
 console.log(getReadingActivity())
 
+// View Horner daily progress
+console.log(appData.hornerDailyProgress)
+
+// Reset Horner daily progress (for testing)
+resetHornerDailyProgressIfNeeded()
+
 // Force save
 window.saveProgress()
 
 // Clear all data (⚠️ destructive)
 localStorage.clear()
+
+// Test security functions
+console.log(isValidHttpsUrl('https://example.com'))  // Should return true
+console.log(escapeHtml('<script>alert("xss")</script>'))  // Should return escaped HTML
 ```
 
 ## Code Location Reference
@@ -401,11 +505,13 @@ Quick reference for common code locations in `index.html`:
 | Feature | Line Range |
 |---------|-----------|
 | Firebase Config | ~348-362 |
+| Security Functions | ~394-409 |
 | Bible Data | ~800-801 |
 | Reading Plans | ~804-818 |
 | Word Count Totals | ~820 |
 | Category Definitions | ~827-841 |
 | Data Migration | ~943-974 |
+| Horner Daily Progress | ~989-1009 |
 | Profile Functions | ~461-477 |
 | Auth Functions | ~478-552 |
 | Cloud Sync | ~553-590 |
@@ -418,6 +524,7 @@ Quick reference for common code locations in `index.html`:
 | Dark Mode (Implementation) | ~3200-3700 |
 | Rendering Functions | ~935-1270 |
 | Easter Eggs | ~1271-1608 |
+| Daily Plan Rendering | ~1750-1900 |
 
 **Note**: Line numbers are approximate (~) due to ongoing development. Use search to locate specific functions.
 
@@ -428,10 +535,13 @@ Quick reference for common code locations in `index.html`:
 ✅ Match existing code style and conventions
 ✅ Test all changes in browser before committing
 ✅ Maintain word count accuracy in bible data
-✅ Keep localStorage version consistent
+✅ Keep localStorage version consistent (currently `kjv_v6_data`)
 ✅ Follow Tailwind CSS utility patterns
 ✅ Preserve existing easter eggs (users love them!)
 ✅ Update this CLAUDE.md file when making structural changes
+✅ Use security utilities (`escapeHtml()`, `isValidHttpsUrl()`) for user data
+✅ Test across different reading plans (Sequential, M'Cheyne, Horner)
+✅ Verify Horner daily progress resets at midnight correctly
 
 ### DON'T:
 ❌ Split into multiple files (defeats the purpose)
@@ -442,6 +552,8 @@ Quick reference for common code locations in `index.html`:
 ❌ Change the color scheme without discussion
 ❌ Add heavy dependencies (keep it lightweight)
 ❌ Introduce breaking changes to the data model
+❌ Use `innerHTML` with user data (XSS risk)
+❌ Skip security validation for external URLs or file uploads
 
 ## Future Enhancement Ideas
 
@@ -460,6 +572,28 @@ Based on code structure and commit history:
 11. **Weekly/monthly progress reports** (summary emails or notifications)
 12. **Reading goals** (chapters per day/week targets)
 
+## Additional Documentation
+
+The project includes comprehensive supporting documentation:
+
+### SECURITY.md
+Complete security documentation covering:
+- **XSS Prevention**: HTML escaping utilities and safe DOM manipulation
+- **URL Validation**: HTTPS-only validation for user photos
+- **File Upload Security**: JSON backup file validation (type, size, structure)
+- **Firebase Security**: Recommended Firestore security rules and auth configuration
+- **Security Headers**: CSP and other security best practices
+- **Known Limitations**: Client-side architecture security considerations
+- **Code Review Checklist**: Security verification steps for developers
+
+### TODO.md
+Active development tracking with prioritized items:
+- **High Priority**: Performance optimizations, UX improvements, accessibility
+- **Medium Priority**: Code quality, security best practices, PWA enhancements
+- **Low Priority**: Feature enhancements, UI polish, developer experience
+- **Completed Items**: Tracks finished improvements with completion dates
+- **Bug Tracking**: Known issues and their resolution status
+
 ## Support & Resources
 
 - **Repository**: GitHub (inferred from GitHub Pages deployment)
@@ -477,9 +611,10 @@ Based on code structure and commit history:
 
 ---
 
-**Last Updated**: 2026-01-17
+**Last Updated**: 2026-01-17 (Comprehensive update reflecting recent bug fixes and security improvements)
 **Maintained By**: Shane (with AI assistance)
 **License**: Open source (implied from README)
+**Current Line Count**: 3,847 lines (index.html)
 
 ## Recent Major Features
 
@@ -494,3 +629,26 @@ The reading streak system represents a major enhancement to user engagement:
 
 ### Accessibility Improvements (January 2026)
 Comprehensive ARIA labels make the application fully accessible to screen reader users, covering all interactive elements and providing context for navigation, progress tracking, and profile management.
+
+### Recent Bug Fixes (January 2026)
+
+**Horner Plan Chapter Display Bug (#69)**
+- **Issue**: Horner plan was incorrectly showing chapters as read when they weren't
+- **Root Cause**: List completion logic was interfering with individual chapter read status
+- **Fix**: Separated daily list tracking from chapter completion status
+- **Location**: `index.html:989-1009` (Horner daily progress helpers)
+
+**Daily Plan Mark as Read Bug (#68)**
+- **Issue**: Marking chapters as read from the daily plan wasn't working for chapter ranges
+- **Root Cause**: Event parameter wasn't being forwarded correctly through wrapper functions
+- **Fix**: Updated event handlers to properly pass the event object
+- **Impact**: Improved reliability of the "Mark as Read" button in plan view
+
+### Security Enhancements (January 2026)
+
+Comprehensive security audit and improvements:
+- **XSS Prevention**: Added `escapeHtml()` utility, replaced `innerHTML` with `textContent` for user data
+- **URL Validation**: Implemented `isValidHttpsUrl()` for Firebase photo URLs
+- **File Upload Security**: Added type, size, and structure validation for JSON backups
+- **Error Handling**: Wrapped all `JSON.parse()` calls in try-catch blocks
+- **Documentation**: Created SECURITY.md with complete security guidelines
