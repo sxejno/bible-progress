@@ -111,90 +111,72 @@
     </div>
 
     <div id="intro-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2rem] p-8 w-full max-w-2xl shadow-2xl animate-in border border-white/50 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h2 class="text-3xl font-black text-indigo-950 tracking-tight mb-2">Welcome to Bible Progress!</h2>
-                    <p class="text-sm text-slate-500 font-medium">Track your Bible reading journey with precision</p>
-                </div>
-                <button onclick="window.closeIntroModal()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl animate-in border border-white/50 relative overflow-hidden">
+            <!-- Decorative background elements -->
+            <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-200/20 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl"></div>
+
+            <!-- Content -->
+            <div class="relative">
+                <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-            </div>
 
-            <div class="space-y-6">
-                <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
-                    <h3 class="text-lg font-black text-indigo-900 mb-3 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-                        Word-Weighted Tracking
-                    </h3>
-                    <p class="text-sm text-slate-700 leading-relaxed">Unlike traditional chapter-based trackers, Bible Progress tracks your reading by <strong class="text-indigo-900">word count</strong>. Psalm 117 (33 words) is weighted differently than Psalm 119 (2,423 words), giving you mathematically accurate progress!</p>
+                <!-- Icon -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-200 rotate-3 hover:rotate-0 transition-transform">
+                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+                    </div>
                 </div>
 
-                <div class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
-                    <h3 class="text-lg font-black text-emerald-900 mb-3 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                        How to Use
-                    </h3>
-                    <ul class="space-y-2 text-sm text-slate-700">
-                        <li class="flex items-start gap-2">
-                            <span class="text-emerald-600 font-bold mt-0.5">•</span>
-                            <span><strong class="text-emerald-900">Click books</strong> to expand and view chapters</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-emerald-600 font-bold mt-0.5">•</span>
-                            <span><strong class="text-emerald-900">Check chapters</strong> as you read them - your progress updates instantly</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-emerald-600 font-bold mt-0.5">•</span>
-                            <span><strong class="text-emerald-900">Click chapter names</strong> to read them on Blue Letter Bible</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-emerald-600 font-bold mt-0.5">•</span>
-                            <span><strong class="text-emerald-900">Create profiles</strong> to track multiple people or reading plans separately</span>
-                        </li>
-                    </ul>
+                <!-- Heading -->
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Welcome to<br>Bible Progress</h2>
+                <p class="text-center text-slate-600 mb-8 leading-relaxed">
+                    Track your Bible reading journey with <span class="font-bold text-indigo-600">word-weighted precision</span>
+                </p>
+
+                <!-- Key points -->
+                <div class="space-y-3 mb-8">
+                    <div class="flex items-start gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-indigo-100/50">
+                        <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mt-0.5">
+                            <svg class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Check chapters as you read</p>
+                            <p class="text-xs text-slate-600">Your progress updates instantly</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-indigo-100/50">
+                        <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center mt-0.5">
+                            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Built-in reading plans</p>
+                            <p class="text-xs text-slate-600">Daily, M'Cheyne, Horner, and more</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-indigo-100/50">
+                        <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mt-0.5">
+                            <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Auto-saved locally</p>
+                            <p class="text-xs text-slate-600">Optional cloud sync across devices</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100">
-                    <h3 class="text-lg font-black text-amber-900 mb-3 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/></svg>
-                        Reading Plans
-                    </h3>
-                    <p class="text-sm text-slate-700 leading-relaxed mb-3">Choose from four built-in reading plans in the <strong class="text-amber-900">Daily Plan</strong> tab:</p>
-                    <ul class="space-y-1.5 text-sm text-slate-700">
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-600 font-bold">→</span>
-                            <span><strong class="text-amber-900">Canonical:</strong> Genesis to Revelation order</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-600 font-bold">→</span>
-                            <span><strong class="text-amber-900">One Year (OT+NT Daily):</strong> 3 OT chapters + 1 NT chapter per day</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-600 font-bold">→</span>
-                            <span><strong class="text-amber-900">M'Cheyne:</strong> Read the entire Bible in one year</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-amber-600 font-bold">→</span>
-                            <span><strong class="text-amber-900">Prof. Horner:</strong> Read from 10 different lists daily</span>
-                        </li>
-                    </ul>
+                <!-- CTA buttons -->
+                <div class="space-y-3">
+                    <button onclick="window.closeIntroModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:shadow-lg hover:shadow-indigo-300 transition-all transform hover:-translate-y-0.5">
+                        Start Reading
+                    </button>
+                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('ABOUT'), 300);" class="w-full bg-white/80 text-slate-700 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-white transition-all border border-slate-200">
+                        Learn More
+                    </button>
                 </div>
-
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                    <h3 class="text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
-                        Your Data is Safe
-                    </h3>
-                    <p class="text-sm text-slate-700 leading-relaxed">All progress is saved <strong class="text-slate-900">automatically in your browser</strong>. Click <strong class="text-slate-900">"Sync"</strong> to create an account and back up your data to the cloud for access across devices.</p>
-                </div>
-            </div>
-
-            <div class="mt-8 flex justify-center">
-                <button onclick="window.closeIntroModal()" class="bg-indigo-600 text-white px-8 py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all">
-                    Let's Get Started!
-                </button>
             </div>
         </div>
     </div>
@@ -414,7 +396,91 @@
         <div id="view-about" class="hidden animate-in">
              <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">About</h2>
-                
+
+                <div class="mb-10">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">What Makes This Different?</h3>
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50/30 p-8 rounded-3xl border border-indigo-100 mb-6">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-black text-indigo-950 mb-2">Word-Weighted Tracking</h4>
+                                <p class="text-slate-700 leading-relaxed">Unlike traditional chapter-based trackers, Bible Progress tracks your reading by <strong class="text-indigo-900">word count</strong>. This means every chapter is weighted according to its actual length.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-indigo-100">
+                            <p class="text-sm text-slate-600 mb-3">For example:</p>
+                            <div class="grid grid-cols-2 gap-4 mb-3">
+                                <div class="text-center">
+                                    <div class="text-2xl font-black text-slate-900 mb-1">33</div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Words in Psalm 117</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-black text-slate-900 mb-1">2,423</div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Words in Psalm 119</div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-600 italic">Your progress reflects this difference, giving you <strong>mathematically accurate</strong> tracking of your Bible reading journey!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-10">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">How to Use</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mt-0.5">
+                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">Browse and Select</h4>
+                                <p class="text-sm text-slate-600 leading-relaxed">Click on any book to expand and view all its chapters. Use the search bar to quickly find specific books.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mt-0.5">
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">Check Off Chapters</h4>
+                                <p class="text-sm text-slate-600 leading-relaxed">After reading a chapter, simply click the checkbox next to it. Your progress updates instantly and is saved automatically.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mt-0.5">
+                                <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">Click Chapter Names to Read</h4>
+                                <p class="text-sm text-slate-600 leading-relaxed">Clicking on a chapter name opens it on Blue Letter Bible in a new tab, so you can read the KJV text with study tools.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mt-0.5">
+                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">Multiple Profiles</h4>
+                                <p class="text-sm text-slate-600 leading-relaxed">Create separate profiles to track different people, reading plans, or personal goals. Each profile maintains its own progress independently.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                            <div class="flex-shrink-0 w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center mt-0.5">
+                                <svg class="w-5 h-5 text-rose-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-1">Cloud Sync (Optional)</h4>
+                                <p class="text-sm text-slate-600 leading-relaxed">All progress is saved locally in your browser by default. Click "Sync" to create an account and backup your data to the cloud for access across devices.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-10">
                     <div class="bg-indigo-50 p-8 rounded-3xl border border-indigo-100">
                         <p class="text-slate-900 font-bold mb-2 text-lg">Who made this website?</p>
