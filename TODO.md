@@ -204,6 +204,11 @@ This document tracks known issues, improvements, and feature requests for the Bi
   - Was added and then reverted according to commit history
   - Gamification for reading goals
   - Badges for milestones
+     
+- [ ] **Verse memory helper**
+  - Create a method to facilitate the memorization of verses/books.
+  - One method could include converting a verse to the first letters to help memorization
+  - Badges for milestones
 
 ### UI/UX Improvements
 
