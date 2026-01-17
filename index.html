@@ -2600,26 +2600,56 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     const isListCompleteToday = appData.hornerDailyProgress.completedLists.includes(listIdx);
 
                     let foundForList = false;
-                    for(let bName of listBooks) {
-                        const appBook = bible.find(b => b.name === bName);
-                        if(!appBook) continue;
-                        for(let c=0; c<appBook.ch.length; c++) {
-                            if(!currentProg[`${appBook.name}-${c+1}`]) {
+
+                    if(isListCompleteToday) {
+                        // List is complete today - find the chapter that was read TODAY
+                        for(let bName of listBooks) {
+                            const appBook = bible.find(b => b.name === bName);
+                            if(!appBook) continue;
+                            for(let c=0; c<appBook.ch.length; c++) {
                                 const chapterId = `${appBook.name}-${c+1}`;
-                                nextChapters.push({
-                                    book: appBook.name,
-                                    chapter: c+1,
-                                    chapters: [c+1],
-                                    words: appBook.ch[c],
-                                    label: `${appBook.name} ${c+1}`,
-                                    badge: `List ${listIdx+1}`,
-                                    isComplete: isListCompleteToday
-                                });
-                                foundForList = true;
-                                break;
+                                const timestamp = currentProg[chapterId];
+
+                                // Check if this chapter was read today
+                                if(timestamp && getLocalDateString(timestamp) === todayStr) {
+                                    nextChapters.push({
+                                        book: appBook.name,
+                                        chapter: c+1,
+                                        chapters: [c+1],
+                                        words: appBook.ch[c],
+                                        label: `${appBook.name} ${c+1}`,
+                                        badge: `List ${listIdx+1}`,
+                                        isComplete: true  // This chapter was read today, show as complete
+                                    });
+                                    foundForList = true;
+                                    break;
+                                }
                             }
+                            if(foundForList) break;
                         }
-                        if(foundForList) break;
+                    } else {
+                        // List is NOT complete today - find the next unread chapter
+                        for(let bName of listBooks) {
+                            const appBook = bible.find(b => b.name === bName);
+                            if(!appBook) continue;
+                            for(let c=0; c<appBook.ch.length; c++) {
+                                if(!currentProg[`${appBook.name}-${c+1}`]) {
+                                    const chapterId = `${appBook.name}-${c+1}`;
+                                    nextChapters.push({
+                                        book: appBook.name,
+                                        chapter: c+1,
+                                        chapters: [c+1],
+                                        words: appBook.ch[c],
+                                        label: `${appBook.name} ${c+1}`,
+                                        badge: `List ${listIdx+1}`,
+                                        isComplete: false  // This is an unread chapter, show normally
+                                    });
+                                    foundForList = true;
+                                    break;
+                                }
+                            }
+                            if(foundForList) break;
+                        }
                     }
                 });
                 const completedCount = appData.hornerDailyProgress.completedLists.length;
