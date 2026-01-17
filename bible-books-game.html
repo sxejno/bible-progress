@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Books Memory Game - Bible Progress</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .book-box {
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .book-box.found {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .book-box.found-in-order {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+        }
+
+        .book-box.found-out-of-order {
+            background: rgba(251, 191, 36, 0.3);
+            border-color: #fbbf24;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #fbbf24;
+            position: absolute;
+            animation: confetti-fall 3s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .timer {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Category colors matching main app */
+        .cat-pentateuch { background-color: rgba(132, 204, 22, 0.2); border-color: #84cc16; }
+        .cat-history-ot { background-color: rgba(251, 191, 36, 0.2); border-color: #fbbf24; }
+        .cat-wisdom { background-color: rgba(99, 102, 241, 0.2); border-color: #6366f1; }
+        .cat-major-prophets { background-color: rgba(251, 113, 133, 0.2); border-color: #fb7185; }
+        .cat-minor-prophets { background-color: rgba(34, 211, 238, 0.2); border-color: #22d3ee; }
+        .cat-gospels { background-color: rgba(52, 211, 153, 0.2); border-color: #34d399; }
+        .cat-history-nt { background-color: rgba(250, 204, 21, 0.2); border-color: #facc15; }
+        .cat-pauline { background-color: rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+        .cat-general { background-color: rgba(45, 212, 191, 0.2); border-color: #2dd4bf; }
+        .cat-prophecy { background-color: rgba(232, 121, 249, 0.2); border-color: #e879f9; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">📖 Bible Books Memory Game</h1>
+            <p class="text-white/80 text-lg">How many books can you remember?</p>
+            <a href="index.html" class="inline-block mt-2 text-white/60 hover:text-white transition">← Back to Bible Progress</a>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="space-y-6">
+            <!-- Controls -->
+            <div class="glass rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
+                    <div class="text-white">
+                        <div class="text-3xl font-bold timer" id="timer">5:00</div>
+                        <div class="text-sm opacity-80">Time Remaining</div>
+                    </div>
+                    <div class="text-white text-center">
+                        <div class="text-3xl font-bold" id="scoreDisplay">0/66</div>
+                        <div class="text-sm opacity-80">Books Found</div>
+                    </div>
+                    <button onclick="startGame()" id="startBtn" class="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-semibold transition">
+                        Start Game
+                    </button>
+                </div>
+
+                <!-- Input Box -->
+                <div id="inputContainer" class="hidden">
+                    <label class="block text-white mb-2 font-semibold">Type book names (no spaces or capitals needed):</label>
+                    <input
+                        type="text"
+                        id="bookInput"
+                        class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-white/50 border-2 border-white/30 focus:border-white/60 focus:outline-none text-lg"
+                        placeholder="e.g., genesisexodusleviticus..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <div class="mt-2 text-white/60 text-sm">
+                        💡 Tip: Type continuously without spaces. Books will light up as they're recognized!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Grid -->
+            <div class="glass rounded-2xl p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Old Testament (39 books)</h2>
+                <div id="otGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8"></div>
+
+                <h2 class="text-2xl font-bold text-white mb-4">New Testament (27 books)</h2>
+                <div id="ntGrid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2"></div>
+            </div>
+
+            <!-- Legend -->
+            <div class="glass rounded-2xl p-4">
+                <div class="flex flex-wrap gap-4 justify-center text-sm text-white">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded border-2 border-green-500 bg-green-500/30"></div>
+                        <span>Correct Order</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded border-2 border-yellow-500 bg-yellow-500/30"></div>
+                        <span>Out of Order</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="hidden">
+            <div class="glass rounded-2xl p-8 text-center">
+                <h2 class="text-4xl font-bold text-white mb-6">Game Over! 🎉</h2>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white/10 rounded-xl p-6">
+                        <div class="text-5xl font-bold text-white" id="finalScore">0</div>
+                        <div class="text-white/80 mt-2">Books Found</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-6">
+                        <div class="text-5xl font-bold text-white" id="finalPercentage">0%</div>
+                        <div class="text-white/80 mt-2">Completion</div>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-6">
+                        <div class="text-5xl font-bold text-white" id="finalBonus">+0</div>
+                        <div class="text-white/80 mt-2">Order Bonus</div>
+                    </div>
+                </div>
+
+                <div class="bg-white/10 rounded-xl p-6 mb-6">
+                    <div class="text-6xl mb-4" id="performanceEmoji">📖</div>
+                    <div class="text-2xl font-bold text-white mb-2" id="performanceTitle">Great effort!</div>
+                    <div class="text-white/80" id="performanceMessage">Keep practicing to improve your score!</div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="resetGame()" class="px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-semibold transition">
+                        Play Again
+                    </button>
+                    <a href="index.html" class="px-8 py-3 bg-white/20 hover:bg-white/30 text-white rounded-lg font-semibold transition inline-block">
+                        Back to Bible Progress
+                    </a>
+                </div>
+
+                <!-- Missed Books -->
+                <div id="missedBooksContainer" class="mt-8 text-left">
+                    <h3 class="text-xl font-bold text-white mb-4">Books You Missed:</h3>
+                    <div id="missedBooksList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bible books data with categories
+        const bibleBooks = [
+            // Old Testament - Pentateuch
+            {name: 'Genesis', cat: 'pentateuch', testament: 'OT'},
+            {name: 'Exodus', cat: 'pentateuch', testament: 'OT'},
+            {name: 'Leviticus', cat: 'pentateuch', testament: 'OT'},
+            {name: 'Numbers', cat: 'pentateuch', testament: 'OT'},
+            {name: 'Deuteronomy', cat: 'pentateuch', testament: 'OT'},
+
+            // History (OT)
+            {name: 'Joshua', cat: 'history-ot', testament: 'OT'},
+            {name: 'Judges', cat: 'history-ot', testament: 'OT'},
+            {name: 'Ruth', cat: 'history-ot', testament: 'OT'},
+            {name: '1 Samuel', cat: 'history-ot', testament: 'OT', alt: ['1samuel', 'firstsamuel', 'isamuel']},
+            {name: '2 Samuel', cat: 'history-ot', testament: 'OT', alt: ['2samuel', 'secondsamuel', 'iisamuel']},
+            {name: '1 Kings', cat: 'history-ot', testament: 'OT', alt: ['1kings', 'firstkings', 'ikings']},
+            {name: '2 Kings', cat: 'history-ot', testament: 'OT', alt: ['2kings', 'secondkings', 'iikings']},
+            {name: '1 Chronicles', cat: 'history-ot', testament: 'OT', alt: ['1chronicles', 'firstchronicles', 'ichronicles']},
+            {name: '2 Chronicles', cat: 'history-ot', testament: 'OT', alt: ['2chronicles', 'secondchronicles', 'iichronicles']},
+            {name: 'Ezra', cat: 'history-ot', testament: 'OT'},
+            {name: 'Nehemiah', cat: 'history-ot', testament: 'OT'},
+            {name: 'Esther', cat: 'history-ot', testament: 'OT'},
+
+            // Wisdom
+            {name: 'Job', cat: 'wisdom', testament: 'OT'},
+            {name: 'Psalms', cat: 'wisdom', testament: 'OT', alt: ['psalm']},
+            {name: 'Proverbs', cat: 'wisdom', testament: 'OT'},
+            {name: 'Ecclesiastes', cat: 'wisdom', testament: 'OT'},
+            {name: 'Song of Solomon', cat: 'wisdom', testament: 'OT', alt: ['songofsolomon', 'songofsongs', 'canticles']},
+
+            // Major Prophets
+            {name: 'Isaiah', cat: 'major-prophets', testament: 'OT'},
+            {name: 'Jeremiah', cat: 'major-prophets', testament: 'OT'},
+            {name: 'Lamentations', cat: 'major-prophets', testament: 'OT'},
+            {name: 'Ezekiel', cat: 'major-prophets', testament: 'OT'},
+            {name: 'Daniel', cat: 'major-prophets', testament: 'OT'},
+
+            // Minor Prophets
+            {name: 'Hosea', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Joel', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Amos', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Obadiah', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Jonah', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Micah', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Nahum', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Habakkuk', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Zephaniah', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Haggai', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Zechariah', cat: 'minor-prophets', testament: 'OT'},
+            {name: 'Malachi', cat: 'minor-prophets', testament: 'OT'},
+
+            // New Testament - Gospels
+            {name: 'Matthew', cat: 'gospels', testament: 'NT'},
+            {name: 'Mark', cat: 'gospels', testament: 'NT'},
+            {name: 'Luke', cat: 'gospels', testament: 'NT'},
+            {name: 'John', cat: 'gospels', testament: 'NT'},
+
+            // History (NT)
+            {name: 'Acts', cat: 'history-nt', testament: 'NT'},
+
+            // Pauline Epistles
+            {name: 'Romans', cat: 'pauline', testament: 'NT'},
+            {name: '1 Corinthians', cat: 'pauline', testament: 'NT', alt: ['1corinthians', 'firstcorinthians', 'icorinthians']},
+            {name: '2 Corinthians', cat: 'pauline', testament: 'NT', alt: ['2corinthians', 'secondcorinthians', 'iicorinthians']},
+            {name: 'Galatians', cat: 'pauline', testament: 'NT'},
+            {name: 'Ephesians', cat: 'pauline', testament: 'NT'},
+            {name: 'Philippians', cat: 'pauline', testament: 'NT'},
+            {name: 'Colossians', cat: 'pauline', testament: 'NT'},
+            {name: '1 Thessalonians', cat: 'pauline', testament: 'NT', alt: ['1thessalonians', 'firstthessalonians', 'ithessalonians']},
+            {name: '2 Thessalonians', cat: 'pauline', testament: 'NT', alt: ['2thessalonians', 'secondthessalonians', 'iithessalonians']},
+            {name: '1 Timothy', cat: 'pauline', testament: 'NT', alt: ['1timothy', 'firsttimothy', 'itimothy']},
+            {name: '2 Timothy', cat: 'pauline', testament: 'NT', alt: ['2timothy', 'secondtimothy', 'iitimothy']},
+            {name: 'Titus', cat: 'pauline', testament: 'NT'},
+            {name: 'Philemon', cat: 'pauline', testament: 'NT'},
+
+            // General Epistles
+            {name: 'Hebrews', cat: 'general', testament: 'NT'},
+            {name: 'James', cat: 'general', testament: 'NT'},
+            {name: '1 Peter', cat: 'general', testament: 'NT', alt: ['1peter', 'firstpeter', 'ipeter']},
+            {name: '2 Peter', cat: 'general', testament: 'NT', alt: ['2peter', 'secondpeter', 'iipeter']},
+            {name: '1 John', cat: 'general', testament: 'NT', alt: ['1john', 'firstjohn', 'ijohn']},
+            {name: '2 John', cat: 'general', testament: 'NT', alt: ['2john', 'secondjohn', 'iijohn']},
+            {name: '3 John', cat: 'general', testament: 'NT', alt: ['3john', 'thirdjohn', 'iiijohn']},
+            {name: 'Jude', cat: 'general', testament: 'NT'},
+
+            // Prophecy
+            {name: 'Revelation', cat: 'prophecy', testament: 'NT', alt: ['revelations']}
+        ];
+
+        // Game state
+        let gameActive = false;
+        let timeLeft = 300; // 5 minutes in seconds
+        let timerInterval = null;
+        let foundBooks = new Set();
+        let booksFoundInOrder = new Set();
+        let currentInput = '';
+        let expectedNextIndex = 0;
+
+        // Initialize the game
+        function initGame() {
+            renderBooks();
+        }
+
+        // Render book boxes
+        function renderBooks() {
+            const otGrid = document.getElementById('otGrid');
+            const ntGrid = document.getElementById('ntGrid');
+
+            otGrid.innerHTML = '';
+            ntGrid.innerHTML = '';
+
+            bibleBooks.forEach((book, index) => {
+                const box = document.createElement('div');
+                box.className = `book-box cat-${book.cat} rounded-lg p-2 text-center cursor-default`;
+                box.id = `book-${index}`;
+                box.innerHTML = `
+                    <div class="text-xs font-semibold text-white/80 opacity-0 transition-opacity" id="bookName-${index}">
+                        ${book.name}
+                    </div>
+                `;
+
+                if (book.testament === 'OT') {
+                    otGrid.appendChild(box);
+                } else {
+                    ntGrid.appendChild(box);
+                }
+            });
+        }
+
+        // Start the game
+        function startGame() {
+            gameActive = true;
+            foundBooks.clear();
+            booksFoundInOrder.clear();
+            currentInput = '';
+            expectedNextIndex = 0;
+            timeLeft = 300;
+
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('inputContainer').classList.remove('hidden');
+            document.getElementById('bookInput').value = '';
+            document.getElementById('bookInput').focus();
+
+            // Reset all books
+            bibleBooks.forEach((book, index) => {
+                const box = document.getElementById(`book-${index}`);
+                box.classList.remove('found', 'found-in-order', 'found-out-of-order');
+                document.getElementById(`bookName-${index}`).style.opacity = '0';
+            });
+
+            updateScore();
+            startTimer();
+
+            // Add input listener
+            document.getElementById('bookInput').addEventListener('input', handleInput);
+        }
+
+        // Handle input
+        function handleInput(e) {
+            if (!gameActive) return;
+
+            currentInput = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            // Check for book matches
+            bibleBooks.forEach((book, index) => {
+                if (foundBooks.has(index)) return;
+
+                const bookNames = [book.name.toLowerCase().replace(/[^a-z]/g, ''), ...(book.alt || [])];
+
+                for (const bookName of bookNames) {
+                    if (currentInput.endsWith(bookName)) {
+                        foundBook(index);
+                        // Remove the matched book from current input
+                        currentInput = currentInput.slice(0, -bookName.length);
+                        e.target.value = currentInput;
+                        break;
+                    }
+                }
+            });
+        }
+
+        // Mark book as found
+        function foundBook(index) {
+            foundBooks.add(index);
+            const box = document.getElementById(`book-${index}`);
+            const nameEl = document.getElementById(`bookName-${index}`);
+
+            box.classList.add('found');
+            nameEl.style.opacity = '1';
+
+            // Check if found in order
+            if (index === expectedNextIndex) {
+                box.classList.add('found-in-order');
+                booksFoundInOrder.add(index);
+                expectedNextIndex++;
+            } else {
+                box.classList.add('found-out-of-order');
+            }
+
+            updateScore();
+
+            // Check if all books found
+            if (foundBooks.size === 66) {
+                endGame();
+            }
+
+            // Celebration effect
+            playSound();
+        }
+
+        // Simple sound effect (beep)
+        function playSound() {
+            // Could add audio here if desired
+        }
+
+        // Update score display
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = `${foundBooks.size}/66`;
+        }
+
+        // Timer
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent =
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            // Pulse when time is running low
+            if (timeLeft <= 30 && timeLeft > 0) {
+                document.getElementById('timer').classList.add('pulse');
+            }
+        }
+
+        // End game
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            document.getElementById('bookInput').removeEventListener('input', handleInput);
+
+            // Calculate scores
+            const totalFound = foundBooks.size;
+            const percentage = Math.round((totalFound / 66) * 100);
+            const orderBonus = booksFoundInOrder.size;
+
+            // Show results
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            document.getElementById('finalScore').textContent = totalFound;
+            document.getElementById('finalPercentage').textContent = percentage + '%';
+            document.getElementById('finalBonus').textContent = '+' + orderBonus;
+
+            // Performance evaluation
+            evaluatePerformance(totalFound, orderBonus);
+
+            // Show missed books
+            showMissedBooks();
+
+            // Confetti if they did well
+            if (percentage >= 80) {
+                throwConfetti();
+            }
+        }
+
+        // Evaluate performance
+        function evaluatePerformance(found, bonus) {
+            const percentage = (found / 66) * 100;
+            let emoji, title, message;
+
+            if (percentage === 100) {
+                emoji = '🏆';
+                title = 'PERFECT SCORE!';
+                message = 'You remembered all 66 books! Incredible Bible knowledge!';
+            } else if (percentage >= 90) {
+                emoji = '🌟';
+                title = 'Outstanding!';
+                message = 'You have exceptional knowledge of the Bible books!';
+            } else if (percentage >= 75) {
+                emoji = '🎯';
+                title = 'Excellent!';
+                message = 'Great memory! You know your Bible well!';
+            } else if (percentage >= 60) {
+                emoji = '👍';
+                title = 'Well Done!';
+                message = 'Good job! Keep studying to improve further!';
+            } else if (percentage >= 40) {
+                emoji = '📖';
+                title = 'Good Effort!';
+                message = 'You\'re on your way! Keep reading and practicing!';
+            } else if (percentage >= 20) {
+                emoji = '💪';
+                title = 'Keep Trying!';
+                message = 'Everyone starts somewhere. Practice makes perfect!';
+            } else {
+                emoji = '🌱';
+                title = 'Just Beginning!';
+                message = 'Great first attempt! Study the books and try again!';
+            }
+
+            if (bonus >= 50) {
+                message += ' Amazing sequential memory!';
+            } else if (bonus >= 30) {
+                message += ' Excellent order recall!';
+            }
+
+            document.getElementById('performanceEmoji').textContent = emoji;
+            document.getElementById('performanceTitle').textContent = title;
+            document.getElementById('performanceMessage').textContent = message;
+        }
+
+        // Show missed books
+        function showMissedBooks() {
+            const missedList = document.getElementById('missedBooksList');
+            missedList.innerHTML = '';
+
+            const missed = bibleBooks.filter((book, index) => !foundBooks.has(index));
+
+            if (missed.length === 0) {
+                document.getElementById('missedBooksContainer').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('missedBooksContainer').classList.remove('hidden');
+
+            missed.forEach(book => {
+                const item = document.createElement('div');
+                item.className = 'bg-white/10 rounded px-3 py-2 text-white/90 text-sm';
+                item.textContent = book.name;
+                missedList.appendChild(item);
+            });
+        }
+
+        // Confetti effect
+        function throwConfetti() {
+            const colors = ['#fbbf24', '#34d399', '#60a5fa', '#f87171', '#a78bfa'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('inputContainer').classList.add('hidden');
+            document.getElementById('timer').classList.remove('pulse');
+
+            renderBooks();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
