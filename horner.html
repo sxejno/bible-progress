@@ -3,165 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professor Grant Horner's Bible Reading System (Precise Data)</title>
+    <title>Professor Horner's Bible Reading System - Analytics</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #e67e22; /* Changed accent to orange for a fresh look */
-            --bg: #f0f2f5;
-            --card-bg: #ffffff;
-            --text: #333;
-            --success: #27ae60;
-            --danger: #c0392b;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        /* Header */
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { color: var(--primary); margin-bottom: 10px; font-weight: 800; }
-        .subtitle { color: #666; max-width: 700px; margin: 0 auto; line-height: 1.6; }
 
-        /* Controls */
-        .controls { background: var(--card-bg); padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); display: flex; gap: 30px; flex-wrap: wrap; align-items: center; justify-content: center; margin-bottom: 30px; border: 1px solid rgba(0,0,0,0.05); }
-        .control-group { display: flex; flex-direction: column; gap: 8px; }
-        .control-group label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #95a5a6; letter-spacing: 1px; }
-        input[type="number"] { padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; width: 120px; font-size: 1.1rem; transition: border 0.3s; }
-        input[type="number"]:focus { border-color: var(--accent); outline: none; }
-        
-        button { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: transform 0.1s, background 0.2s; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.2); }
-        button:hover { background: #34495e; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
 
-        /* Dashboard Grid */
-        .dashboard { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; }
-        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
 
-        /* Cards */
-        .card { background: var(--card-bg); padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); position: relative; overflow: hidden; }
-        h2 { margin-top: 0; font-size: 1.4rem; color: var(--primary); border-bottom: 2px solid #f7f9fa; padding-bottom: 15px; margin-bottom: 20px; }
+        .glass-dark {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
 
-        /* List Display */
-        .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-        .list-item { background: #fff; border: 1px solid #e1e8ed; padding: 15px 20px; border-radius: 10px; position: relative; transition: transform 0.2s, box-shadow 0.2s; border-left: 4px solid var(--accent); }
-        .list-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .list-tag { position: absolute; top: 12px; right: 15px; color: #bdc3c7; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-        .chapter-ref { font-size: 1.25rem; font-weight: 700; color: var(--primary); display: block; margin-bottom: 4px; }
-        .chapter-stats { font-size: 0.9rem; color: #7f8c8d; font-weight: 500; }
+        .stat-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
 
-        /* Stats Section */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
-        .stat-box { background: #f8f9fa; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid #edf2f7; }
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; line-height: 1.2; }
-        .stat-label { font-size: 0.75rem; text-transform: uppercase; color: #95a5a6; letter-spacing: 1px; font-weight: 700; margin-top: 5px; display: block;}
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
 
-        /* MinMax Section */
-        .minmax-container { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .extreme-day { padding: 20px; border-radius: 12px; border-left: 6px solid; background: #fff; border: 1px solid #eee; border-left-width: 6px; }
-        .shortest { border-left-color: var(--success); }
-        .longest { border-left-color: var(--danger); }
-        
-        .extreme-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .extreme-title { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
-        .extreme-stats { font-size: 0.9rem; font-weight: 600; color: #555; background: #eee; padding: 4px 10px; border-radius: 20px; }
-        .extreme-list { font-size: 0.85rem; line-height: 1.5; color: #666; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        .list-item-card {
+            transition: all 0.2s ease;
+        }
 
-        canvas { width: 100% !important; height: 300px !important; }
-        
-        /* Loading overlay */
-        #loader { position: fixed; inset: 0; background: white; z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .list-item-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
     </style>
 </head>
-<body>
-
-<div id="loader">
-    <div class="spinner"></div>
-    <p style="margin-top: 20px; color: #666;">Processing Word Counts...</p>
-</div>
-
-<div class="container">
-    <header>
-        <h1>Professor Grant Horner's Bible Reading System</h1>
-        <div class="subtitle">
-            Powered by precise word count data. Explore the "interweaving" effect of the 10 lists and visualize your daily reading load.
+<body class="p-4 md:p-8">
+    <!-- Loading Overlay -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center z-50" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="text-center">
+            <div class="loader mb-4 mx-auto"></div>
+            <p class="text-white text-lg font-medium">Processing Word Counts...</p>
         </div>
-    </header>
-
-    <div class="controls">
-        <div class="control-group">
-            <label>Current Day #</label>
-            <input type="number" id="dayInput" value="1" min="1">
-        </div>
-        <div class="control-group">
-            <label>Your Reading Speed (WPM)</label>
-            <input type="number" id="wpmInput" value="250" min="50" step="10">
-        </div>
-        <button onclick="updateDashboard()">Analyze Day</button>
     </div>
 
-    <div class="dashboard">
-        <div class="card">
-            <h2>Today's Reading (Day <span id="displayDay">1</span>)</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <span class="stat-val" id="totalWords">0</span>
-                    <span class="stat-label">Total Words</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-val" id="estTime">0 min</span>
-                    <span class="stat-label">Est. Time</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-val" id="avgChapLen">0</span>
-                    <span class="stat-label">Avg Words/Chap</span>
-                </div>
-            </div>
-
-            <h3 style="margin-top: 30px; font-size: 1rem; color: #95a5a6; text-transform: uppercase; letter-spacing: 1px;">Chapter List</h3>
-            <div class="list-grid" id="readingList">
-                </div>
-        </div>
-
-        <div class="card">
-            <h2>System Analytics</h2>
-            <div style="height: 300px; position: relative;">
-                <canvas id="permutationChart"></canvas>
-            </div>
-            
-            <div style="margin-top:30px;">
-                <h3>Theoretical Extremes</h3>
-                <p style="font-size: 0.9rem; color:#7f8c8d; margin-bottom: 20px;">
-                    Based on your specific data, these are the absolute Shortest and Longest possible days that can occur when the lists align perfectly.
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto" id="mainContent" style="display: none;">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <div class="glass rounded-3xl p-8 shadow-2xl">
+                <h1 class="text-4xl md:text-5xl font-black gradient-text mb-3">
+                    📖 Professor Horner's Bible Reading System
+                </h1>
+                <p class="text-slate-600 text-lg max-w-3xl mx-auto leading-relaxed">
+                    Discover the beautiful "interweaving" effect of reading 10 chapters daily from different Bible sections.
+                    Analyze your reading patterns with precise word count data.
                 </p>
-                
-                <div class="minmax-container">
-                    <div class="extreme-day shortest">
-                        <div class="extreme-header">
-                            <span class="extreme-title">Shortest Possible Day</span>
-                            <span class="extreme-stats"><span id="minWords">...</span> words (~<span id="minTime">...</span> min)</span>
-                        </div>
-                        <div class="extreme-list" id="minList"></div>
+                <div class="mt-4 flex items-center justify-center gap-2 text-sm text-slate-500">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Read 1 chapter from each of 10 lists • Complete the Bible every 1,189 days</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Controls -->
+        <div class="glass rounded-2xl p-6 shadow-xl mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
+                        Current Day Number
+                    </label>
+                    <input
+                        type="number"
+                        id="dayInput"
+                        value="1"
+                        min="1"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 focus:outline-none text-lg font-semibold transition-colors"
+                        placeholder="Enter day..."
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
+                        Reading Speed (WPM)
+                    </label>
+                    <input
+                        type="number"
+                        id="wpmInput"
+                        value="250"
+                        min="50"
+                        step="10"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 focus:outline-none text-lg font-semibold transition-colors"
+                        placeholder="Words per minute..."
+                    >
+                </div>
+
+                <button
+                    onclick="updateDashboard()"
+                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+                >
+                    🔍 Analyze Day
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Today's Reading (2 columns) -->
+            <div class="lg:col-span-2 glass rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-slate-800">
+                        Today's Reading <span class="text-indigo-600">(Day <span id="displayDay">1</span>)</span>
+                    </h2>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 text-center border border-indigo-100">
+                        <div class="text-3xl font-black text-indigo-600" id="totalWords">0</div>
+                        <div class="text-xs font-bold text-slate-600 uppercase tracking-wide mt-1">Total Words</div>
                     </div>
-                    <div class="extreme-day longest">
-                        <div class="extreme-header">
-                            <span class="extreme-title">Longest Possible Day</span>
-                            <span class="extreme-stats"><span id="maxWords">...</span> words (~<span id="maxTime">...</span> min)</span>
-                        </div>
-                        <div class="extreme-list" id="maxList"></div>
+
+                    <div class="stat-card bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center border border-purple-100">
+                        <div class="text-3xl font-black text-purple-600" id="estTime">0 min</div>
+                        <div class="text-xs font-bold text-slate-600 uppercase tracking-wide mt-1">Est. Time</div>
+                    </div>
+
+                    <div class="stat-card bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 text-center border border-emerald-100">
+                        <div class="text-3xl font-black text-emerald-600" id="avgChapLen">0</div>
+                        <div class="text-xs font-bold text-slate-600 uppercase tracking-wide mt-1">Avg Words/Ch</div>
+                    </div>
+                </div>
+
+                <!-- Chapter List -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">📚 Chapter List</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="readingList">
+                        <!-- Populated by JavaScript -->
                     </div>
                 </div>
             </div>
+
+            <!-- System Overview (1 column) -->
+            <div class="glass rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-black text-slate-800 mb-6">System Overview</h2>
+
+                <div class="space-y-3">
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                        <div class="text-sm font-bold text-slate-600 mb-1">📖 Total Lists</div>
+                        <div class="text-2xl font-black text-indigo-600">10 Lists</div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                        <div class="text-sm font-bold text-slate-600 mb-1">📅 Complete Cycle</div>
+                        <div class="text-2xl font-black text-blue-600">1,189 Days</div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100">
+                        <div class="text-sm font-bold text-slate-600 mb-1">📊 Daily Chapters</div>
+                        <div class="text-2xl font-black text-emerald-600">10 Chapters</div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+                        <div class="text-sm font-bold text-slate-600 mb-1">🔄 Variety Level</div>
+                        <div class="text-2xl font-black text-amber-600">Maximum</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <strong class="text-slate-800">Pro Tip:</strong> The Horner system creates unique daily combinations
+                        by rotating through lists of different lengths, ensuring fresh perspective across all Scripture.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Time Trends Chart -->
+        <div class="glass rounded-2xl p-6 shadow-xl mb-8">
+            <h2 class="text-2xl font-black text-slate-800 mb-4">📈 Reading Time Trends (Next 60 Days)</h2>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Extremes Analysis -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Shortest Day -->
+            <div class="glass rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center text-2xl">
+                        ⚡
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-800">Shortest Possible Day</h3>
+                        <p class="text-sm text-slate-600">The lightest reading load you'll encounter</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 mb-4 border border-emerald-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-3xl font-black text-emerald-600" id="minWords">...</div>
+                            <div class="text-xs font-bold text-slate-600 uppercase tracking-wide">Total Words</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black text-teal-600">~<span id="minTime">...</span> min</div>
+                            <div class="text-xs font-bold text-slate-600 uppercase tracking-wide">Reading Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2" id="minList">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Longest Day -->
+            <div class="glass rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-500 rounded-xl flex items-center justify-center text-2xl">
+                        🔥
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-slate-800">Longest Possible Day</h3>
+                        <p class="text-sm text-slate-600">The maximum reading commitment required</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl p-4 mb-4 border border-rose-200">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-3xl font-black text-rose-600" id="maxWords">...</div>
+                            <div class="text-xs font-bold text-slate-600 uppercase tracking-wide">Total Words</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-3xl font-black text-pink-600">~<span id="maxTime">...</span> min</div>
+                            <div class="text-xs font-bold text-slate-600 uppercase tracking-wide">Reading Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2" id="maxList">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <div class="glass-dark rounded-2xl p-6 inline-block">
+                <p class="text-white text-sm">
+                    💡 <strong>About Professor Horner's System:</strong> Developed by Dr. Grant Horner, this reading plan
+                    maximizes Scripture immersion by rotating through 10 carefully selected lists that cover different
+                    sections of the Bible, creating unique daily combinations.
+                </p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-// --- RAW CSV DATA FROM USER ---
-const rawCSV = `Book,Chapter,Word Count,Est Time (M,SS),Minutes (Decimal)
+    <script>
+        // --- RAW CSV DATA ---
+        const rawCSV = `Book,Chapter,Word Count,Est Time (M,SS),Minutes (Decimal)
 Genesis,1,797,3,59,4
 Genesis,2,632,3,9,3.2
 Genesis,3,695,3,28,3.5
@@ -1352,216 +1510,253 @@ Revelation,20,477,2,23,2.4
 Revelation,21,749,3,44,3.7
 Revelation,22,573,2,51,2.9`;
 
-// --- ENGINE ---
+        // --- CONSTANTS ---
+        const WORD_COUNTS = {};
+        let flatLists = [];
 
-const WORD_COUNTS = {}; // "Genesis 1": 797
-let flatLists = [];
+        const LIST_DEFINITIONS = [
+            { id: 1, name: "Gospels", color: "from-blue-500 to-cyan-500", books: ["Matthew", "Mark", "Luke", "John"] },
+            { id: 2, name: "Pentateuch", color: "from-emerald-500 to-teal-500", books: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"] },
+            { id: 3, name: "Paul's Epistles", color: "from-purple-500 to-pink-500", books: ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "Hebrews"] },
+            { id: 4, name: "General Epistles", color: "from-amber-500 to-orange-500", books: ["1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"] },
+            { id: 5, name: "Wisdom Literature", color: "from-indigo-500 to-purple-500", books: ["Job", "Ecclesiastes", "Song of Solomon"] },
+            { id: 6, name: "Psalms", color: "from-rose-500 to-pink-500", books: ["Psalm"] },
+            { id: 7, name: "Proverbs", color: "from-violet-500 to-purple-500", books: ["Proverbs"] },
+            { id: 8, name: "History", color: "from-sky-500 to-blue-500", books: ["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"] },
+            { id: 9, name: "Prophets", color: "from-red-500 to-rose-500", books: ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"] },
+            { id: 10, name: "Acts", color: "from-teal-500 to-emerald-500", books: ["Acts"] }
+        ];
 
-const LIST_DEFINITIONS = [
-    { id: 1, name: "Gospels", books: ["Matthew", "Mark", "Luke", "John"] },
-    { id: 2, name: "Pentateuch", books: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"] },
-    { id: 3, name: "Romans & Paul", books: ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "Hebrews"] },
-    { id: 4, name: "General Epistles", books: ["1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"] },
-    { id: 5, name: "Poetry (Wisdom)", books: ["Job", "Ecclesiastes", "Song of Solomon"] },
-    { id: 6, name: "Psalms", books: ["Psalm"] }, // Note: CSV uses "Psalm", not "Psalms"
-    { id: 7, name: "Proverbs", books: ["Proverbs"] },
-    { id: 8, name: "History", books: ["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"] },
-    { id: 9, name: "Prophets", books: ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"] },
-    { id: 10, name: "Acts", books: ["Acts"] }
-];
+        // --- INITIALIZATION ---
+        function initSystem() {
+            // Parse CSV
+            const lines = rawCSV.split('\n');
+            let loadedCount = 0;
 
-function initSystem() {
-    // 1. Parse CSV
-    const lines = rawCSV.split('\n');
-    let loadedCount = 0;
-    
-    // Skip header row
-    for(let i=1; i<lines.length; i++) {
-        if(!lines[i].trim()) continue;
-        const cols = lines[i].split(',');
-        // Book,Chapter,Word Count
-        const key = `${cols[0].trim()} ${cols[1].trim()}`;
-        WORD_COUNTS[key] = parseInt(cols[2].trim());
-        loadedCount++;
-    }
-
-    console.log(`Loaded ${loadedCount} chapters.`);
-
-    // 2. Build Lists (Only including chapters that exist in the CSV data)
-    flatLists = LIST_DEFINITIONS.map(list => {
-        let chapters = [];
-        list.books.forEach(book => {
-            let c = 1;
-            while(true) {
-                let key = `${book} ${c}`;
-                if(WORD_COUNTS[key] !== undefined) {
-                    chapters.push({ book: book, chapter: c, id: key, words: WORD_COUNTS[key] });
-                    c++;
-                } else {
-                    break; // No more chapters for this book
-                }
+            for(let i=1; i<lines.length; i++) {
+                if(!lines[i].trim()) continue;
+                const cols = lines[i].split(',');
+                const key = `${cols[0].trim()} ${cols[1].trim()}`;
+                WORD_COUNTS[key] = parseInt(cols[2].trim());
+                loadedCount++;
             }
-        });
-        return chapters;
-    });
-    
-    document.getElementById('loader').style.display = 'none';
-    
-    analyzeExtremes();
-    updateDashboard();
-}
 
-function getReadingForDay(day) {
-    let reading = [];
-    flatLists.forEach((list, index) => {
-        let rawIndex = (day - 1) % list.length;
-        let item = list[rawIndex];
-        reading.push({ ...item, listId: index + 1 });
-    });
-    return reading;
-}
+            console.log(`✅ Loaded ${loadedCount} chapters`);
 
-// --- Analytics ---
+            // Build Lists
+            flatLists = LIST_DEFINITIONS.map(list => {
+                let chapters = [];
+                list.books.forEach(book => {
+                    let c = 1;
+                    while(true) {
+                        let key = `${book} ${c}`;
+                        if(WORD_COUNTS[key] !== undefined) {
+                            chapters.push({
+                                book: book,
+                                chapter: c,
+                                id: key,
+                                words: WORD_COUNTS[key],
+                                listDef: list
+                            });
+                            c++;
+                        } else {
+                            break;
+                        }
+                    }
+                });
+                return chapters;
+            });
 
-function analyzeExtremes() {
-    // Finds the chapter with Min and Max words in EACH list
-    let minDayChapters = [], maxDayChapters = [];
-    let minSum = 0, maxSum = 0;
+            // Hide loader, show content
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
 
-    flatLists.forEach((list, idx) => {
-        let listMin = list[0]; 
-        let listMax = list[0];
-        
-        list.forEach(item => {
-            if(item.words < listMin.words) listMin = item;
-            if(item.words > listMax.words) listMax = item;
-        });
-
-        minDayChapters.push(listMin); 
-        minSum += listMin.words;
-        
-        maxDayChapters.push(listMax); 
-        maxSum += listMax.words;
-    });
-
-    // Update UI
-    const wpm = document.getElementById('wpmInput').value;
-    
-    document.getElementById('minWords').innerText = minSum.toLocaleString();
-    document.getElementById('minTime').innerText = (minSum / wpm).toFixed(1);
-    
-    // Format the list for display (grouped slightly for space)
-    document.getElementById('minList').innerHTML = minDayChapters.map(i => 
-        `<div><span style="color:#27ae60; font-weight:bold;">L${i.listId || getListId(i)}</span> ${i.book} ${i.chapter} (${i.words})</div>`
-    ).join('');
-
-    document.getElementById('maxWords').innerText = maxSum.toLocaleString();
-    document.getElementById('maxTime').innerText = (maxSum / wpm).toFixed(1);
-    document.getElementById('maxList').innerHTML = maxDayChapters.map(i => 
-        `<div><span style="color:#c0392b; font-weight:bold;">L${i.listId || getListId(i)}</span> ${i.book} ${i.chapter} (${i.words})</div>`
-    ).join('');
-}
-
-// Helper to find list ID for a chapter object during analysis
-function getListId(chapterObj) {
-    // This is needed because the "Extremes" calculation works on flat lists 
-    // before "listId" is injected by getReadingForDay
-    return flatLists.findIndex(l => l.includes(chapterObj)) + 1;
-}
-
-// --- UI Updates ---
-
-let chartInstance = null;
-
-function updateDashboard() {
-    const day = parseInt(document.getElementById('dayInput').value);
-    const wpm = parseInt(document.getElementById('wpmInput').value);
-    
-    document.getElementById('displayDay').innerText = day;
-    
-    // 1. Get Reading
-    const todaysReading = getReadingForDay(day);
-    const totalWords = todaysReading.reduce((a,b) => a + b.words, 0);
-    
-    // 2. Update Stats
-    document.getElementById('totalWords').innerText = totalWords.toLocaleString();
-    document.getElementById('estTime').innerText = Math.round(totalWords / wpm) + " min";
-    document.getElementById('avgChapLen').innerText = Math.round(totalWords / 10);
-    
-    // 3. Render List
-    const listContainer = document.getElementById('readingList');
-    listContainer.innerHTML = '';
-    todaysReading.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        div.innerHTML = `
-            <span class="list-tag">List ${item.listId}</span>
-            <span class="chapter-ref">${item.book} ${item.chapter}</span>
-            <span class="chapter-stats">${item.words} words</span>
-        `;
-        listContainer.appendChild(div);
-    });
-
-    // 4. Update Chart
-    updateChart(day, wpm);
-    
-    // Recalculate Min/Max in case WPM changed
-    analyzeExtremes();
-}
-
-function updateChart(startDay, wpm) {
-    const ctx = document.getElementById('permutationChart').getContext('2d');
-    const range = 60; // Show next 60 days
-    const labels = [];
-    const data = [];
-
-    for(let i=0; i<range; i++) {
-        let d = startDay + i;
-        let reading = getReadingForDay(d);
-        let words = reading.reduce((a,b) => a + b.words, 0);
-        labels.push(`Day ${d}`);
-        data.push(words / wpm);
-    }
-
-    if(chartInstance) chartInstance.destroy();
-
-    chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Reading Time (Minutes)',
-                data: data,
-                backgroundColor: 'rgba(230, 126, 34, 0.2)',
-                borderColor: 'rgba(230, 126, 34, 1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { 
-                    beginAtZero: false, 
-                    title: {display: true, text: 'Minutes'},
-                    grid: { color: '#f0f0f0' }
-                },
-                x: {
-                    grid: { display: false }
-                }
-            },
-            plugins: {
-                legend: { display: false }
+            // Check for URL parameter (day number from main app)
+            const urlParams = new URLSearchParams(window.location.search);
+            const dayParam = urlParams.get('day');
+            if(dayParam && !isNaN(dayParam)) {
+                document.getElementById('dayInput').value = parseInt(dayParam);
             }
+
+            analyzeExtremes();
+            updateDashboard();
         }
-    });
-}
 
-// Start
-window.onload = initSystem;
-</script>
+        // --- CORE LOGIC ---
+        function getReadingForDay(day) {
+            let reading = [];
+            flatLists.forEach((list, index) => {
+                let rawIndex = (day - 1) % list.length;
+                let item = list[rawIndex];
+                reading.push({ ...item, listId: index + 1 });
+            });
+            return reading;
+        }
+
+        // --- ANALYTICS ---
+        function analyzeExtremes() {
+            let minDayChapters = [], maxDayChapters = [];
+            let minSum = 0, maxSum = 0;
+
+            flatLists.forEach((list, idx) => {
+                let listMin = list[0];
+                let listMax = list[0];
+
+                list.forEach(item => {
+                    if(item.words < listMin.words) listMin = item;
+                    if(item.words > listMax.words) listMax = item;
+                });
+
+                minDayChapters.push(listMin);
+                minSum += listMin.words;
+
+                maxDayChapters.push(listMax);
+                maxSum += listMax.words;
+            });
+
+            const wpm = document.getElementById('wpmInput').value;
+
+            document.getElementById('minWords').innerText = minSum.toLocaleString();
+            document.getElementById('minTime').innerText = (minSum / wpm).toFixed(1);
+
+            document.getElementById('minList').innerHTML = minDayChapters.map(i =>
+                `<div class="bg-white rounded-lg p-3 border-l-4 border-emerald-400">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-800">${i.book} ${i.chapter}</span>
+                        <span class="text-xs text-slate-500">${i.words} words</span>
+                    </div>
+                </div>`
+            ).join('');
+
+            document.getElementById('maxWords').innerText = maxSum.toLocaleString();
+            document.getElementById('maxTime').innerText = (maxSum / wpm).toFixed(1);
+
+            document.getElementById('maxList').innerHTML = maxDayChapters.map(i =>
+                `<div class="bg-white rounded-lg p-3 border-l-4 border-rose-400">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-800">${i.book} ${i.chapter}</span>
+                        <span class="text-xs text-slate-500">${i.words} words</span>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        // --- UI UPDATES ---
+        let chartInstance = null;
+
+        function updateDashboard() {
+            const day = parseInt(document.getElementById('dayInput').value);
+            const wpm = parseInt(document.getElementById('wpmInput').value);
+
+            document.getElementById('displayDay').innerText = day;
+
+            const todaysReading = getReadingForDay(day);
+            const totalWords = todaysReading.reduce((a,b) => a + b.words, 0);
+
+            document.getElementById('totalWords').innerText = totalWords.toLocaleString();
+            document.getElementById('estTime').innerText = Math.round(totalWords / wpm) + " min";
+            document.getElementById('avgChapLen').innerText = Math.round(totalWords / 10).toLocaleString();
+
+            // Render Reading List
+            const listContainer = document.getElementById('readingList');
+            listContainer.innerHTML = '';
+            todaysReading.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'list-item-card bg-white rounded-xl p-4 border-l-4 border-indigo-400 shadow-sm';
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">List ${item.listId}</span>
+                        <span class="text-xs text-slate-500">${item.words} words</span>
+                    </div>
+                    <div class="text-lg font-black text-slate-800">${item.book} ${item.chapter}</div>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            updateChart(day, wpm);
+            analyzeExtremes();
+        }
+
+        function updateChart(startDay, wpm) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const range = 60;
+            const labels = [];
+            const data = [];
+
+            for(let i=0; i<range; i++) {
+                let d = startDay + i;
+                let reading = getReadingForDay(d);
+                let words = reading.reduce((a,b) => a + b.words, 0);
+                labels.push(`Day ${d}`);
+                data.push(words / wpm);
+            }
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Reading Time (Minutes)',
+                        data: data,
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderColor: 'rgba(99, 102, 241, 0.8)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointHoverBorderColor: 'white',
+                        pointHoverBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Minutes',
+                                font: { weight: 'bold', size: 12 },
+                                color: '#475569'
+                            },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#64748b',
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 10
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // Start the app
+        window.onload = initSystem;
+    </script>
 </body>
 </html>
