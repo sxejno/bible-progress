@@ -31,11 +31,12 @@
 
 ```
 bible-progress/
-├── index.html           # Main application (1,612 lines)
+├── index.html           # Main application (3,804 lines)
 │                        # Contains all HTML, CSS, and JavaScript
 ├── manifest.json        # PWA manifest for app installation
 ├── service-worker.js    # Service worker for offline capabilities
 ├── README.md            # User-facing documentation
+├── CLAUDE.md           # AI assistant documentation (this file)
 ├── CNAME               # GitHub Pages domain config
 ├── favicon.png         # App icon (used as favicon and apple-touch-icon)
 ├── icon-192.png        # PWA icon (192x192)
@@ -50,18 +51,21 @@ bible-progress/
 appData = {
     profiles: {
         [profileId]: {
-            [chapterKey]: boolean  // e.g., "Genesis-1": true
+            [chapterKey]: number  // e.g., "Genesis-1": 1736985600000 (timestamp in ms)
         }
     },
     profilePlans: {
         [profileId]: "SEQUENTIAL" | "MCHEYNE" | "HORNER"
     },
     activeProfileId: string,
+    defaultProfileId: string,
     profileColors: {
         [profileId]: string  // hex color
     }
 }
 ```
+
+**Important**: Progress values are stored as timestamps (not booleans) to enable streak tracking and heatmap features. The application automatically migrates old boolean values to timestamps on load.
 
 ### Chapter Key Format
 - Pattern: `{BookName}-{ChapterNumber}`
@@ -121,15 +125,46 @@ setDoc(doc(db, "users", uid), { appData }, { merge: true })
 
 **Important**: Local data always takes precedence. Cloud is only for backup/cross-device sync.
 
-### 5. Dark Mode
-- **Location**: Lines ~571-577 (Settings UI), ~2833-3302 (Implementation)
+### 5. Reading Streak Tracking
+- **Location**: Lines ~2596-3000
+- **Components**:
+  - **Header Badge**: Always-visible streak counter in top navigation
+  - **Streak Status Banner**: Detailed stats in PLAN tab showing current and longest streaks
+  - **Heatmap**: GitHub-style activity calendar showing reading days (last 30-365 days)
+  - **Milestone Celebrations**: Confetti and notifications at 7, 14, 30, 50, 100, 180, 365 days
+- **Streak Logic**:
+  - Current streak counts consecutive days with at least one chapter read
+  - Allows 1-day grace period (can skip one day without breaking streak)
+  - Uses local timezone for consistent midnight calculations
+  - Persists milestone achievements to avoid duplicate celebrations
+- **Dynamic Emoji Progression**:
+  - 🔥 Fire: 1-6 days
+  - ⚡ Lightning: 7-29 days
+  - 🔥 Fire: 30-99 days
+  - 💎 Diamond: 100-364 days
+  - 👑 Crown: 365+ days
+
+### 6. Dark Mode
+- **Location**: Lines ~571-577 (Settings UI), ~3200-3700 (Implementation)
 - **Access Methods**:
   - **Primary**: Settings page toggle (user-friendly, no notification)
   - **Easter Egg**: Triple-click logo (fun alternative with celebration notification)
 - **Persistence**: Saved to localStorage, restored on page load
 - **Implementation**: CSS filter-based inversion with custom styles
 
-### 6. Easter Eggs
+### 7. Accessibility Features
+- **ARIA Labels**: 35+ comprehensive labels for screen readers
+- **Coverage**:
+  - Navigation tabs with state indicators
+  - Profile management controls
+  - Reading plan selectors
+  - Chapter checkboxes with book and chapter information
+  - Progress indicators and statistics
+  - Modal dialogs and popups
+  - Action buttons (mark all, clear all, etc.)
+- **Benefits**: Full screen reader support for visually impaired users
+
+### 8. Easter Eggs
 Seven hidden features (lines ~1271-1608):
 1. Konami Code (↑↑↓↓←→←→BA)
 2. Click profile dot 7 times
@@ -177,18 +212,23 @@ Seven hidden features (lines ~1271-1608):
 ## Git Workflow
 
 ### Branching Strategy
-- **Production**: Deployed directly from repository root
+- **Production**: Deployed directly from repository root (main branch)
 - **Feature branches**: `claude/*` prefix (for AI-assisted development)
-- **Current branch**: `claude/claude-md-mk4vug4xir7lfy2e-UCXpo`
+- **Current branch**: `claude/update-claude-md-O5aeA`
 
 ### Recent Development Focus (Last 20 commits)
-1. Plan persistence per profile
-2. Easter eggs implementation
-3. Profile color picker
-4. Email/password authentication
-5. Google OAuth integration
-6. Profile system
-7. Achievement system (added then reverted)
+1. ARIA labels for accessibility (#66)
+2. Popup background color fix (#65)
+3. Copy progress updates and reading estimates (#64)
+4. Streak badge in header (#63)
+5. Reading streak tracking with milestones (#62)
+6. Delightful animations and transitions (#59)
+7. Chart instance caching for performance (#58)
+8. User scaling enabled on mobile (#57)
+9. Easter eggs implementation
+10. Profile color picker
+11. Email/password authentication
+12. Google OAuth integration
 
 ### Deployment
 - **Platform**: GitHub Pages
@@ -228,17 +268,23 @@ Seven hidden features (lines ~1271-1608):
 
 ### Version History
 - `kjv_v1` - `kjv_v5`: Previous iterations
-- `kjv_v6_data`: Current version (multi-profile support)
+- `kjv_v6_data`: Current version (multi-profile support + timestamp-based progress)
 
 ### Migration Strategy
 ```javascript
-// Always check for old data on load
-let oldProgress = JSON.parse(localStorage.getItem('kjv_v6_progress'));
-if (oldProgress && !savedData) {
-    // Migrate to new structure
-    appData.profiles[appData.activeProfileId] = oldProgress;
-}
+// Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+Object.keys(appData.profiles).forEach(profileName => {
+    const profile = appData.profiles[profileName];
+    Object.keys(profile).forEach(chapterKey => {
+        if(profile[chapterKey] === true) {
+            // Convert true to current timestamp (one-time migration)
+            profile[chapterKey] = Date.now();
+        }
+    });
+});
 ```
+
+**Important**: The migration from boolean to timestamp values happens automatically on page load and is saved immediately to prevent re-migration.
 
 ## Firebase Configuration
 
@@ -272,6 +318,7 @@ When making changes, verify:
 - [ ] Rename profile
 - [ ] Delete profile
 - [ ] Profile colors apply correctly
+- [ ] Streak data persists per profile
 
 ### Data Persistence
 - [ ] Changes save to localStorage immediately
@@ -283,19 +330,24 @@ When making changes, verify:
 - [ ] Plan selector shows correct next chapters
 - [ ] Plan persists per profile
 - [ ] All three plans function correctly
+- [ ] Heatmap displays reading activity correctly
+- [ ] Streak calculations are accurate (test across midnight, multi-day gaps)
 
 ### Responsive Design
 - [ ] Mobile layout (< 640px)
 - [ ] Tablet layout (640-1024px)
 - [ ] Desktop layout (> 1024px)
 - [ ] PWA installation works
+- [ ] User scaling works on mobile devices
+- [ ] Heatmap scrolls horizontally on small screens
 
 ## Performance Considerations
 
 ### Optimization Strategies
 1. **Debouncing**: Search input could benefit from debouncing (currently updates on every keystroke)
-2. **Chart rendering**: Charts re-render on every tab switch (could cache)
+2. **Chart rendering**: ✅ Implemented - Chart instances are now cached and reused
 3. **LocalStorage**: Writes happen on every checkbox toggle (acceptable for this use case)
+4. **Mobile optimization**: User scaling enabled for better accessibility
 
 ### Known Limitations
 - No backend validation (purely client-side)
@@ -329,6 +381,12 @@ console.log(appData)
 // View current progress for active profile
 console.log(getProgress())
 
+// View streak data
+console.log(calculateStreaks())
+
+// View reading activity (heatmap data)
+console.log(getReadingActivity())
+
 // Force save
 window.saveProgress()
 
@@ -342,18 +400,26 @@ Quick reference for common code locations in `index.html`:
 
 | Feature | Line Range |
 |---------|-----------|
-| Firebase Config | 348-362 |
-| Bible Data | 800-801 |
-| Reading Plans | 804-818 |
-| Word Count Totals | 820 |
-| Category Definitions | 827-841 |
-| Profile Functions | 461-477 |
-| Auth Functions | 478-552 |
-| Cloud Sync | 553-590 |
-| Dark Mode (Settings UI) | 571-577 |
-| Dark Mode (Implementation) | 2833-3302 |
-| Rendering Functions | 935-1270 |
-| Easter Eggs | 1271-1608 |
+| Firebase Config | ~348-362 |
+| Bible Data | ~800-801 |
+| Reading Plans | ~804-818 |
+| Word Count Totals | ~820 |
+| Category Definitions | ~827-841 |
+| Data Migration | ~943-974 |
+| Profile Functions | ~461-477 |
+| Auth Functions | ~478-552 |
+| Cloud Sync | ~553-590 |
+| Heatmap & Streak Functions | ~2596-3000 |
+| Streak Badge Update | ~2598-2623 |
+| Streak Calculation | ~2641-2704 |
+| Heatmap Rendering | ~2706-2829 |
+| Milestone Celebrations | ~2936-2995 |
+| Dark Mode (Settings UI) | ~571-577 |
+| Dark Mode (Implementation) | ~3200-3700 |
+| Rendering Functions | ~935-1270 |
+| Easter Eggs | ~1271-1608 |
+
+**Note**: Line numbers are approximate (~) due to ongoing development. Use search to locate specific functions.
 
 ## Best Practices for AI Assistants
 
@@ -383,14 +449,16 @@ Based on code structure and commit history:
 
 1. **Achievements system** (was added, then reverted - could be reintroduced)
 2. **Search debouncing** for better performance
-3. **Reading streaks** tracking
-4. **Daily reading reminders** (PWA notifications)
-5. **Custom reading plans** (user-defined)
-6. **Reading notes** per chapter
-7. **Multiple Bible versions** (currently only KJV)
-8. **Audio integration** (link to audio Bible)
-9. **Social features** (share progress)
-10. **Enhanced dark mode** (currently basic CSS inversion, could add custom theme colors)
+3. **Daily reading reminders** (PWA notifications)
+4. **Custom reading plans** (user-defined)
+5. **Reading notes** per chapter
+6. **Multiple Bible versions** (currently only KJV)
+7. **Audio integration** (link to audio Bible)
+8. **Social features** (share progress)
+9. **Enhanced dark mode** (currently basic CSS inversion, could add custom theme colors)
+10. **Export streak data** (CSV/JSON download of reading history)
+11. **Weekly/monthly progress reports** (summary emails or notifications)
+12. **Reading goals** (chapters per day/week targets)
 
 ## Support & Resources
 
@@ -409,6 +477,20 @@ Based on code structure and commit history:
 
 ---
 
-**Last Updated**: 2026-01-08
+**Last Updated**: 2026-01-17
 **Maintained By**: Shane (with AI assistance)
 **License**: Open source (implied from README)
+
+## Recent Major Features
+
+### Streak Tracking System (January 2026)
+The reading streak system represents a major enhancement to user engagement:
+
+- **Timestamp-based tracking**: Migrated from boolean chapter completion to timestamps, enabling precise activity tracking
+- **Smart streak logic**: Includes 1-day grace period and local timezone support
+- **Visual progression**: Dynamic emoji system provides immediate feedback
+- **Gamification**: Milestone celebrations encourage consistent reading habits
+- **Data visualization**: GitHub-style heatmap shows reading patterns at a glance
+
+### Accessibility Improvements (January 2026)
+Comprehensive ARIA labels make the application fully accessible to screen reader users, covering all interactive elements and providing context for navigation, progress tracking, and profile management.
