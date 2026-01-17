@@ -577,6 +577,38 @@
                     </div>
                 </div>
 
+                <div class="mb-8 pb-8 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Reading Plan</h3>
+
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+                        <div>
+                            <div class="font-bold text-slate-700 text-sm mb-1">Show Reading Time Estimates</div>
+                            <div class="text-xs text-slate-500">Display estimated reading time in your daily plan</div>
+                        </div>
+                        <button onclick="window.toggleReadingTime()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300">
+                            <span id="reading-time-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
+                        </button>
+                    </div>
+
+                    <div id="wpm-setting-container" class="p-4 rounded-xl bg-slate-50 border border-slate-200" style="display: none;">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <div class="font-bold text-slate-700 text-sm mb-1">Reading Speed</div>
+                                <div class="text-xs text-slate-500">Adjust your average words per minute (WPM)</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="wpm-input" min="100" max="500" step="10" value="250"
+                                    onchange="window.updateWPM(this.value)"
+                                    class="w-20 px-3 py-2 rounded-lg border border-slate-300 text-center font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="text-xs font-bold text-slate-500 uppercase">WPM</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-100">
+                            <strong>Reference:</strong> Average reading speed is 200-250 WPM. Fast readers: 300+ WPM. Slow/careful reading: 100-150 WPM.
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -789,6 +821,14 @@
                 date: new Date().toISOString().split('T')[0],
                 completedLists: []
             };
+        }
+
+        // Migrate existing users to have reading time settings
+        if(appData.showReadingTime === undefined) {
+            appData.showReadingTime = false;
+        }
+        if(!appData.wordsPerMinute) {
+            appData.wordsPerMinute = 250; // Average adult reading speed
         }
 
         // On app load, use defaultProfileId if it exists and is valid
@@ -1047,6 +1087,14 @@
                                 date: new Date().toISOString().split('T')[0],
                                 completedLists: []
                             };
+                        }
+
+                        // Ensure reading time settings exist (migration for existing users)
+                        if(appData.showReadingTime === undefined) {
+                            appData.showReadingTime = false;
+                        }
+                        if(!appData.wordsPerMinute) {
+                            appData.wordsPerMinute = 250;
                         }
 
                         // Ensure active profile exists
@@ -1883,6 +1931,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 appData.profileSyncRules = {};
                             }
 
+                            // Ensure reading time settings exist (migration for existing backups)
+                            if(appData.showReadingTime === undefined) {
+                                appData.showReadingTime = false;
+                            }
+                            if(!appData.wordsPerMinute) {
+                                appData.wordsPerMinute = 250;
+                            }
+
                             // Ensure defaultProfileId exists and is valid
                             if(!appData.defaultProfileId || !appData.profiles[appData.defaultProfileId]) {
                                 appData.defaultProfileId = appData.activeProfileId || Object.keys(appData.profiles)[0];
@@ -2130,6 +2186,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 descBox.classList.remove('hidden');
             }
 
+            // Calculate total reading time if enabled
+            let totalWords = 0;
+            if(appData.showReadingTime) {
+                totalWords = nextChapters.reduce((sum, item) => sum + (item.words || 0), 0);
+                const totalTime = calculateReadingTime(totalWords);
+                // Add total reading time to footer message
+                if(footerMsg.innerText) {
+                    footerMsg.innerText += ` • Est. ${totalTime} reading time`;
+                } else {
+                    footerMsg.innerText = `Est. ${totalTime} reading time`;
+                }
+            }
+
             list.innerHTML = nextChapters.map(item => {
                 const nameMap = { "Song of Songs": "Song of Solomon" };
                 const cleanName = nameMap[item.book] || item.book;
@@ -2142,10 +2211,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const checkMark = item.isComplete ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
                 const bgClass = item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md";
 
+                // Calculate reading time for this chapter if enabled
+                const readingTimeHtml = appData.showReadingTime ?
+                    `<div class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">📖 ${calculateReadingTime(item.words)}</div>` : '';
+
                 return `<a href="${blbUrl}" target="_blank" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group">
                     <div class="flex-1">
                         <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
+                        ${readingTimeHtml}
                     </div>
                     ${!item.isComplete ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}'); window.renderDailyPlan();"
@@ -2737,6 +2811,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         updateProfileColor();
         checkFirstVisit();
         loadVerseOfDay();
+        updateReadingTimeToggleUI();
 
         // --- DARK MODE TOGGLE UI HELPER ---
         function updateDarkModeToggleUI(isDark) {
@@ -3198,6 +3273,64 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		window.toggleDarkModeSetting = () => {
 			toggleDarkMode(false);
 		};
+
+		// Reading time estimate functions
+		window.toggleReadingTime = () => {
+			appData.showReadingTime = !appData.showReadingTime;
+			updateReadingTimeToggleUI();
+			window.saveProgress();
+			// Re-render daily plan if currently viewing it
+			if(window.activeTab === 'PLAN') {
+				window.renderDailyPlan();
+			}
+		};
+
+		window.updateWPM = (value) => {
+			const wpm = parseInt(value);
+			if(wpm >= 100 && wpm <= 500) {
+				appData.wordsPerMinute = wpm;
+				window.saveProgress();
+				// Re-render daily plan if currently viewing it
+				if(window.activeTab === 'PLAN') {
+					window.renderDailyPlan();
+				}
+			}
+		};
+
+		function updateReadingTimeToggleUI() {
+			const toggle = document.getElementById('reading-time-toggle');
+			const circle = document.getElementById('reading-time-toggle-circle');
+			const wpmContainer = document.getElementById('wpm-setting-container');
+			const wpmInput = document.getElementById('wpm-input');
+
+			if(appData.showReadingTime) {
+				toggle.classList.remove('bg-slate-300');
+				toggle.classList.add('bg-indigo-500');
+				circle.classList.remove('translate-x-1');
+				circle.classList.add('translate-x-7');
+				if(wpmContainer) wpmContainer.style.display = 'block';
+			} else {
+				toggle.classList.remove('bg-indigo-500');
+				toggle.classList.add('bg-slate-300');
+				circle.classList.remove('translate-x-7');
+				circle.classList.add('translate-x-1');
+				if(wpmContainer) wpmContainer.style.display = 'none';
+			}
+
+			// Update WPM input value
+			if(wpmInput) {
+				wpmInput.value = appData.wordsPerMinute || 250;
+			}
+		}
+
+		// Calculate reading time from word count
+		function calculateReadingTime(wordCount) {
+			const wpm = appData.wordsPerMinute || 250;
+			const minutes = Math.ceil(wordCount / wpm);
+			if(minutes < 1) return '<1 min';
+			if(minutes === 1) return '1 min';
+			return `${minutes} min`;
+		}
 
 		console.log('🥚 Easter eggs loaded! Try: Konami Code, click profile dot 7x, complete Psalm 119, finish the Bible, type SHANE, triple-click logo, or visit on Christmas/Easter!');
 
