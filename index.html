@@ -260,9 +260,20 @@
             <div class="flex flex-col gap-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex justify-between items-center">
-                        <div>
-                            <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
-                            <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
+                        <div class="flex items-center gap-4">
+                            <div>
+                                <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
+                                <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
+                            </div>
+                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-3 py-2 rounded-xl">
+                                <div class="flex items-center gap-2">
+                                    <span id="header-streak-emoji" class="text-xl">🔥</span>
+                                    <div class="flex flex-col">
+                                        <span id="header-streak-count" class="text-sm font-black text-orange-900 leading-none">0</span>
+                                        <span class="text-[9px] font-bold text-orange-600 uppercase tracking-wide">day streak</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -965,8 +976,18 @@
         let activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
         let currentUser = null;
 
+        // --- UTILITY FUNCTIONS ---
+        // Helper function to get local date string (YYYY-MM-DD) from timestamp
+        function getLocalDateString(timestamp) {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // --- HORNER DAILY PROGRESS HELPERS ---
-        const getTodaysDate = () => new Date().toISOString().split('T')[0];
+        const getTodaysDate = () => getLocalDateString(Date.now());
 
         const resetHornerDailyProgressIfNeeded = () => {
             const today = getTodaysDate();
@@ -2540,6 +2561,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('nt-percent').innerText = getPerc(ntRead, WORD_TOTALS.NT) + '%';
             document.getElementById('nt-progress-bar').style.width = (ntRead / WORD_TOTALS.NT * 100) + '%';
             document.getElementById('books-completed-stat').innerText = `${finishedBooks} OF 66 BOOKS READ`;
+
+            // Update header streak badge
+            updateHeaderStreakBadge();
         }
 
         window.renderSubdivisionStats = () => {
@@ -2558,6 +2582,33 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // --- HEATMAP & STREAK FUNCTIONS ---
 
+        function updateHeaderStreakBadge() {
+            const badge = document.getElementById('header-streak-badge');
+            const countEl = document.getElementById('header-streak-count');
+            const emojiEl = document.getElementById('header-streak-emoji');
+
+            if(!badge || !countEl || !emojiEl) return;
+
+            const streaks = calculateStreaks();
+            const currentStreak = streaks.current;
+
+            if(currentStreak > 0) {
+                // Show badge
+                badge.classList.remove('hidden');
+                countEl.innerText = currentStreak;
+
+                // Update emoji based on streak level
+                if(currentStreak >= 365) emojiEl.innerText = '👑';
+                else if(currentStreak >= 100) emojiEl.innerText = '💎';
+                else if(currentStreak >= 30) emojiEl.innerText = '🔥';
+                else if(currentStreak >= 7) emojiEl.innerText = '⚡';
+                else emojiEl.innerText = '🔥';
+            } else {
+                // Hide badge when no streak
+                badge.classList.add('hidden');
+            }
+        }
+
         function getReadingActivity() {
             // Returns a map of date string (YYYY-MM-DD) to chapter count
             const currentProg = getProgress();
@@ -2566,8 +2617,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             Object.keys(currentProg).forEach(chapterKey => {
                 const timestamp = currentProg[chapterKey];
                 if(timestamp && typeof timestamp === 'number') {
-                    const date = new Date(timestamp);
-                    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                    const dateStr = getLocalDateString(timestamp);
                     activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
                 }
             });
@@ -2590,11 +2640,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Check if there's activity today or yesterday
-            const todayStr = today.toISOString().split('T')[0];
+            // Check if there's activity today or yesterday (using local timezone)
+            const todayStr = getLocalDateString(today.getTime());
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const yesterdayStr = getLocalDateString(yesterday.getTime());
 
             const hasRecentActivity = activityMap[todayStr] || activityMap[yesterdayStr];
 
@@ -2623,7 +2673,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 currentStreak = 0;
 
                 for(let i = 0; i < 365; i++) {
-                    const checkStr = checkDate.toISOString().split('T')[0];
+                    const checkStr = getLocalDateString(checkDate.getTime());
                     if(activityMap[checkStr]) {
                         currentStreak++;
                         checkDate.setDate(checkDate.getDate() - 1);
@@ -2673,7 +2723,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             for(let i = daysToShow - 1; i >= 0; i--) {
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
-                const dateStr = date.toISOString().split('T')[0];
+                const dateStr = getLocalDateString(date.getTime());
                 const count = activityMap[dateStr] || 0;
                 days.push({ date: dateStr, count, dayOfWeek: date.getDay() });
             }
@@ -2804,7 +2854,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const todayStr = today.toISOString().split('T')[0];
+            const todayStr = getLocalDateString(today.getTime());
             const hasReadToday = activityMap[todayStr];
 
             // Determine status and message
