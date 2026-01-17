@@ -149,7 +149,7 @@
         <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl modal-in border border-white/50">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
-                <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+                <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close authentication modal">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -157,18 +157,18 @@
             <div class="space-y-3 mb-4">
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                    <input type="email" id="email-input" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300">
+                    <input type="email" id="email-input" placeholder="you@example.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300" aria-label="Email address">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
-                    <input type="password" id="pass-input" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300">
+                    <input type="password" id="pass-input" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-slate-300" aria-label="Password">
                 </div>
                 <div id="auth-error" class="text-xs font-bold text-red-500 bg-red-50 p-2 rounded-lg hidden"></div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 mb-6">
-                <button onclick="window.handleEmailAuth('LOGIN')" id="btn-login-email" class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all">Log In</button>
-                <button onclick="window.handleEmailAuth('REGISTER')" id="btn-signup-email" class="bg-white border border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all">Sign Up</button>
+                <button onclick="window.handleEmailAuth('LOGIN')" id="btn-login-email" class="bg-indigo-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all" aria-label="Log in with email">Log In</button>
+                <button onclick="window.handleEmailAuth('REGISTER')" id="btn-signup-email" class="bg-white border border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Sign up with email">Sign Up</button>
             </div>
 
             <div class="relative flex py-2 items-center mb-6">
@@ -177,8 +177,8 @@
                 <div class="flex-grow border-t border-slate-100"></div>
             </div>
 
-            <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all hover:border-slate-300 group">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 group-hover:scale-110 transition-transform">
+            <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all hover:border-slate-300 group" aria-label="Sign in with Google">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google logo">
                 Google
             </button>
         </div>
@@ -192,7 +192,7 @@
 
             <!-- Content -->
             <div class="relative">
-                <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm">
+                <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm" aria-label="Close introduction modal">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
 
@@ -244,10 +244,10 @@
 
                 <!-- CTA buttons -->
                 <div class="space-y-3">
-                    <button onclick="window.closeIntroModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:shadow-lg hover:shadow-indigo-300 transition-all transform hover:-translate-y-0.5">
+                    <button onclick="window.closeIntroModal()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:shadow-lg hover:shadow-indigo-300 transition-all transform hover:-translate-y-0.5" aria-label="Start reading and close introduction">
                         Start Reading
                     </button>
-                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('ABOUT'), 300);" class="w-full bg-white/80 text-slate-700 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-white transition-all border border-slate-200">
+                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('ABOUT'), 300);" class="w-full bg-white/80 text-slate-700 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-wide hover:bg-white transition-all border border-slate-200" aria-label="Learn more about Bible Progress">
                         Learn More
                     </button>
                 </div>
@@ -278,12 +278,12 @@
                     </div>
                     
                     <div class="flex items-center gap-3 self-end sm:self-auto">
-                        <button onclick="window.showIntroModal()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-600 hover:text-indigo-600 border border-slate-200" title="Help & Introduction">
+                        <button onclick="window.showIntroModal()" class="p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-slate-600 hover:text-indigo-600 border border-slate-200" title="Help & Introduction" aria-label="Show help and introduction">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </button>
 
                         <div class="relative group">
-                            <button id="profile-menu-btn" onclick="window.toggleProfileMenu()" class="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-200 transition-colors border border-slate-200">
+                            <button id="profile-menu-btn" onclick="window.toggleProfileMenu()" class="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-200 transition-colors border border-slate-200" aria-label="Toggle profile menu" aria-expanded="false" aria-haspopup="true">
                                 <div id="current-profile-dot" class="w-3 h-3 rounded-full profile-dot"></div>
                                 <span id="current-profile-name">Default</span>
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -291,23 +291,23 @@
 
                             <div id="profile-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in ring-1 ring-black/5">
                                 <div id="profile-list" class="flex flex-col gap-1 mb-2 border-b border-slate-100 pb-2"></div>
-                                <button onclick="window.createNewProfile()" class="w-full text-left px-3 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-xl flex items-center gap-2 transition-colors">
+                                <button onclick="window.createNewProfile()" class="w-full text-left px-3 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 rounded-xl flex items-center gap-2 transition-colors" aria-label="Create new profile">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                     New Profile
                                 </button>
                             </div>
                         </div>
 
-                        <div id="sync-status" class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-400 border border-slate-200" title="Local Only">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                        <div id="sync-status" class="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-400 border border-slate-200" title="Local Only" aria-label="Sync status: Local only">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
                         </div>
 
-                        <button id="login-btn" onclick="window.toggleAuthModal(true)" class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200">
+                        <button id="login-btn" onclick="window.toggleAuthModal(true)" class="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-200" aria-label="Open sync and login modal">
                             <span id="login-text">Sync</span>
                         </button>
                         <div id="user-profile" class="hidden flex items-center gap-3">
-                            <img id="user-photo" src="" alt="User" class="w-9 h-9 rounded-full border-2 border-indigo-200">
-                            <button id="logout-btn" class="text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-wide">Logout</button>
+                            <img id="user-photo" src="" alt="User profile photo" class="w-9 h-9 rounded-full border-2 border-indigo-200">
+                            <button id="logout-btn" class="text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-wide" aria-label="Log out">Logout</button>
                         </div>
                     </div>
                 </div>
@@ -358,14 +358,14 @@
 
         <div class="tab-scroll-wrapper">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-                <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit">
-                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap">All Books</button>
-                    <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">OT Books</button>
-                    <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">NT Books</button>
-                    <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Daily Plan</button>
-                    <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Stats</button>
-                    <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">Settings</button>
-                    <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap">About</button>
+                <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit" role="tablist" aria-label="Main navigation">
+                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-books">All Books</button>
+                    <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">OT Books</button>
+                    <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">NT Books</button>
+                    <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-plan">Daily Plan</button>
+                    <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-stats">Stats</button>
+                    <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-settings">Settings</button>
+                    <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-about">About</button>
                 </div>
             </div>
             <div id="tab-scroll-indicator" class="tab-scroll-indicator"></div>
@@ -374,8 +374,8 @@
         <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative">
-                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm hover:shadow-md text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md placeholder-slate-400 outline-none transition-all">
-                    <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none bg-white shadow-sm hover:shadow-md text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:shadow-md placeholder-slate-400 outline-none transition-all" aria-label="Search books">
+                    <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <div id="search-results-count" class="mt-2 text-sm text-slate-500 hidden"></div>
             </div>
@@ -392,7 +392,7 @@
                         <h2 class="text-3xl font-black tracking-tight mb-2">Today's Reading</h2>
                         <p class="text-indigo-100 text-sm font-medium">Your customized daily chapters.</p>
                     </div>
-                    <select id="plan-selector" onchange="window.changePlan()" class="bg-white/20 text-white border border-white/30 rounded-xl text-sm font-bold uppercase tracking-wide py-3 px-5 outline-none focus:bg-white/30 focus:ring-2 focus:ring-white/50 cursor-pointer w-full md:w-auto">
+                    <select id="plan-selector" onchange="window.changePlan()" class="bg-white/20 text-white border border-white/30 rounded-xl text-sm font-bold uppercase tracking-wide py-3 px-5 outline-none focus:bg-white/30 focus:ring-2 focus:ring-white/50 cursor-pointer w-full md:w-auto" aria-label="Select reading plan">
                         <option value="SEQUENTIAL" class="text-slate-900">Canonical (Default)</option>
                         <option value="ONE_YEAR" class="text-slate-900">One Year (OT+NT Daily)</option>
                         <option value="MCHEYNE" class="text-slate-900">M'Cheyne (1 Year)</option>
@@ -665,7 +665,7 @@
                             <div class="font-bold text-slate-700 text-sm mb-1">Dark Mode</div>
                             <div class="text-xs text-slate-500">Enable dark theme for reduced eye strain</div>
                         </div>
-                        <button onclick="window.toggleDarkModeSetting()" id="dark-mode-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300">
+                        <button onclick="window.toggleDarkModeSetting()" id="dark-mode-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300" role="switch" aria-checked="false" aria-label="Toggle dark mode">
                             <span id="dark-mode-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
                         </button>
                     </div>
@@ -679,7 +679,7 @@
                             <div class="font-bold text-slate-700 text-sm mb-1">Show Reading Time Estimates</div>
                             <div class="text-xs text-slate-500">Display estimated reading time in your daily plan</div>
                         </div>
-                        <button onclick="window.toggleReadingTime()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300">
+                        <button onclick="window.toggleReadingTime()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300" role="switch" aria-checked="false" aria-label="Toggle reading time estimates">
                             <span id="reading-time-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
                         </button>
                     </div>
@@ -693,7 +693,7 @@
                             <div class="flex items-center gap-2">
                                 <input type="number" id="wpm-input" min="100" max="500" step="10" value="250"
                                     onchange="window.updateWPM(this.value)"
-                                    class="w-20 px-3 py-2 rounded-lg border border-slate-300 text-center font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    class="w-20 px-3 py-2 rounded-lg border border-slate-300 text-center font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Words per minute reading speed">
                                 <span class="text-xs font-bold text-slate-500 uppercase">WPM</span>
                             </div>
                         </div>
@@ -706,14 +706,14 @@
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <button onclick="window.backupData()" class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <button onclick="window.backupData()" class="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide" aria-label="Download backup of reading progress">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Download Backup
                         </button>
-                        <label class="flex-1 cursor-pointer flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m-4-4v12"></path></svg>
+                        <label class="flex-1 cursor-pointer flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-colors text-sm uppercase tracking-wide" aria-label="Restore reading progress from file">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m-4-4v12"></path></svg>
                             Restore from File
-                            <input type="file" id="restore-input-settings" class="hidden" accept=".json" onchange="window.restoreData(this)">
+                            <input type="file" id="restore-input-settings" class="hidden" accept=".json" onchange="window.restoreData(this)" aria-label="Select backup file to restore">
                         </label>
                     </div>
                     <p id="restore-msg-settings" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
@@ -731,8 +731,8 @@
                         <strong>Example:</strong> If you have a "Family" profile and a "Private" profile, you can set Family → Private so that chapters read with the family also count toward your private progress.
                     </p>
                     <div id="profile-sync-rules" class="space-y-3"></div>
-                    <button onclick="window.addProfileSyncRule()" class="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-100 transition-colors text-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <button onclick="window.addProfileSyncRule()" class="mt-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-600 font-bold hover:bg-indigo-100 transition-colors text-sm" aria-label="Add profile sync rule">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Add Sync Rule
                     </button>
                 </div>
@@ -741,8 +741,8 @@
 
         <div id="view-chapters" class="hidden animate-in">
             <div class="flex items-center justify-between mb-8">
-                <button onclick="window.showBooks()" class="flex items-center text-indigo-600 font-bold text-sm hover:-translate-x-1 transition-transform bg-indigo-50 px-4 py-2 rounded-full">
-                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                <button onclick="window.showBooks()" class="flex items-center text-indigo-600 font-bold text-sm hover:-translate-x-1 transition-transform bg-indigo-50 px-4 py-2 rounded-full" aria-label="Back to library">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     Back to Library
                 </button>
                 <div id="book-label" class="bg-indigo-100 text-indigo-700 text-xs font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-sm">Testament</div>
@@ -762,8 +762,8 @@
                 <div id="chapter-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 sm:gap-4"></div>
 
                 <div class="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-center gap-4">
-                    <button onclick="window.toggleAllInBook(true)" class="text-xs font-black text-emerald-600 uppercase tracking-widest hover:bg-emerald-50 px-6 py-3 rounded-full transition-colors border border-transparent hover:border-emerald-100">Mark Book Finished</button>
-                    <button onclick="window.toggleAllInBook(false)" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 px-6 py-3 rounded-full transition-colors border border-transparent hover:border-slate-200">Reset Book</button>
+                    <button onclick="window.toggleAllInBook(true)" class="text-xs font-black text-emerald-600 uppercase tracking-widest hover:bg-emerald-50 px-6 py-3 rounded-full transition-colors border border-transparent hover:border-emerald-100" aria-label="Mark all chapters in book as finished">Mark Book Finished</button>
+                    <button onclick="window.toggleAllInBook(false)" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 px-6 py-3 rounded-full transition-colors border border-transparent hover:border-slate-200" aria-label="Reset all chapters in book to unread">Reset Book</button>
                 </div>
             </div>
         </div>
@@ -2421,7 +2421,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const readingTimeHtml = appData.showReadingTime ?
                     `<div class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">📖 ${calculateReadingTime(item.words)}</div>` : '';
 
-                return `<a href="${blbUrl}" target="_blank" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group">
+                return `<a href="${blbUrl}" target="_blank" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group" aria-label="Read ${item.label} on Blue Letter Bible${item.isComplete ? ', completed' : ''}">
                     <div class="flex-1">
                         <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
@@ -2430,8 +2430,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     ${!item.isComplete ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.toggleChapter('${chapterId}', event); window.renderDailyPlan();"
                         class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
-                        title="Mark as Read">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        title="Mark as Read" aria-label="Mark ${item.label} as read">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <span class="hidden sm:inline">Mark Read</span>
@@ -2466,14 +2466,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const progressPercent = (readWords / totalWords) * 100;
                 const isComplete = readChapters === book.ch.length;
                 const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-100 hover:ring-indigo-300';
-                return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-60 backdrop-blur-sm relative overflow-hidden">
+                return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-60 backdrop-blur-sm relative overflow-hidden" role="button" aria-label="Open ${book.name}, ${readChapters} of ${book.ch.length} chapters read" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.openBook(${bookIdx})">
                     <div class="flex justify-between items-start mb-4 relative z-10">
                         <h3 class="font-black text-sm uppercase tracking-tight leading-tight">${book.name}</h3>
-                        ${isComplete ? '<span class="text-sm bg-white/80 rounded-full px-1.5 py-0.5 shadow-sm">✅</span>' : ''}
+                        ${isComplete ? '<span class="text-sm bg-white/80 rounded-full px-1.5 py-0.5 shadow-sm" aria-label="Book completed">✅</span>' : ''}
                     </div>
                     <div class="flex flex-col gap-2 relative z-10">
                          <span class="text-[10px] font-black opacity-60 uppercase tracking-wider">${readChapters} / ${book.ch.length} Ch</span>
-                        <div class="w-full bg-white/60 h-2 rounded-full overflow-hidden">
+                        <div class="w-full bg-white/60 h-2 rounded-full overflow-hidden" role="progressbar" aria-valuenow="${Math.round(progressPercent)}" aria-valuemin="0" aria-valuemax="100" aria-label="Book progress">
                             <div class="h-full transition-all duration-700 ${isComplete ? 'bg-emerald-500' : 'bg-current opacity-60'}" style="width: ${progressPercent}%"></div>
                         </div>
                     </div>
@@ -2537,12 +2537,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const cleanName = nameMap[book.name] || book.name;
                 const blbUrl = `https://www.blueletterbible.org/kjv/${encodeURIComponent(cleanName)}/${cIdx+1}/`;
                 return `<div class="relative group">
-                    <button onclick="window.toggleChapter('${id}', event)" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}">
+                    <button onclick="window.toggleChapter('${id}', event)" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}" aria-label="Chapter ${cIdx + 1}, ${words} words, ${isRead ? 'read' : 'not read'}" aria-pressed="${isRead}">
                         <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : 'text-slate-700 group-hover:text-indigo-600'}">${cIdx + 1}</span>
                         <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-indigo-200' : 'text-slate-400'}">${words}w</span>
                     </button>
-                    <a href="${blbUrl}" target="_blank" onclick="event.stopPropagation()" title="Read on Blue Letter Bible" class="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm md:opacity-0 md:group-hover:opacity-100 z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    <a href="${blbUrl}" target="_blank" onclick="event.stopPropagation()" title="Read on Blue Letter Bible" class="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm md:opacity-0 md:group-hover:opacity-100 z-10" aria-label="Read ${book.name} chapter ${cIdx + 1} on Blue Letter Bible">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                     </a>
                 </div>`;
             }).join('');
