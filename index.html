@@ -2594,7 +2594,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             else if (activePlan === 'HORNER') {
                 descText = "<strong>Prof. Horner's System:</strong> Reading 1 chapter from each of 10 lists daily for maximum immersion.";
                 resetHornerDailyProgressIfNeeded();
+                const todayStr = getTodaysDate();
+
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
+                    const isListCompleteToday = appData.hornerDailyProgress.completedLists.includes(listIdx);
+
                     let foundForList = false;
                     for(let bName of listBooks) {
                         const appBook = bible.find(b => b.name === bName);
@@ -2609,7 +2613,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                     words: appBook.ch[c],
                                     label: `${appBook.name} ${c+1}`,
                                     badge: `List ${listIdx+1}`,
-                                    isComplete: !!currentProg[chapterId]
+                                    isComplete: isListCompleteToday
                                 });
                                 foundForList = true;
                                 break;
