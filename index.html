@@ -1969,6 +1969,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // --- READING TIME ESTIMATE FUNCTIONS ---
         window.toggleReadingTimeEstimates = () => {
+            // Ensure settings object exists
+            if (!appData.settings) {
+                appData.settings = { readingTimeEnabled: false, readingSpeed: 200 };
+            }
+
             appData.settings.readingTimeEnabled = !appData.settings.readingTimeEnabled;
             saveProgress();
             updateReadingTimeToggleUI();
@@ -1988,6 +1993,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.updateReadingSpeed = (value) => {
             const speed = parseInt(value, 10);
             if (speed >= 50 && speed <= 500) {
+                // Ensure settings object exists
+                if (!appData.settings) {
+                    appData.settings = { readingTimeEnabled: false, readingSpeed: 200 };
+                }
+
                 appData.settings.readingSpeed = speed;
                 saveProgress();
 
@@ -1999,6 +2009,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         };
 
         function calculateReadingTime(wordCount) {
+            // Ensure settings exist with defaults
+            if (!appData.settings || !appData.settings.readingSpeed) {
+                return Math.round(wordCount / 200) + ' min';
+            }
+
             const minutes = wordCount / appData.settings.readingSpeed;
 
             // Format the time nicely
@@ -2018,6 +2033,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const circle = document.getElementById('reading-time-toggle-circle');
             const container = document.getElementById('reading-speed-container');
             const input = document.getElementById('reading-speed-input');
+
+            // Ensure settings exist
+            if (!appData.settings) {
+                appData.settings = { readingTimeEnabled: false, readingSpeed: 200 };
+            }
 
             if (toggle && circle) {
                 if (appData.settings.readingTimeEnabled) {
@@ -2244,7 +2264,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             // Calculate total reading time if enabled
-            if (appData.settings.readingTimeEnabled && nextChapters.length > 0) {
+            if (appData.settings && appData.settings.readingTimeEnabled && nextChapters.length > 0) {
                 const totalWords = nextChapters.reduce((sum, ch) => sum + ch.words, 0);
                 const totalTime = calculateReadingTime(totalWords);
                 const currentFooterText = footerMsg.innerText;
@@ -2284,7 +2304,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     ` : ''}
                     <div class="text-right flex flex-col items-end ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            ${appData.settings.readingTimeEnabled
+                            ${appData.settings && appData.settings.readingTimeEnabled
                                 ? `~${calculateReadingTime(item.words)} • ${item.words} words`
                                 : `~${item.words} words`
                             }
