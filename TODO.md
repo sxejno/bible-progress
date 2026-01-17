@@ -44,9 +44,10 @@ This document tracks known issues, improvements, and feature requests for the Bi
     - Code comments clarified to document both access methods (`index.html:3238-3302`)
     - CLAUDE.md updated to document dark mode as a standard feature (Section 5)
 
-- [ ] **Enable user scaling on mobile**
-  - `index.html:5` has `user-scalable=no` which is an accessibility issue
-  - Consider allowing pinch-to-zoom for better accessibility
+- [x] **Enable user scaling on mobile** ✅ **COMPLETED 2026-01-17**
+  - ~~`index.html:5` has `user-scalable=no` which is an accessibility issue~~
+  - Updated viewport meta tag to allow pinch-to-zoom for better accessibility
+  - Removed `maximum-scale=1.0` and `user-scalable=no` restrictions
 
 ### Accessibility
 
