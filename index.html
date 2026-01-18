@@ -389,6 +389,7 @@
                     <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">NT Books</button>
                     <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-plan">Daily Plan</button>
                     <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-stats">Stats</button>
+                    <button onclick="window.setTab('TOOLS')" id="tab-tools" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-tools">Tools</button>
                     <button onclick="window.setTab('SETTINGS')" id="tab-settings" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-settings">Settings</button>
                     <button onclick="window.setTab('ABOUT')" id="tab-about" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-about">About</button>
                 </div>
@@ -508,6 +509,54 @@
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
                     <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity over time. Each square represents a day of Bible reading.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-tools" class="hidden animate-in">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-8">Tools & Resources</h2>
+
+                <div class="mb-10">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Games & Activities</h3>
+                    <a href="bible-books-game.html" class="block group">
+                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-3xl border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-3xl">📖</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-black text-purple-900 mb-2 group-hover:text-purple-700 transition-colors">Bible Books Memory Game</h4>
+                                    <p class="text-slate-700 leading-relaxed mb-3">Test your knowledge! How many of the 66 books of the Bible can you remember in 5 minutes? Type them continuously and watch them light up as they're recognized.</p>
+                                    <div class="flex items-center gap-2 text-purple-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                                        <span>Play Now</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="memorize.html" class="block group mt-4">
+                        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-8 rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 transition-all hover:shadow-lg relative overflow-hidden">
+                            <div class="absolute top-4 right-4 bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wide shadow-md">
+                                Coming Soon!
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-3xl">💡</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-black text-emerald-900 mb-2 group-hover:text-emerald-700 transition-colors">Verse Memorization Helper</h4>
+                                    <p class="text-slate-700 leading-relaxed mb-3">Hide God's word in your heart! Practice memorizing Bible verses with helpful hints. Choose from popular verses or add your own. First-letter hints help jog your memory while you learn.</p>
+                                    <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                                        <span>Start Memorizing</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -642,45 +691,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="mb-10">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Games & Activities</h3>
-                    <a href="bible-books-game.html" class="block group">
-                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 p-8 rounded-3xl border-2 border-purple-200 hover:border-purple-400 transition-all hover:shadow-lg">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <span class="text-3xl">📖</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="text-xl font-black text-purple-900 mb-2 group-hover:text-purple-700 transition-colors">Bible Books Memory Game</h4>
-                                    <p class="text-slate-700 leading-relaxed mb-3">Test your knowledge! How many of the 66 books of the Bible can you remember in 5 minutes? Type them continuously and watch them light up as they're recognized.</p>
-                                    <div class="flex items-center gap-2 text-purple-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
-                                        <span>Play Now</span>
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="memorize.html" class="block group mt-4">
-                        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-8 rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 transition-all hover:shadow-lg">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <span class="text-3xl">💡</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="text-xl font-black text-emerald-900 mb-2 group-hover:text-emerald-700 transition-colors">Verse Memorization Helper</h4>
-                                    <p class="text-slate-700 leading-relaxed mb-3">Hide God's word in your heart! Practice memorizing Bible verses with helpful hints. Choose from popular verses or add your own. First-letter hints help jog your memory while you learn.</p>
-                                    <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
-                                        <span>Start Memorizing</span>
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
                 </div>
 
                 <div class="mb-8">
@@ -1156,7 +1166,7 @@
 
         // Migrate existing users to have reading time settings
         if(appData.showReadingTime === undefined) {
-            appData.showReadingTime = false;
+            appData.showReadingTime = true;
         }
         if(!appData.wordsPerMinute) {
             appData.wordsPerMinute = 250; // Average adult reading speed
@@ -1432,7 +1442,7 @@
 
                         // Ensure reading time settings exist (migration for existing users)
                         if(appData.showReadingTime === undefined) {
-                            appData.showReadingTime = false;
+                            appData.showReadingTime = true;
                         }
                         if(!appData.wordsPerMinute) {
                             appData.wordsPerMinute = 250;
@@ -2130,13 +2140,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.setTab = (t) => {
             activeTab = t;
             window.activeTab = t;
-            ['ALL', 'OT', 'NT', 'PLAN', 'STATS', 'ABOUT', 'SETTINGS'].forEach(tab => {
+            ['ALL', 'OT', 'NT', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
                 if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
 
             // Remove slide-in class from all views first, then hide them
-            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-about', 'view-settings'].forEach(v => {
+            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-tools', 'view-about', 'view-settings'].forEach(v => {
                 const view = document.getElementById(v);
                 view.classList.remove('slide-in-right');
                 view.classList.add('hidden');
@@ -2154,6 +2164,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 view.classList.remove('hidden');
                 setTimeout(() => view.classList.add('slide-in-right'), 10);
                 window.renderDailyPlan();
+            }
+            else if (t === 'TOOLS') {
+                const view = document.getElementById('view-tools');
+                view.classList.remove('hidden');
+                setTimeout(() => view.classList.add('slide-in-right'), 10);
             }
             else if (t === 'ABOUT') {
                 const view = document.getElementById('view-about');
@@ -2211,7 +2226,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.openBook = (idx) => {
             activeBookIdx = idx;
             const book = bible[idx];
-            ['view-books', 'view-stats', 'view-plan', 'view-about', 'view-settings'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['view-books', 'view-stats', 'view-plan', 'view-tools', 'view-about', 'view-settings'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById('view-chapters').classList.remove('hidden');
             document.getElementById('active-book-title').innerText = book.name;
             const bookLabel = document.getElementById('book-label');
@@ -2221,7 +2236,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.scrollTo(0,0);
         };
 
-        window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'ABOUT' || activeTab === 'SETTINGS' ? 'ALL' : activeTab);
+        window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'TOOLS' || activeTab === 'ABOUT' || activeTab === 'SETTINGS' ? 'ALL' : activeTab);
 
         // Helper function to create celebration confetti
         window.createConfetti = (event) => {
