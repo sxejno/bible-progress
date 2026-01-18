@@ -2727,15 +2727,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const checkMark = item.isComplete ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
                 const bgClass = item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md";
 
-                // Calculate reading time for this chapter if enabled
-                const readingTimeHtml = appData.showReadingTime ?
-                    `<div class="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">📖 ${calculateReadingTime(item.words)}</div>` : '';
+                // Calculate reading time and word count metadata for this chapter
+                const metadataHtml = appData.showReadingTime ?
+                    `<div class="text-[10px] font-bold text-slate-500 tracking-wide mt-1.5 flex items-center gap-2">
+                        <span class="text-slate-400">~${item.words} words</span>
+                        <span class="text-slate-300">•</span>
+                        <span class="text-indigo-600">📖 ${calculateReadingTime(item.words)}</span>
+                    </div>` :
+                    `<div class="text-[10px] font-bold text-slate-400 tracking-wide mt-1.5">~${item.words} words</div>`;
 
                 return `<a href="${blbUrl}" target="_blank" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group" aria-label="Read ${item.label} on Blue Letter Bible${item.isComplete ? ', completed' : ''}">
                     <div class="flex-1">
                         <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
-                        ${readingTimeHtml}
+                        ${metadataHtml}
                     </div>
                     ${!item.isComplete ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event); window.renderDailyPlan();"
@@ -2747,13 +2752,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         <span class="hidden sm:inline">Mark Read</span>
                     </button>
                     ` : ''}
-                    <div class="text-right flex flex-col items-end ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">~${item.words} words</div>
-                        ${!item.isComplete ? `
-                        <div class="flex items-center gap-1 mt-2">
+                    <div class="text-right flex items-center ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
+                        <div class="flex items-center gap-1">
                             <span class="text-xs font-bold text-indigo-500">Go</span>
                             <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-                        </div>` : ''}
+                        </div>
                     </div>
                 </a>`;
             }).join('');
