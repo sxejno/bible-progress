@@ -8,39 +8,61 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
+        /* Enhanced glass-morphism with better contrast */
         .glass {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.20);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .verse-card {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .verse-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 0.28);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .first-letter-hint {
             font-family: 'Courier New', monospace;
-            letter-spacing: 0.3em;
-            font-size: 1.1em;
+            letter-spacing: 0.4em;
+            font-size: 1.15em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .btn-mode {
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+        }
+
+        .btn-mode:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
         }
 
         .btn-mode.active {
-            background: rgba(79, 70, 229, 0.9);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         @keyframes fadeIn {
@@ -53,46 +75,132 @@
         }
 
         .verse-text {
-            font-size: 1.25rem;
-            line-height: 1.8;
+            font-size: 1.35rem;
+            line-height: 1.9;
+            font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Fix select dropdown styling */
+        /* Enhanced input and select styling with better contrast */
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            background: rgba(255, 255, 255, 0.35) !important;
+            border-color: rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.65) !important;
+            font-weight: 500;
+        }
+
         select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 1.5em 1.5em;
             padding-right: 2.5rem;
             appearance: none;
+            font-weight: 600;
         }
 
         select option {
-            background-color: #667eea;
+            background-color: #4f46e5;
             color: white;
+            font-weight: 500;
+            padding: 8px;
+        }
+
+        /* Enhanced button styling */
+        button {
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Better text contrast */
+        .text-white\/80 {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        .text-white\/70 {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        .text-white\/60 {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        /* Enhanced verse content area */
+        .verse-content-bg {
+            background: rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         @media (max-width: 640px) {
             .verse-text {
-                font-size: 1.1rem;
+                font-size: 1.15rem;
             }
             .first-letter-hint {
                 font-size: 1em;
-                letter-spacing: 0.2em;
+                letter-spacing: 0.25em;
             }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Add subtle animation to page load */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
 <body class="p-4">
     <!-- Header -->
-    <div class="max-w-4xl mx-auto mb-6">
-        <div class="glass rounded-xl p-6 shadow-lg">
-            <div class="flex items-center justify-between">
+    <div class="max-w-4xl mx-auto mb-8 animate-slide-in">
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
+            <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-white mb-2">📖 Verse Memorization Helper</h1>
-                    <p class="text-white/80">Hide God's word in your heart</p>
+                    <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">📖 Verse Memorization Helper</h1>
+                    <p class="text-white text-lg font-medium">Hide God's word in your heart</p>
                 </div>
-                <a href="index.html" class="glass px-4 py-2 rounded-lg text-white hover:bg-white/20 transition">
+                <a href="index.html" class="glass px-6 py-3 rounded-xl text-white hover:bg-white/30 transition shadow-lg font-semibold">
                     ← Back to App
                 </a>
             </div>
@@ -102,54 +210,54 @@
     <!-- Main Content -->
     <div class="max-w-4xl mx-auto space-y-6">
         <!-- Current Verse Display -->
-        <div class="glass rounded-xl p-6 shadow-lg fade-in" id="verse-display">
-            <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
-                <h2 class="text-xl font-bold text-white" id="verse-reference">Select a verse to begin</h2>
-                <div class="flex gap-2">
-                    <button onclick="window.prevVerse()" class="glass px-3 py-2 rounded-lg text-white text-sm hover:bg-white/20 transition" id="prev-btn" disabled>
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl fade-in" id="verse-display">
+            <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+                <h2 class="text-2xl font-bold text-white drop-shadow" id="verse-reference">Select a verse to begin</h2>
+                <div class="flex gap-3">
+                    <button onclick="window.prevVerse()" class="glass px-4 py-2 rounded-xl text-white hover:bg-white/30 transition shadow-lg" id="prev-btn" disabled>
                         ← Previous
                     </button>
-                    <button onclick="window.nextVerse()" class="glass px-3 py-2 rounded-lg text-white text-sm hover:bg-white/20 transition" id="next-btn" disabled>
+                    <button onclick="window.nextVerse()" class="glass px-4 py-2 rounded-xl text-white hover:bg-white/30 transition shadow-lg" id="next-btn" disabled>
                         Next →
                     </button>
                 </div>
             </div>
 
-            <div class="mb-6 bg-white/10 rounded-lg p-6 min-h-[150px] flex items-center justify-center" id="verse-content">
-                <p class="text-white/60 text-center">Select a verse from below or add your own</p>
+            <div class="mb-6 verse-content-bg rounded-xl p-8 min-h-[180px] flex items-center justify-center" id="verse-content">
+                <p class="text-white text-center text-lg">Select a verse from below or add your own</p>
             </div>
 
             <!-- Display Mode Buttons -->
-            <div class="flex gap-3 mb-4 flex-wrap" id="mode-buttons" style="display: none;">
-                <button onclick="window.setDisplayMode('full')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-full">
+            <div class="flex gap-3 mb-5 flex-wrap" id="mode-buttons" style="display: none;">
+                <button onclick="window.setDisplayMode('full')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-full">
                     📄 Full Text
                 </button>
-                <button onclick="window.setDisplayMode('hints')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-hints">
+                <button onclick="window.setDisplayMode('hints')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-hints">
                     💡 First Letters
                 </button>
-                <button onclick="window.setDisplayMode('hidden')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-hidden">
+                <button onclick="window.setDisplayMode('hidden')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-hidden">
                     🙈 Hidden
                 </button>
             </div>
 
             <!-- Progress Indicator -->
-            <div class="text-white/70 text-sm" id="review-count" style="display: none;">
-                Reviews: <span id="review-number">0</span>
+            <div class="text-white text-base font-semibold" id="review-count" style="display: none;">
+                Reviews: <span id="review-number" class="bg-white/20 px-3 py-1 rounded-lg ml-2">0</span>
             </div>
         </div>
 
         <!-- Popular Verses -->
-        <div class="glass rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold text-white mb-4">Popular Verses</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="popular-verses">
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">Popular Verses</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="popular-verses">
                 <!-- Populated by JavaScript -->
             </div>
         </div>
 
         <!-- Verse Lookup -->
-        <div class="glass rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold text-white mb-4">🔍 Look Up & Add Verse</h2>
-            <div id="bible-status" class="mb-3 text-xs text-white/60 italic hidden">
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">🔍 Look Up & Add Verse</h2>
+            <div id="bible-status" class="mb-4 text-sm text-white font-medium italic hidden">
                 <!-- Status message will be inserted here -->
             </div>
             <div class="space-y-3">
@@ -159,24 +267,24 @@
                         type="text"
                         id="smart-reference"
                         placeholder="Type reference (e.g., 'John 3:16', 'gal 3:16', 'Gen 1:1', '1 Cor 13:4-7')"
-                        class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        class="w-full px-5 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg shadow-lg"
                         onkeydown="if(event.key === 'Enter') window.smartLookup()"
                     >
-                    <p class="text-white/60 text-xs mt-2">
+                    <p class="text-white text-sm mt-3 font-medium">
                         💡 Supports: Full names (John 3:16) • Abbreviations (gal 3:16) • Chapters (Psalm 23) • Ranges (John 3:16-17)
                     </p>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 flex-wrap">
                     <button
                         onclick="window.smartLookup()"
-                        class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition flex-1 font-semibold"
+                        class="glass px-8 py-4 rounded-xl text-white hover:bg-white/30 transition flex-1 min-w-[200px] shadow-lg"
                     >
                         🔍 Look Up
                     </button>
                     <button
                         onclick="window.addLookedUpVerse()"
-                        class="glass px-6 py-3 rounded-lg text-white hover:bg-emerald-500/30 transition flex-1 font-semibold"
+                        class="glass px-8 py-4 rounded-xl text-white hover:bg-emerald-500/40 transition flex-1 min-w-[200px] shadow-lg"
                         id="add-lookup-btn"
                         style="display: none;"
                     >
@@ -184,27 +292,27 @@
                     </button>
                 </div>
 
-                <div id="lookup-result" class="bg-white/10 rounded-lg p-4 min-h-[100px]" style="display: none;">
-                    <p class="text-white/60 text-center">Verse will appear here</p>
+                <div id="lookup-result" class="verse-content-bg rounded-xl p-6 min-h-[120px]" style="display: none;">
+                    <p class="text-white text-center text-lg">Verse will appear here</p>
                 </div>
 
                 <!-- Optional: Dropdown fallback (collapsed by default) -->
-                <details class="mt-4">
-                    <summary class="cursor-pointer text-white/70 text-sm hover:text-white transition">
-                        Or use dropdowns (click to expand)
+                <details class="mt-5">
+                    <summary class="cursor-pointer text-white text-base hover:text-white/90 transition font-semibold">
+                        Or use dropdowns (click to expand) ▼
                     </summary>
-                    <div class="mt-3 space-y-3">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="mt-4 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <select
                                 id="lookup-book"
-                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                class="px-5 py-4 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
                                 onchange="window.updateChapterOptions()"
                             >
                                 <option value="">Select Book...</option>
                             </select>
                             <select
                                 id="lookup-chapter"
-                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                class="px-5 py-4 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
                                 onchange="window.updateVerseOptions()"
                                 disabled
                             >
@@ -212,7 +320,7 @@
                             </select>
                             <select
                                 id="lookup-verse"
-                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                class="px-5 py-4 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
                                 disabled
                             >
                                 <option value="">Select Verse...</option>
@@ -220,7 +328,7 @@
                         </div>
                         <button
                             onclick="window.lookupVerse()"
-                            class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition w-full font-semibold"
+                            class="glass px-8 py-4 rounded-xl text-white hover:bg-white/30 transition w-full shadow-lg"
                             id="lookup-btn"
                             disabled
                         >
@@ -232,25 +340,25 @@
         </div>
 
         <!-- Add Custom Verse (Manual Entry) -->
-        <div class="glass rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold text-white mb-4">✏️ Add Custom Verse (Manual Entry)</h2>
-            <p class="text-white/60 text-sm mb-3">For verses not in the KJV or custom references</p>
-            <div class="space-y-3">
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow">✏️ Add Custom Verse (Manual Entry)</h2>
+            <p class="text-white text-base mb-5 font-medium">For verses not in the KJV or custom references</p>
+            <div class="space-y-4">
                 <input
                     type="text"
                     id="custom-reference"
                     placeholder="Reference (e.g., John 3:16)"
-                    class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    class="w-full px-5 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg shadow-lg"
                 >
                 <textarea
                     id="custom-text"
                     placeholder="Verse text (KJV)"
                     rows="4"
-                    class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    class="w-full px-5 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg shadow-lg"
                 ></textarea>
                 <button
                     onclick="window.addCustomVerse()"
-                    class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition w-full font-semibold"
+                    class="glass px-8 py-4 rounded-xl text-white hover:bg-white/30 transition w-full shadow-lg"
                 >
                     ➕ Add to My Verses
                 </button>
@@ -258,13 +366,16 @@
         </div>
 
         <!-- My Custom Verses -->
-        <div class="glass rounded-xl p-6 shadow-lg" id="custom-verses-section" style="display: none;">
-            <h2 class="text-xl font-bold text-white mb-4">My Verses</h2>
-            <div class="space-y-2" id="custom-verses-list">
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl" id="custom-verses-section" style="display: none;">
+            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">My Verses</h2>
+            <div class="space-y-3" id="custom-verses-list">
                 <!-- Populated by JavaScript -->
             </div>
         </div>
     </div>
+
+    <!-- Footer spacing -->
+    <div class="h-20"></div>
 
     <script>
         // Security utility
@@ -449,7 +560,7 @@
                 // Show error message to user
                 const statusDiv = document.getElementById('bible-status');
                 if (statusDiv) {
-                    statusDiv.className = 'mb-3 text-sm text-red-300';
+                    statusDiv.className = 'mb-4 text-base text-red-200 font-bold';
                     statusDiv.textContent = '⚠️ Error loading Bible data. Verse lookup is unavailable.';
                     statusDiv.classList.remove('hidden');
                 }
@@ -567,9 +678,9 @@
             if (parsed.error) {
                 resultDiv.style.display = 'block';
                 resultDiv.innerHTML = `
-                    <div class="text-red-300 text-center">
-                        <div class="font-semibold mb-2">⚠️ Error</div>
-                        <div class="text-sm">${escapeHtml(parsed.error)}</div>
+                    <div class="text-red-200 text-center">
+                        <div class="font-bold text-lg mb-3">⚠️ Error</div>
+                        <div class="text-base font-medium">${escapeHtml(parsed.error)}</div>
                     </div>
                 `;
                 addBtn.style.display = 'none';
@@ -608,8 +719,8 @@
             // Display result
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `
-                <div class="text-white font-semibold mb-2">${escapeHtml(reference)}</div>
-                <div class="text-white/90 leading-relaxed">${escapeHtml(verseText)}</div>
+                <div class="text-white font-bold text-lg mb-3">${escapeHtml(reference)}</div>
+                <div class="text-white leading-relaxed font-medium">${escapeHtml(verseText)}</div>
             `;
 
             // Show add button
@@ -739,8 +850,8 @@
             // Display result
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = `
-                <div class="text-white font-semibold mb-2">${escapeHtml(reference)}</div>
-                <div class="text-white/90 leading-relaxed">${escapeHtml(verseText)}</div>
+                <div class="text-white font-bold text-lg mb-3">${escapeHtml(reference)}</div>
+                <div class="text-white leading-relaxed font-medium">${escapeHtml(verseText)}</div>
             `;
 
             // Show add button
@@ -809,10 +920,10 @@
             container.innerHTML = POPULAR_VERSES.map((verse, index) => `
                 <button
                     onclick="window.selectVerse(${index}, 'popular')"
-                    class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/20"
+                    class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 shadow-lg"
                 >
-                    <div class="font-semibold">${escapeHtml(verse.reference)}</div>
-                    <div class="text-sm text-white/70 mt-1 truncate">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                    <div class="font-bold text-lg mb-1">${escapeHtml(verse.reference)}</div>
+                    <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
                 </button>
             `).join('');
         }
@@ -829,17 +940,17 @@
 
             section.style.display = 'block';
             container.innerHTML = customVerses.map((verse, index) => `
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-3">
                     <button
                         onclick="window.selectVerse(${index}, 'custom')"
-                        class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/20 flex-1"
+                        class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 flex-1 shadow-lg"
                     >
-                        <div class="font-semibold">${escapeHtml(verse.reference)}</div>
-                        <div class="text-sm text-white/70 mt-1 truncate">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                        <div class="font-bold text-lg mb-1">${escapeHtml(verse.reference)}</div>
+                        <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
                     </button>
                     <button
                         onclick="window.deleteCustomVerse(${index})"
-                        class="glass px-3 py-3 rounded-lg text-white hover:bg-red-500/50 transition"
+                        class="glass px-4 py-4 rounded-xl text-white hover:bg-red-500/60 transition shadow-lg text-xl"
                         title="Delete verse"
                     >
                         🗑️
@@ -925,9 +1036,9 @@
             } else if (mode === 'hidden') {
                 container.innerHTML = `
                     <div class="text-center">
-                        <p class="text-white/60 mb-3">Try to recite the verse from memory</p>
-                        <button onclick="window.setDisplayMode('hints')" class="glass px-4 py-2 rounded-lg text-white hover:bg-white/20 transition">
-                            Show Hints
+                        <p class="text-white text-lg mb-4 font-medium">Try to recite the verse from memory</p>
+                        <button onclick="window.setDisplayMode('hints')" class="glass px-6 py-3 rounded-xl text-white hover:bg-white/30 transition shadow-lg font-semibold">
+                            💡 Show Hints
                         </button>
                     </div>
                 `;
@@ -968,7 +1079,7 @@
                 // Clear display if this was the active verse
                 if (window.currentVerseType === 'custom' && currentVerseIndex === index) {
                     document.getElementById('verse-reference').textContent = 'Select a verse to begin';
-                    document.getElementById('verse-content').innerHTML = '<p class="text-white/60 text-center">Select a verse from below or add your own</p>';
+                    document.getElementById('verse-content').innerHTML = '<p class="text-white text-center text-lg">Select a verse from below or add your own</p>';
                     document.getElementById('mode-buttons').style.display = 'none';
                     document.getElementById('review-count').style.display = 'none';
                 }
