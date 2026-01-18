@@ -135,6 +135,17 @@
         a:hover {
             text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
+
+        /* Duplicate book feedback animation */
+        @keyframes shake-subtle {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .duplicate-shake {
+            animation: shake-subtle 0.4s ease;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -414,21 +425,50 @@
             currentInput = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
 
             // Check for book matches
+            let foundDuplicate = false;
             bibleBooks.forEach((book, index) => {
-                if (foundBooks.has(index)) return;
-
                 const bookNames = [book.name.toLowerCase().replace(/[^a-z]/g, ''), ...(book.alt || [])];
 
                 for (const bookName of bookNames) {
                     if (currentInput.endsWith(bookName)) {
-                        foundBook(index);
-                        // Clear the input completely after a match
-                        currentInput = '';
-                        e.target.value = '';
+                        if (foundBooks.has(index)) {
+                            // Already found this book - provide subtle feedback
+                            foundDuplicate = true;
+                            showDuplicateBookFeedback(e.target);
+                            currentInput = '';
+                            e.target.value = '';
+                        } else {
+                            // New book found
+                            foundBook(index);
+                            currentInput = '';
+                            e.target.value = '';
+                        }
                         break;
                     }
                 }
             });
+        }
+
+        // Show subtle feedback for duplicate book entry
+        function showDuplicateBookFeedback(inputEl) {
+            // Add shake animation
+            inputEl.classList.add('duplicate-shake');
+
+            // Brief border color change to indicate duplicate
+            const originalBorderClass = inputEl.className;
+            inputEl.classList.remove('border-white/40');
+            inputEl.classList.add('border-yellow-400');
+
+            // Show subtle notification in placeholder
+            const originalPlaceholder = inputEl.placeholder;
+            inputEl.placeholder = 'Already found that one! Try another...';
+
+            // Reset after animation completes
+            setTimeout(() => {
+                inputEl.classList.remove('duplicate-shake', 'border-yellow-400');
+                inputEl.classList.add('border-white/40');
+                inputEl.placeholder = originalPlaceholder;
+            }, 800);
         }
 
         // Mark book as found
