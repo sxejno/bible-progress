@@ -148,40 +148,31 @@
 
         <!-- Verse Lookup -->
         <div class="glass rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold text-white mb-4">🔍 Look Up Verse</h2>
+            <h2 class="text-xl font-bold text-white mb-4">🔍 Look Up & Add Verse</h2>
+            <div id="bible-status" class="mb-3 text-xs text-white/60 italic hidden">
+                <!-- Status message will be inserted here -->
+            </div>
             <div class="space-y-3">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <select
-                        id="lookup-book"
-                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        onchange="window.updateChapterOptions()"
+                <!-- Smart Text Input -->
+                <div>
+                    <input
+                        type="text"
+                        id="smart-reference"
+                        placeholder="Type reference (e.g., 'John 3:16', 'gal 3:16', 'Gen 1:1', '1 Cor 13:4-7')"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        onkeydown="if(event.key === 'Enter') window.smartLookup()"
                     >
-                        <option value="">Select Book...</option>
-                    </select>
-                    <select
-                        id="lookup-chapter"
-                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        onchange="window.updateVerseOptions()"
-                        disabled
-                    >
-                        <option value="">Select Chapter...</option>
-                    </select>
-                    <select
-                        id="lookup-verse"
-                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        disabled
-                    >
-                        <option value="">Select Verse...</option>
-                    </select>
+                    <p class="text-white/60 text-xs mt-2">
+                        💡 Supports: Full names (John 3:16) • Abbreviations (gal 3:16) • Chapters (Psalm 23) • Ranges (John 3:16-17)
+                    </p>
                 </div>
+
                 <div class="flex gap-3">
                     <button
-                        onclick="window.lookupVerse()"
+                        onclick="window.smartLookup()"
                         class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition flex-1 font-semibold"
-                        id="lookup-btn"
-                        disabled
                     >
-                        🔍 Look Up Verse
+                        🔍 Look Up
                     </button>
                     <button
                         onclick="window.addLookedUpVerse()"
@@ -192,15 +183,58 @@
                         ➕ Add to My Verses
                     </button>
                 </div>
+
                 <div id="lookup-result" class="bg-white/10 rounded-lg p-4 min-h-[100px]" style="display: none;">
                     <p class="text-white/60 text-center">Verse will appear here</p>
                 </div>
+
+                <!-- Optional: Dropdown fallback (collapsed by default) -->
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-white/70 text-sm hover:text-white transition">
+                        Or use dropdowns (click to expand)
+                    </summary>
+                    <div class="mt-3 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <select
+                                id="lookup-book"
+                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                onchange="window.updateChapterOptions()"
+                            >
+                                <option value="">Select Book...</option>
+                            </select>
+                            <select
+                                id="lookup-chapter"
+                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                onchange="window.updateVerseOptions()"
+                                disabled
+                            >
+                                <option value="">Select Chapter...</option>
+                            </select>
+                            <select
+                                id="lookup-verse"
+                                class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                                disabled
+                            >
+                                <option value="">Select Verse...</option>
+                            </select>
+                        </div>
+                        <button
+                            onclick="window.lookupVerse()"
+                            class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition w-full font-semibold"
+                            id="lookup-btn"
+                            disabled
+                        >
+                            🔍 Look Up from Dropdowns
+                        </button>
+                    </div>
+                </details>
             </div>
         </div>
 
         <!-- Add Custom Verse (Manual Entry) -->
         <div class="glass rounded-xl p-6 shadow-lg">
             <h2 class="text-xl font-bold text-white mb-4">✏️ Add Custom Verse (Manual Entry)</h2>
+            <p class="text-white/60 text-sm mb-3">For verses not in the KJV or custom references</p>
             <div class="space-y-3">
                 <input
                     type="text"
@@ -243,6 +277,89 @@
         // Bible data
         let bibleData = null;
         let currentLookupVerse = null; // Store the currently looked up verse
+
+        // Book abbreviations map (supports multiple abbreviations per book)
+        const BOOK_ABBREVIATIONS = {
+            // Old Testament
+            'genesis': ['gen', 'ge', 'gn'],
+            'exodus': ['exo', 'ex', 'exod'],
+            'leviticus': ['lev', 'le', 'lv'],
+            'numbers': ['num', 'nu', 'nm', 'nb'],
+            'deuteronomy': ['deut', 'dt', 'de'],
+            'joshua': ['josh', 'jos', 'jsh'],
+            'judges': ['judg', 'jdg', 'jg', 'jdgs'],
+            'ruth': ['rth', 'ru'],
+            '1 samuel': ['1 sam', '1sam', '1 sa', '1sa', '1 s', '1s', 'i samuel', 'i sam'],
+            '2 samuel': ['2 sam', '2sam', '2 sa', '2sa', '2 s', '2s', 'ii samuel', 'ii sam'],
+            '1 kings': ['1 kgs', '1kgs', '1 ki', '1ki', '1 k', '1k', 'i kings', 'i kgs'],
+            '2 kings': ['2 kgs', '2kgs', '2 ki', '2ki', '2 k', '2k', 'ii kings', 'ii kgs'],
+            '1 chronicles': ['1 chr', '1chr', '1 ch', '1ch', 'i chronicles', 'i chr'],
+            '2 chronicles': ['2 chr', '2chr', '2 ch', '2ch', 'ii chronicles', 'ii chr'],
+            'ezra': ['ezr', 'ez'],
+            'nehemiah': ['neh', 'ne'],
+            'esther': ['est', 'es'],
+            'job': ['jb'],
+            'psalms': ['psalm', 'ps', 'psa', 'psm', 'pss'],
+            'proverbs': ['prov', 'pro', 'pr', 'prv'],
+            'ecclesiastes': ['eccl', 'ecc', 'ec', 'eccles'],
+            'song of solomon': ['song', 'sos', 'ss', 'so', 'canticles', 'canticle of canticles'],
+            'isaiah': ['isa', 'is'],
+            'jeremiah': ['jer', 'je', 'jr'],
+            'lamentations': ['lam', 'la'],
+            'ezekiel': ['ezek', 'eze', 'ezk'],
+            'daniel': ['dan', 'da', 'dn'],
+            'hosea': ['hos', 'ho'],
+            'joel': ['joe', 'jl'],
+            'amos': ['amo', 'am'],
+            'obadiah': ['obad', 'ob'],
+            'jonah': ['jnh', 'jon'],
+            'micah': ['mic', 'mc'],
+            'nahum': ['nah', 'na'],
+            'habakkuk': ['hab', 'hb'],
+            'zephaniah': ['zeph', 'zep', 'zp'],
+            'haggai': ['hag', 'hg'],
+            'zechariah': ['zech', 'zec', 'zc'],
+            'malachi': ['mal', 'ml'],
+            // New Testament
+            'matthew': ['matt', 'mat', 'mt'],
+            'mark': ['mar', 'mrk', 'mk', 'mr'],
+            'luke': ['luk', 'lk'],
+            'john': ['joh', 'jhn', 'jn'],
+            'acts': ['act', 'ac'],
+            'romans': ['rom', 'ro', 'rm'],
+            '1 corinthians': ['1 cor', '1cor', '1 co', '1co', 'i corinthians', 'i cor'],
+            '2 corinthians': ['2 cor', '2cor', '2 co', '2co', 'ii corinthians', 'ii cor'],
+            'galatians': ['gal', 'ga'],
+            'ephesians': ['eph', 'ephes'],
+            'philippians': ['phil', 'php', 'pp'],
+            'colossians': ['col', 'co'],
+            '1 thessalonians': ['1 thess', '1thess', '1 thes', '1thes', '1 th', '1th', 'i thessalonians', 'i thess'],
+            '2 thessalonians': ['2 thess', '2thess', '2 thes', '2thes', '2 th', '2th', 'ii thessalonians', 'ii thess'],
+            '1 timothy': ['1 tim', '1tim', '1 ti', '1ti', 'i timothy', 'i tim'],
+            '2 timothy': ['2 tim', '2tim', '2 ti', '2ti', 'ii timothy', 'ii tim'],
+            'titus': ['tit', 'ti'],
+            'philemon': ['philem', 'phm', 'pm'],
+            'hebrews': ['heb', 'he'],
+            'james': ['jas', 'jm'],
+            '1 peter': ['1 pet', '1pet', '1 pe', '1pe', '1 pt', '1pt', '1 p', '1p', 'i peter', 'i pet'],
+            '2 peter': ['2 pet', '2pet', '2 pe', '2pe', '2 pt', '2pt', '2 p', '2p', 'ii peter', 'ii pet'],
+            '1 john': ['1 joh', '1joh', '1 jhn', '1jhn', '1 jn', '1jn', '1 j', '1j', 'i john', 'i joh'],
+            '2 john': ['2 joh', '2joh', '2 jhn', '2jhn', '2 jn', '2jn', '2 j', '2j', 'ii john', 'ii joh'],
+            '3 john': ['3 joh', '3joh', '3 jhn', '3jhn', '3 jn', '3jn', '3 j', '3j', 'iii john', 'iii joh'],
+            'jude': ['jud', 'jd'],
+            'revelation': ['rev', 're', 'rv', 'revelations']
+        };
+
+        // Build reverse lookup map (abbreviation -> full name)
+        const ABBREV_TO_BOOK = {};
+        Object.keys(BOOK_ABBREVIATIONS).forEach(fullName => {
+            // Add full name as key
+            ABBREV_TO_BOOK[fullName.toLowerCase()] = fullName;
+            // Add all abbreviations as keys
+            BOOK_ABBREVIATIONS[fullName].forEach(abbrev => {
+                ABBREV_TO_BOOK[abbrev.toLowerCase()] = fullName;
+            });
+        });
 
         // Popular KJV verses
         const POPULAR_VERSES = [
@@ -319,18 +436,188 @@
                 }
                 bibleData = await response.json();
                 populateBookDropdown();
+
+                // Show Bible status
+                const statusDiv = document.getElementById('bible-status');
+                if (statusDiv && bibleData) {
+                    const bookCount = bibleData.length;
+                    statusDiv.textContent = `📚 ${bookCount} books loaded (KJV)`;
+                    statusDiv.classList.remove('hidden');
+                }
             } catch (e) {
                 console.error('Error loading Bible data:', e);
                 // Show error message to user
-                const lookupSection = document.querySelector('.glass.rounded-xl.p-6.shadow-lg h2');
-                if (lookupSection && lookupSection.textContent.includes('Look Up Verse')) {
-                    const errorMsg = document.createElement('p');
-                    errorMsg.className = 'text-red-300 text-sm mt-2';
-                    errorMsg.textContent = 'Error loading Bible data. Verse lookup is unavailable.';
-                    lookupSection.parentElement.insertBefore(errorMsg, lookupSection.nextSibling);
+                const statusDiv = document.getElementById('bible-status');
+                if (statusDiv) {
+                    statusDiv.className = 'mb-3 text-sm text-red-300';
+                    statusDiv.textContent = '⚠️ Error loading Bible data. Verse lookup is unavailable.';
+                    statusDiv.classList.remove('hidden');
                 }
             }
         }
+
+        // Parse verse reference from text input
+        function parseReference(input) {
+            if (!input || !input.trim()) {
+                return { error: 'Please enter a reference' };
+            }
+
+            // Clean input
+            input = input.trim().toLowerCase();
+
+            // Pattern: "book chapter:verse" or "book chapter:verse-verse" or "book chapter"
+            // Examples: "john 3:16", "gal 3:16-17", "psalm 23", "1 cor 13:4"
+
+            // Try to match: (book name) (chapter) optional(:verse or :verse-verse)
+            const patterns = [
+                // With verse range: "john 3:16-17"
+                /^(.+?)\s+(\d+):(\d+)-(\d+)$/,
+                // With single verse: "john 3:16"
+                /^(.+?)\s+(\d+):(\d+)$/,
+                // Chapter only: "psalm 23"
+                /^(.+?)\s+(\d+)$/
+            ];
+
+            let match = null;
+            let patternType = null;
+
+            for (let i = 0; i < patterns.length; i++) {
+                match = input.match(patterns[i]);
+                if (match) {
+                    patternType = i;
+                    break;
+                }
+            }
+
+            if (!match) {
+                return { error: 'Invalid format. Try: "John 3:16" or "gal 3:16" or "Psalm 23"' };
+            }
+
+            // Extract parts
+            const bookInput = match[1].trim();
+            const chapter = parseInt(match[2]);
+            const verseStart = match[3] ? parseInt(match[3]) : null;
+            const verseEnd = match[4] ? parseInt(match[4]) : null;
+
+            // Find book in Bible data
+            const normalizedBookName = ABBREV_TO_BOOK[bookInput];
+            if (!normalizedBookName) {
+                return { error: `Book "${bookInput}" not found. Check spelling or try an abbreviation.` };
+            }
+
+            // Find book in bibleData
+            const bookIndex = bibleData.findIndex(b => b.book.toLowerCase() === normalizedBookName.toLowerCase());
+            if (bookIndex === -1) {
+                return { error: `Book "${normalizedBookName}" not found in database.` };
+            }
+
+            const book = bibleData[bookIndex];
+
+            // Validate chapter
+            if (chapter < 1 || chapter > book.chapters.length) {
+                return { error: `${book.book} only has ${book.chapters.length} chapters.` };
+            }
+
+            const chapterData = book.chapters[chapter - 1];
+
+            // If chapter only, return all verses
+            if (!verseStart) {
+                return {
+                    book: book.book,
+                    bookIndex,
+                    chapter: chapter,
+                    chapterIndex: chapter - 1,
+                    verses: 'all',
+                    verseCount: chapterData.verses.length
+                };
+            }
+
+            // Validate verses
+            if (verseStart < 1 || verseStart > chapterData.verses.length) {
+                return { error: `${book.book} ${chapter} only has ${chapterData.verses.length} verses.` };
+            }
+
+            if (verseEnd && (verseEnd < verseStart || verseEnd > chapterData.verses.length)) {
+                return { error: `Invalid verse range. ${book.book} ${chapter} has ${chapterData.verses.length} verses.` };
+            }
+
+            return {
+                book: book.book,
+                bookIndex,
+                chapter: chapter,
+                chapterIndex: chapter - 1,
+                verseStart,
+                verseEnd: verseEnd || verseStart
+            };
+        }
+
+        // Smart lookup from text input
+        window.smartLookup = function() {
+            const input = document.getElementById('smart-reference');
+            const resultDiv = document.getElementById('lookup-result');
+            const addBtn = document.getElementById('add-lookup-btn');
+
+            if (!bibleData) {
+                alert('Bible data is still loading. Please wait a moment.');
+                return;
+            }
+
+            const parsed = parseReference(input.value);
+
+            if (parsed.error) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="text-red-300 text-center">
+                        <div class="font-semibold mb-2">⚠️ Error</div>
+                        <div class="text-sm">${escapeHtml(parsed.error)}</div>
+                    </div>
+                `;
+                addBtn.style.display = 'none';
+                currentLookupVerse = null;
+                return;
+            }
+
+            // Get verse text
+            const book = bibleData[parsed.bookIndex];
+            const chapter = book.chapters[parsed.chapterIndex];
+            let verseText = '';
+            let reference = '';
+
+            if (parsed.verses === 'all') {
+                // Get all verses in chapter
+                verseText = chapter.verses.map(v => v.text).join(' ');
+                reference = `${parsed.book} ${parsed.chapter}`;
+            } else if (parsed.verseStart === parsed.verseEnd) {
+                // Single verse
+                const verse = chapter.verses[parsed.verseStart - 1];
+                verseText = verse.text;
+                reference = `${parsed.book} ${parsed.chapter}:${parsed.verseStart}`;
+            } else {
+                // Verse range
+                const verses = chapter.verses.slice(parsed.verseStart - 1, parsed.verseEnd);
+                verseText = verses.map(v => v.text).join(' ');
+                reference = `${parsed.book} ${parsed.chapter}:${parsed.verseStart}-${parsed.verseEnd}`;
+            }
+
+            // Store for adding later
+            currentLookupVerse = {
+                reference: reference,
+                text: verseText
+            };
+
+            // Display result
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="text-white font-semibold mb-2">${escapeHtml(reference)}</div>
+                <div class="text-white/90 leading-relaxed">${escapeHtml(verseText)}</div>
+            `;
+
+            // Show add button
+            addBtn.style.display = 'block';
+
+            // Clear input for next lookup
+            // input.value = ''; // Commented out - keep the reference visible
+        };
 
         // Populate book dropdown
         function populateBookDropdown() {
