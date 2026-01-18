@@ -205,10 +205,15 @@ This document tracks known issues, improvements, and feature requests for the Bi
   - Gamification for reading goals
   - Badges for milestones
      
-- [ ] **Verse memory helper**
-  - Create a method to facilitate the memorization of verses/books.
-  - One method could include converting a verse to the first letters to help memorization
-  - Badges for milestones
+- [x] **Verse memory helper** ✅ **COMPLETED 2026-01-18**
+  - ✅ Created separate `memorize.html` page with verse memorization functionality
+  - ✅ Includes 12 popular KJV verses (John 3:16, Philippians 4:13, Psalm 23:1, etc.)
+  - ✅ Custom verse addition feature for personal memorization goals
+  - ✅ Three display modes: Full text, First-letter hints, Hidden (test yourself)
+  - ✅ Keyboard shortcuts (1/2/3 for modes, arrows for navigation)
+  - ✅ Progress tracking with review counts stored in localStorage
+  - ✅ Accessible from main app via ABOUT tab under "Games & Activities"
+  - ✅ Responsive design matching main app's glass-morphism style
 
 ### UI/UX Improvements
 

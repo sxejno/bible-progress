@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Verse Memorization Helper - Bible Progress</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .verse-card {
+            transition: all 0.3s ease;
+        }
+
+        .verse-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .first-letter-hint {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.3em;
+            font-size: 1.1em;
+        }
+
+        .btn-mode {
+            transition: all 0.2s ease;
+        }
+
+        .btn-mode.active {
+            background: rgba(79, 70, 229, 0.9);
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .verse-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 640px) {
+            .verse-text {
+                font-size: 1.1rem;
+            }
+            .first-letter-hint {
+                font-size: 1em;
+                letter-spacing: 0.2em;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Header -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="glass rounded-xl p-6 shadow-lg">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">📖 Verse Memorization Helper</h1>
+                    <p class="text-white/80">Hide God's word in your heart</p>
+                </div>
+                <a href="index.html" class="glass px-4 py-2 rounded-lg text-white hover:bg-white/20 transition">
+                    ← Back to App
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Current Verse Display -->
+        <div class="glass rounded-xl p-6 shadow-lg fade-in" id="verse-display">
+            <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-xl font-bold text-white" id="verse-reference">Select a verse to begin</h2>
+                <div class="flex gap-2">
+                    <button onclick="window.prevVerse()" class="glass px-3 py-2 rounded-lg text-white text-sm hover:bg-white/20 transition" id="prev-btn" disabled>
+                        ← Previous
+                    </button>
+                    <button onclick="window.nextVerse()" class="glass px-3 py-2 rounded-lg text-white text-sm hover:bg-white/20 transition" id="next-btn" disabled>
+                        Next →
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-6 bg-white/10 rounded-lg p-6 min-h-[150px] flex items-center justify-center" id="verse-content">
+                <p class="text-white/60 text-center">Select a verse from below or add your own</p>
+            </div>
+
+            <!-- Display Mode Buttons -->
+            <div class="flex gap-3 mb-4 flex-wrap" id="mode-buttons" style="display: none;">
+                <button onclick="window.setDisplayMode('full')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-full">
+                    📄 Full Text
+                </button>
+                <button onclick="window.setDisplayMode('hints')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-hints">
+                    💡 First Letters
+                </button>
+                <button onclick="window.setDisplayMode('hidden')" class="btn-mode glass px-4 py-2 rounded-lg text-white flex-1 min-w-[120px]" id="btn-hidden">
+                    🙈 Hidden
+                </button>
+            </div>
+
+            <!-- Progress Indicator -->
+            <div class="text-white/70 text-sm" id="review-count" style="display: none;">
+                Reviews: <span id="review-number">0</span>
+            </div>
+        </div>
+
+        <!-- Popular Verses -->
+        <div class="glass rounded-xl p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-white mb-4">Popular Verses</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="popular-verses">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Add Custom Verse -->
+        <div class="glass rounded-xl p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-white mb-4">Add Custom Verse</h2>
+            <div class="space-y-3">
+                <input
+                    type="text"
+                    id="custom-reference"
+                    placeholder="Reference (e.g., John 3:16)"
+                    class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                >
+                <textarea
+                    id="custom-text"
+                    placeholder="Verse text (KJV)"
+                    rows="4"
+                    class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                ></textarea>
+                <button
+                    onclick="window.addCustomVerse()"
+                    class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition w-full font-semibold"
+                >
+                    ➕ Add to My Verses
+                </button>
+            </div>
+        </div>
+
+        <!-- My Custom Verses -->
+        <div class="glass rounded-xl p-6 shadow-lg" id="custom-verses-section" style="display: none;">
+            <h2 class="text-xl font-bold text-white mb-4">My Verses</h2>
+            <div class="space-y-2" id="custom-verses-list">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Security utility
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Popular KJV verses
+        const POPULAR_VERSES = [
+            {
+                reference: "John 3:16",
+                text: "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."
+            },
+            {
+                reference: "Philippians 4:13",
+                text: "I can do all things through Christ which strengtheneth me."
+            },
+            {
+                reference: "Jeremiah 29:11",
+                text: "For I know the thoughts that I think toward you, saith the Lord, thoughts of peace, and not of evil, to give you an expected end."
+            },
+            {
+                reference: "Psalm 23:1",
+                text: "The Lord is my shepherd; I shall not want."
+            },
+            {
+                reference: "Romans 8:28",
+                text: "And we know that all things work together for good to them that love God, to them who are the called according to his purpose."
+            },
+            {
+                reference: "Proverbs 3:5-6",
+                text: "Trust in the Lord with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."
+            },
+            {
+                reference: "Isaiah 41:10",
+                text: "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."
+            },
+            {
+                reference: "Matthew 6:33",
+                text: "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you."
+            },
+            {
+                reference: "Psalm 119:11",
+                text: "Thy word have I hid in mine heart, that I might not sin against thee."
+            },
+            {
+                reference: "Romans 12:2",
+                text: "And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God."
+            },
+            {
+                reference: "2 Timothy 1:7",
+                text: "For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind."
+            },
+            {
+                reference: "Joshua 1:9",
+                text: "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee whithersoever thou goest."
+            }
+        ];
+
+        // State
+        let currentVerseIndex = -1;
+        let currentDisplayMode = 'full';
+        let customVerses = [];
+        let verseProgress = {}; // Tracks review counts
+
+        // Initialize
+        function init() {
+            loadData();
+            renderPopularVerses();
+            renderCustomVerses();
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('bible_memorization_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    customVerses = data.customVerses || [];
+                    verseProgress = data.verseProgress || {};
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('bible_memorization_data', JSON.stringify({
+                    customVerses,
+                    verseProgress
+                }));
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
+        }
+
+        // Render popular verses
+        function renderPopularVerses() {
+            const container = document.getElementById('popular-verses');
+            container.innerHTML = POPULAR_VERSES.map((verse, index) => `
+                <button
+                    onclick="window.selectVerse(${index}, 'popular')"
+                    class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/20"
+                >
+                    <div class="font-semibold">${escapeHtml(verse.reference)}</div>
+                    <div class="text-sm text-white/70 mt-1 truncate">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                </button>
+            `).join('');
+        }
+
+        // Render custom verses
+        function renderCustomVerses() {
+            const section = document.getElementById('custom-verses-section');
+            const container = document.getElementById('custom-verses-list');
+
+            if (customVerses.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            container.innerHTML = customVerses.map((verse, index) => `
+                <div class="flex items-center gap-2">
+                    <button
+                        onclick="window.selectVerse(${index}, 'custom')"
+                        class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/20 flex-1"
+                    >
+                        <div class="font-semibold">${escapeHtml(verse.reference)}</div>
+                        <div class="text-sm text-white/70 mt-1 truncate">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                    </button>
+                    <button
+                        onclick="window.deleteCustomVerse(${index})"
+                        class="glass px-3 py-3 rounded-lg text-white hover:bg-red-500/50 transition"
+                        title="Delete verse"
+                    >
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Select a verse
+        window.selectVerse = function(index, type) {
+            currentVerseIndex = index;
+            const verse = type === 'popular' ? POPULAR_VERSES[index] : customVerses[index];
+            const verseKey = `${type}_${index}`;
+
+            // Update review count
+            if (!verseProgress[verseKey]) {
+                verseProgress[verseKey] = 0;
+            }
+            verseProgress[verseKey]++;
+            saveData();
+
+            // Update display
+            document.getElementById('verse-reference').textContent = verse.reference;
+            document.getElementById('mode-buttons').style.display = 'flex';
+            document.getElementById('review-count').style.display = 'block';
+            document.getElementById('review-number').textContent = verseProgress[verseKey];
+
+            // Enable navigation for popular verses only
+            if (type === 'popular') {
+                document.getElementById('prev-btn').disabled = index === 0;
+                document.getElementById('next-btn').disabled = index === POPULAR_VERSES.length - 1;
+                document.getElementById('prev-btn').classList.toggle('opacity-50', index === 0);
+                document.getElementById('next-btn').classList.toggle('opacity-50', index === POPULAR_VERSES.length - 1);
+            } else {
+                document.getElementById('prev-btn').disabled = true;
+                document.getElementById('next-btn').disabled = true;
+                document.getElementById('prev-btn').classList.add('opacity-50');
+                document.getElementById('next-btn').classList.add('opacity-50');
+            }
+
+            setDisplayMode('full');
+
+            // Store current type for navigation
+            window.currentVerseType = type;
+        };
+
+        // Navigation
+        window.prevVerse = function() {
+            if (window.currentVerseType === 'popular' && currentVerseIndex > 0) {
+                window.selectVerse(currentVerseIndex - 1, 'popular');
+            }
+        };
+
+        window.nextVerse = function() {
+            if (window.currentVerseType === 'popular' && currentVerseIndex < POPULAR_VERSES.length - 1) {
+                window.selectVerse(currentVerseIndex + 1, 'popular');
+            }
+        };
+
+        // Set display mode
+        window.setDisplayMode = function(mode) {
+            currentDisplayMode = mode;
+            const verse = window.currentVerseType === 'popular' ? POPULAR_VERSES[currentVerseIndex] : customVerses[currentVerseIndex];
+            const container = document.getElementById('verse-content');
+
+            // Update button states
+            document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+
+            if (mode === 'full') {
+                container.innerHTML = `<p class="text-white verse-text text-center">${escapeHtml(verse.text)}</p>`;
+            } else if (mode === 'hints') {
+                const hints = verse.text.split(' ').map(word => {
+                    // Keep punctuation at the end
+                    const match = word.match(/^(\W*)(.*?)(\W*)$/);
+                    if (match) {
+                        const [, prefix, letters, suffix] = match;
+                        return prefix + (letters ? letters[0] : '') + suffix;
+                    }
+                    return word[0] || '';
+                }).join(' ');
+                container.innerHTML = `<p class="text-white first-letter-hint text-center">${escapeHtml(hints)}</p>`;
+            } else if (mode === 'hidden') {
+                container.innerHTML = `
+                    <div class="text-center">
+                        <p class="text-white/60 mb-3">Try to recite the verse from memory</p>
+                        <button onclick="window.setDisplayMode('hints')" class="glass px-4 py-2 rounded-lg text-white hover:bg-white/20 transition">
+                            Show Hints
+                        </button>
+                    </div>
+                `;
+            }
+        };
+
+        // Add custom verse
+        window.addCustomVerse = function() {
+            const reference = document.getElementById('custom-reference').value.trim();
+            const text = document.getElementById('custom-text').value.trim();
+
+            if (!reference || !text) {
+                alert('Please enter both a reference and verse text');
+                return;
+            }
+
+            customVerses.push({ reference, text });
+            saveData();
+
+            // Clear inputs
+            document.getElementById('custom-reference').value = '';
+            document.getElementById('custom-text').value = '';
+
+            // Re-render
+            renderCustomVerses();
+
+            // Select the newly added verse
+            window.selectVerse(customVerses.length - 1, 'custom');
+        };
+
+        // Delete custom verse
+        window.deleteCustomVerse = function(index) {
+            if (confirm('Delete this verse from your list?')) {
+                customVerses.splice(index, 1);
+                saveData();
+                renderCustomVerses();
+
+                // Clear display if this was the active verse
+                if (window.currentVerseType === 'custom' && currentVerseIndex === index) {
+                    document.getElementById('verse-reference').textContent = 'Select a verse to begin';
+                    document.getElementById('verse-content').innerHTML = '<p class="text-white/60 text-center">Select a verse from below or add your own</p>';
+                    document.getElementById('mode-buttons').style.display = 'none';
+                    document.getElementById('review-count').style.display = 'none';
+                }
+            }
+        };
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (currentVerseIndex === -1) return;
+
+            if (e.key === '1') setDisplayMode('full');
+            if (e.key === '2') setDisplayMode('hints');
+            if (e.key === '3') setDisplayMode('hidden');
+            if (e.key === 'ArrowLeft' && window.currentVerseType === 'popular') window.prevVerse();
+            if (e.key === 'ArrowRight' && window.currentVerseType === 'popular') window.nextVerse();
+        });
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
