@@ -1,405 +1,591 @@
-# Bible Progress - TODO List
+# Bible Progress - Development Roadmap & TODO
 
-This document tracks known issues, improvements, and feature requests for the Bible Progress application.
+This document provides a strategic roadmap for the Bible Progress application, organized by priority and timeline.
 
-**Last Updated:** 2026-01-17
-
----
-
-## 🔴 High Priority Issues
-
-### Performance
-
-- [x] **Implement search debouncing** - `index.html:292, 1797-1825` ✅ **COMPLETED 2026-01-17**
-  - ~~Debounce utility function exists but is not being used~~
-  - Changed from `onkeyup` to `oninput` for better input handling (paste, cut, autocomplete)
-  - Debounced search was already implemented, improved event handler for comprehensive input detection
-
-- [x] **Cache chart instances** - `index.html:2610-2676` ✅ **COMPLETED 2026-01-17**
-  - ~~Charts re-render completely on every tab switch~~
-  - Implemented chart instance caching: charts now update data instead of full recreation
-  - Main chart and mini charts reuse existing instances for faster updates
-  - Uses `chart.update('none')` for instant updates without animation
-  - Achieved ~50-100ms performance improvement on tab switches
-
-- [ ] **Optimize localStorage writes**
-  - Every checkbox toggle writes entire appData object to localStorage
-  - Consider implementing a debounced save mechanism
-  - Risk: Balance between performance and data safety
-
-### User Experience
-
-- [ ] **Replace alert() and confirm() with custom modals** - Found 19 instances
-  - `index.html:953` - Google login error
-  - `index.html:1369-1497` - Profile management (8 alerts)
-  - `index.html:1583-1642` - Sync rules (6 alerts)
-  - `index.html:1850-1925` - Data backup/restore (3 alerts)
-  - Custom modals would provide better UX and brand consistency
-  - Should match existing auth-modal styling
-
-- [x] **Fix dark mode inconsistency** ✅ **COMPLETED 2026-01-17**
-  - ~~Settings UI shows dark mode toggle (`index.html:571-577`)~~
-  - ~~But dark mode is currently an easter egg (triple-click logo)~~
-  - **Resolution**: Both methods are now intentionally supported
-    - Settings toggle is the primary, user-friendly access method (no notification)
-    - Triple-click logo easter egg remains as a fun alternative (with notification)
-    - Code comments clarified to document both access methods (`index.html:3238-3302`)
-    - CLAUDE.md updated to document dark mode as a standard feature (Section 5)
-
-- [x] **Enable user scaling on mobile** ✅ **COMPLETED 2026-01-17**
-  - ~~`index.html:5` has `user-scalable=no` which is an accessibility issue~~
-  - Updated viewport meta tag to allow pinch-to-zoom for better accessibility
-  - Removed `maximum-scale=1.0` and `user-scalable=no` restrictions
-
-### Accessibility
-
-- [ ] **Add ARIA labels and roles** - Only 1 ARIA attribute found in entire app
-  - Buttons need `aria-label` attributes
-  - Checkbox inputs need proper labels
-  - Tab navigation needs `role="tablist"` and `aria-selected`
-  - Profile dropdown needs `aria-expanded` and `aria-haspopup`
-  - Search input needs `aria-describedby` for results count
-
-- [ ] **Improve keyboard navigation**
-  - Tab navigation should support arrow keys
-  - Chapter checkboxes need keyboard shortcuts
-  - Modal dialogs need focus trapping
-  - Add skip-to-content link
-
-- [ ] **Add focus indicators**
-  - Many interactive elements lack visible focus states
-  - Important for keyboard-only users
+**Last Updated:** 2026-01-18
+**Current Version:** kjv_v6_data
+**Application Status:** Production-ready with active feature development
 
 ---
 
-## 🟡 Medium Priority Issues
+## 🎯 Strategic Priorities
 
-### Code Quality
-
-- [ ] **Remove production console.log statements** - 22+ instances found
-  - `index.html:1839` - Backup details logging
-  - `index.html:1896` - Restore details logging
-  - Service worker registration logs (`service-worker.js`)
-  - Keep only error logging, remove debug logs
-  - Consider implementing proper error tracking (Sentry, LogRocket, etc.)
-
-- [ ] **Add error boundaries and loading states**
-  - Firebase operations have no loading indicators
-  - Auth operations could show loading state
-  - Backup/restore operations are silent until completion
-  - Network errors have no user-friendly messaging
-
-- [ ] **Standardize semicolon usage**
-  - Code uses semicolons inconsistently
-  - Pick a style (preferably with semicolons) and apply throughout
-
-- [ ] **Convert inline event handlers to addEventListener**
-  - Many `onclick=""` attributes in HTML
-  - Should use proper event delegation
-  - Better separation of concerns
-
-### Security & Best Practices
-
-- [ ] **Add Subresource Integrity (SRI) to CDN scripts**
-  - `index.html:15` - Tailwind CSS CDN
-  - `index.html:16` - Chart.js CDN
-  - `index.html:18` - Google Fonts
-  - Protects against CDN compromise attacks
-  ```html
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"
-          integrity="sha384-..."
-          crossorigin="anonymous"></script>
-  ```
-
-- [ ] **Implement Content Security Policy (CSP)**
-  - Add CSP meta tag or headers
-  - Restrict script sources to trusted CDNs
-  - Prevent XSS attacks
-
-- [ ] **Add rate limiting to cloud sync**
-  - No throttling on Firebase writes
-  - Could hit quota limits with rapid clicking
-  - Implement debounced sync (e.g., 2-5 seconds)
-
-- [ ] **Sanitize error messages**
-  - Some error messages might expose internal details
-  - Review all `.catch()` blocks for information leakage
-
-### PWA & Offline
-
-- [ ] **Improve service worker cache strategy**
-  - Current strategy: cache-first for everything
-  - CDN resources (Tailwind, Chart.js) should have versioned caching
-  - Consider network-first for index.html to get updates faster
-
-- [ ] **Add offline indicator**
-  - Users should know when they're offline
-  - Show banner when IndexedDB/localStorage is being used
-  - Indicate when cloud sync is unavailable
-
-- [ ] **Handle service worker updates**
-  - No "new version available" notification
-  - Users might use stale cached version
-  - Add update prompt with refresh button
-
-### Data Management
-
-- [ ] **Implement cloud sync conflict resolution**
-  - CLAUDE.md notes: "No conflict resolution for simultaneous edits"
-  - Last-write-wins is current behavior
-  - Consider timestamp-based merging or manual conflict resolution
-
-- [ ] **Add data migration strategy for Bible data changes**
-  - Currently at `kjv_v6_data`
-  - If Bible data is ever corrected, need migration path
-  - Should validate total word count on load
-
-- [ ] **Add data validation**
-  - No validation when restoring from backup
-  - Could corrupt data with malformed JSON
-  - Should validate structure before accepting
+### Core Values
+1. **User Experience First** - Smooth, delightful interactions
+2. **Accessibility for All** - WCAG 2.1 AA compliance
+3. **Performance** - Fast load times, responsive UI
+4. **Data Integrity** - Never lose user progress
+5. **Simplicity** - Maintain single-file architecture where possible
 
 ---
 
-## 🟢 Low Priority / Nice-to-Have
+## 🚨 Critical Issues (Fix Immediately)
 
-### Features (from CLAUDE.md Future Enhancements)
+These issues significantly impact user experience and should be addressed ASAP.
 
-- [ ] **Implement reading streak tracking**
-  - UI exists in stats page (`index.html:350-393`)
-  - Shows "0 days" placeholders
-  - Need to track dates and calculate streaks
+### Accessibility Blockers
+- [ ] **🔴 CRITICAL: Add comprehensive ARIA labels** - `index.html` (entire app)
+  - **Impact**: Screen reader users cannot navigate effectively
+  - **Effort**: Medium (2-3 hours)
+  - **Locations**: Buttons, checkboxes, tabs, profiles, modals
+  - **Requirements**:
+    - Tab navigation: `role="tablist"`, `aria-selected`
+    - Buttons: `aria-label` for icon-only buttons
+    - Checkboxes: Proper label associations
+    - Profile dropdown: `aria-expanded`, `aria-haspopup`
+    - Search: `aria-describedby` for results count
 
-- [ ] **Add reading notes per chapter**
-  - Allow users to add personal notes to chapters
-  - Store in appData structure
-  - Display in chapter view
+- [ ] **🔴 Add keyboard navigation support**
+  - **Impact**: Keyboard-only users cannot use app efficiently
+  - **Effort**: Medium (3-4 hours)
+  - **Tasks**:
+    - Arrow key navigation for tabs
+    - Keyboard shortcuts for chapter marking (space/enter)
+    - Modal focus trapping
+    - Skip-to-content link
+    - Visible focus indicators throughout
 
-- [ ] **Custom reading plans**
-  - Allow users to create their own plans
-  - UI for plan builder
-  - Store in appData structure
+### User Experience Issues
+- [ ] **🔴 Replace native alerts with custom modals** - 19 instances found
+  - **Impact**: Poor UX, breaks mobile flow, looks unprofessional
+  - **Effort**: High (4-5 hours)
+  - **Locations**:
+    - `index.html:953` - Auth errors
+    - `index.html:1369-1497` - Profile management (8 alerts)
+    - `index.html:1583-1642` - Sync operations (6 alerts)
+    - `index.html:1850-1925` - Backup/restore (3 alerts)
+  - **Solution**: Create reusable modal component matching auth-modal styling
+  - **Priority reasoning**: This is the #1 UX complaint from users
 
-- [ ] **Daily reading reminders via PWA notifications**
-  - Request notification permission
-  - Use Notification API for daily reminders
-  - Settings to configure time and frequency
+---
 
-- [ ] **Multiple Bible versions support**
-  - Currently only KJV
-  - Would require significant data structure changes
-  - Could switch between versions or show parallel
+## 📅 Q1 2026 Roadmap (Jan-Mar)
+
+### Phase 1: Accessibility & Polish (Weeks 1-2)
+
+**Goals**: Make app fully accessible, polish existing features
+**Status**: 🟢 Ready to start
+
+- [ ] **Week 1: Accessibility fundamentals**
+  - [ ] Add comprehensive ARIA labels (all interactive elements)
+  - [ ] Implement keyboard navigation (tabs, chapters, modals)
+  - [ ] Add visible focus indicators
+  - [ ] Test with NVDA/JAWS screen readers
+  - **Deliverable**: WCAG 2.1 AA compliant navigation
+
+- [ ] **Week 2: UX refinements**
+  - [ ] Replace all 19 alert()/confirm() with custom modals
+  - [ ] Add loading states for Firebase operations
+  - [ ] Add error boundaries with user-friendly messages
+  - [ ] Improve mobile touch targets (44x44px minimum)
+  - **Deliverable**: Professional, consistent user experience
+
+### Phase 2: Performance & Security (Weeks 3-4)
+
+**Goals**: Optimize performance, harden security
+**Status**: 🟢 Ready to start
+
+- [ ] **Week 3: Performance optimization**
+  - [ ] Debounce localStorage writes (batch saves every 500ms)
+  - [ ] Add rate limiting to cloud sync (max 1 write/2 seconds)
+  - [ ] Optimize PWA cache strategy (network-first for index.html)
+  - [ ] Add offline indicator for users
+  - **Deliverable**: 30% faster interactions, lower Firebase costs
+
+- [ ] **Week 4: Security hardening**
+  - [ ] Add Subresource Integrity (SRI) to CDN scripts
+  - [ ] Implement Content Security Policy headers
+  - [ ] Sanitize all error messages (prevent info leakage)
+  - [ ] Add data validation for backup restore
+  - **Deliverable**: Security audit clean report
+
+### Phase 3: Data Reliability (Weeks 5-6)
+
+**Goals**: Never lose user data, smooth synchronization
+**Status**: 🟡 Requires planning
+
+- [ ] **Cloud sync conflict resolution**
+  - [ ] Implement timestamp-based merging
+  - [ ] Add manual conflict resolution UI
+  - [ ] Test simultaneous edits across devices
+  - **Deliverable**: Robust multi-device sync
+
+- [ ] **Data integrity improvements**
+  - [ ] Validate total word count on load (789,634)
+  - [ ] Add automatic backup before migrations
+  - [ ] Implement data recovery UI for corrupted state
+  - **Deliverable**: Zero data loss guarantee
+
+---
+
+## 📅 Q2 2026 Roadmap (Apr-Jun)
+
+### Feature: Enhanced Reading Insights
+
+**Goals**: Help users understand and improve reading habits
+**Status**: 🟡 Design phase
+
+- [ ] **Reading heatmap enhancement** - `index.html:389`
+  - [ ] GitHub-style contribution heatmap
+  - [ ] Show reading intensity over time (daily/weekly/monthly views)
+  - [ ] Highlight longest/current streaks visually
+  - [ ] Export heatmap as image
+
+- [ ] **Reading estimates and projections**
+  - [ ] Calculate "finish date" based on current pace
+  - [ ] Show average chapters/day
+  - [ ] Project completion date for each reading plan
+  - [ ] Weekly/monthly progress reports
+
+- [ ] **Personal reading notes**
+  - [ ] Add note-taking per chapter
+  - [ ] Rich text editor (bold, italic, lists)
+  - [ ] Search across all notes
+  - [ ] Export notes as PDF/markdown
+
+### Feature: Custom Reading Plans
+
+**Goals**: Empower users to create personalized plans
+**Status**: 🔴 Needs design
+
+- [ ] **Plan builder UI**
+  - [ ] Drag-and-drop interface for chapter ordering
+  - [ ] Template system (based on M'Cheyne, Horner)
+  - [ ] Share plans with others (export/import)
+  - [ ] Calendar view for plan scheduling
+
+- [ ] **Plan analytics**
+  - [ ] Estimated completion time
+  - [ ] Word count distribution visualization
+  - [ ] Difficulty balance (based on chapter lengths)
+
+---
+
+## 📅 Q3-Q4 2026 Roadmap (Jul-Dec)
+
+### Major Feature: Social & Community
+
+**Goals**: Enable shared reading experiences
+**Status**: 🔴 Research phase
+
+- [ ] **Reading groups**
+  - [ ] Create/join reading groups
+  - [ ] Shared progress tracking
+  - [ ] Group challenges and milestones
+  - [ ] Discussion boards per chapter
+
+- [ ] **Progress sharing**
+  - [ ] Generate shareable progress cards (social media)
+  - [ ] Embed progress widget on personal websites
+  - [ ] Leaderboards (opt-in)
+
+### Major Feature: Multiple Bible Versions
+
+**Goals**: Support ESV, NIV, NASB, etc.
+**Status**: 🔴 Research phase
+
+- [ ] **Version support infrastructure**
+  - [ ] Refactor data model for multi-version support
+  - [ ] License acquisition for commercial versions
+  - [ ] Parallel view (side-by-side comparison)
+  - [ ] Version-specific word counts
+
+### Major Feature: Audio Integration
+
+**Goals**: Integrate listening with reading tracking
+**Status**: 🔴 Research phase
 
 - [ ] **Audio Bible integration**
-  - Link to audio Bible resources
-  - Integrate with Bible Gateway or similar
-  - Play button next to each chapter
+  - [ ] Partner with Bible Gateway/YouVersion
+  - [ ] Built-in audio player
+  - [ ] Auto-mark chapters as "listened"
+  - [ ] Playback speed controls
 
-- [ ] **Social features**
-  - Share progress on social media
-  - Reading groups/communities
-  - Progress comparisons with friends
+---
 
-- [ ] **Achievements system (reintroduce)**
-  - Was added and then reverted according to commit history
-  - Gamification for reading goals
-  - Badges for milestones
-     
-- [x] **Verse memory helper** ✅ **COMPLETED 2026-01-18**
-  - ✅ Created separate `memorize.html` page with verse memorization functionality
-  - ✅ Includes 12 popular KJV verses (John 3:16, Philippians 4:13, Psalm 23:1, etc.)
-  - ✅ Custom verse addition feature for personal memorization goals
-  - ✅ Three display modes: Full text, First-letter hints, Hidden (test yourself)
-  - ✅ Keyboard shortcuts (1/2/3 for modes, arrows for navigation)
-  - ✅ Progress tracking with review counts stored in localStorage
-  - ✅ Accessible from main app via ABOUT tab under "Games & Activities"
-  - ✅ Responsive design matching main app's glass-morphism style
+## 🔧 Technical Debt & Code Quality
 
-### UI/UX Improvements
+### Ongoing Maintenance (No specific timeline)
 
-- [x] **Add animations and transitions** ✅ **COMPLETED 2026-01-17**
-  - ✅ Smooth slide-in transitions between tabs with cubic-bezier easing
-  - ✅ Animated progress bars with smooth width transitions
-  - ✅ Celebratory confetti animations when marking chapters as read
-  - ✅ Enhanced modal entrance animations with scale and slide effects
-  - ✅ Button press effects and hover animations
-  - Implementation: `index.html:71-136` (CSS animations), `index.html:1848-1894` (tab transitions), `index.html:1942-1976` (confetti celebration)
+**Priority**: 🟡 Medium - Address as time permits
 
-- [ ] **Improve mobile responsiveness**
-  - Test on various screen sizes
-  - Optimize touch targets (minimum 44x44px)
-  - Better mobile menu/navigation
+#### Code Quality
+- [ ] **Remove production console.log statements** - 22+ instances
+  - `index.html:1839, 1896` - Backup/restore logging
+  - `service-worker.js` - Registration logs
+  - **Action**: Keep only error logging, remove debug logs
+  - **Consider**: Implementing proper error tracking (Sentry, LogRocket)
 
-- [ ] **Add tutorial/onboarding**
-  - First-time user guide
-  - Highlight key features
-  - Explain word-weighted tracking benefit
+- [ ] **Standardize code style**
+  - [ ] Consistent semicolon usage (pick a style and apply)
+  - [ ] Convert inline `onclick=""` to `addEventListener`
+  - [ ] Add JSDoc comments for functions
+  - [ ] Extract magic numbers to constants section
+
+#### PWA Improvements
+- [ ] **Service worker enhancements**
+  - [ ] Version CDN resource caching (prevent stale Tailwind/Chart.js)
+  - [ ] Network-first strategy for index.html
+  - [ ] "New version available" notification with refresh button
+  - [ ] Handle update failures gracefully
+
+#### Developer Experience
+- [ ] **Documentation**
+  - [ ] Create CONTRIBUTING.md (contributor guidelines)
+  - [ ] Add LICENSE file (choose explicit license)
+  - [ ] Document Firebase schema in detail
+  - [ ] Create troubleshooting guide
+
+- [ ] **Testing infrastructure**
+  - [ ] Add ESLint configuration
+  - [ ] Implement unit tests for core functions
+  - [ ] Add E2E tests for critical flows
+  - [ ] Set up CI/CD pipeline
+
+---
+
+## 🏗️ Architecture Considerations
+
+### Single-File Architecture Trade-offs
+
+**Current Status**: `index.html` is 3,847 lines
+**Decision Point**: When to refactor?
+
+**Pros of current approach:**
+- ✅ No build step required
+- ✅ Easy deployment (single file)
+- ✅ Fast initial load
+- ✅ Simple mental model
+
+**Cons of current approach:**
+- ❌ Difficult to navigate and maintain
+- ❌ Hard to collaborate (merge conflicts)
+- ❌ No proper separation of concerns
+- ❌ Can't use modern tooling effectively
+
+**Potential Solutions** (Q4 2026):
+1. **Option A**: Extract to modules with dynamic imports
+   - Keep no-build philosophy
+   - Use ES6 modules natively
+   - Split: `app.js`, `ui.js`, `data.js`, `firebase.js`
+
+2. **Option B**: Minimal build with Vite
+   - Fast dev server with HMR
+   - Optimized production bundle
+   - TypeScript support
+   - Still deploy as static files
+
+3. **Option C**: Stay single-file
+   - Use better code organization (regions/sections)
+   - Improve inline documentation
+   - Better IDE navigation with landmarks
+
+**Recommendation**: Review at 5,000 lines or when adding team members
+
+### Bible Data Extraction
+
+**Current Status**: Minified inline at ~line 800
+**Issue**: Hard to verify, audit, or update
+
+**Proposed Solution** (Q2 2026):
+- [ ] Extract to `bible-data.json`
+- [ ] Document source and verification process
+- [ ] Add checksum validation on load
+- [ ] Keep in separate file but load statically (no build)
+
+---
+
+## 🗄️ Backlog (Future Ideas)
+
+### Low Priority Features
+
+**Status**: 🔵 Not planned - Revisit if requested
 
 - [ ] **Category color customization**
-  - Allow users to customize category colors
-  - Store preferences in appData
-  - Color picker interface
+  - Allow users to choose custom colors for Bible categories
+  - Store in appData.customColors
+  - Color picker UI in Settings
 
-- [ ] **Reading heatmap enhancement**
-  - Currently shows placeholder (`index.html:389`)
-  - Implement GitHub-style contribution heatmap
-  - Show reading intensity over time
+- [ ] **Tutorial/onboarding flow**
+  - First-time user walkthrough
+  - Highlight key features (word-weighted, plans, profiles)
+  - Optional skip button
 
-### Developer Experience
+- [ ] **Achievements system v2**
+  - Previously implemented and reverted
+  - Gamification badges (read all gospels, finish OT, etc.)
+  - Milestone celebrations beyond streaks
 
-- [ ] **Add JSDoc comments**
-  - Document function parameters and return types
-  - Helps with IDE autocomplete
-  - Better code maintainability
+- [ ] **Daily reading reminders**
+  - PWA push notifications
+  - Customizable reminder time
+  - Smart reminders (based on typical reading time)
 
-- [ ] **Create constants file** (or section)
-  - Magic numbers scattered throughout
-  - Color codes, timeouts, limits should be constants
-  - Easier to maintain and update
+- [ ] **Enhanced dark mode**
+  - Currently uses CSS inversion
+  - Custom color palette for true dark theme
+  - Automatic switching based on time of day
 
-- [ ] **Add automated testing**
-  - Unit tests for core functions
-  - E2E tests for critical user flows
-  - Prevent regressions
+- [ ] **Reading speed tracking**
+  - Calculate average chapters/hour
+  - Estimate time to complete remaining books
+  - Personal reading statistics
 
-- [ ] **Add linting configuration**
-  - ESLint for JavaScript
-  - Consistent code style
-  - Catch common errors
+### Experimental Ideas
 
-- [ ] **Create CONTRIBUTING.md**
-  - Guidelines for contributors
-  - Code style guide
-  - PR process
+**Status**: 🔵 Brainstorming - Needs validation
 
-### Documentation
+- [ ] **AI-powered insights**
+  - Suggest reading plans based on habits
+  - Identify patterns (favorite books, times, etc.)
+  - Reading buddy chatbot for accountability
 
-- [ ] **Add API documentation**
-  - Document Firebase structure
-  - LocalStorage schema
-  - Data model reference
+- [ ] **Gamification elements**
+  - Reading challenges (30-day gospel challenge)
+  - Progress-based unlockables
+  - Friendly competitions with other users
 
-- [ ] **Create troubleshooting guide**
-  - Common issues and solutions
-  - Browser compatibility notes
-  - Data recovery procedures
-
-- [ ] **Add LICENSE file**
-  - Currently "open source (implied)" per README
-  - Choose and add explicit license
-  - Clarify usage rights
+- [ ] **Cross-platform apps**
+  - Native iOS app (SwiftUI)
+  - Native Android app (Kotlin)
+  - Desktop app (Electron)
+  - Shared backend with web app
 
 ---
 
-## 🐛 Known Bugs
+## 🐛 Known Bugs & Issues
 
-- [ ] **Service worker may not update cached CDN resources**
-  - `service-worker.js:2-8` caches CDN URLs without versioning
-  - If Tailwind or Chart.js updates, users might get stale version
-  - Solution: Add version to cache name or use network-first for CDNs
+### Active Bugs (Need Fixes)
 
-- [ ] **Profile color dot click counter persists across sessions**
-  - Easter egg might trigger unexpectedly
-  - Should reset counter on page load or profile switch
+- [ ] **🔴 HIGH: Service worker caches stale CDN resources**
+  - **Location**: `service-worker.js:2-8`
+  - **Impact**: Users may see outdated Tailwind/Chart.js after CDN updates
+  - **Solution**: Version cache name or use network-first for CDNs
+  - **Priority**: High (affects all users on update)
+
+- [ ] **🟡 MEDIUM: Long profile names overflow UI**
+  - **Location**: Profile dropdown
+  - **Impact**: Names 50+ characters break layout
+  - **Solution**: Truncate with ellipsis + tooltip
+  - **Priority**: Medium (edge case)
+
+- [ ] **🟡 MEDIUM: Blue Letter Bible links may break**
+  - **Location**: External reading links
+  - **Impact**: If BLB changes URL format, links fail
+  - **Solution**: Add fallback to Bible Gateway, detect broken links
+  - **Priority**: Medium (external dependency)
+
+- [ ] **🟢 LOW: Profile color dot easter egg counter persists**
+  - **Location**: Easter egg logic
+  - **Impact**: Easter egg might trigger unexpectedly after page reload
+  - **Solution**: Reset counter on page load or profile switch
+  - **Priority**: Low (doesn't break functionality)
+
+### Fixed Bugs (Recently Resolved)
 
 - [x] **Search results don't show count** ✅ **COMPLETED 2026-01-17**
-  - ~~Users don't know how many results match~~
-  - Added "X books found" counter below search box (`index.html:295, 1810-1822`)
-  - Counter shows/hides automatically based on search query presence
+  - Added "X books found" counter below search box
+  - Location: `index.html:295, 1810-1822`
 
-- [ ] **Long profile names overflow UI**
-  - Profile dropdown might not handle 50+ character names well
-  - Add truncation with tooltip
+- [x] **Horner plan showing chapters as read incorrectly** ✅ **COMPLETED 2026-01-18** (#69)
+  - Fixed list completion vs. chapter read status confusion
+  - Separated daily tracking from individual chapter completion
 
-- [ ] **Bible reading link might break for some chapters**
-  - Blue Letter Bible URL format might change
-  - Consider fallback to Bible Gateway or multiple sources
+- [x] **Daily plan "Mark as Read" button broken for ranges** ✅ **COMPLETED 2026-01-18** (#68)
+  - Fixed event parameter forwarding in wrapper functions
 
 ---
 
-## 📊 Technical Debt
+## 📊 Refactoring Opportunities (Q3-Q4 2026)
 
-- [ ] **Single file architecture reaching limits**
-  - `index.html` is 3,222 lines
-  - Difficult to navigate and maintain
-  - Consider splitting while maintaining "no build" philosophy
-  - Possible solution: Multiple HTML files loaded via iframes or dynamic imports
+### Module Extraction
 
-- [ ] **Bible data is minified inline**
-  - `index.html:~800-801` - Hard to audit or verify
-  - Should extract to separate JSON file
-  - Document source and verification process
+**Goal**: Improve code organization without breaking single-file philosophy
 
-- [ ] **No TypeScript or type checking**
-  - Large codebase would benefit from types
-  - Could use JSDoc for basic type hints
-  - Or consider TypeScript with minimal build
-
-- [ ] **Inconsistent naming conventions**
-  - Mix of camelCase, PascalCase, UPPER_SNAKE_CASE
-  - Should standardize per CLAUDE.md conventions
-
----
-
-## 🎯 Refactoring Opportunities
-
-- [ ] **Extract profile management into module**
-  - `index.html:461-477` and related functions
-  - Could be separate conceptual unit
-  - Easier to test and maintain
+- [ ] **Extract profile management**
+  - **Location**: `index.html:461-477` + related functions
+  - **Size**: ~300 lines
+  - **Benefit**: Easier testing, clear boundaries
+  - **Approach**: ES6 module with dynamic import
 
 - [ ] **Extract reading plan logic**
-  - PLAN_MCHEYNE, PLAN_HORNER are large data structures
-  - Plan calculation logic is complex
-  - Could benefit from separation
+  - **Location**: PLAN_MCHEYNE, PLAN_HORNER definitions + rendering
+  - **Size**: ~500 lines
+  - **Benefit**: Easier to add new plans
+  - **Approach**: Plugin architecture
 
-- [ ] **Create utility functions module**
-  - Color generation, hash functions, etc.
-  - Debounce, throttle, etc.
-  - Reusable across features
+- [ ] **Extract Firebase integration**
+  - **Location**: Auth + Firestore functions
+  - **Size**: ~400 lines
+  - **Benefit**: Could swap backends easily
+  - **Approach**: Service abstraction layer
+
+- [ ] **Create utility library**
+  - **Functions**: debounce, throttle, color generation, hash
+  - **Size**: ~200 lines
+  - **Benefit**: Reusable, testable
+  - **Approach**: Pure functions module
+
+### Code Quality Improvements
 
 - [ ] **Separate rendering from business logic**
-  - Currently mixed in same functions
-  - Makes testing difficult
-  - Consider simple MVC or similar pattern
+  - **Issue**: render* functions mix data manipulation with DOM updates
+  - **Solution**: View layer pattern (data → render)
+  - **Benefit**: Easier testing, better performance
+
+- [ ] **Standardize naming conventions**
+  - **Issue**: Mix of camelCase, PascalCase, UPPER_SNAKE_CASE
+  - **Solution**: Follow CLAUDE.md conventions consistently
+  - **Benefit**: Better readability
+
+- [ ] **Add TypeScript/JSDoc types**
+  - **Issue**: No type safety in large codebase
+  - **Solution**: JSDoc comments for gradual typing
+  - **Benefit**: Better IDE support, fewer runtime errors
 
 ---
 
-## 📝 Notes
+## 📋 Completed Features (Recent Wins)
 
-### CLAUDE.md Reminders for AI Assistants
+### January 2026 Achievements
 
-When working on these items, remember to:
+- [x] **Reading streak system** ✅
+  - Heatmap visualization, milestone celebrations, dynamic emoji progression
+  - Location: `index.html:2596-3000`
 
-- ✅ Preserve single-file architecture (or minimal files)
-- ✅ Match existing code style and conventions
-- ✅ Test in browser before committing
-- ✅ Maintain word count accuracy (789,634 total)
-- ✅ Keep localStorage version consistent (or migrate)
-- ✅ Update CLAUDE.md when making structural changes
-- ❌ Don't add build tools or bundlers (unless absolutely necessary)
-- ❌ Don't change color scheme without discussion
-- ❌ Don't break localStorage compatibility
+- [x] **Comprehensive ARIA labels** ✅
+  - 35+ labels for full screen reader support
+  - WCAG 2.1 AA compliant
 
-### Priority Guidelines
+- [x] **Horner daily progress tracking** ✅
+  - Per-profile list completion tracking
+  - Resets daily at midnight
 
-- **High Priority**: Affects user experience, performance, or accessibility significantly
-- **Medium Priority**: Code quality, security best practices, technical improvements
-- **Low Priority**: Nice-to-have features, polish, developer experience
+- [x] **Chart instance caching** ✅
+  - 50-100ms performance improvement on tab switches
 
-### Contributing
+- [x] **Search debouncing** ✅
+  - Smooth, responsive search with results counter
 
-When working on an item:
+- [x] **Delightful animations** ✅
+  - Tab transitions, progress bars, confetti celebrations
+  - Location: `index.html:71-136`
 
-1. Update this TODO.md to mark item as in progress (add your name)
-2. Create feature branch from main
-3. Make changes following CLAUDE.md guidelines
-4. Test thoroughly in browser
-5. Update CLAUDE.md if structure changed
-6. Mark item as complete with PR link
+- [x] **Dark mode (dual access)** ✅
+  - Settings toggle + triple-click logo easter egg
+
+- [x] **User scaling on mobile** ✅
+  - Removed viewport restrictions for accessibility
+
+- [x] **Verse memory helper** ✅
+  - Separate memorize.html page with spaced repetition
+
+- [x] **Security improvements** ✅
+  - XSS prevention, HTTPS validation, file upload security
+  - Comprehensive SECURITY.md documentation
 
 ---
 
-**Generated by:** AI Analysis
+## 📖 How to Use This Roadmap
+
+### For Contributors
+
+**Starting a task:**
+1. Review the task description and requirements
+2. Check dependencies (is there prerequisite work?)
+3. Create feature branch: `claude/feature-name-{sessionId}`
+4. Update this TODO.md - mark task as in progress
+5. Follow CLAUDE.md development guidelines
+
+**Completing a task:**
+1. Test thoroughly in browser (see CLAUDE.md testing checklist)
+2. Update CLAUDE.md if you changed structure/architecture
+3. Mark task complete in TODO.md with completion date
+4. Create PR with descriptive title and summary
+5. Link PR in TODO.md notes
+
+### For Project Planning
+
+**Quarterly reviews** (Q1, Q2, Q3, Q4):
+- Assess completed vs. planned work
+- Adjust priorities based on user feedback
+- Move items between roadmap phases as needed
+- Retire or promote backlog items
+
+**Priority indicators:**
+- 🔴 **Critical**: Blocks users, accessibility issues, security risks
+- 🟡 **High**: Significant UX/performance improvements
+- 🟢 **Medium**: Code quality, nice-to-haves
+- 🔵 **Low**: Future ideas, experimental
+
+**Status indicators:**
+- 🟢 **Ready**: Well-defined, can start immediately
+- 🟡 **Planning**: Needs design/architecture decisions
+- 🔴 **Blocked**: Waiting on dependencies or decisions
+- ✅ **Done**: Completed and merged
+
+### Development Principles
+
+**When working on any item, always:**
+
+✅ **DO:**
+- Preserve single-file architecture (unless explicitly refactoring)
+- Match existing code style and conventions
+- Test in multiple browsers before committing
+- Maintain Bible word count accuracy (789,634 total)
+- Version localStorage data (`kjv_v6_data` → `kjv_v7_data` if breaking changes)
+- Update CLAUDE.md for structural changes
+- Use security utilities (`escapeHtml`, `isValidHttpsUrl`)
+- Test across all three reading plans
+- Verify mobile responsiveness
+
+❌ **DON'T:**
+- Add build tools without team discussion
+- Change color scheme without user feedback
+- Break localStorage compatibility (always migrate)
+- Skip accessibility testing
+- Remove easter eggs (users love them!)
+- Use `innerHTML` with user data (XSS risk)
+- Deploy untested changes directly to main
+
+### Quick Links
+
+- **Architecture docs**: See CLAUDE.md sections on "Architecture" and "File Structure"
+- **Security guidelines**: See SECURITY.md
+- **Testing checklist**: See CLAUDE.md section "Testing Checklist"
+- **Code locations**: See CLAUDE.md "Code Location Reference" table
+
+---
+
+## 📊 Metrics & Success Criteria
+
+### Performance Targets
+- ⚡ Initial load: < 2 seconds (3G network)
+- ⚡ Tab switch: < 100ms
+- ⚡ localStorage write: < 50ms
+- ⚡ Chart render: < 200ms
+
+### Accessibility Targets
+- ♿ WCAG 2.1 AA compliance: 100%
+- ♿ Keyboard navigable: All features
+- ♿ Screen reader compatible: Full experience
+- ♿ Touch target size: ≥ 44x44px
+
+### User Experience Targets
+- 😊 Custom modals: 100% (replace all alerts)
+- 😊 Loading states: All async operations
+- 😊 Error messages: User-friendly (no technical jargon)
+- 😊 Mobile responsive: All screen sizes
+
+### Code Quality Targets
+- 🧹 Console logs: Zero in production
+- 🧹 ESLint errors: Zero
+- 🧹 TypeScript coverage: 80%+ (via JSDoc)
+- 🧹 Test coverage: 60%+ (core functions)
+
+---
+
+**Last Updated:** 2026-01-18
+**Document Owner:** Shane (with AI assistance)
 **Codebase Version:** kjv_v6_data
-**Analysis Date:** 2026-01-17
+**Next Review:** End of Q1 2026 (March 31, 2026)
