@@ -349,13 +349,10 @@
                                 <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
                                 <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
                             </div>
-                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-3 py-2 rounded-xl pulse-badge shadow-md hover:shadow-lg transition-all cursor-default">
-                                <div class="flex items-center gap-2">
-                                    <span id="header-streak-emoji" class="text-xl">🔥</span>
-                                    <div class="flex flex-col">
-                                        <span id="header-streak-count" class="text-sm font-black text-orange-900 leading-none">0</span>
-                                        <span class="text-[9px] font-bold text-orange-600 uppercase tracking-wide">day streak</span>
-                                    </div>
+                            <div id="header-streak-badge" class="hidden bg-gradient-to-br from-orange-400 to-amber-500 px-3 py-1.5 rounded-full pulse-badge shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-default">
+                                <div class="flex items-center gap-1.5">
+                                    <span id="header-streak-emoji" class="text-base">🔥</span>
+                                    <span id="header-streak-count" class="text-sm font-black text-white leading-none">0</span>
                                 </div>
                             </div>
                         </div>
@@ -478,7 +475,7 @@
                         <p class="text-indigo-100 text-sm font-medium">Your customized daily chapters.</p>
                     </div>
                     <select id="plan-selector" onchange="window.changePlan()" class="bg-white/20 text-white border border-white/30 rounded-xl text-sm font-bold uppercase tracking-wide py-3 px-5 outline-none focus:bg-white/30 focus:ring-2 focus:ring-white/50 cursor-pointer w-full md:w-auto" aria-label="Select reading plan">
-                        <option value="SEQUENTIAL" class="text-slate-900">Canonical (Default)</option>
+                        <option value="SEQUENTIAL" class="text-slate-900">Canonical</option>
                         <option value="ONE_YEAR" class="text-slate-900">One Year (OT+NT Daily)</option>
                         <option value="MCHEYNE" class="text-slate-900">M'Cheyne (1 Year)</option>
                         <option value="HORNER" class="text-slate-900">Prof. Horner (10 Lists)</option>
@@ -508,7 +505,7 @@
                 </div>
                 <div class="w-full lg:w-7/12 text-center lg:text-left">
                     <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-2">Bible Completion</h2>
-                    <p class="text-base text-slate-500 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">Your reading progress across all categories of the Bible, weighted by word count.</p>
+                    <p class="text-base text-slate-500 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">Your reading progress across all categories of the Bible.</p>
                     <div id="legend-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-left"></div>
                 </div>
             </div>
@@ -586,7 +583,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <h4 class="text-xl font-black text-purple-900 mb-2 group-hover:text-purple-700 transition-colors">Bible Books Memory Game</h4>
-                                    <p class="text-slate-700 leading-relaxed mb-3">Test your knowledge! How many of the 66 books of the Bible can you remember in 5 minutes? Type them continuously and watch them light up as they're recognized.</p>
+                                    <p class="text-slate-700 leading-relaxed mb-3">How many of the 66 books can you name in 5 minutes?</p>
                                     <div class="flex items-center gap-2 text-purple-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
                                         <span>Play Now</span>
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
@@ -607,7 +604,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <h4 class="text-xl font-black text-emerald-900 mb-2 group-hover:text-emerald-700 transition-colors">Verse Memorization Helper</h4>
-                                    <p class="text-slate-700 leading-relaxed mb-3">Hide God's word in your heart! Practice memorizing Bible verses with helpful hints. Choose from popular verses or add your own. First-letter hints help jog your memory while you learn.</p>
+                                    <p class="text-slate-700 leading-relaxed mb-3">Memorize Scripture with first-letter hints. Choose popular verses or add your own.</p>
                                     <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
                                         <span>Start Memorizing</span>
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
@@ -629,14 +626,12 @@
                                 </div>
                                 <div class="flex-1">
                                     <h4 class="text-xl font-black text-rose-900 mb-2 group-hover:text-rose-700 transition-colors">Professor Horner's Bible Reading System</h4>
-                                    <p class="text-slate-700 leading-relaxed mb-4">Read through 10 different lists systematically! This unique approach has you reading 10 chapters daily from different parts of the Bible, giving you fresh combinations and connections every day. Complete the entire Bible multiple times each year with this proven method.</p>
+                                    <p class="text-slate-700 leading-relaxed mb-4">Read 10 chapters daily from different Bible sections. Each list rotates through different parts, creating fresh combinations daily.</p>
                                     <div class="bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-rose-100 mb-3">
-                                        <p class="text-sm text-slate-700 font-semibold mb-2">How it works:</p>
                                         <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
-                                            <li>Read one chapter from each of 10 rotating lists daily</li>
-                                            <li>Each list focuses on different Bible sections</li>
-                                            <li>Track which lists you've completed today</li>
-                                            <li>Progress resets daily for consistent momentum</li>
+                                            <li>10 rotating lists from different Bible sections</li>
+                                            <li>Track daily list completion</li>
+                                            <li>See <a href="horner.html" class="text-rose-700 font-semibold hover:underline">analytics page</a> for plan details and reading estimates</li>
                                         </ul>
                                     </div>
                                     <div class="flex items-center gap-2 text-rose-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
@@ -664,22 +659,20 @@
                             </div>
                             <div>
                                 <h4 class="text-xl font-black text-indigo-950 mb-2">Word-Weighted Tracking</h4>
-                                <p class="text-slate-700 leading-relaxed">Unlike traditional chapter-based trackers, Bible Progress tracks your reading by <strong class="text-indigo-900">word count</strong>. This means every chapter is weighted according to its actual length.</p>
+                                <p class="text-slate-700 leading-relaxed">Tracks progress by <strong class="text-indigo-900">word count</strong>, not just chapters.</p>
                             </div>
                         </div>
                         <div class="bg-white/60 backdrop-blur-sm p-5 rounded-2xl border border-indigo-100">
-                            <p class="text-sm text-slate-600 mb-3">For example:</p>
-                            <div class="grid grid-cols-2 gap-4 mb-3">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div class="text-center">
                                     <div class="text-2xl font-black text-slate-900 mb-1">33</div>
-                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Words in Psalm 117</div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Psalm 117</div>
                                 </div>
                                 <div class="text-center">
                                     <div class="text-2xl font-black text-slate-900 mb-1">2,423</div>
-                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Words in Psalm 119</div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Psalm 119</div>
                                 </div>
                             </div>
-                            <p class="text-sm text-slate-600 italic">Your progress reflects this difference, giving you <strong>mathematically accurate</strong> tracking of your Bible reading progress!</p>
                         </div>
                     </div>
                 </div>
@@ -695,7 +688,7 @@
                                 <p id="person" class="text-2xl font-black text-indigo-900 mb-2 cursor-default">
                                     a friend!
                                 </p>
-                                <p class="text-sm text-slate-700 leading-relaxed">I wanted a simple way to track Bible reading progress that actually reflected the effort. Not all chapters are equal—Psalm 117 has 33 words, while Psalm 119 has 2,423! This tool gives you mathematically accurate progress tracking, weighted by word count.</p>
+                                <p class="text-sm text-slate-700 leading-relaxed">A simple tracker that reflects actual reading effort. Not all chapters are equal!</p>
                             </div>
                         </div>
 
@@ -916,14 +909,28 @@
 
                 <div class="mb-8 pb-8 border-b border-slate-100">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Appearance</h3>
-                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
                         <div>
                             <div class="font-bold text-slate-700 text-sm mb-1">Dark Mode</div>
-                            <div class="text-xs text-slate-500">Enable dark theme for reduced eye strain</div>
+                            <div class="text-xs text-slate-500">Reduce eye strain</div>
                         </div>
                         <button onclick="window.toggleDarkModeSetting()" id="dark-mode-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300" role="switch" aria-checked="false" aria-label="Toggle dark mode">
                             <span id="dark-mode-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
                         </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex-1">
+                            <div class="font-bold text-slate-700 text-sm mb-1">Default Tab on Load</div>
+                            <div class="text-xs text-slate-500">Choose which tab opens when you load the app</div>
+                        </div>
+                        <select id="default-tab-selector" onchange="window.setDefaultTab(this.value)" class="bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 py-2 px-3 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer" aria-label="Select default tab on load">
+                            <option value="ALL">All Books</option>
+                            <option value="OT">OT Books</option>
+                            <option value="NT">NT Books</option>
+                            <option value="PLAN">Daily Plan</option>
+                            <option value="STATS">Stats</option>
+                        </select>
                     </div>
                 </div>
 
@@ -932,8 +939,8 @@
 
                     <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
                         <div>
-                            <div class="font-bold text-slate-700 text-sm mb-1">Show Reading Time Estimates</div>
-                            <div class="text-xs text-slate-500">Display estimated reading time in your daily plan</div>
+                            <div class="font-bold text-slate-700 text-sm mb-1">Reading Time Estimates</div>
+                            <div class="text-xs text-slate-500">Show time estimates in daily plan</div>
                         </div>
                         <button onclick="window.toggleReadingTime()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300" role="switch" aria-checked="false" aria-label="Toggle reading time estimates">
                             <span id="reading-time-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
@@ -943,8 +950,8 @@
                     <div id="wpm-setting-container" class="p-4 rounded-xl bg-slate-50 border border-slate-200" style="display: none;">
                         <div class="flex items-center justify-between mb-3">
                             <div>
-                                <div class="font-bold text-slate-700 text-sm mb-1">Reading Speed</div>
-                                <div class="text-xs text-slate-500">Adjust your average words per minute (WPM)</div>
+                                <div class="font-bold text-slate-700 text-sm mb-1">Reading Speed (WPM)</div>
+                                <div class="text-xs text-slate-500">Adjust words per minute</div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <input type="number" id="wpm-input" min="100" max="500" step="10" value="250"
@@ -974,7 +981,7 @@
                     </div>
                     <p id="restore-msg-settings" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
                     <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
-                        Backup your reading progress to a JSON file. Restore from a backup to recover your data or transfer between devices.
+                        Backup and restore your reading progress.
                     </p>
                 </div>
 
@@ -1210,7 +1217,7 @@
             console.error('Failed to parse old progress:', e);
             oldProgress = null;
         }
-        let oldPlan = localStorage.getItem('kjv_v6_active_plan') || 'SEQUENTIAL';
+        let oldPlan = localStorage.getItem('kjv_v6_active_plan') || 'MCHEYNE';
 
         let appData = savedData || {
             profiles: { "Default": oldProgress || {} },
@@ -1315,7 +1322,7 @@
         // Ensure all profiles have a plan
         Object.keys(appData.profiles).forEach(name => {
             if(!appData.profilePlans[name]) {
-                appData.profilePlans[name] = 'SEQUENTIAL';
+                appData.profilePlans[name] = 'MCHEYNE';
             }
         });
 
@@ -1323,7 +1330,7 @@
         // This prevents the "Default" profile from being recreated on reload
         localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
 
-        let activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
+        let activePlan = appData.profilePlans[appData.activeProfileId] || 'MCHEYNE';
         let currentUser = null;
 
         // --- UTILITY FUNCTIONS ---
@@ -1539,7 +1546,7 @@
                         if(!appData.profilePlans) {
                             appData.profilePlans = {};
                             Object.keys(appData.profiles).forEach(name => {
-                                appData.profilePlans[name] = 'SEQUENTIAL';
+                                appData.profilePlans[name] = 'MCHEYNE';
                             });
                         }
 
@@ -1594,7 +1601,7 @@
             updateProfileColor();
 
             // Update active plan for current profile
-            activePlan = appData.profilePlans[appData.activeProfileId] || 'SEQUENTIAL';
+            activePlan = appData.profilePlans[appData.activeProfileId] || 'MCHEYNE';
             const planSelector = document.getElementById('plan-selector');
             if(planSelector) planSelector.value = activePlan;
 
@@ -1902,7 +1909,7 @@
             }
             
             appData.profiles[sanitized] = {};
-            appData.profilePlans[sanitized] = 'SEQUENTIAL';
+            appData.profilePlans[sanitized] = 'MCHEYNE';
             // Initialize hornerDailyProgress for new profile
             appData.hornerDailyProgress[sanitized] = {
                 date: new Date().toISOString().split('T')[0],
@@ -2227,7 +2234,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         const PLAN_MCHEYNE=[{d:1,r:["Genesis 1","Matthew 1","Ezra 1","Acts 1"]},{d:2,r:["Genesis 2","Matthew 2","Ezra 2","Acts 2"]},{d:3,r:["Genesis 3","Matthew 3","Ezra 3","Acts 3"]},{d:4,r:["Genesis 4","Matthew 4","Ezra 4","Acts 4"]},{d:5,r:["Genesis 5","Matthew 5","Ezra 5","Acts 5"]},{d:6,r:["Genesis 6","Matthew 6","Ezra 6","Acts 6"]},{d:7,r:["Genesis 7","Matthew 7","Ezra 7","Acts 7"]},{d:8,r:["Genesis 8","Matthew 8","Ezra 8","Acts 8"]},{d:9,r:["Genesis 9-10","Matthew 9","Ezra 9","Acts 9"]},{d:10,r:["Genesis 11","Matthew 10","Ezra 10","Acts 10"]},{d:11,r:["Genesis 12","Matthew 11","Nehemiah 1","Acts 11"]},{d:12,r:["Genesis 13","Matthew 12","Nehemiah 2","Acts 12"]},{d:13,r:["Genesis 14","Matthew 13","Nehemiah 3","Acts 13"]},{d:14,r:["Genesis 15","Matthew 14","Nehemiah 4","Acts 14"]},{d:15,r:["Genesis 16","Matthew 15","Nehemiah 5","Acts 15"]},{d:16,r:["Genesis 17","Matthew 16","Nehemiah 6","Acts 16"]},{d:17,r:["Genesis 18","Matthew 17","Nehemiah 7","Acts 17"]},{d:18,r:["Genesis 19","Matthew 18","Nehemiah 8","Acts 18"]},{d:19,r:["Genesis 20","Matthew 19","Nehemiah 9","Acts 19"]},{d:20,r:["Genesis 21","Matthew 20","Nehemiah 10","Acts 20"]},{d:21,r:["Genesis 22","Matthew 21","Nehemiah 11","Acts 21"]},{d:22,r:["Genesis 23","Matthew 22","Nehemiah 12","Acts 22"]},{d:23,r:["Genesis 24","Matthew 23","Nehemiah 13","Acts 23"]},{d:24,r:["Genesis 25","Matthew 24","Esther 1","Acts 24"]},{d:25,r:["Genesis 26","Matthew 25","Esther 2","Acts 25"]},{d:26,r:["Genesis 27","Matthew 26","Esther 3","Acts 26"]},{d:27,r:["Genesis 28","Matthew 27","Esther 4","Acts 27"]},{d:28,r:["Genesis 29","Matthew 28","Esther 5","Acts 28"]},{d:29,r:["Genesis 30","Mark 1","Esther 6","Romans 1"]},{d:30,r:["Genesis 31","Mark 2","Esther 7","Romans 2"]},{d:31,r:["Genesis 32","Mark 3","Esther 8","Romans 3"]},{d:32,r:["Genesis 33","Mark 4","Esther 9-10","Romans 4"]},{d:33,r:["Genesis 34","Mark 5","Job 1","Romans 5"]},{d:34,r:["Genesis 35-36","Mark 6","Job 2","Romans 6"]},{d:35,r:["Genesis 37","Mark 7","Job 3","Romans 7"]},{d:36,r:["Genesis 38","Mark 8","Job 4","Romans 8"]},{d:37,r:["Genesis 39","Mark 9","Job 5","Romans 9"]},{d:38,r:["Genesis 40","Mark 10","Job 6","Romans 10"]},{d:39,r:["Genesis 41","Mark 11","Job 7","Romans 11"]},{d:40,r:["Genesis 42","Mark 12","Job 8","Romans 12"]},{d:41,r:["Genesis 43","Mark 13","Job 9","Romans 13"]},{d:42,r:["Genesis 44","Mark 14","Job 10","Romans 14"]},{d:43,r:["Genesis 45","Mark 15","Job 11","Romans 15"]},{d:44,r:["Genesis 46","Mark 16","Job 12","Romans 16"]},{d:45,r:["Genesis 47","Luke 1:1-38","Job 13","1Corinthians 1"]},{d:46,r:["Genesis 48","Luke 1:39-80","Job 14","1Corinthians 2"]},{d:47,r:["Genesis 49","Luke 2","Job 15","1Corinthians 3"]},{d:48,r:["Genesis 50","Luke 3","Job 16-17","1Corinthians 4"]},{d:49,r:["Exodus 1","Luke 4","Job 18","1Corinthians 5"]},{d:50,r:["Exodus 2","Luke 5","Job 19","1Corinthians 6"]},{d:51,r:["Exodus 3","Luke 6","Job 20","1Corinthians 7"]},{d:52,r:["Exodus 4","Luke 7","Job 21","1Corinthians 8"]},{d:53,r:["Exodus 5","Luke 8","Job 22","1Corinthians 9"]},{d:54,r:["Exodus 6","Luke 9","Job 23","1Corinthians 10"]},{d:55,r:["Exodus 7","Luke 10","Job 24","1Corinthians 11"]},{d:56,r:["Exodus 8","Luke 11","Job 25-26","1Corinthians 12"]},{d:57,r:["Exodus 9","Luke 12","Job 27","1Corinthians 13"]},{d:58,r:["Exodus 10","Luke 13","Job 28","1Corinthians 14"]},{d:59,r:["Exodus 11","Luke 14","Job 29","1Corinthians 15"]},{d:60,r:["Exodus 12","Luke 15","Job 30","1Corinthians 16"]},{d:61,r:["Exodus 13","Luke 16","Job 31","2Corinthians 1"]},{d:62,r:["Exodus 14","Luke 17","Job 32","2Corinthians 2"]},{d:63,r:["Exodus 15","Luke 18","Job 33","2Corinthians 3"]},{d:64,r:["Exodus 16","Luke 19","Job 34","2Corinthians 4"]},{d:65,r:["Exodus 17","Luke 20","Job 35","2Corinthians 5"]},{d:66,r:["Exodus 18","Luke 21","Job 36","2Corinthians 6"]},{d:67,r:["Exodus 19","Luke 22","Job 37","2Corinthians 7"]},{d:68,r:["Exodus 20","Luke 23","Job 38","2Corinthians 8"]},{d:69,r:["Exodus 21","Luke 24","Job 39","2Corinthians 9"]},{d:70,r:["Exodus 22","John 1","Job 40","2Corinthians 10"]},{d:71,r:["Exodus 23","John 2","Job 41","2Corinthians 11"]},{d:72,r:["Exodus 24","John 3","Job 42","2Corinthians 12"]},{d:73,r:["Exodus 25","John 4","Proverbs 1","2Corinthians 13"]},{d:74,r:["Exodus 26","John 5","Proverbs 2","Galatians 1"]},{d:75,r:["Exodus 27","John 6","Proverbs 3","Galatians 2"]},{d:76,r:["Exodus 28","John 7","Proverbs 4","Galatians 3"]},{d:77,r:["Exodus 29","John 8","Proverbs 5","Galatians 4"]},{d:78,r:["Exodus 30","John 9","Proverbs 6","Galatians 5"]},{d:79,r:["Exodus 31","John 10","Proverbs 7","Galatians 6"]},{d:80,r:["Exodus 32","John 11","Proverbs 8","Ephesians 1"]},{d:81,r:["Exodus 33","John 12","Proverbs 9","Ephesians 2"]},{d:82,r:["Exodus 34","John 13","Proverbs 10","Ephesians 3"]},{d:83,r:["Exodus 35","John 14","Proverbs 11","Ephesians 4"]},{d:84,r:["Exodus 36","John 15","Proverbs 12","Ephesians 5"]},{d:85,r:["Exodus 37","John 16","Proverbs 13","Ephesians 6"]},{d:86,r:["Exodus 38","John 17","Proverbs 14","Philippians 1"]},{d:87,r:["Exodus 39","John 18","Proverbs 15","Philippians 2"]},{d:88,r:["Exodus 40","John 19","Proverbs 16","Philippians 3"]},{d:89,r:["Leviticus 1","John 20","Proverbs 17","Philippians 4"]},{d:90,r:["Leviticus 2-3","John 21","Proverbs 18","Colossians 1"]},{d:91,r:["Leviticus 4","Psalm 1-2","Proverbs 19","Colossians 2"]},{d:92,r:["Leviticus 5","Psalm 3-4","Proverbs 20","Colossians 3"]},{d:93,r:["Leviticus 6","Psalm 5-6","Proverbs 21","Colossians 4"]},{d:94,r:["Leviticus 7","Psalm 7-8","Proverbs 22","1Thessalonians 1"]},{d:95,r:["Leviticus 8","Psalm 9","Proverbs 23","1Thessalonians 2"]},{d:96,r:["Leviticus 9","Psalm 10","Proverbs 24","1Thessalonians 3"]},{d:97,r:["Leviticus 10","Psalm 11-12","Proverbs 25","1Thessalonians 4"]},{d:98,r:["Leviticus 11-12","Psalm 13-14","Proverbs 26","1Thessalonians 5"]},{d:99,r:["Leviticus 13","Psalm 15-16","Proverbs 27","2Thessalonians 1"]},{d:100,r:["Leviticus 14","Psalm 17","Proverbs 28","2Thessalonians 2"]},{d:101,r:["Leviticus 15","Psalm 18","Proverbs 29","2Thessalonians 3"]},{d:102,r:["Leviticus 16","Psalm 19","Proverbs 30","1Timothy 1"]},{d:103,r:["Leviticus 17","Psalm 20-21","Proverbs 31","1Timothy 2"]},{d:104,r:["Leviticus 18","Psalm 22","Ecclesiastes 1","1Timothy 3"]},{d:105,r:["Leviticus 19","Psalm 23-24","Ecclesiastes 2","1Timothy 4"]},{d:106,r:["Leviticus 20","Psalm 25","Ecclesiastes 3","1Timothy 5"]},{d:107,r:["Leviticus 21","Psalm 26-27","Ecclesiastes 4","1Timothy 6"]},{d:108,r:["Leviticus 22","Psalm 28-29","Ecclesiastes 5","2Timothy 1"]},{d:109,r:["Leviticus 23","Psalm 30","Ecclesiastes 6","2Timothy 2"]},{d:110,r:["Leviticus 24","Psalm 31","Ecclesiastes 7","2Timothy 3"]},{d:111,r:["Leviticus 25","Psalm 32","Ecclesiastes 8","2Timothy 4"]},{d:112,r:["Leviticus 26","Psalm 33","Ecclesiastes 9","Titus 1"]},{d:113,r:["Leviticus 27","Psalm 34","Ecclesiastes 10","Titus 2"]},{d:114,r:["Numbers 1","Psalm 35","Ecclesiastes 11","Titus 3"]},{d:115,r:["Numbers 2","Psalm 36","Ecclesiastes 12","Philemon 1"]},{d:116,r:["Numbers 3","Psalm 37","SongOfSongs 1","Hebrews 1"]},{d:117,r:["Numbers 4","Psalm 38","SongOfSongs 2","Hebrews 2"]},{d:118,r:["Numbers 5","Psalm 39","SongOfSongs 3","Hebrews 3"]},{d:119,r:["Numbers 6","Psalm 40-41","SongOfSongs 4","Hebrews 4"]},{d:120,r:["Numbers 7","Psalm 42-43","SongOfSongs 5","Hebrews 5"]},{d:121,r:["Numbers 8","Psalm 44","SongOfSongs 6","Hebrews 6"]},{d:122,r:["Numbers 9","Psalm 45","SongOfSongs 7","Hebrews 7"]},{d:123,r:["Numbers 10","Psalm 46-47","SongOfSongs 8","Hebrews 8"]},{d:124,r:["Numbers 11","Psalm 48","Isaiah 1","Hebrews 9"]},{d:125,r:["Numbers 12-13","Psalm 49","Isaiah 2","Hebrews 10"]},{d:126,r:["Numbers 14","Psalm 50","Isaiah 3-4","Hebrews 11"]},{d:127,r:["Numbers 15","Psalm 51","Isaiah 5","Hebrews 12"]},{d:128,r:["Numbers 16","Psalm 52-54","Isaiah 6","Hebrews 13"]},{d:129,r:["Numbers 17-18","Psalm 55","Isaiah 7","James 1"]},{d:130,r:["Numbers 19","Psalm 56-57","Isaiah 8","James 2"]},{d:131,r:["Numbers 20","Psalm 58-59","Isaiah 9","James 3"]},{d:132,r:["Numbers 21","Psalm 60-61","Isaiah 10","James 4"]},{d:133,r:["Numbers 22","Psalm 62-63","Isaiah 11-12","James 5"]},{d:134,r:["Numbers 23","Psalm 64-65","Isaiah 13","1Peter 1"]},{d:135,r:["Numbers 24","Psalm 66-67","Isaiah 14","1Peter 2"]},{d:136,r:["Numbers 25","Psalm 68","Isaiah 15","1Peter 3"]},{d:137,r:["Numbers 26","Psalm 69","Isaiah 16","1Peter 4"]},{d:138,r:["Numbers 27","Psalm 70-71","Isaiah 17-18","1Peter 5"]},{d:139,r:["Numbers 28","Psalm 72","Isaiah 19-20","2Peter 1"]},{d:140,r:["Numbers 29","Psalm 73","Isaiah 21","2Peter 2"]},{d:141,r:["Numbers 30","Psalm 74","Isaiah 22","2Peter 3"]},{d:142,r:["Numbers 31","Psalm 75-76","Isaiah 23","1John 1"]},{d:143,r:["Numbers 32","Psalm 77","Isaiah 24","1John 2"]},{d:144,r:["Numbers 33","Psalm 78:1-39","Isaiah 25","1John 3"]},{d:145,r:["Numbers 34","Psalm 78:40-72","Isaiah 26","1John 4"]},{d:146,r:["Numbers 35","Psalm 79","Isaiah 27","1John 5"]},{d:147,r:["Numbers 36","Psalm 80","Isaiah 28","2John 1"]},{d:148,r:["Deuteronomy 1","Psalm 81-82","Isaiah 29","3John 1"]},{d:149,r:["Deuteronomy 2","Psalm 83-84","Isaiah 30","Jude 1"]},{d:150,r:["Deuteronomy 3","Psalm 85","Isaiah 31","Revelation 1"]},{d:151,r:["Deuteronomy 4","Psalm 86-87","Isaiah 32","Revelation 2"]},{d:152,r:["Deuteronomy 5","Psalm 88","Isaiah 33","Revelation 3"]},{d:153,r:["Deuteronomy 6","Psalm 89","Isaiah 34","Revelation 4"]},{d:154,r:["Deuteronomy 7","Psalm 90","Isaiah 35","Revelation 5"]},{d:155,r:["Deuteronomy 8","Psalm 91","Isaiah 36","Revelation 6"]},{d:156,r:["Deuteronomy 9","Psalm 92-93","Isaiah 37","Revelation 7"]},{d:157,r:["Deuteronomy 10","Psalm 94","Isaiah 38","Revelation 8"]},{d:158,r:["Deuteronomy 11","Psalm 95-96","Isaiah 39","Revelation 9"]},{d:159,r:["Deuteronomy 12","Psalm 97-98","Isaiah 40","Revelation 10"]},{d:160,r:["Deuteronomy 13-14","Psalm 99-101","Isaiah 41","Revelation 11"]},{d:161,r:["Deuteronomy 15","Psalm 102","Isaiah 42","Revelation 12"]},{d:162,r:["Deuteronomy 16","Psalm 103","Isaiah 43","Revelation 13"]},{d:163,r:["Deuteronomy 17","Psalm 104","Isaiah 44","Revelation 14"]},{d:164,r:["Deuteronomy 18","Psalm 105","Isaiah 45","Revelation 15"]},{d:165,r:["Deuteronomy 19","Psalm 106","Isaiah 46","Revelation 16"]},{d:166,r:["Deuteronomy 20","Psalm 107","Isaiah 47","Revelation 17"]},{d:167,r:["Deuteronomy 21","Psalm 108-109","Isaiah 48","Revelation 18"]},{d:168,r:["Deuteronomy 22","Psalm 110-111","Isaiah 49","Revelation 19"]},{d:169,r:["Deuteronomy 23","Psalm 112-113","Isaiah 50","Revelation 20"]},{d:170,r:["Deuteronomy 24","Psalm 114-115","Isaiah 51","Revelation 21"]},{d:171,r:["Deuteronomy 25","Psalm 116","Isaiah 52","Revelation 22"]},{d:172,r:["Deuteronomy 26","Psalm 117-118","Isaiah 53","Matthew 1"]},{d:173,r:["Deuteronomy 27","Psalm 119:1-24","Isaiah 54","Matthew 2"]},{d:174,r:["Deuteronomy 28","Psalm 119:25-48","Isaiah 55","Matthew 3"]},{d:175,r:["Deuteronomy 29","Psalm 119:49-72","Isaiah 56","Matthew 4"]},{d:176,r:["Deuteronomy 30","Psalm 119:73-96","Isaiah 57","Matthew 5"]},{d:177,r:["Deuteronomy 31","Psalm 119:97-120","Isaiah 58","Matthew 6"]},{d:178,r:["Deuteronomy 32","Psalm 119:121-144","Isaiah 59","Matthew 7"]},{d:179,r:["Deuteronomy 33-34","Psalm 119:145-176","Isaiah 60","Matthew 8"]},{d:180,r:["Joshua 1","Psalm 120-122","Isaiah 61","Matthew 9"]},{d:181,r:["Joshua 2","Psalm 123-125","Isaiah 62","Matthew 10"]},{d:182,r:["Joshua 3","Psalm 126-128","Isaiah 63","Matthew 11"]},{d:183,r:["Joshua 4","Psalm 129-131","Isaiah 64","Matthew 12"]},{d:184,r:["Joshua 5","Psalm 132-134","Isaiah 65","Matthew 13"]},{d:185,r:["Joshua 6","Psalm 135-136","Isaiah 66","Matthew 14"]},{d:186,r:["Joshua 7","Psalm 137-138","Jeremiah 1","Matthew 15"]},{d:187,r:["Joshua 8","Psalm 139","Jeremiah 2","Matthew 16"]},{d:188,r:["Joshua 9","Psalm 140-141","Jeremiah 3","Matthew 17"]},{d:189,r:["Joshua 10","Psalm 142-143","Jeremiah 4","Matthew 18"]},{d:190,r:["Joshua 11","Psalm 144","Jeremiah 5","Matthew 19"]},{d:191,r:["Joshua 12-13","Psalm 145","Jeremiah 6","Matthew 20"]},{d:192,r:["Joshua 14-15","Psalm 146-147","Jeremiah 7","Matthew 21"]},{d:193,r:["Joshua 16-17","Psalm 148","Jeremiah 8","Matthew 22"]},{d:194,r:["Joshua 18-19","Psalm 149-150","Jeremiah 9","Matthew 23"]},{d:195,r:["Joshua 20-21","Acts 1","Jeremiah 10","Matthew 24"]},{d:196,r:["Joshua 22","Acts 2","Jeremiah 11","Matthew 25"]},{d:197,r:["Joshua 23","Acts 3","Jeremiah 12","Matthew 26"]},{d:198,r:["Joshua 24","Acts 4","Jeremiah 13","Matthew 27"]},{d:199,r:["Judges 1","Acts 5","Jeremiah 14","Matthew 28"]},{d:200,r:["Judges 2","Acts 6","Jeremiah 15","Mark 1"]},{d:201,r:["Judges 3","Acts 7","Jeremiah 16","Mark 2"]},{d:202,r:["Judges 4","Acts 8","Jeremiah 17","Mark 3"]},{d:203,r:["Judges 5","Acts 9","Jeremiah 18","Mark 4"]},{d:204,r:["Judges 6","Acts 10","Jeremiah 19","Mark 5"]},{d:205,r:["Judges 7","Acts 11","Jeremiah 20","Mark 6"]},{d:206,r:["Judges 8","Acts 12","Jeremiah 21","Mark 7"]},{d:207,r:["Judges 9","Acts 13","Jeremiah 22","Mark 8"]},{d:208,r:["Judges 10","Acts 14","Jeremiah 23","Mark 9"]},{d:209,r:["Judges 11","Acts 15","Jeremiah 24","Mark 10"]},{d:210,r:["Judges 12","Acts 16","Jeremiah 25","Mark 11"]},{d:211,r:["Judges 13","Acts 17","Jeremiah 26","Mark 12"]},{d:212,r:["Judges 14","Acts 18","Jeremiah 27","Mark 13"]},{d:213,r:["Judges 15","Acts 19","Jeremiah 28","Mark 14"]},{d:214,r:["Judges 16","Acts 20","Jeremiah 29","Mark 15"]},{d:215,r:["Judges 17","Acts 21","Jeremiah 30-31","Mark 16"]},{d:216,r:["Judges 18","Acts 22","Jeremiah 32","Luke 1"]},{d:217,r:["Judges 19","Acts 23","Jeremiah 33","Luke 2"]},{d:218,r:["Judges 20","Acts 24","Jeremiah 34","Luke 3"]},{d:219,r:["Judges 21","Acts 25","Jeremiah 35","Luke 4"]},{d:220,r:["Ruth 1","Acts 26","Jeremiah 36","Luke 5"]},{d:221,r:["Ruth 2","Acts 27","Jeremiah 37","Luke 6"]},{d:222,r:["Ruth 3-4","Acts 28","Jeremiah 38","Luke 7"]},{d:223,r:["1Samuel 1","Romans 1","Jeremiah 39","Luke 8"]},{d:224,r:["1Samuel 2","Romans 2","Jeremiah 40","Luke 9"]},{d:225,r:["1Samuel 3","Romans 3","Jeremiah 41","Luke 10"]},{d:226,r:["1Samuel 4","Romans 4","Jeremiah 42","Luke 11"]},{d:227,r:["1Samuel 5-6","Romans 5","Jeremiah 43","Luke 12"]},{d:228,r:["1Samuel 7-8","Romans 6","Jeremiah 44-45","Luke 13"]},{d:229,r:["1Samuel 9","Romans 7","Jeremiah 46","Luke 14"]},{d:230,r:["1Samuel 10","Romans 8","Jeremiah 47","Luke 15"]},{d:231,r:["1Samuel 11","Romans 9","Jeremiah 48","Luke 16"]},{d:232,r:["1Samuel 12","Romans 10","Jeremiah 49","Luke 17"]},{d:233,r:["1Samuel 13","Romans 11","Jeremiah 50","Luke 18"]},{d:234,r:["1Samuel 14","Romans 12","Jeremiah 51","Luke 19"]},{d:235,r:["1Samuel 15","Romans 13","Jeremiah 52","Luke 20"]},{d:236,r:["1Samuel 16","Romans 14","Lamentations 1","Luke 21"]},{d:237,r:["1Samuel 17","Romans 15","Lamentations 2","Luke 22"]},{d:238,r:["1Samuel 18","Romans 16","Lamentations 3","Luke 23"]},{d:239,r:["1Samuel 19","1Corinthians 1","Lamentations 4","Luke 24"]},{d:240,r:["1Samuel 20","1Corinthians 2","Lamentations 5","John 1"]},{d:241,r:["1Samuel 21-22","1Corinthians 3","Ezekiel 1","John 2"]},{d:242,r:["1Samuel 23","1Corinthians 4","Ezekiel 2","John 3"]},{d:243,r:["1Samuel 24","1Corinthians 5","Ezekiel 3","John 4"]},{d:244,r:["1Samuel 25","1Corinthians 6","Ezekiel 4","John 5"]},{d:245,r:["1Samuel 26","1Corinthians 7","Ezekiel 5","John 6"]},{d:246,r:["1Samuel 27","1Corinthians 8","Ezekiel 6","John 7"]},{d:247,r:["1Samuel 28","1Corinthians 9","Ezekiel 7","John 8"]},{d:248,r:["1Samuel 29-30","1Corinthians 10","Ezekiel 8","John 9"]},{d:249,r:["1Samuel 31","1Corinthians 11","Ezekiel 9","John 10"]},{d:250,r:["2Samuel 1","1Corinthians 12","Ezekiel 10","John 11"]},{d:251,r:["2Samuel 2","1Corinthians 13","Ezekiel 11","John 12"]},{d:252,r:["2Samuel 3","1Corinthians 14","Ezekiel 12","John 13"]},{d:253,r:["2Samuel 4-5","1Corinthians 15","Ezekiel 13","John 14"]},{d:254,r:["2Samuel 6","1Corinthians 16","Ezekiel 14","John 15"]},{d:255,r:["2Samuel 7","2Corinthians 1","Ezekiel 15","John 16"]},{d:256,r:["2Samuel 8-9","2Corinthians 2","Ezekiel 16","John 17"]},{d:257,r:["2Samuel 10","2Corinthians 3","Ezekiel 17","John 18"]},{d:258,r:["2Samuel 11","2Corinthians 4","Ezekiel 18","John 19"]},{d:259,r:["2Samuel 12","2Corinthians 5","Ezekiel 19","John 20"]},{d:260,r:["2Samuel 13","2Corinthians 6","Ezekiel 20","John 21"]},{d:261,r:["2Samuel 14","2Corinthians 7","Ezekiel 21","Psalm 1-2"]},{d:262,r:["2Samuel 15","2Corinthians 8","Ezekiel 22","Psalm 3-4"]},{d:263,r:["2Samuel 16","2Corinthians 9","Ezekiel 23","Psalm 5-6"]},{d:264,r:["2Samuel 17","2Corinthians 10","Ezekiel 24","Psalm 7-8"]},{d:265,r:["2Samuel 18","2Corinthians 11","Ezekiel 25","Psalm 9"]},{d:266,r:["2Samuel 19","2Corinthians 12","Ezekiel 26","Psalm 10"]},{d:267,r:["2Samuel 20","2Corinthians 13","Ezekiel 27","Psalm 11-12"]},{d:268,r:["2Samuel 21","Galatians 1","Ezekiel 28","Psalm 13-14"]},{d:269,r:["2Samuel 22","Galatians 2","Ezekiel 29","Psalm 15-16"]},{d:270,r:["2Samuel 23","Galatians 3","Ezekiel 30","Psalm 17"]},{d:271,r:["2Samuel 24","Galatians 4","Ezekiel 31","Psalm 18"]},{d:272,r:["1Kings 1","Galatians 5","Ezekiel 32","Psalm 19"]},{d:273,r:["1Kings 2","Galatians 6","Ezekiel 33","Psalm 20-21"]},{d:274,r:["1Kings 3","Ephesians 1","Ezekiel 34","Psalm 22"]},{d:275,r:["1Kings 4-5","Ephesians 2","Ezekiel 35","Psalm 23-24"]},{d:276,r:["1Kings 6","Ephesians 3","Ezekiel 36","Psalm 25"]},{d:277,r:["1Kings 7","Ephesians 4","Ezekiel 37","Psalm 26-27"]},{d:278,r:["1Kings 8","Ephesians 5","Ezekiel 38","Psalm 28-29"]},{d:279,r:["1Kings 9","Ephesians 6","Ezekiel 39","Psalm 30"]},{d:280,r:["1Kings 10","Philippians 1","Ezekiel 40","Psalm 31"]},{d:281,r:["1Kings 11","Philippians 2","Ezekiel 41","Psalm 32"]},{d:282,r:["1Kings 12","Philippians 3","Ezekiel 42","Psalm 33"]},{d:283,r:["1Kings 13","Philippians 4","Ezekiel 43","Psalm 34"]},{d:284,r:["1Kings 14","Colossians 1","Ezekiel 44","Psalm 35"]},{d:285,r:["1Kings 15","Colossians 2","Ezekiel 45","Psalm 36"]},{d:286,r:["1Kings 16","Colossians 3","Ezekiel 46","Psalm 37"]},{d:287,r:["1Kings 17","Colossians 4","Ezekiel 47","Psalm 38"]},{d:288,r:["1Kings 18","1Thessalonians 1","Ezekiel 48","Psalm 39"]},{d:289,r:["1Kings 19","1Thessalonians 2","Daniel 1","Psalm 40-41"]},{d:290,r:["1Kings 20","1Thessalonians 3","Daniel 2","Psalm 42-43"]},{d:291,r:["1Kings 21","1Thessalonians 4","Daniel 3","Psalm 44"]},{d:292,r:["1Kings 22","1Thessalonians 5","Daniel 4","Psalm 45"]},{d:293,r:["2Kings 1","2Thessalonians 1","Daniel 5","Psalm 46-47"]},{d:294,r:["2Kings 2","2Thessalonians 2","Daniel 6","Psalm 48"]},{d:295,r:["2Kings 3","2Thessalonians 3","Daniel 7","Psalm 49"]},{d:296,r:["2Kings 4","1Timothy 1","Daniel 8","Psalm 50"]},{d:297,r:["2Kings 5","1Timothy 2","Daniel 9","Psalm 51"]},{d:298,r:["2Kings 6","1Timothy 3","Daniel 10","Psalm 52-54"]},{d:299,r:["2Kings 7","1Timothy 4","Daniel 11","Psalm 55"]},{d:300,r:["2Kings 8","1Timothy 5","Daniel 12","Psalm 56-57"]},{d:301,r:["2Kings 9","1Timothy 6","Hosea 1","Psalm 58-59"]},{d:302,r:["2Kings 10-11","2Timothy 1","Hosea 2","Psalm 60-61"]},{d:303,r:["2Kings 12","2Timothy 2","Hosea 3-4","Psalm 62-63"]},{d:304,r:["2Kings 13","2Timothy 3","Hosea 5-6","Psalm 64-65"]},{d:305,r:["2Kings 14","2Timothy 4","Hosea 7","Psalm 66-67"]},{d:306,r:["2Kings 15","Titus 1","Hosea 8","Psalm 68"]},{d:307,r:["2Kings 16","Titus 2","Hosea 9","Psalm 69"]},{d:308,r:["2Kings 17","Titus 3","Hosea 10","Psalm 70-71"]},{d:309,r:["2Kings 18","Philemon 1","Hosea 11","Psalm 72"]},{d:310,r:["2Kings 19","Hebrews 1","Hosea 12","Psalm 73"]},{d:311,r:["2Kings 20","Hebrews 2","Hosea 13","Psalm 74"]},{d:312,r:["2Kings 21","Hebrews 3","Hosea 14","Psalm 75-76"]},{d:313,r:["2Kings 22","Hebrews 4","Joel 1","Psalm 77"]},{d:314,r:["2Kings 23","Hebrews 5","Joel 2","Psalm 78"]},{d:315,r:["2Kings 24","Hebrews 6","Joel 3","Psalm 79"]},{d:316,r:["2Kings 25","Hebrews 7","Amos 1","Psalm 80"]},{d:317,r:["1Chronicles 1-2","Hebrews 8","Amos 2","Psalm 81-82"]},{d:318,r:["1Chronicles 3-4","Hebrews 9","Amos 3","Psalm 83-84"]},{d:319,r:["1Chronicles 5-6","Hebrews 10","Amos 4","Psalm 85"]},{d:320,r:["1Chronicles 7-8","Hebrews 11","Amos 5","Psalm 86"]},{d:321,r:["1Chronicles 9-10","Hebrews 12","Amos 6","Psalm 87-88"]},{d:322,r:["1Chronicles 11-12","Hebrews 13","Amos 7","Psalm 89"]},{d:323,r:["1Chronicles 13-14","James 1","Amos 8","Psalm 90"]},{d:324,r:["1Chronicles 15","James 2","Amos 9","Psalm 91"]},{d:325,r:["1Chronicles 16","James 3","Obadiah 1","Psalm 92-93"]},{d:326,r:["1Chronicles 17","James 4","Jonah 1","Psalm 94"]},{d:327,r:["1Chronicles 18","James 5","Jonah 2","Psalm 95-96"]},{d:328,r:["1Chronicles 19-20","1Peter 1","Jonah 3","Psalm 97-98"]},{d:329,r:["1Chronicles 21","1Peter 2","Jonah 4","Psalm 99-101"]},{d:330,r:["1Chronicles 22","1Peter 3","Micah 1","Psalm 102"]},{d:331,r:["1Chronicles 23","1Peter 4","Micah 2","Psalm 103"]},{d:332,r:["1Chronicles 24-25","1Peter 5","Micah 3","Psalm 104"]},{d:333,r:["1Chronicles 26-27","2Peter 1","Micah 4","Psalm 105"]},{d:334,r:["1Chronicles 28","2Peter 2","Micah 5","Psalm 106"]},{d:335,r:["1Chronicles 29","2Peter 3","Micah 6","Psalm 107"]},{d:336,r:["2Chronicles 1","1John 1","Micah 7","Psalm 108-109"]},{d:337,r:["2Chronicles 2","1John 2","Nahum 1","Psalm 110-111"]},{d:338,r:["2Chronicles 3-4","1John 3","Nahum 2","Psalm 112-113"]},{d:339,r:["2Chronicles 5","1John 4","Nahum 3","Psalm 114-115"]},{d:340,r:["2Chronicles 6","1John 5","Habakkuk 1","Psalm 116"]},{d:341,r:["2Chronicles 7","2John 1","Habakkuk 2","Psalm 117-118"]},{d:342,r:["2Chronicles 8","3John 1","Habakkuk 3","Psalm 119:1-24"]},{d:343,r:["2Chronicles 9","Jude 1","Zephaniah 1","Psalm 119:25-48"]},{d:344,r:["2Chronicles 10","Revelation 1","Zephaniah 2","Psalm 119:49-72"]},{d:345,r:["2Chronicles 11-12","Revelation 2","Zephaniah 3","Psalm 119:73-96"]},{d:346,r:["2Chronicles 13","Revelation 3","Haggai 1","Psalm 119:97-120"]},{d:347,r:["2Chronicles 14-15","Revelation 4","Haggai 2","Psalm 119:121-144"]},{d:348,r:["2Chronicles 16","Revelation 5","Zechariah 1","Psalm 119:145-176"]},{d:349,r:["2Chronicles 17","Revelation 6","Zechariah 2","Psalm 120-122"]},{d:350,r:["2Chronicles 18","Revelation 7","Zechariah 3","Psalm 123-125"]},{d:351,r:["2Chronicles 19-20","Revelation 8","Zechariah 4","Psalm 126-128"]},{d:352,r:["2Chronicles 21","Revelation 9","Zechariah 5","Psalm 129-131"]},{d:353,r:["2Chronicles 22-23","Revelation 10","Zechariah 6","Psalm 132-134"]},{d:354,r:["2Chronicles 24","Revelation 11","Zechariah 7","Psalm 135-136"]},{d:355,r:["2Chronicles 25","Revelation 12","Zechariah 8","Psalm 137-138"]},{d:356,r:["2Chronicles 26","Revelation 13","Zechariah 9","Psalm 139"]},{d:357,r:["2Chronicles 27-28","Revelation 14","Zechariah 10","Psalm 140-141"]},{d:358,r:["2Chronicles 29","Revelation 15","Zechariah 11","Psalm 142"]},{d:359,r:["2Chronicles 30","Revelation 16","Zechariah 12","Psalm 143"]},{d:360,r:["2Chronicles 31","Revelation 17","Zechariah 13","Psalm 144"]},{d:361,r:["2Chronicles 32","Revelation 18","Zechariah 14","Psalm 145"]},{d:362,r:["2Chronicles 33","Revelation 19","Malachi 1","Psalm 146-147"]},{d:363,r:["2Chronicles 34","Revelation 20","Malachi 2","Psalm 148"]},{d:364,r:["2Chronicles 35","Revelation 21","Malachi 3","Psalm 149"]},{d:365,r:["2Chronicles 36","Revelation 22","Malachi 4","Psalm 150"]}];
 
         const WORD_TOTALS = { GLOBAL: 789634, OT: 609252, NT: 180382 };
-        let activeTab = 'ALL';
+        let activeTab = appData.defaultTab || 'ALL';
         let activeBookIdx = null;
         let searchQuery = "";
         let mainChart = null;
@@ -2308,6 +2315,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 view.classList.remove('hidden');
                 setTimeout(() => view.classList.add('slide-in-right'), 10);
                 window.renderProfileSyncSettings();
+                updateDefaultTabSelector();
             }
             else {
                 const view = document.getElementById('view-books');
@@ -2649,7 +2657,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             let descText = "";
 
             if (activePlan === 'SEQUENTIAL') {
-                descText = "<strong>Canonical Order:</strong> Reading straight through from Genesis to Revelation. The next 3 unread chapters are shown.";
+                descText = "<strong>Canonical:</strong> Genesis to Revelation. Next 3 unread chapters.";
                 let found = 0; const target = 3;
                 for (let b = 0; b < bible.length; b++) {
                     const book = bible[b];
@@ -2666,7 +2674,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             else if (activePlan === 'ONE_YEAR') {
-                descText = "<strong>One Year Plan:</strong> Read through the entire Bible in one year with daily OT and NT readings (3 OT chapters + 1 NT chapter per day).";
+                descText = "<strong>One Year:</strong> 3 OT + 1 NT chapters daily.";
 
                 // Find next 3 unread OT chapters
                 let otFound = 0;
@@ -2724,7 +2732,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             else if (activePlan === 'MCHEYNE') {
-                descText = "<strong>M'Cheyne Plan:</strong> 4 chapters daily (Family/Secret) covering NT/Psalms twice and OT once per year.";
+                descText = "<strong>M'Cheyne:</strong> 4 chapters daily. NT twice, OT once per year.";
                 let currentDay = null;
                 
                 for(let i=0; i<PLAN_MCHEYNE.length; i++) {
@@ -2778,7 +2786,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             else if (activePlan === 'HORNER') {
-                descText = "<strong>Prof. Horner's System:</strong> Reading 1 chapter from each of 10 lists daily for maximum immersion. <a href='horner.html' target='_blank' class='inline-flex items-center gap-1 ml-2 px-3 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all duration-200 border border-indigo-200' style='text-decoration: none;'><svg class='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'><path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z'/></svg>View Analytics</a>";
+                descText = "<strong>Horner:</strong> 1 chapter from each of 10 rotating lists. <a href='horner.html' target='_blank' class='inline-flex items-center gap-1 ml-2 px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all duration-200 border border-indigo-200' style='text-decoration: none;'><svg class='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'><path d='M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z'/></svg>Analytics</a>";
                 resetHornerDailyProgressIfNeeded();
                 const todayStr = getTodaysDate();
 
@@ -3703,7 +3711,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }, 15000);
 
         assignCategories();
-        window.setTab('ALL');
+        window.setTab(appData.defaultTab || 'ALL');
         window.updateStats();
         updateProfileColor();
         checkFirstVisit();
@@ -4205,6 +4213,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				}
 			}
 		};
+
+		// Default tab setting
+		window.setDefaultTab = (tab) => {
+			appData.defaultTab = tab;
+			window.saveProgress();
+		};
+
+		// Update default tab selector in settings
+		function updateDefaultTabSelector() {
+			const selector = document.getElementById('default-tab-selector');
+			if(selector && appData.defaultTab) {
+				selector.value = appData.defaultTab;
+			}
+		}
 
 		function updateReadingTimeToggleUI() {
 			const toggle = document.getElementById('reading-time-toggle');
