@@ -334,7 +334,7 @@
 
             // Wisdom
             {name: 'Job', cat: 'wisdom', testament: 'OT'},
-            {name: 'Psalms', cat: 'wisdom', testament: 'OT', alt: ['psalm']},
+            {name: 'Psalms', cat: 'wisdom', testament: 'OT', alt: ['psalm', 'psalms']},
             {name: 'Proverbs', cat: 'wisdom', testament: 'OT'},
             {name: 'Ecclesiastes', cat: 'wisdom', testament: 'OT'},
             {name: 'Song of Solomon', cat: 'wisdom', testament: 'OT', alt: ['songofsolomon', 'songofsongs', 'canticles']},
@@ -570,11 +570,19 @@
         let milestoneShown = new Set();
         function checkMilestones() {
             const count = foundBooks.size;
+
+            // Count OT books separately for OT completion milestone
+            let otCount = 0;
+            foundBooks.forEach(index => {
+                if (bibleBooks[index].testament === 'OT') {
+                    otCount++;
+                }
+            });
+
             const milestones = {
                 10: {emoji: '🌟', message: 'Great start!', subtitle: '10 books found!'},
                 20: {emoji: '🔥', message: 'You\'re on fire!', subtitle: '20 books and counting!'},
                 30: {emoji: '💪', message: 'Impressive!', subtitle: '30 books remembered!'},
-                39: {emoji: '📜', message: 'Old Testament Complete!', subtitle: 'All 39 OT books found!'},
                 50: {emoji: '⚡', message: 'Unstoppable!', subtitle: '50 books down!'},
                 60: {emoji: '🎯', message: 'Almost there!', subtitle: 'Just 6 more to go!'}
             };
@@ -582,6 +590,16 @@
             if (milestones[count] && !milestoneShown.has(count)) {
                 showMilestoneNotification(milestones[count]);
                 milestoneShown.add(count);
+            }
+
+            // Check OT completion separately (must be exactly 39 OT books)
+            if (otCount === 39 && !milestoneShown.has('ot-complete')) {
+                showMilestoneNotification({
+                    emoji: '📜',
+                    message: 'Old Testament Complete!',
+                    subtitle: 'All 39 OT books found!'
+                });
+                milestoneShown.add('ot-complete');
             }
         }
 
