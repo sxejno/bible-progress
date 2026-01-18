@@ -1,0 +1,35 @@
+{
+  "name": "bible-progress",
+  "version": "6.0.0",
+  "description": "Word-weighted King James Version Bible reading tracker",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch",
+    "dev": "npm run build && npx http-server -p 8080 -o",
+    "lint": "eslint src/js/**/*.js",
+    "format": "prettier --write \"src/**/*.{js,css,html}\"",
+    "format:check": "prettier --check \"src/**/*.{js,css,html}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sxejno/bible-progress.git"
+  },
+  "keywords": [
+    "bible",
+    "reading-tracker",
+    "kjv",
+    "progressive-web-app",
+    "reading-plan"
+  ],
+  "author": "Shane",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "html-minifier": "^4.0.0",
+    "prettier": "^3.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

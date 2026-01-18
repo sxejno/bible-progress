@@ -108,9 +108,10 @@ Get an app-like experience on your device:
 - **Firebase Analytics** - Usage insights and improvements
 
 ### Architecture
-- **Single-File Application** - Entire app in one HTML file (3,847 lines)
+- **Modular Development** - Organized source code in separate files for maintainability
+- **Single-File Deployment** - Builds to one HTML file for simple GitHub Pages hosting
 - **Progressive Web App** - Installable, works offline, fast loading
-- **No Build Process** - Simple, maintainable, no dependencies to install
+- **Automated Build** - GitHub Actions automatically builds from source on push
 
 ## 📊 Data Accuracy
 
@@ -133,10 +134,41 @@ Visit [bibleprogress.com](https://bibleprogress.com) to see the app in action!
 
 ## 🤝 Contributing
 
-This project welcomes contributions! Check out:
-- **CLAUDE.md** - Comprehensive developer documentation
+This project welcomes contributions! Here's how to get started:
+
+### For Developers
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/sxejno/bible-progress.git
+   cd bible-progress
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Make your changes in the `src/` directory**
+   - `src/index.html` - HTML structure
+   - `src/styles/` - CSS files
+   - `src/js/` - JavaScript modules
+
+4. **Build and test:**
+   ```bash
+   npm run build  # Builds index.html from src/
+   npm run dev    # Serves locally for testing
+   ```
+
+5. **Submit a pull request!**
+
+### Documentation
+
+- **DEVELOPMENT.md** - Complete developer guide with architecture overview
+- **CLAUDE.md** - AI assistant guide with detailed feature documentation
 - **TODO.md** - Development roadmap and feature ideas
 - **SECURITY.md** - Security guidelines and best practices
+- **src/js/REFACTORING.md** - Module organization and dependency documentation
 
 ## 📜 License
 

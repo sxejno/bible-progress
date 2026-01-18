@@ -1,0 +1,18 @@
+/* Responsive design and media queries */
+
+/* Currently, the application uses Tailwind CSS utility classes for responsive design */
+/* This file is reserved for custom media queries as needed */
+
+/* Example media query structure (not currently used in the application):
+@media (max-width: 640px) {
+    // Mobile styles
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    // Tablet styles
+}
+
+@media (min-width: 1025px) {
+    // Desktop styles
+}
+*/

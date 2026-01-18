@@ -1,0 +1,116 @@
+/* Component-specific styles */
+
+/* Tab active state */
+.tab-active {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: white;
+    border-color: #4f46e5;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3), 0 2px 4px rgba(79, 70, 229, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Glass morphism effect */
+.glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+/* Subtle hover lift for books */
+.book-card {
+    transition: all 0.2s ease-out;
+}
+.book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile color dot animation */
+.profile-dot {
+    transition: all 0.3s ease;
+}
+.profile-dot:hover {
+    transform: scale(1.2);
+}
+
+/* Scroll indicator for tab bar */
+.tab-scroll-wrapper {
+    position: relative;
+}
+.tab-scroll-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 60px;
+    background: linear-gradient(to left, rgba(248, 250, 252, 1) 0%, rgba(248, 250, 252, 0) 100%);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+.tab-scroll-indicator.hidden {
+    opacity: 0;
+}
+
+/* Progress bar smooth transitions */
+.progress-bar {
+    transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Button press effect */
+.btn-press:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+
+/* Confetti-style celebration particles */
+.confetti-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: #4f46e5;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Enhanced progress bar with gradient shine */
+.progress-bar-shine {
+    position: relative;
+    overflow: hidden;
+}
+.progress-bar-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: progress-shine 3s ease-in-out infinite;
+}
+
+/* Smooth gradient backgrounds for cards */
+.gradient-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+    transition: all 0.3s ease;
+}
+.gradient-card:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%);
+    transform: translateY(-2px);
+}
+
+/* Enhanced shadow transitions */
+.shadow-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.shadow-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth tab indicator animation */
+.tab-indicator {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

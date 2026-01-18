@@ -2,9 +2,20 @@
 
 ## Recent Updates (January 2026)
 
-This documentation has been comprehensively updated to reflect the latest state of the codebase:
+### 🎉 MAJOR REFACTORING: Modular Architecture (January 18, 2026)
 
-**New Features:**
+The codebase has been **completely refactored** into a modular architecture while maintaining backward compatibility:
+
+**Architecture Changes:**
+- ✅ **Modular source code**: Organized into separate HTML, CSS, and JavaScript files in `src/` directory
+- ✅ **Build system**: Automated build process combines files into single `index.html` for deployment
+- ✅ **GitHub Actions**: CI/CD automatically builds and deploys on push
+- ✅ **Developer tooling**: ESLint, Prettier, and development scripts
+- ✅ **Improved maintainability**: 13 JavaScript modules, 5 CSS modules, organized by concern
+- ✅ **Better collaboration**: Multiple developers can work in parallel on different modules
+- ✅ **Same performance**: Still deploys as single HTML file with no runtime overhead
+
+**Previous Features (All Preserved):**
 - ✅ Horner plan daily progress tracking (tracks which of the 10 lists are completed each day)
 - ✅ Reading streak system with heatmap visualization
 - ✅ Comprehensive ARIA labels for accessibility
@@ -24,11 +35,11 @@ This documentation has been comprehensively updated to reflect the latest state 
 - ✅ Comprehensive SECURITY.md documentation
 
 **Documentation:**
+- ✅ Added DEVELOPMENT.md for complete developer guide
 - ✅ Added TODO.md for development tracking
 - ✅ Added SECURITY.md for security guidelines
-- ✅ Updated all line number references
+- ✅ Updated CLAUDE.md for refactored architecture
 - ✅ Documented Horner daily progress feature
-- ✅ Updated testing checklist
 
 ---
 
@@ -44,40 +55,200 @@ This documentation has been comprehensively updated to reflect the latest state 
 ## Architecture
 
 ### Application Type
-- **Single-File Architecture**: Entire application in `index.html`
-- **No Build Process**: Pure HTML/CSS/JavaScript (ES6)
+- **Modular Source Architecture**: Organized source files in `src/` directory (HTML, CSS, JavaScript modules)
+- **Build Process**: Automated build system combines files into single `index.html` for deployment
+- **Single-File Deployment**: Production uses single HTML file (no runtime dependencies or bundlers)
 - **Progressive Web App**: Installable on mobile devices via `manifest.json` and `service-worker.js`
+- **CI/CD Integration**: GitHub Actions automatically builds on push
+
+### Development vs Production
+
+**Development** (`src/` directory):
+- Modular JavaScript (13 separate files organized by concern)
+- Modular CSS (5 separate stylesheets)
+- HTML template with placeholders
+- Build script combines everything
+
+**Production** (root `index.html`):
+- Single HTML file with inlined CSS and JavaScript
+- No external dependencies (except CDN scripts)
+- Optimized for fast loading and GitHub Pages deployment
+- Identical functionality to before refactoring
 
 ### Tech Stack
 - **HTML5**: Structure and content
 - **Tailwind CSS** (CDN): Modern styling with glass-morphism design
 - **Chart.js** (CDN): Donut chart visualizations
-- **Vanilla JavaScript (ES6)**: All application logic
+- **Vanilla JavaScript (ES6)**: All application logic (now modularized)
 - **Firebase**: Authentication and cloud sync
   - Firebase Auth (Google OAuth + Email/Password)
   - Firestore Database
   - Firebase Analytics
 - **LocalStorage API**: Primary data persistence (cloud is secondary backup)
+- **Node.js** (dev only): Build system and tooling
+- **GitHub Actions**: Automated building and deployment
 
 ## File Structure
 
 ```
 bible-progress/
-├── index.html           # Main application (3,847 lines)
-│                        # Contains all HTML, CSS, and JavaScript
-├── manifest.json        # PWA manifest for app installation
-├── service-worker.js    # Service worker for offline capabilities
-├── README.md            # User-facing documentation
-├── CLAUDE.md           # AI assistant documentation (this file)
-├── TODO.md             # Development roadmap and issue tracking
-├── SECURITY.md         # Security documentation and best practices
-├── CNAME               # GitHub Pages domain config
-├── favicon.png         # App icon (used as favicon and apple-touch-icon)
-├── icon-192.png        # PWA icon (192x192)
-├── icon-512.png        # PWA icon (512x512)
+├── src/                 # SOURCE FILES - EDIT THESE!
+│   ├── index.html      # HTML template with placeholders
+│   ├── styles/         # CSS modules
+│   │   ├── base.css
+│   │   ├── components.css
+│   │   ├── animations.css
+│   │   ├── dark-mode.css
+│   │   └── responsive.css
+│   └── js/             # JavaScript modules (13 files)
+│       ├── config.js   # Firebase configuration
+│       ├── security.js # Security utilities
+│       ├── data.js     # Bible data and constants
+│       ├── state.js    # State management
+│       ├── auth.js     # Authentication
+│       ├── profiles.js # Profile management
+│       ├── progress.js # Progress tracking
+│       ├── streaks.js  # Streak tracking
+│       ├── plans.js    # Reading plans
+│       ├── ui.js       # UI rendering
+│       ├── dark-mode.js # Dark mode
+│       ├── easter-eggs.js # Easter eggs
+│       └── main.js     # App initialization
+├── build.js            # Build script (combines src/ into index.html)
+├── package.json        # Node.js dependencies and scripts
+├── .github/workflows/  # CI/CD automation
+│   └── build.yml       # Auto-build on push
+├── index.html          # BUILT OUTPUT - DO NOT EDIT DIRECTLY!
+│                       # Auto-generated from src/ by build script
+├── manifest.json       # PWA manifest for app installation
+├── service-worker.js   # Service worker for offline capabilities
+├── DEVELOPMENT.md      # Complete developer guide
+├── README.md           # User-facing documentation
+├── CLAUDE.md          # AI assistant documentation (this file)
+├── TODO.md            # Development roadmap and issue tracking
+├── SECURITY.md        # Security documentation and best practices
+├── CNAME              # GitHub Pages domain config
+├── favicon.png        # App icon (used as favicon and apple-touch-icon)
+├── icon-192.png       # PWA icon (192x192)
+├── icon-512.png       # PWA icon (512x512)
 ├── kjv_chapter_word_counts.csv  # Source data for Bible word counts
-└── kjvwordcount        # Word count verification data
+└── kjvwordcount       # Word count verification data
 ```
+
+### ⚠️ IMPORTANT: Always Edit Source Files!
+
+**NEVER edit `index.html` directly!** It is auto-generated by the build process.
+
+**DO edit files in `src/` directory:**
+- `src/index.html` for HTML changes
+- `src/styles/*.css` for CSS changes
+- `src/js/*.js` for JavaScript changes
+
+After editing, run `npm run build` to generate the production `index.html`.
+
+## Development Workflow
+
+### Quick Start
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Make changes** in `src/` directory
+
+3. **Build**:
+   ```bash
+   npm run build
+   ```
+
+4. **Test** locally:
+   ```bash
+   npm run dev
+   # Or use watch mode for automatic rebuilding:
+   npm run watch
+   ```
+
+5. **Commit and push** (include both `src/` and `index.html`)
+
+### Available Commands
+
+```bash
+npm run build        # Build index.html from src/
+npm run watch        # Watch for changes and rebuild automatically
+npm run dev          # Build and serve locally on port 8080
+npm run lint         # Check JavaScript for errors
+npm run format       # Auto-format code with Prettier
+npm run format:check # Check code formatting
+```
+
+### Module Organization
+
+JavaScript modules are loaded in dependency order:
+
+1. **config.js** - Firebase configuration (no dependencies)
+2. **security.js** - Security utilities (no dependencies)
+3. **data.js** - Bible data and constants (no dependencies)
+4. **state.js** - State management (depends on: security, data)
+5. **auth.js** - Authentication (depends on: config, state)
+6. **profiles.js** - Profile management (depends on: state, auth)
+7. **progress.js** - Progress tracking (depends on: data, state)
+8. **streaks.js** - Streak tracking (depends on: state, progress)
+9. **plans.js** - Reading plans (depends on: data, state, progress)
+10. **ui.js** - UI rendering (depends on: data, state, progress, plans)
+11. **dark-mode.js** - Dark mode (depends on: state)
+12. **easter-eggs.js** - Easter eggs (depends on: state, progress, ui)
+13. **main.js** - App initialization (depends on: all modules)
+
+**Important**: Don't create circular dependencies! If module A depends on module B, then module B cannot depend on module A.
+
+### Adding New Features
+
+#### Adding a New Function
+
+1. **Choose the right module** based on the function's purpose:
+   - Authentication? → `auth.js`
+   - UI rendering? → `ui.js`
+   - Progress calculation? → `progress.js`
+   - etc.
+
+2. **Add the function** to that module
+
+3. **Export to window if needed**:
+   ```javascript
+   // If function is called from inline event handlers (onclick, etc.):
+   window.myFunction = function() {
+     // ...
+   }
+
+   // If function is only used internally:
+   function helperFunction() {
+     // ...
+   }
+   ```
+
+4. **Rebuild and test**:
+   ```bash
+   npm run build
+   npm run dev
+   ```
+
+#### Modifying Existing Code
+
+1. **Find the module** containing the code (use the Code Location Reference above)
+2. **Edit the file** in `src/js/` directory
+3. **Rebuild and test**
+4. **Commit both source and built files**
+
+### GitHub Actions CI/CD
+
+The repository includes automated building:
+
+- **Triggers**: Push to `main` or `claude/*` branches, or changes to `src/`, `build.js`, `package.json`
+- **What it does**: Automatically builds `index.html` from `src/` files and commits it back
+- **Benefit**: You can push source changes without building locally (CI will build for you)
+
+However, it's still recommended to build locally before pushing to catch any errors early.
 
 ## Core Data Model
 
@@ -289,24 +460,58 @@ Seven hidden features (lines ~1271-1608):
 
 ### Adding a New Feature
 
-1. **Locate the relevant section** in index.html (single file)
-2. **Follow existing patterns** for consistency
-3. **Test in browser** (no build required)
-4. **Update localStorage structure** if data model changes (increment version: `kjv_v6_data` → `kjv_v7_data`)
+1. **Choose the appropriate module** in `src/js/` or `src/styles/`
+2. **Edit the source file** (not root `index.html`!)
+3. **Follow existing patterns** for consistency
+4. **Run build**:
+   ```bash
+   npm run build
+   ```
+5. **Test in browser**:
+   ```bash
+   npm run dev
+   ```
+6. **Update localStorage structure** if data model changes (increment version: `kjv_v6_data` → `kjv_v7_data`)
+7. **Commit both source and built files**
 
 ### Modifying the Bible Data
 
-⚠️ **WARNING**: Bible data is embedded as a minified array at line ~800. Exercise extreme caution when modifying:
+⚠️ **WARNING**: Bible data is located in `src/js/data.js`. Exercise extreme caution when modifying:
+- The `bible` array contains all 66 books with word counts
 - Verify total word count remains 789,634
 - Update `WORD_TOTALS` constant if OT/NT split changes
 - Test all progress calculations after changes
+- Rebuild after editing:
+  ```bash
+  npm run build && npm run dev
+  ```
 
 ### Adding Reading Plans
 
-1. **Define plan constant** (follow `PLAN_MCHEYNE` or `PLAN_HORNER` format)
-2. **Add plan to selector** in HTML (search for `plan-selector`)
-3. **Implement logic** in `renderDailyPlan()` function (~line 1750-1900)
-4. **Consider daily tracking**: If plan needs daily progress (like Horner), add to `appData` structure
+1. **Define plan constant** in `src/js/data.js` (follow `PLAN_MCHEYNE` or `PLAN_HORNER` format):
+   ```javascript
+   const PLAN_MY_NEW_PLAN = [
+     // Plan structure here
+   ]
+   ```
+
+2. **Add plan to selector** in `src/index.html` (search for `plan-selector` element)
+
+3. **Implement plan logic** in `src/js/plans.js`:
+   ```javascript
+   function getMyNewPlan() {
+     // Implementation here
+   }
+   ```
+
+4. **Update UI rendering** in `src/js/ui.js` if needed
+
+5. **Consider daily tracking**: If plan needs daily progress (like Horner), add to `appData` structure in `src/js/state.js`
+
+6. **Rebuild and test**:
+   ```bash
+   npm run build && npm run dev
+   ```
 
 ### Working with Horner Daily Progress
 
@@ -334,10 +539,20 @@ if(!appData.hornerDailyProgress[profileId].completedLists.includes(listIndex)) {
 
 ### Styling Changes
 
-- **Inline styles**: In `<style>` tag (lines 17-100+)
-- **Tailwind classes**: Applied directly to HTML elements
-- **Custom animations**: Defined in `@keyframes` blocks
-- **Glass-morphism design**: Uses backdrop-blur and transparency
+**Edit CSS in `src/styles/` directory:**
+
+- **Base styles**: Edit `src/styles/base.css` (fonts, body, scrollbars)
+- **Component styles**: Edit `src/styles/components.css` (tabs, cards, buttons, etc.)
+- **Animations**: Edit `src/styles/animations.css` (all `@keyframes` definitions)
+- **Dark mode**: Edit `src/styles/dark-mode.css` (dark mode specific styles)
+- **Responsive**: Edit `src/styles/responsive.css` (media queries)
+- **Tailwind classes**: Applied in `src/index.html` directly to HTML elements
+- **Glass-morphism design**: Uses backdrop-blur and transparency (in components.css)
+
+After editing CSS:
+```bash
+npm run build && npm run dev
+```
 
 ## Data Migration
 
@@ -510,54 +725,64 @@ console.log(escapeHtml('<script>alert("xss")</script>'))  // Should return escap
 
 ## Code Location Reference
 
-Quick reference for common code locations in `index.html`:
+Quick reference for finding code in the modular architecture:
 
-| Feature | Line Range |
-|---------|-----------|
-| Firebase Config | ~348-362 |
-| Security Functions | ~394-409 |
-| Bible Data | ~800-801 |
-| Reading Plans | ~804-818 |
-| Word Count Totals | ~820 |
-| Category Definitions | ~827-841 |
-| Data Migration | ~943-974 |
-| Horner Daily Progress | ~989-1009 |
-| Profile Functions | ~461-477 |
-| Auth Functions | ~478-552 |
-| Cloud Sync | ~553-590 |
-| Heatmap & Streak Functions | ~2596-3000 |
-| Streak Badge Update | ~2598-2623 |
-| Streak Calculation | ~2641-2704 |
-| Heatmap Rendering | ~2706-2829 |
-| Milestone Celebrations | ~2936-2995 |
-| Dark Mode (Settings UI) | ~571-577 |
-| Dark Mode (Implementation) | ~3200-3700 |
-| Rendering Functions | ~935-1270 |
-| Easter Eggs | ~1271-1608 |
-| Daily Plan Rendering | ~1750-1900 |
+| Feature | Module File | Key Functions |
+|---------|-------------|---------------|
+| Firebase Config | `src/js/config.js` | Firebase initialization |
+| Security Functions | `src/js/security.js` | `escapeHtml()`, `isValidHttpsUrl()`, `validateBackupFile()` |
+| Bible Data | `src/js/data.js` | `bible` array, `WORD_TOTALS`, reading plans |
+| Reading Plans | `src/js/plans.js` | `getSequentialPlan()`, `getMcheynePlan()`, `getHornerPlan()` |
+| Horner Daily Progress | `src/js/plans.js` | `resetHornerDailyProgressIfNeeded()`, `getHornerPlan()` |
+| Data Migration | `src/js/state.js` | `loadAppData()`, migration logic |
+| Profile Management | `src/js/profiles.js` | `createProfile()`, `switchProfile()`, `deleteProfile()` |
+| Authentication | `src/js/auth.js` | `loginWithGoogle()`, `loginWithEmail()`, `logout()` |
+| Cloud Sync | `src/js/auth.js` | `syncToCloud()`, `loadFromCloud()` |
+| Progress Tracking | `src/js/progress.js` | `getProgress()`, `toggleChapter()`, `calculateOverallProgress()` |
+| Streak Tracking | `src/js/streaks.js` | `calculateStreaks()`, `getReadingActivity()`, `updateStreakBadge()` |
+| Heatmap | `src/js/streaks.js` | `renderReadingHeatmap()`, `renderHeatmapKey()` |
+| Milestone Celebrations | `src/js/streaks.js` | `checkAndCelebrateStreak()`, `celebrateStreak()` |
+| UI Rendering | `src/js/ui.js` | `setTab()`, `renderBookGrid()`, `updateStats()` |
+| Dark Mode | `src/js/dark-mode.js` | `toggleDarkMode()`, `initDarkMode()` |
+| Easter Eggs | `src/js/easter-eggs.js` | All 7 easter egg implementations |
+| App Initialization | `src/js/main.js` | `initApp()`, event listeners, startup logic |
+| HTML Structure | `src/index.html` | All UI elements, modals, tabs |
+| Base Styles | `src/styles/base.css` | Fonts, body styles, scrollbar |
+| Component Styles | `src/styles/components.css` | Tabs, cards, buttons, glass effect |
+| Animations | `src/styles/animations.css` | All `@keyframes` definitions |
+| Dark Mode Styles | `src/styles/dark-mode.css` | Dark mode CSS |
 
-**Note**: Line numbers are approximate (~) due to ongoing development. Use search to locate specific functions.
+**Note**: With the modular architecture, you can easily find code by opening the appropriate file. Each module is focused on a single concern and is well-commented.
 
 ## Best Practices for AI Assistants
 
 ### DO:
-✅ Preserve the single-file architecture
-✅ Match existing code style and conventions
-✅ Test all changes in browser before committing
-✅ Maintain word count accuracy in bible data
+✅ **Edit source files in `src/` directory** (NEVER edit root `index.html` directly!)
+✅ **Run `npm run build`** after making changes to generate production `index.html`
+✅ **Commit both source and built files** when pushing changes
+✅ Match existing code style and conventions (use Prettier: `npm run format`)
+✅ Test all changes in browser before committing (use `npm run dev`)
+✅ Keep modules focused - put code where it logically belongs
+✅ Maintain word count accuracy in `src/js/data.js`
 ✅ Keep localStorage version consistent (currently `kjv_v6_data`)
 ✅ Follow Tailwind CSS utility patterns
 ✅ Preserve existing easter eggs (users love them!)
-✅ Update this CLAUDE.md file when making structural changes
+✅ Update CLAUDE.md when making structural changes
 ✅ Use security utilities (`escapeHtml()`, `isValidHttpsUrl()`) for user data
+✅ Export functions to `window` if used by inline event handlers
 ✅ Test across different reading plans (Sequential, M'Cheyne, Horner)
 ✅ Verify Horner daily progress resets at midnight correctly
+✅ Run `npm run lint` to check for JavaScript errors before committing
 
 ### DON'T:
-❌ Split into multiple files (defeats the purpose)
-❌ Add build tools or bundlers
+❌ **Edit `index.html` directly** - it's auto-generated! Edit `src/` files instead
 ❌ Modify total word counts without verification
 ❌ Break localStorage compatibility without migration
+❌ Create circular dependencies between modules
+❌ Remove `window` exports for functions used in inline event handlers
+❌ Mix concerns across modules (e.g., UI code in data.js)
+❌ Commit without building (but GitHub Actions will rebuild if you forget)
+❌ Skip testing after refactoring
 ❌ Remove or modify Firebase config without authorization
 ❌ Change the color scheme without discussion
 ❌ Add heavy dependencies (keep it lightweight)

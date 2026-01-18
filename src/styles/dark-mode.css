@@ -1,0 +1,10 @@
+/* Dark mode styles */
+/* Note: These styles are dynamically injected via JavaScript in the application */
+
+.dark-mode {
+    filter: invert(0.9) hue-rotate(180deg);
+}
+
+.dark-mode img {
+    filter: invert(1) hue-rotate(180deg);
+}
