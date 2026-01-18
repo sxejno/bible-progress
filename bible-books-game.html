@@ -425,8 +425,11 @@
             currentInput = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
 
             // Check for book matches
+            let foundMatch = false;
             let foundDuplicate = false;
             bibleBooks.forEach((book, index) => {
+                if (foundMatch) return; // Skip if we already found a match
+
                 const bookNames = [book.name.toLowerCase().replace(/[^a-z]/g, ''), ...(book.alt || [])];
 
                 for (const bookName of bookNames) {
@@ -443,6 +446,7 @@
                             currentInput = '';
                             e.target.value = '';
                         }
+                        foundMatch = true;
                         break;
                     }
                 }
