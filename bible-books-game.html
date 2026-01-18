@@ -430,7 +430,7 @@
             bibleBooks.forEach((book, index) => {
                 if (foundMatch) return; // Skip if we already found a match
 
-                const bookNames = [book.name.toLowerCase().replace(/[^a-z]/g, ''), ...(book.alt || [])];
+                const bookNames = [book.name.toLowerCase().replace(/[^a-z0-9]/g, ''), ...(book.alt || [])];
 
                 for (const bookName of bookNames) {
                     if (currentInput.endsWith(bookName)) {
