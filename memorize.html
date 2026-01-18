@@ -57,6 +57,21 @@
             line-height: 1.8;
         }
 
+        /* Fix select dropdown styling */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            appearance: none;
+        }
+
+        select option {
+            background-color: #667eea;
+            color: white;
+        }
+
         @media (max-width: 640px) {
             .verse-text {
                 font-size: 1.1rem;
@@ -131,9 +146,61 @@
             </div>
         </div>
 
-        <!-- Add Custom Verse -->
+        <!-- Verse Lookup -->
         <div class="glass rounded-xl p-6 shadow-lg">
-            <h2 class="text-xl font-bold text-white mb-4">Add Custom Verse</h2>
+            <h2 class="text-xl font-bold text-white mb-4">🔍 Look Up Verse</h2>
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select
+                        id="lookup-book"
+                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        onchange="window.updateChapterOptions()"
+                    >
+                        <option value="">Select Book...</option>
+                    </select>
+                    <select
+                        id="lookup-chapter"
+                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        onchange="window.updateVerseOptions()"
+                        disabled
+                    >
+                        <option value="">Select Chapter...</option>
+                    </select>
+                    <select
+                        id="lookup-verse"
+                        class="px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                        disabled
+                    >
+                        <option value="">Select Verse...</option>
+                    </select>
+                </div>
+                <div class="flex gap-3">
+                    <button
+                        onclick="window.lookupVerse()"
+                        class="glass px-6 py-3 rounded-lg text-white hover:bg-white/20 transition flex-1 font-semibold"
+                        id="lookup-btn"
+                        disabled
+                    >
+                        🔍 Look Up Verse
+                    </button>
+                    <button
+                        onclick="window.addLookedUpVerse()"
+                        class="glass px-6 py-3 rounded-lg text-white hover:bg-emerald-500/30 transition flex-1 font-semibold"
+                        id="add-lookup-btn"
+                        style="display: none;"
+                    >
+                        ➕ Add to My Verses
+                    </button>
+                </div>
+                <div id="lookup-result" class="bg-white/10 rounded-lg p-4 min-h-[100px]" style="display: none;">
+                    <p class="text-white/60 text-center">Verse will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Custom Verse (Manual Entry) -->
+        <div class="glass rounded-xl p-6 shadow-lg">
+            <h2 class="text-xl font-bold text-white mb-4">✏️ Add Custom Verse (Manual Entry)</h2>
             <div class="space-y-3">
                 <input
                     type="text"
@@ -172,6 +239,10 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Bible data
+        let bibleData = null;
+        let currentLookupVerse = null; // Store the currently looked up verse
 
         // Popular KJV verses
         const POPULAR_VERSES = [
@@ -232,11 +303,192 @@
         let verseProgress = {}; // Tracks review counts
 
         // Initialize
-        function init() {
+        async function init() {
             loadData();
             renderPopularVerses();
             renderCustomVerses();
+            await loadBibleData();
         }
+
+        // Load Bible data from JSON file
+        async function loadBibleData() {
+            try {
+                const response = await fetch('kjv_bible.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load Bible data');
+                }
+                bibleData = await response.json();
+                populateBookDropdown();
+            } catch (e) {
+                console.error('Error loading Bible data:', e);
+                // Show error message to user
+                const lookupSection = document.querySelector('.glass.rounded-xl.p-6.shadow-lg h2');
+                if (lookupSection && lookupSection.textContent.includes('Look Up Verse')) {
+                    const errorMsg = document.createElement('p');
+                    errorMsg.className = 'text-red-300 text-sm mt-2';
+                    errorMsg.textContent = 'Error loading Bible data. Verse lookup is unavailable.';
+                    lookupSection.parentElement.insertBefore(errorMsg, lookupSection.nextSibling);
+                }
+            }
+        }
+
+        // Populate book dropdown
+        function populateBookDropdown() {
+            if (!bibleData) return;
+
+            const bookSelect = document.getElementById('lookup-book');
+            bibleData.forEach((book, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = book.book;
+                bookSelect.appendChild(option);
+            });
+        }
+
+        // Update chapter options when book is selected
+        window.updateChapterOptions = function() {
+            const bookSelect = document.getElementById('lookup-book');
+            const chapterSelect = document.getElementById('lookup-chapter');
+            const verseSelect = document.getElementById('lookup-verse');
+            const lookupBtn = document.getElementById('lookup-btn');
+
+            // Reset chapter and verse dropdowns
+            chapterSelect.innerHTML = '<option value="">Select Chapter...</option>';
+            verseSelect.innerHTML = '<option value="">Select Verse...</option>';
+            chapterSelect.disabled = true;
+            verseSelect.disabled = true;
+            lookupBtn.disabled = true;
+
+            const bookIndex = bookSelect.value;
+            if (bookIndex === '') return;
+
+            const book = bibleData[bookIndex];
+            book.chapters.forEach((chapter, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = chapter.chapter;
+                chapterSelect.appendChild(option);
+            });
+
+            chapterSelect.disabled = false;
+        };
+
+        // Update verse options when chapter is selected
+        window.updateVerseOptions = function() {
+            const bookSelect = document.getElementById('lookup-book');
+            const chapterSelect = document.getElementById('lookup-chapter');
+            const verseSelect = document.getElementById('lookup-verse');
+            const lookupBtn = document.getElementById('lookup-btn');
+
+            // Reset verse dropdown
+            verseSelect.innerHTML = '<option value="">Select Verse...</option>';
+            verseSelect.disabled = true;
+            lookupBtn.disabled = true;
+
+            const bookIndex = bookSelect.value;
+            const chapterIndex = chapterSelect.value;
+            if (bookIndex === '' || chapterIndex === '') return;
+
+            const chapter = bibleData[bookIndex].chapters[chapterIndex];
+
+            // Add "All verses" option
+            const allOption = document.createElement('option');
+            allOption.value = 'all';
+            allOption.textContent = `All verses (1-${chapter.verses.length})`;
+            verseSelect.appendChild(allOption);
+
+            // Add individual verses
+            chapter.verses.forEach((verse, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = verse.verse;
+                verseSelect.appendChild(option);
+            });
+
+            verseSelect.disabled = false;
+            lookupBtn.disabled = false;
+        };
+
+        // Look up verse
+        window.lookupVerse = function() {
+            const bookSelect = document.getElementById('lookup-book');
+            const chapterSelect = document.getElementById('lookup-chapter');
+            const verseSelect = document.getElementById('lookup-verse');
+            const resultDiv = document.getElementById('lookup-result');
+            const addBtn = document.getElementById('add-lookup-btn');
+
+            const bookIndex = bookSelect.value;
+            const chapterIndex = chapterSelect.value;
+            const verseIndex = verseSelect.value;
+
+            if (bookIndex === '' || chapterIndex === '' || verseIndex === '') {
+                alert('Please select book, chapter, and verse');
+                return;
+            }
+
+            const book = bibleData[bookIndex];
+            const chapter = book.chapters[chapterIndex];
+
+            let verseText = '';
+            let reference = '';
+
+            if (verseIndex === 'all') {
+                // Get all verses
+                verseText = chapter.verses.map(v => v.text).join(' ');
+                reference = `${book.book} ${chapter.chapter}`;
+            } else {
+                // Get single verse
+                const verse = chapter.verses[verseIndex];
+                verseText = verse.text;
+                reference = `${book.book} ${chapter.chapter}:${verse.verse}`;
+            }
+
+            // Store for adding later
+            currentLookupVerse = {
+                reference: reference,
+                text: verseText
+            };
+
+            // Display result
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="text-white font-semibold mb-2">${escapeHtml(reference)}</div>
+                <div class="text-white/90 leading-relaxed">${escapeHtml(verseText)}</div>
+            `;
+
+            // Show add button
+            addBtn.style.display = 'block';
+        };
+
+        // Add looked up verse to custom verses
+        window.addLookedUpVerse = function() {
+            if (!currentLookupVerse) {
+                alert('Please look up a verse first');
+                return;
+            }
+
+            customVerses.push(currentLookupVerse);
+            saveData();
+            renderCustomVerses();
+
+            // Select the newly added verse
+            window.selectVerse(customVerses.length - 1, 'custom');
+
+            // Clear lookup
+            currentLookupVerse = null;
+            document.getElementById('lookup-result').style.display = 'none';
+            document.getElementById('add-lookup-btn').style.display = 'none';
+
+            // Show success feedback
+            const addBtn = document.getElementById('add-lookup-btn');
+            const originalText = addBtn.textContent;
+            addBtn.textContent = '✓ Added!';
+            addBtn.classList.add('bg-emerald-500/50');
+            setTimeout(() => {
+                addBtn.textContent = originalText;
+                addBtn.classList.remove('bg-emerald-500/50');
+            }, 2000);
+        };
 
         // Load data from localStorage
         function loadData() {
