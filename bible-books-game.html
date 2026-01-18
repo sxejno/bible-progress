@@ -157,29 +157,29 @@
         /* Milestone notification */
         .milestone-notification {
             position: fixed;
-            top: 50%;
+            top: 100px;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
             border: 3px solid #22c55e;
-            border-radius: 24px;
-            padding: 32px;
+            border-radius: 20px;
+            padding: 20px 28px;
             z-index: 1000;
-            animation: milestone-pop 0.6s ease-out;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            min-width: 300px;
+            animation: milestone-slide-down 0.5s ease-out;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            min-width: 280px;
             text-align: center;
+            pointer-events: none;
         }
 
-        @keyframes milestone-pop {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        @keyframes milestone-slide-down {
+            0% { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            100% { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
 
         @keyframes milestone-fade-out {
-            to { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
     </style>
 </head>
@@ -334,7 +334,7 @@
 
             // Wisdom
             {name: 'Job', cat: 'wisdom', testament: 'OT'},
-            {name: 'Psalms', cat: 'wisdom', testament: 'OT', alt: ['psalm', 'psalms']},
+            {name: 'Psalms', cat: 'wisdom', testament: 'OT'},
             {name: 'Proverbs', cat: 'wisdom', testament: 'OT'},
             {name: 'Ecclesiastes', cat: 'wisdom', testament: 'OT'},
             {name: 'Song of Solomon', cat: 'wisdom', testament: 'OT', alt: ['songofsolomon', 'songofsongs', 'canticles']},
@@ -608,22 +608,22 @@
             const notification = document.createElement('div');
             notification.className = 'milestone-notification';
             notification.innerHTML = `
-                <div class="text-6xl mb-3">${milestone.emoji}</div>
-                <div class="text-2xl font-black text-slate-900 mb-2">${milestone.message}</div>
-                <div class="text-lg text-slate-600 font-semibold">${milestone.subtitle}</div>
+                <div class="text-3xl mb-1">${milestone.emoji}</div>
+                <div class="text-lg font-black text-slate-900 mb-1">${milestone.message}</div>
+                <div class="text-sm text-slate-600 font-semibold">${milestone.subtitle}</div>
             `;
             document.body.appendChild(notification);
 
             // Add mini confetti
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 10; i++) {
                 createMiniConfetti();
             }
 
-            // Remove after 2 seconds
+            // Remove after 1.5 seconds (faster so it's less in the way)
             setTimeout(() => {
                 notification.style.animation = 'milestone-fade-out 0.3s ease-out forwards';
                 setTimeout(() => notification.remove(), 300);
-            }, 2000);
+            }, 1500);
         }
 
         // Create mini confetti for milestones
