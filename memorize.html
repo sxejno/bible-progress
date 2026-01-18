@@ -328,6 +328,9 @@
             document.getElementById('review-count').style.display = 'block';
             document.getElementById('review-number').textContent = verseProgress[verseKey];
 
+            // Store current type for navigation (must be set before setDisplayMode)
+            window.currentVerseType = type;
+
             // Enable navigation for popular verses only
             if (type === 'popular') {
                 document.getElementById('prev-btn').disabled = index === 0;
@@ -342,9 +345,6 @@
             }
 
             setDisplayMode('full');
-
-            // Store current type for navigation
-            window.currentVerseType = type;
         };
 
         // Navigation
