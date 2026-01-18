@@ -98,9 +98,11 @@ appData = {
     profileColors: {
         [profileId]: string  // hex color
     },
-    hornerDailyProgress: {  // NEW: Tracks Horner plan daily completion
-        date: string,       // YYYY-MM-DD format
-        completedLists: number[]  // Array of list indices (0-9) completed today
+    hornerDailyProgress: {  // Tracks Horner plan daily completion (per-profile)
+        [profileId]: {
+            date: string,       // YYYY-MM-DD format
+            completedLists: number[]  // Array of list indices (0-9) completed today
+        }
     }
 }
 ```
@@ -314,16 +316,21 @@ The Horner plan includes special daily tracking functionality:
 // Reset daily progress if date changed (call before rendering Horner plan)
 resetHornerDailyProgressIfNeeded();
 
-// Check if a list is completed today
-const isListCompleted = appData.hornerDailyProgress.completedLists.includes(listIndex);
+// Check if a list is completed today (uses active profile)
+const profileId = appData.activeProfileId;
+const isListCompleted = appData.hornerDailyProgress[profileId].completedLists.includes(listIndex);
 
 // Mark a list as completed (when all chapters in that list are read today)
-if(!appData.hornerDailyProgress.completedLists.includes(listIndex)) {
-    appData.hornerDailyProgress.completedLists.push(listIndex);
+if(!appData.hornerDailyProgress[profileId].completedLists.includes(listIndex)) {
+    appData.hornerDailyProgress[profileId].completedLists.push(listIndex);
 }
 ```
 
-**Important**: Horner daily progress resets at midnight (local timezone) and is independent of the chapter completion timestamps. A chapter can be marked as read without affecting list completion status.
+**Important**:
+- Horner daily progress is stored per-profile and syncs across devices via Firebase
+- Progress resets at midnight (local timezone) and is independent of chapter completion timestamps
+- A chapter can be marked as read without affecting list completion status
+- Each profile maintains its own daily list completion tracking
 
 ### Styling Changes
 
@@ -481,7 +488,10 @@ console.log(calculateStreaks())
 // View reading activity (heatmap data)
 console.log(getReadingActivity())
 
-// View Horner daily progress
+// View Horner daily progress for active profile
+console.log(appData.hornerDailyProgress[appData.activeProfileId])
+
+// View Horner daily progress for all profiles
 console.log(appData.hornerDailyProgress)
 
 // Reset Horner daily progress (for testing)

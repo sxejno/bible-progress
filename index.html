@@ -1246,13 +1246,26 @@
             appData.profileSyncRules = {};
         }
 
-        // Migrate existing users to have hornerDailyProgress
+        // Migrate existing users to have hornerDailyProgress (now per-profile)
         if(!appData.hornerDailyProgress) {
-            appData.hornerDailyProgress = {
-                date: new Date().toISOString().split('T')[0],
-                completedLists: []
-            };
+            appData.hornerDailyProgress = {};
         }
+        // Migrate old global hornerDailyProgress to per-profile structure
+        if(appData.hornerDailyProgress.date && appData.hornerDailyProgress.completedLists) {
+            // Old global structure detected - migrate to current active profile
+            const oldData = { ...appData.hornerDailyProgress };
+            appData.hornerDailyProgress = {};
+            appData.hornerDailyProgress[appData.activeProfileId] = oldData;
+        }
+        // Ensure each profile has hornerDailyProgress initialized
+        Object.keys(appData.profiles).forEach(profileId => {
+            if(!appData.hornerDailyProgress[profileId]) {
+                appData.hornerDailyProgress[profileId] = {
+                    date: new Date().toISOString().split('T')[0],
+                    completedLists: []
+                };
+            }
+        });
 
         // Migrate existing users to have reading time settings
         if(appData.showReadingTime === undefined) {
@@ -1328,8 +1341,19 @@
 
         const resetHornerDailyProgressIfNeeded = () => {
             const today = getTodaysDate();
-            if(!appData.hornerDailyProgress || appData.hornerDailyProgress.date !== today) {
-                appData.hornerDailyProgress = {
+            const profileId = appData.activeProfileId;
+
+            // Ensure the profile has hornerDailyProgress initialized
+            if(!appData.hornerDailyProgress[profileId]) {
+                appData.hornerDailyProgress[profileId] = {
+                    date: today,
+                    completedLists: []
+                };
+            }
+
+            // Reset if it's a new day
+            if(appData.hornerDailyProgress[profileId].date !== today) {
+                appData.hornerDailyProgress[profileId] = {
                     date: today,
                     completedLists: []
                 };
@@ -1348,14 +1372,16 @@
 
         const markHornerListComplete = (listIndex) => {
             resetHornerDailyProgressIfNeeded();
-            if(!appData.hornerDailyProgress.completedLists.includes(listIndex)) {
-                appData.hornerDailyProgress.completedLists.push(listIndex);
+            const profileId = appData.activeProfileId;
+            if(!appData.hornerDailyProgress[profileId].completedLists.includes(listIndex)) {
+                appData.hornerDailyProgress[profileId].completedLists.push(listIndex);
             }
         };
 
         const isHornerListComplete = (listIndex) => {
             resetHornerDailyProgressIfNeeded();
-            return appData.hornerDailyProgress.completedLists.includes(listIndex);
+            const profileId = appData.activeProfileId;
+            return appData.hornerDailyProgress[profileId].completedLists.includes(listIndex);
         };
 
         // Reset daily progress on load if it's a new day
@@ -1524,11 +1550,17 @@
 
                         // Ensure hornerDailyProgress exists (migration for existing users)
                         if(!appData.hornerDailyProgress) {
-                            appData.hornerDailyProgress = {
-                                date: new Date().toISOString().split('T')[0],
-                                completedLists: []
-                            };
+                            appData.hornerDailyProgress = {};
                         }
+                        // Ensure each profile has hornerDailyProgress initialized
+                        Object.keys(appData.profiles).forEach(profileId => {
+                            if(!appData.hornerDailyProgress[profileId]) {
+                                appData.hornerDailyProgress[profileId] = {
+                                    date: new Date().toISOString().split('T')[0],
+                                    completedLists: []
+                                };
+                            }
+                        });
 
                         // Ensure reading time settings exist (migration for existing users)
                         if(appData.showReadingTime === undefined) {
@@ -1871,6 +1903,11 @@
             
             appData.profiles[sanitized] = {};
             appData.profilePlans[sanitized] = 'SEQUENTIAL';
+            // Initialize hornerDailyProgress for new profile
+            appData.hornerDailyProgress[sanitized] = {
+                date: new Date().toISOString().split('T')[0],
+                completedLists: []
+            };
             window.switchProfile(sanitized);
         };
 
@@ -1891,6 +1928,7 @@
             if(userInput === name) {
                 delete appData.profiles[name];
                 delete appData.profilePlans[name];
+                delete appData.hornerDailyProgress[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -2745,7 +2783,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const todayStr = getTodaysDate();
 
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
-                    const isListCompleteToday = appData.hornerDailyProgress.completedLists.includes(listIdx);
+                    const isListCompleteToday = appData.hornerDailyProgress[appData.activeProfileId].completedLists.includes(listIdx);
 
                     let foundForList = false;
 
@@ -2800,7 +2838,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         }
                     }
                 });
-                const completedCount = appData.hornerDailyProgress.completedLists.length;
+                const completedCount = appData.hornerDailyProgress[appData.activeProfileId].completedLists.length;
                 footerMsg.innerText = `Professor Horner's System (${completedCount}/10 lists completed today)`;
             }
 
