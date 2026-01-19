@@ -537,7 +537,7 @@
                         </div>
                     </div>
 
-                    <div id="testament-progress-section" class="hidden">
+                    <div id="testament-progress-section" class="hidden cursor-pointer" onclick="window.toggleProgressView()" role="button" aria-label="Click to toggle between total progress and testament progress views" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.toggleProgressView()">
                         <div class="grid grid-cols-2 gap-4 mt-4">
                             <div class="bg-gradient-to-br from-white/80 to-amber-50/30 backdrop-blur-sm p-3 rounded-2xl border border-amber-100/50 shadow-sm">
                                 <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
@@ -804,6 +804,55 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Helpful Links</h3>
+
+                    <a href="https://www.blueletterbible.org/" target="_blank" rel="noopener noreferrer" class="block group mb-4">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-blue-200 hover:border-blue-400 transition-all hover:shadow-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-2xl">🔵</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-black text-blue-900 mb-1 group-hover:text-blue-700 transition-colors">Blue Letter Bible</h4>
+                                    <p class="text-sm text-slate-600 leading-relaxed">Free online Bible study tools including concordances, lexicons, and interlinear translations. Explore original Greek and Hebrew texts with comprehensive study resources.</p>
+                                </div>
+                                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://www.abarim-publications.com/" target="_blank" rel="noopener noreferrer" class="block group mb-4">
+                        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 p-6 rounded-2xl border-2 border-teal-200 hover:border-teal-400 transition-all hover:shadow-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-2xl">📜</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-black text-teal-900 mb-1 group-hover:text-teal-700 transition-colors">Abarim Publications</h4>
+                                    <p class="text-sm text-slate-600 leading-relaxed">In-depth Hebrew name meanings and Biblical word studies. Explore the etymology and cultural context of Biblical names and terms.</p>
+                                </div>
+                                <svg class="w-5 h-5 text-teal-600 flex-shrink-0 mt-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://home.snu.edu/~hculbert/study.htm" target="_blank" rel="noopener noreferrer" class="block group">
+                        <div class="bg-gradient-to-br from-violet-50 to-purple-50 p-6 rounded-2xl border-2 border-violet-200 hover:border-violet-400 transition-all hover:shadow-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-2xl">📚</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-black text-violet-900 mb-1 group-hover:text-violet-700 transition-colors">Bible Study Tools (SNU)</h4>
+                                    <p class="text-sm text-slate-600 leading-relaxed">Comprehensive collection of Bible study aids including maps, timelines, and reference materials. Useful resources for historical and geographical context.</p>
+                                </div>
+                                <svg class="w-5 h-5 text-violet-600 flex-shrink-0 mt-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
