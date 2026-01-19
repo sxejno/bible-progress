@@ -2777,6 +2777,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             try {
                 const response = await fetch('kjv_bible.json');
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch Bible text: ${response.status} ${response.statusText}`);
+                }
+
                 kjvBibleData = await response.json();
                 console.log('✅ KJV Bible text loaded');
                 return kjvBibleData;
@@ -2804,7 +2809,28 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Load Bible data if not already loaded
             if (!kjvBibleData) {
-                await loadBibleText();
+                const result = await loadBibleText();
+
+                // If loading failed, show error message
+                if (!result) {
+                    document.getElementById('bible-reader-verses').innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                            <svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Unable to Load Bible Text</h3>
+                            <p class="text-sm text-slate-600 mb-6 max-w-md">
+                                We couldn't load the Bible text. This might be due to a network issue or the file being unavailable.
+                                Please check your internet connection and try again.
+                            </p>
+                            <button onclick="window.openBibleReader('${bookName}', ${chapterNumber})"
+                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
             }
 
             // Render the chapter
@@ -2865,6 +2891,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         function renderBibleChapter(bookName, chapterNumber) {
             if (!kjvBibleData) {
                 console.error('Bible data not loaded');
+                document.getElementById('bible-reader-verses').innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Bible Data Not Loaded</h3>
+                        <p class="text-sm text-slate-600 mb-6 max-w-md">
+                            The Bible text data is not available. Please refresh the page and try again.
+                        </p>
+                    </div>
+                `;
                 return;
             }
 
@@ -2876,12 +2913,34 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const bookData = kjvBibleData.find(b => b.book === bookName);
             if (!bookData) {
                 console.error(`Book not found: ${bookName}`);
+                document.getElementById('bible-reader-verses').innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <svg class="w-16 h-16 text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Book Not Found</h3>
+                        <p class="text-sm text-slate-600 mb-6 max-w-md">
+                            We couldn't find "${bookName}" in the Bible data.
+                        </p>
+                    </div>
+                `;
                 return;
             }
 
             const chapterData = bookData.chapters.find(c => c.chapter === chapterNumber);
             if (!chapterData) {
                 console.error(`Chapter not found: ${bookName} ${chapterNumber}`);
+                document.getElementById('bible-reader-verses').innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                        <svg class="w-16 h-16 text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">Chapter Not Found</h3>
+                        <p class="text-sm text-slate-600 mb-6 max-w-md">
+                            We couldn't find ${bookName} chapter ${chapterNumber} in the Bible data.
+                        </p>
+                    </div>
+                `;
                 return;
             }
 
