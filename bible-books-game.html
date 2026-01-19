@@ -39,20 +39,20 @@
         .book-box.found {
             transform: scale(1.05);
             box-shadow: 0 0 24px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
-            border-width: 3px;
+            border-width: 4px;
             animation: book-found 0.5s ease-out;
         }
 
         .book-box.found-in-order {
-            background: rgba(34, 197, 94, 0.35);
-            border-color: #22c55e;
-            box-shadow: 0 0 24px rgba(34, 197, 94, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(255, 255, 255, 0.3);
         }
 
         .book-box.found-out-of-order {
-            background: rgba(251, 191, 36, 0.35);
-            border-color: #fbbf24;
-            box-shadow: 0 0 24px rgba(251, 191, 36, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
+            border-style: dashed;
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes book-found {
@@ -245,22 +245,22 @@
 
             <!-- Legend -->
             <div class="glass rounded-2xl p-5">
-                <h3 class="text-white font-bold text-center mb-4 text-sm uppercase tracking-wide opacity-90">Color Guide</h3>
+                <h3 class="text-white font-bold text-center mb-4 text-sm uppercase tracking-wide opacity-90">Order Indicator Guide</h3>
                 <div class="flex flex-wrap gap-6 justify-center text-sm text-white font-semibold">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg border-3 border-green-500 bg-green-500/35 shadow-lg"></div>
-                        <span>✓ Correct Order</span>
+                        <div class="w-7 h-7 rounded-lg border-4 border-solid border-white/90 bg-white/15 shadow-lg" style="box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);"></div>
+                        <span>✓ Correct Order (Solid Border)</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg border-3 border-yellow-500 bg-yellow-500/35 shadow-lg"></div>
-                        <span>Out of Order</span>
+                        <div class="w-7 h-7 rounded-lg border-4 border-dashed border-white/70 bg-white/15 shadow-lg"></div>
+                        <span>Out of Order (Dashed Border)</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-lg border-2 border-white/40 bg-white/15"></div>
                         <span>Not Found Yet</span>
                     </div>
                 </div>
-                <p class="text-center text-white/70 text-xs mt-4 italic">Books colored by testament category</p>
+                <p class="text-center text-white/70 text-xs mt-4 italic">Background colors show testament categories • Border style shows order status</p>
             </div>
         </div>
 
