@@ -1,5 +1,5 @@
 {
-  "name": "Bible Progress - Word-Weighted KJV Tracker",
+  "name": "Bible Progress",
   "short_name": "Bible Progress",
   "description": "Track your Bible reading progress with word-weighted precision. Features reading plans (Sequential, M'Cheyne, Horner), streak tracking, multi-profile support, and optional cloud sync.",
   "start_url": "./index.html",
