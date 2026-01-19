@@ -1,4 +1,4 @@
-# Bible Progress: Word-Weighted KJV Reading Tracker
+# Bible Progress
 
 A modern, mathematically accurate progress tracker for reading the King James Version (KJV) Bible. Unlike standard trackers that treat every chapter equally (where Psalm 117's 33 words count the same as Psalm 119's 2,423 words), this app tracks your progress based on **word count** — giving you a true representation of how much of the Bible you've actually read.
 
