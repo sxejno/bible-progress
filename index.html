@@ -2955,7 +2955,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Render verses
             let html = '<div class="space-y-3">';
-            const memorizedForProfile = appData.memorizedVerses[appData.activeProfileId] || [];
+            const memorizedForProfile = (appData.memorizedVerses && appData.memorizedVerses[appData.activeProfileId]) || [];
             chapterData.verses.forEach(verseData => {
                 const verseId = `${bookName}-${chapterNumber}:${verseData.verse}`;
                 const isMemorized = memorizedForProfile.some(v => v.id === verseId);
@@ -3066,6 +3066,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // Verse memorization functions
         window.toggleMemorizeVerse = (verseId, verseRef, verseText) => {
+            if(!appData.memorizedVerses) {
+                appData.memorizedVerses = {};
+            }
             if(!appData.memorizedVerses[appData.activeProfileId]) {
                 appData.memorizedVerses[appData.activeProfileId] = [];
             }
@@ -3106,7 +3109,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         };
 
         window.showMemorizedVerses = () => {
-            const memorizedList = appData.memorizedVerses[appData.activeProfileId] || [];
+            const memorizedList = (appData.memorizedVerses && appData.memorizedVerses[appData.activeProfileId]) || [];
 
             if(memorizedList.length === 0) {
                 alert('📝 No verses memorized yet!\n\nOpen the Bible reader and click the ☆ icon next to any verse to add it to your memorization list.');
