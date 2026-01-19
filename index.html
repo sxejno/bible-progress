@@ -2627,6 +2627,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 };
             });
 
+            // Helper function to check if a word should get pronunciation help
+            // Only matches capitalized words (proper nouns like Bible names/places)
+            const shouldMatchPronunciation = (word) => {
+                if (!word) return false;
+                // Find the first letter in the word (skip apostrophes/hyphens at start)
+                const firstLetter = word.match(/[a-zA-Z]/);
+                if (!firstLetter) return false;
+                // Only show pronunciation for capitalized words (proper nouns)
+                return firstLetter[0] === firstLetter[0].toUpperCase();
+            };
+
             // Split text into words while preserving punctuation and spaces
             let result = '';
             let currentWord = '';
@@ -2643,13 +2654,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         const lowerWord = currentWord.toLowerCase();
                         const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
 
-                        // Check if word has pronunciation (try exact match first, then without punctuation)
-                        if (pronunciationMap[lowerWord]) {
-                            const { pronunciation } = pronunciationMap[lowerWord];
-                            result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
-                        } else if (pronunciationMap[wordWithoutPunctuation]) {
-                            const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
-                            result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                        // Only match if word is capitalized (proper noun)
+                        if (shouldMatchPronunciation(currentWord)) {
+                            // Check if word has pronunciation (try exact match first, then without punctuation)
+                            if (pronunciationMap[lowerWord]) {
+                                const { pronunciation } = pronunciationMap[lowerWord];
+                                result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                            } else if (pronunciationMap[wordWithoutPunctuation]) {
+                                const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
+                                result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                            } else {
+                                result += escapeHtml(currentWord);
+                            }
                         } else {
                             result += escapeHtml(currentWord);
                         }
@@ -2664,12 +2680,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const lowerWord = currentWord.toLowerCase();
                 const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
 
-                if (pronunciationMap[lowerWord]) {
-                    const { pronunciation } = pronunciationMap[lowerWord];
-                    result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
-                } else if (pronunciationMap[wordWithoutPunctuation]) {
-                    const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
-                    result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                // Only match if word is capitalized (proper noun)
+                if (shouldMatchPronunciation(currentWord)) {
+                    if (pronunciationMap[lowerWord]) {
+                        const { pronunciation } = pronunciationMap[lowerWord];
+                        result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                    } else if (pronunciationMap[wordWithoutPunctuation]) {
+                        const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
+                        result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                    } else {
+                        result += escapeHtml(currentWord);
+                    }
                 } else {
                     result += escapeHtml(currentWord);
                 }
