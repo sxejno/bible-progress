@@ -196,12 +196,19 @@
     <div class="max-w-4xl mx-auto mb-8 animate-slide-in">
         <div class="glass-strong rounded-2xl p-8 shadow-2xl">
             <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
+                <div class="flex-1">
                     <h1 class="text-4xl font-bold text-white mb-2 drop-shadow-lg">📖 Verse Memorization Helper</h1>
-                    <p class="text-white text-lg font-medium">Hide God's word in your heart</p>
+                    <p class="text-white text-lg font-medium mb-3">Hide God's word in your heart</p>
+                    <div class="glass rounded-xl px-4 py-3 inline-block">
+                        <p class="text-white/90 text-sm font-medium flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                            <span>Verses you save in the Bible reader appear here automatically!</span>
+                        </p>
+                    </div>
                 </div>
-                <a href="index.html" class="glass px-6 py-3 rounded-xl text-white hover:bg-white/30 transition shadow-lg font-semibold">
-                    ← Back to App
+                <a href="index.html" class="glass px-6 py-3 rounded-xl text-white hover:bg-white/30 transition shadow-lg font-semibold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Back to App</span>
                 </a>
             </div>
         </div>
@@ -246,9 +253,25 @@
             </div>
         </div>
 
+        <!-- My Memorized Verses (from main app) -->
+        <div class="glass-strong rounded-2xl p-8 shadow-2xl" id="my-memorized-section" style="display: none;">
+            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+                <span>⭐</span>
+                <span>My Memorized Verses</span>
+            </h2>
+            <p class="text-white/80 text-sm mb-6 font-medium">Verses you've saved from the Bible reader</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="my-memorized-verses">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
         <!-- Popular Verses -->
         <div class="glass-strong rounded-2xl p-8 shadow-2xl">
-            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">Popular Verses</h2>
+            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+                <span>🌟</span>
+                <span>Popular Verses</span>
+            </h2>
+            <p class="text-white/80 text-sm mb-6 font-medium">Well-known Scripture passages to memorize</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="popular-verses">
                 <!-- Populated by JavaScript -->
             </div>
@@ -256,7 +279,11 @@
 
         <!-- Verse Lookup -->
         <div class="glass-strong rounded-2xl p-8 shadow-2xl">
-            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">🔍 Look Up & Add Verse</h2>
+            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+                <span>🔍</span>
+                <span>Look Up & Add Verse</span>
+            </h2>
+            <p class="text-white/80 text-sm mb-6 font-medium">Find any Bible verse and add it to your practice list</p>
             <div id="bible-status" class="mb-4 text-sm text-white font-medium italic hidden">
                 <!-- Status message will be inserted here -->
             </div>
@@ -342,7 +369,11 @@
 
         <!-- My Custom Verses -->
         <div class="glass-strong rounded-2xl p-8 shadow-2xl" id="custom-verses-section" style="display: none;">
-            <h2 class="text-2xl font-bold text-white mb-6 drop-shadow">My Verses</h2>
+            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+                <span>📝</span>
+                <span>My Custom Verses</span>
+            </h2>
+            <p class="text-white/80 text-sm mb-6 font-medium">Verses you've added through the lookup feature</p>
             <div class="space-y-3" id="custom-verses-list">
                 <!-- Populated by JavaScript -->
             </div>
@@ -505,9 +536,55 @@
         let customVerses = [];
         let verseProgress = {}; // Tracks review counts
 
+        // Load memorized verses from main app
+        let myMemorizedVerses = [];
+
+        function loadMemorizedVersesFromMainApp() {
+            try {
+                const mainAppData = localStorage.getItem('kjv_v6_data');
+                if (mainAppData) {
+                    const data = JSON.parse(mainAppData);
+                    if (data.memorizedVerses && data.activeProfileId) {
+                        const profileVerses = data.memorizedVerses[data.activeProfileId];
+                        if (profileVerses && profileVerses.length > 0) {
+                            myMemorizedVerses = profileVerses;
+                            return true;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading memorized verses from main app:', e);
+            }
+            return false;
+        }
+
+        // Render my memorized verses from main app
+        function renderMyMemorizedVerses() {
+            const section = document.getElementById('my-memorized-section');
+            const container = document.getElementById('my-memorized-verses');
+
+            if (myMemorizedVerses.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            container.innerHTML = myMemorizedVerses.map((verse, index) => `
+                <button
+                    onclick="window.selectVerse(${index}, 'memorized')"
+                    class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 shadow-lg"
+                >
+                    <div class="font-bold text-lg mb-1">${escapeHtml(verse.ref)}</div>
+                    <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                </button>
+            `).join('');
+        }
+
         // Initialize
         async function init() {
             loadData();
+            loadMemorizedVersesFromMainApp();
+            renderMyMemorizedVerses();
             renderPopularVerses();
             renderCustomVerses();
             await loadBibleData();
@@ -937,7 +1014,17 @@
         // Select a verse
         window.selectVerse = function(index, type) {
             currentVerseIndex = index;
-            const verse = type === 'popular' ? POPULAR_VERSES[index] : customVerses[index];
+            let verse;
+            if (type === 'popular') {
+                verse = POPULAR_VERSES[index];
+            } else if (type === 'memorized') {
+                verse = myMemorizedVerses[index];
+                // Convert from main app format (ref, text) to memorize page format (reference, text)
+                verse = { reference: verse.ref, text: verse.text };
+            } else {
+                verse = customVerses[index];
+            }
+
             const verseKey = `${type}_${index}`;
 
             // Update review count
@@ -962,6 +1049,12 @@
                 document.getElementById('next-btn').disabled = index === POPULAR_VERSES.length - 1;
                 document.getElementById('prev-btn').classList.toggle('opacity-50', index === 0);
                 document.getElementById('next-btn').classList.toggle('opacity-50', index === POPULAR_VERSES.length - 1);
+            } else if (type === 'memorized') {
+                // Enable navigation for memorized verses
+                document.getElementById('prev-btn').disabled = index === 0;
+                document.getElementById('next-btn').disabled = index === myMemorizedVerses.length - 1;
+                document.getElementById('prev-btn').classList.toggle('opacity-50', index === 0);
+                document.getElementById('next-btn').classList.toggle('opacity-50', index === myMemorizedVerses.length - 1);
             } else {
                 document.getElementById('prev-btn').disabled = true;
                 document.getElementById('next-btn').disabled = true;
@@ -976,19 +1069,32 @@
         window.prevVerse = function() {
             if (window.currentVerseType === 'popular' && currentVerseIndex > 0) {
                 window.selectVerse(currentVerseIndex - 1, 'popular');
+            } else if (window.currentVerseType === 'memorized' && currentVerseIndex > 0) {
+                window.selectVerse(currentVerseIndex - 1, 'memorized');
             }
         };
 
         window.nextVerse = function() {
             if (window.currentVerseType === 'popular' && currentVerseIndex < POPULAR_VERSES.length - 1) {
                 window.selectVerse(currentVerseIndex + 1, 'popular');
+            } else if (window.currentVerseType === 'memorized' && currentVerseIndex < myMemorizedVerses.length - 1) {
+                window.selectVerse(currentVerseIndex + 1, 'memorized');
             }
         };
 
         // Set display mode
         window.setDisplayMode = function(mode) {
             currentDisplayMode = mode;
-            const verse = window.currentVerseType === 'popular' ? POPULAR_VERSES[currentVerseIndex] : customVerses[currentVerseIndex];
+            let verse;
+            if (window.currentVerseType === 'popular') {
+                verse = POPULAR_VERSES[currentVerseIndex];
+            } else if (window.currentVerseType === 'memorized') {
+                const memorizedVerse = myMemorizedVerses[currentVerseIndex];
+                verse = { reference: memorizedVerse.ref, text: memorizedVerse.text };
+            } else {
+                verse = customVerses[currentVerseIndex];
+            }
+
             const container = document.getElementById('verse-content');
 
             // Update button states
@@ -1045,8 +1151,8 @@
             if (e.key === '1') setDisplayMode('full');
             if (e.key === '2') setDisplayMode('hints');
             if (e.key === '3') setDisplayMode('hidden');
-            if (e.key === 'ArrowLeft' && window.currentVerseType === 'popular') window.prevVerse();
-            if (e.key === 'ArrowRight' && window.currentVerseType === 'popular') window.nextVerse();
+            if (e.key === 'ArrowLeft' && (window.currentVerseType === 'popular' || window.currentVerseType === 'memorized')) window.prevVerse();
+            if (e.key === 'ArrowRight' && (window.currentVerseType === 'popular' || window.currentVerseType === 'memorized')) window.nextVerse();
         });
 
         // Initialize on load

@@ -379,7 +379,7 @@
                 <!-- Heading -->
                 <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Bible Progress</h2>
                 <p class="text-center text-slate-600 mb-8 leading-relaxed">
-                    Track your Bible reading with word-weighted accuracy.
+                    Read the Bible and track your progress!
                 </p>
 
                 <!-- Key points -->
@@ -1444,6 +1444,22 @@
 
         let activePlan = appData.profilePlans[appData.activeProfileId] || 'MCHEYNE';
         let currentUser = null;
+
+        // --- CHAPTER SUMMARIES ---
+        let chapterSummaries = {};
+
+        // Load chapter summaries from JSON
+        fetch('bible_chapter_summaries_concise.json')
+            .then(response => response.json())
+            .then(data => {
+                // Convert array to lookup object for faster access
+                data.forEach(item => {
+                    chapterSummaries[item.id] = item.summary;
+                });
+            })
+            .catch(err => {
+                console.log('Chapter summaries not loaded:', err);
+            });
 
         // --- UTILITY FUNCTIONS ---
         // Helper function to get local date string (YYYY-MM-DD) from timestamp
@@ -3815,11 +3831,25 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </div>` :
                     `<div class="text-[10px] font-bold text-slate-400 tracking-wide mt-1.5">~${item.words} words</div>`;
 
+                // Get chapter summary - normalize book name and chapter to match JSON format
+                // Handle special case: "Song of Songs" in app -> "Song of Solomon" in JSON
+                let bookNameForSummary = item.book;
+                if (item.book === 'Song of Songs') {
+                    bookNameForSummary = 'Song of Solomon';
+                }
+                const summaryKey = `${bookNameForSummary.toLowerCase().replace(/ /g, '-')}-${item.chapter}`;
+                const summary = chapterSummaries[summaryKey];
+                const summaryHtml = summary ?
+                    `<div class="hidden sm:block mt-3 pt-3 border-t border-slate-200">
+                        <div class="text-xs text-slate-600 leading-relaxed italic">"${summary}"</div>
+                    </div>` : '';
+
                 return `<button onclick="window.openBibleReader('${item.book}', ${item.chapter})" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group w-full text-left cursor-pointer" aria-label="Read ${item.label}${item.isComplete ? ', completed' : ''}">
                     <div class="flex-1">
                         <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
                         ${metadataHtml}
+                        ${summaryHtml}
                     </div>
                     ${!item.isComplete ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event); window.renderDailyPlan();"
@@ -3977,7 +4007,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 });
                 if (bookChaptersRead === book.ch.length) finishedBooks++;
             });
-            const getPerc = (val, max) => ((val / max) * 100).toFixed(4);
+            const getPerc = (val, max) => ((val / max) * 100).toFixed(2);
             document.getElementById('total-progress-bar').style.width = (totalRead / WORD_TOTALS.GLOBAL * 100) + '%';
             document.getElementById('total-percent').innerText = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%';
             document.getElementById('ot-percent').innerText = getPerc(otRead, WORD_TOTALS.OT) + '%';
@@ -4426,7 +4456,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 // Create new chart only if it doesn't exist
                 mainChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: dataset, backgroundColor: colors, borderWidth: 0, hoverOffset: 4 }] }, options: { cutout: '75%', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
             }
-            document.getElementById('stats-page-total-percent').innerText = ((chartTotalRead / WORD_TOTALS.GLOBAL) * 100).toFixed(4) + '%';
+            document.getElementById('stats-page-total-percent').innerText = ((chartTotalRead / WORD_TOTALS.GLOBAL) * 100).toFixed(2) + '%';
             document.getElementById('stats-words-count').innerText = chartTotalRead.toLocaleString() + ' / ' + WORD_TOTALS.GLOBAL.toLocaleString() + ' words';
             document.getElementById('stats-chapters-count').innerText = chaptersRead + ' / ' + totalChapters + ' chapters';
             document.getElementById('legend-grid').innerHTML = allCats.map(cat => `<div class="flex items-center gap-3 text-sm p-2 bg-slate-50 rounded-lg"><div class="w-4 h-4 rounded-full flex-shrink-0 shadow-sm" style="background-color: ${cat.chartColor}"></div><span class="text-slate-700 font-bold truncate">${cat.name}</span></div>`).join('');
