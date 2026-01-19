@@ -3881,23 +3881,23 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const avgWordsPerMinute = appData.wordsPerMinute || 250;
             const minutesRemaining = Math.ceil(unreadWordsInBook / avgWordsPerMinute);
             let timeEstimate = '';
-            let chaptersText = `📖 ${readInBook}/${book.ch.length} ch`;
+            let chaptersText = `${readInBook}/${book.ch.length} chapters read`;
 
             if (unreadWordsInBook === 0) {
                 timeEstimate = '✅ Complete!';
             } else if (minutesRemaining < 60) {
-                timeEstimate = `⏱️ ~${minutesRemaining} min`;
+                timeEstimate = `⏱️ ~${minutesRemaining} min left`;
             } else {
                 const hours = Math.floor(minutesRemaining / 60);
                 const mins = minutesRemaining % 60;
                 if (mins === 0) {
-                    timeEstimate = `⏱️ ~${hours} hr`;
+                    timeEstimate = `⏱️ ~${hours} hr left`;
                 } else {
-                    timeEstimate = `⏱️ ~${hours}h ${mins}m`;
+                    timeEstimate = `⏱️ ~${hours}h ${mins}m left`;
                 }
             }
 
-            document.getElementById('book-stat-detail').innerText = `${chaptersText}  •  ${timeEstimate}`;
+            document.getElementById('book-stat-detail').innerText = `${chaptersText}   •   ${timeEstimate}`;
             window.updateStats();
         }
 
