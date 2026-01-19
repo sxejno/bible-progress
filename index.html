@@ -260,6 +260,51 @@
         .bible-reader-content::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Pronunciation indicators */
+        .pronunciation-word {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #94a3b8;
+            cursor: help;
+            transition: all 0.2s ease;
+        }
+        .pronunciation-word:hover {
+            border-bottom-color: #4f46e5;
+            color: #4f46e5;
+        }
+        .pronunciation-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .pronunciation-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #6366f1;
+        }
+        .pronunciation-word:hover .pronunciation-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -2258,6 +2303,402 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         let currentReaderBook = null;
         let currentReaderChapter = null;
 
+        // --- PRONUNCIATION GUIDE ---
+        // Dictionary mapping Bible words to their pronunciations
+        const PRONUNCIATION_GUIDE = {
+            "Aaron": "AIR-un", "Abaddon": "Ah-BAD-dun", "Abarim": "Ah-bah-REEM", "Abba": "AH-buh",
+            "Abdon": "AB-dun", "Abednego": "Ah-BED-neh-go", "Abel-Beth-Maacah": "AH-bell-BETH-mah-ah-CAH",
+            "Abel": "AY-bel", "Abelmaim": "AH-bel-MAH-yim", "Abiathar": "Ah-bee-AH-thar", "Abihu": "Ah-BEE-hoo",
+            "Abijah": "Ah-BEE-jah", "Abijam": "Ah-BEE-jam", "Abimelech": "Ah-BIM-uh-leck", "Abinadab": "Ah-BIH-nuh-dab",
+            "Abinoam": "Ah-bih-NOH-um", "Abiram": "Ah-BEE-ram", "Abishag": "AB-ih-shag", "Abishai": "AA-bih-shigh",
+            "Abner": "AB-ner", "Abomination": "Ah-bah-mih-NAY-shun", "Abraham": "AY-brah-ham", "Absalom": "AB-sah-lom",
+            "Acacia": "Ah-KAY-shah", "Achaia": "Ah-KAY-ah", "Achan": "AH-kun", "Achar": "Ah-KAHR",
+            "Achish": "Ah-KEESH", "Achor": "Ah-CORE", "Achsah": "AHK-sah", "Achshaph": "AHK-shahf",
+            "Achzib": "Ahk-ZEEB", "Acropolis": "Ah-CRAH-poh-liss", "Adonijah": "Ah-doh-NIGH-juh",
+            "Adoniram": "Ah-doh-NIGH-ram", "Adonizedek": "Ah-doh-nigh-ZEH-dek", "Adoram": "Ah-DORE-um",
+            "Adrammelech": "AH-druh-MEH-leck", "Adramyttium": "Ah-drah-MIH-tee-um", "Adullam": "Ah-DUHL-ahm",
+            "Aegean": "Ah-GEE-an", "Aeneas": "Ah-NEE-us", "Aenon": "EYE-non", "Agabus": "AH-gah-bus",
+            "Agape": "Ah-GAH-pay", "Agrippa": "Ah-GRIP-ah", "Agur": "AH-gur", "Ahasuerus": "Ah-hah-zoo-AIR-us",
+            "Ahaz": "AY-haz", "Ahaziah": "Ah-hah-ZIGH-ah", "Ahijah": "Ah-HEE-jah", "Ahimaaz": "Ah-HIH-mah-az",
+            "Ahimelech": "Ah-HIH-meh-leck", "Ahinoam": "Ah-hee-NOH-um", "Ahisamach": "Ah-HEE-sah-mahk",
+            "Ahithophel": "Ah-HITH-oh-fel", "Ai": "EYE", "Aiah": "Ah-EE-ah", "Aijalon": "AY-jah-lun",
+            "Akkadian": "Ah-KAY-dee-an", "Akrabbim": "Ah-krah-BEEM", "Alamoth": "AL-uh-moth", "Alpha": "AL-fah",
+            "Amalek": "AM-uh-leck", "Amalekites": "Ah-MAL-eh-kites", "Amana": "Ah-MAH-nah",
+            "Amariah": "Am-ah-RIGH-ah", "Amasa": "Ah-MAH-sah", "Amasis": "AM-ah-sis",
+            "Amenemopet": "Ah-men-EM-oh-pay", "Amethyst": "AM-eh-thist", "Ammon": "AM-mun",
+            "Ammonites": "AM-moh-nites", "Amon": "AM-on", "Amorite": "AM-moh-rite", "Ampliatus": "Am-plee-AH-tus",
+            "Amram": "Ahm-RAHM", "Amulet": "AM-you-let", "Anakim": "Ah-nah-KEEM", "Ananias": "Ah-nah-NIGH-us",
+            "Anathoth": "AN-uh-thothe", "Andronicus": "An-DROH-nih-kus", "Annas": "ANN-us",
+            "Antichrist": "AN-tee-christ", "Antioch": "AN-tee-ahk", "Antiochus": "An-TIE-oh-kus",
+            "Apelles": "Ah-PELL-us", "Aphek": "AY-fek", "Aphiah": "Ah-FEE-ah", "Apocalypse": "Ah-POCK-ah-lips",
+            "Apocalyptic": "Ah-pah-kah-LIP-tic", "Apodictic": "Aa-poh-DIK-tik", "Apollo": "Ah-PAHL-oh",
+            "Apollos": "Ah-PAH-lus", "Apollyon": "Ah-PAHL-yon", "Apostasy": "Ah-PAHS-tah-see",
+            "Apphia": "AP-fee-ah", "Aquila": "Ah-KWILL-ah", "Arabah": "AR-ah-bah", "Arabia": "Ah-RAY-bee-ah",
+            "Arad": "ARE-ad", "Aram": "AIR-um", "Aram-maacah": "AR-am-mah-ah-CAH",
+            "Aram-nahaaraim": "AIR-am-Nah-har-uh-EEM", "Aram-zobah": "AIR-um-ZOH-bah", "Aramaic": "Air-ah-MAY-ick",
+            "Aramean": "Air-ah-MEE-an", "Ararat": "AIR-ah-rat", "Archelaus": "Ark-keh-LAY-us",
+            "Archippus": "ARCH-ih-puss", "Areopagus": "Air-ee-OP-ah-gus", "Aretas": "AH-reh-tas",
+            "Argob": "Ar-GOBE", "Ariel": "Air-ee-ELL", "Arimathea": "Air-ah-mah-THEE-ah", "Arioch": "ARE-ee-ock",
+            "Aristarchus": "Ar-iss-STAR-kus", "Aristobulus": "Air-iss-TAH-bih-lus", "Armoni": "Ar-MOH-nee",
+            "Arnon": "ARE-non", "Aroer": "Ah-ROH-er", "Arpachshad": "Ar-POCK-shad", "Arpad": "ARE-pahd",
+            "Artemas": "ARE-teh-mas", "Artemis": "AHR-teh-miss", "Arvad": "ARE-vahd", "Asa": "AY-suh",
+            "Asaph": "AY-saf", "Ashdod": "ASH-dod", "Asher": "AA-sher", "Asherah": "Ah-sheh-RAH",
+            "Asherim": "Ash-uh-REEM", "Ashkelon": "ASH-keh-lon", "Ashpenaz": "ASH-peh-noz",
+            "Ashtaroth": "ASH-tah-roth", "Ashtoreth": "ASH-toh-reth", "Assur": "ASH-ur", "Assyria": "Ah-SEER-ee-ah",
+            "Astarte": "As-TAR-teh", "Asyncritus": "Ah-SIN-crih-tus", "Atad": "AY-tad", "Ataroth": "Ah-tah-ROTHE",
+            "Athaliah": "Ath-ah-LIGH-ah", "Atharim": "Ah-thah-REEM", "Augustus": "Ah-GUSS-tuss",
+            "Avvim": "Ah-VEEM", "Azariah": "Ah-zah-RIGH-ah", "Azazel": "Ah-zah-ZALE", "Azekah": "Ah-zeh-KAH",
+            "Azmon": "AZ-mon", "Azubah": "Ah-ZOO-bah", "Azzur": "AZZ-ur", "Baal": "Bah-AHL",
+            "Baal-hazor": "Bah-AHL-hah-TSORE", "Baal-meon": "Bah-ALL-may-AHN", "Baal-perazim": "Bah-AHL-per-rah-ZEEM",
+            "Baal-zephon": "Bah-AHL-zeh-FONE", "Baalath": "Bah-ah-LAHTH", "Baale-judah": "Bah-AHL-le- JOO-dah",
+            "Baanah": "Bah-ah-NAH", "Baasha": "Bah-ah-SHAH", "Babylon": "BAA-beh-lon", "Baca": "Bah-KAH",
+            "Bahurim": "Bah-hoor-EEM", "Balaam": "BAY-lem", "Baladan": "BAH-lah-don", "Balak": "BAY-lak",
+            "Bamah": "Bah-MAH", "Bamoth": "Bah-MOTHE", "Barabbas": "Buh-RAA-bus", "Barachel": "Bah-rah-KELL",
+            "Barachia": "Bah-rah-KEE-ah", "Barak": "Bah-RACK", "Barnabas": "BAR-nah-bas",
+            "Bartimaeus": "Bar-tih-MAY-us", "Barzillai": "Bar-ZIL-eye", "Bashan": "Bah-SHAHN",
+            "Bath-rabbim": "Bah-AHTH-rah-BEEM", "Becorath": "Beh-COR-rath", "Beelzebul": "Bee-EHL-ze-bul",
+            "Beer-la-hai-roi": "BEER-lah-HIGH-roi", "Beeroth": "Buh-eh-ROTHE", "Beersheba": "Beer-SHEE-bah",
+            "Behemoth": "Beh-HEE-moth", "Belshazzar": "BELL-shah-zar", "Ben-hadad": "Ben-hah-DAHD",
+            "Benaiah": "Beh-NIGH-ah", "Benhadad": "Ben-hah-DAHD", "Beon": "Beh-OWN", "Beor": "Beh-OR",
+            "Beracah": "Ber-ah-CAH", "Berechiah": "Beh-reh-KIGH-ah", "Berith": "Buh-REETH",
+            "Berothah": "Beh-ROH-thah", "Berothai": "Beh-roh-THAI", "Beryl": "BEHR-ill", "Besor": "Beh-SORE",
+            "Beth-horon": "Beth-HOR-on", "Beth-jeshimoth": "BETH-yeh-shih-MOTHE", "Beth-le-aphrah": "BETH-leh-ah-FRAH",
+            "Beth-shemesh": "Beth-SHEH-mesh", "Beth-togannah": "BETH-toh-gar-MAH", "Bethany": "BETH-ah-nee",
+            "Bethel": "Beth-ELL", "Bethesda": "Beh-THEHZ-dah", "Bethezel": "Beth-eh-ZEL",
+            "Bethhaccherem": "BETH-hah-I-IR-um", "Bethharam": "Beth-hah-RAHM",
+            "Bethlehem Ephrathah": "BETH-leh-hem-eh-FRAH-thah", "Bethlehem": "BETH-leh-hem",
+            "Bethphage": "BETH-fah-jee", "Bethsaida": "Beth-SAY-ih-dah", "Bethuel": "BETH-you-eli",
+            "Bethzatha": "Beth-ZAH-thah", "Bezalel": "BEZ-ah-lel", "Bezek": "BAY-zek", "Bezer": "BEH-zer",
+            "Bildad": "BILL-dad", "Bilhah": "BIL-hah", "Bithynia": "Bih-THIN-ee-ah", "Boaz": "BO-az",
+            "Bochim": "Boh-KEEM", "Bozrah": "BOZ-rah", "Bul": "BOOL", "Buz": "BUHZ", "Buzi": "BU-zye",
+            "Buzite": "BOO-zite", "Byblos": "BIB-los", "Cabul": "KAY-bul", "Caesar": "SEE-zar",
+            "Caesarea-Philippi": "Sess-ah-REE-ah-FILL-ih-pie", "Caesarea": "Sess-ah-REE-ah",
+            "Caiaphus": "KAY-ah-fuss", "Caligula": "Kah-LIG-you-lah", "Cana": "KAY-nah", "Canaan": "CAY-nan",
+            "Canaanites": "KAY-nuh-nites", "Canneh": "CAN-neh", "Capernaum": "Kah-PER-nay-um",
+            "Caphtorim": "Caf-toh-REEM", "Cappadocia": "Cap-ah-DOSH-ee-ah", "Carchemish": "CAR-keh-mish",
+            "Carmel": "Car-MEL", "Carnelian": "Kar-NEEL-yen", "Casuistic": "Kaa-zoo-ISS-tic",
+            "Cenchreae": "SEN-kree-ah", "Censer": "SEN-ser", "Centurion": "Sen-TOOR-ee-un", "Cephas": "SEE-fuss",
+            "Chalcedony": "Kal-SEH-doh-nee", "Chaldean": "Cal-DEE-an", "Chebar": "KEE-bar", "Chemosh": "KEE-mosh",
+            "Cherethites": "CHAIR-eh-thites", "Cherith": "KEE-rith", "Cherubim": "CHAIR-uh-bim",
+            "Chileab": "CHIH-lee-ab", "Chilion": "KIL-ee-un", "Chilmad": "KILL-mad", "Chinnereth": "KIH-neh-reth",
+            "Chinneroth": "KIN-eh-roth", "Chislev": "KIZ-lev", "Chloe": "KLOH-wee", "Chorazim": "KORE-ah-zim",
+            "Chorazin": "Koh-RAH-zin", "Chrysolite": "KRIS-oh-light", "Chrysoprase": "KRIS-oh-prays",
+            "Cilicia": "Si-LEE-shuh", "Circumcision": "SUR-kum-sih-zhun", "Claudius": "CLAH-dee-us",
+            "Cleopas": "KLEE-oh-pus", "Clopas": "KLOH-pas", "Colossae": "Cuh-LOSS-eye", "Cor": "CORE",
+            "Cornelius": "Kor-NEE-lee-us", "Crispus": "KRIS-pus", "Cubit": "CUE-bit", "Cush": "KOOSH",
+            "Cushan-rishathaim": "KOO-shan-rish-uh-THAY-im", "Cushan": "KOO-shan", "Cushi": "KOOSH-eye",
+            "Cyprus": "SIGH-pruss", "Cyrene": "Sigh-REE-nee", "Cyrenians": "Sigh-REE-nee-ans", "Dagon": "DAY-gone",
+            "Dalmanutha": "Dal-mah-NOO-thah", "Dalmatia": "Dal-MAY-shuh", "Damascus": "Duh-MAS-kuhs",
+            "Darius": "DARE-ee-us", "Dathan": "Dah-THAHN", "Debir": "Deh-BEER", "Decalogue": "DEH-kah-log",
+            "Decapolis": "Dee-CAP-oh-liss", "Dedan": "DEE-dan", "Dedanites": "DEH-duh-nites", "Demas": "DEE-mas",
+            "Demetrius": "Di-MEE-tree-us", "Denarii": "Deh-NAIR-ee", "Denarius": "Deh-NAIR-ee-us",
+            "Desecration": "Deh-seh-KRAY-shun", "Dibon": "dih-BONE", "Diotrephes": "Die-AH-tref-ays",
+            "Doeg": "DOH-egg", "Domitian": "Doh-MIH-shun", "Dorcus": "DOR-kus", "Dothan": "DOH-thun",
+            "Eder": "AY-der", "Edom": "EE-dum", "Edrei": "EH-dreheye", "Egypt": "EE-jipt", "Ehud": "EE-hude",
+            "Ekron": "EHK-ron", "El Shaddai": "El-shah-DIGH", "Elah": "EE-lah", "Elam": "EE-lum",
+            "Eleazar": "Ell-ee-AY-zar", "Elhanan": "ELL-hah-non", "Eli": "EE-ligh", "Eliab": "EH-lee-ab",
+            "Eliada": "Ell-lee-AH-dah", "Eliezer": "Eh-lee-AY-zer", "Elihu": "Ee-HIE-hew", "Elijah": "Ee-LIGH-jah",
+            "Elim": "Eh-LEEM", "Elimelech": "Eh-lee-MEH-lek", "Eliphaz": "EHL-ih-faz", "Elishah": "Eh-LIGH-shah",
+            "Elishama": "Ell-lee-SHAH-mah", "Elisheba": "Eh-lee-SHEH-bah", "Elishua": "Ell-lee-SHOO-ah",
+            "Elizaphan": "Eh-lee-zah-FAHN", "Elkanah": "ELL-kah-nah", "Elkosh": "EL-kosh", "Elohim": "Eh-loh-HEEM",
+            "Elohist": "EH-loh-hist", "Elon": "EE-lon", "Elyon": "Eh-lee-ON", "Emim": "Eh-MEEM",
+            "Emmanuel": "Ih-MAN-yoo-ell", "En-eglaim": "En-eh-GLAH-eem", "En-gedi": "En-GEH-dee",
+            "En-rogel": "En-roh-GEL", "Endor": "EN-door", "Enhakkore": "En-hah-KORE", "Enoch": "EE-nuck",
+            "Enosh": "EE-nosh", "Epaenetus": "Ee-PAY-neh-tus", "Epaphras": "Ee-PAF-ras",
+            "Epaphroditus": "Ee-paf-roh-DIGH-tus", "Ephah": "EE-fah", "Ephesus": "EH-fuh-sus", "Ephod": "EE-fod",
+            "Ephphatha": "EFF-fah-thah", "Ephraim": "EE-frah-eem", "Ephraimites": "EE-frah-eem-ites",
+            "Ephrathah": "EFF-ra-thah", "Ephron": "EFF-ron", "Epicurean": "Eh-pih-CURE-ee-an",
+            "Epilogue": "EH-pih-log", "Erastus": "Eh-RASS-tus", "Esarhaddon": "Eh-shar-HAD-dun", "Esau": "EE-saw",
+            "Eschatological": "Ess-kah-toh-LAH-jih-cal", "Eschatology": "Ess-kah-TAH-lo-gee",
+            "Eshtaol": "ESH-tah-ole", "Eshtemoa": "Esh-teh-MOH-ah", "Ethanim": "Eth-ah-NEEM",
+            "Ethiopia": "Ee-thee-OH-pia", "Ethiopian": "Ee-thee-OH-pee-an", "Eubulus": "YOU-buh-lus",
+            "Eunuch": "YOO-nick", "Euodia": "You-OH-dee-ah", "Euphrates": "You-FRAY-tees",
+            "Eutychus": "YOO-tih-kus", "Evil-merodach": "Ee-vil-MER-oh-dak", "Exhortation": "Ex-or-TAY-shun",
+            "Ezekiel Ben-adam": "Ee-ZEE-kee-al BEN-ah-DAHM", "Ezion-geber": "EH-zee-own-GEH-ber",
+            "Ezrahite": "EZ-rah-hite", "Fair": "Jah-EER", "Favan": "JAH-van", "Fortunatus": "For-too-NAH-tus",
+            "Freshets": "FRESH-ets", "Gaal": "Gah-ALL", "Gadarenes": "GAA-deh-reens", "Gaius": "GAY-us",
+            "Galatia": "Gah-LAY-shuh", "Galilee": "GAL-ih-lee", "Gallim": "Gal-LEEM", "Gamad": "GAY-mad",
+            "Gamaliel": "Ga-MAY-lee-el", "Gareb": "GAHR-eb", "Gaza": "GAH-zah", "Geba": "GAY-bah",
+            "Gebal": "GAY-ball", "Gedaliah": "Geh-dah-LIGH-uh", "Gedara": "GEH-dah-rah", "Gedor": "GAY-dor",
+            "Gehenna": "Geh-HEH-nuh", "Gennesaret": "Geh-NESS-ah-ret", "Gentile": "JEN-tile", "Gera": "GER-ah",
+            "Gerah": "GER-ah", "Gerar": "Ger-ARE", "Gerasa": "GEH-rah-sah", "Gerasene": "GER-ah-seen",
+            "Gergesa": "GER-geh-sah", "Gerizim": "Geh-rih-ZEEM", "Gershom": "GER-shum",
+            "Gethsemane": "Geth-SEH-mah-nee", "Gezer": "GEH-zer", "Gibbethon": "GIB-uh-thon", "Gibeah": "GIH-bee-ah",
+            "Gibeath-Elohim": "GIB-ee-ath-el-oh-HEEM", "Gibeon": "GIB-ee-un", "Gideon": "GID-ee-un",
+            "Gihazi": "Gih-HAH-zigh", "Gihon": "GEE-hon", "Gilead": "GIH-lee-ad", "Gilgal": "GIL-gal",
+            "Ginath": "GIH-nath", "Gittith": "GIT-tith", "Glossa": "Gloss-a-LAY-lee-ah", "Gnostic": "NOSS-tik",
+            "Gnosticism": "NOSS-tih-siz-um", "Goah": "GO-ah", "Goiim": "Goh-EEM", "Golgotha": "GOLE-gah-thah",
+            "Gomer": "GO-mer", "Gomorrah": "Guh-MORE-uh", "Goshen": "GOH-shen", "Gozan": "GOH-zan",
+            "Habakkuk": "Hah-BACK-uk", "Hachilah": "Hah-kee-LAH", "Hadad": "Hah-DAHD",
+            "Hadadezer": "Hah-dah-DAY-zer", "Hadadrimmon": "HAH-dad-RIM-on", "Hades": "HAY-deez",
+            "Hadrach": "HAD-rack", "Hagar": "HAY-gahr", "Hagarites": "HAY-guh-rites", "Haggai": "HAG-eye",
+            "Haggith": "HAG-ith", "Hamath-zobah": "Hah-MAHTH-ZOH-bah", "Hamath": "HAY-math",
+            "Hamon-gog": "Hay-mahn-GOG", "Hamonah": "Hah-mo-NAH", "Hamor": "Hah-MORE", "Hanani": "Hah-han-NEE",
+            "Hananiah": "Han-nah-NIGH-ah", "Hanukkah": "HAH-nah-kuh", "Hanun": "HAH-nun", "Haran": "Ha-RAHN",
+            "Harosheth-ha-goiim": "Hah-roh-SHETH-hah-goh-EEM", "Hauran": "HAWR-ahn", "Havilah": "HAV-ih-lah",
+            "Hazael": "Hah-zah-ELL", "Hazar-enon": "Hah-ZAR-eh-NON", "Hazazon-tamar": "HAH-zah-zon-TAY-mar",
+            "Hazer-hatticon": "Ha-ZER-hah-tee-KAHN", "Hazeroth": "Hah-zeh-ROTHE", "Hazor": "HAH-tsore",
+            "Hebron": "HEH-brun", "Helbon": "HEL-bon", "Heldai": "HEL-die", "Helech": "HEH-leck",
+            "Hellenistic": "Heh-leh-NISS-tic", "Hellenists": "HEL-eh-nists", "Heman": "Hay-MAHN",
+            "Hermas": "HER-mas", "Hermes": "HER-meez", "Hermon": "Her-MON", "Herod": "HARE-ud",
+            "Herodias": "Heh-ROH-dee-us", "Herodion": "Heh-ROH-dee-on", "Heshbon": "HESH-bon",
+            "Hethlon": "HETH-lon", "Hezekiah": "Heh-zeh-KIGH-uh", "Hezion": "HEH-zee-on", "Higgaion": "HIG-eye-on",
+            "Hilkiah": "Hil-KIGH-uh", "Hin": "Hihn", "Hinnom": "Hih-NOME", "Hiram": "HIGH-ram",
+            "Hireling": "HIRE-ling", "Hittites": "HIH-tites", "Hivites": "HIH-vites", "Hobab": "HOH-bab",
+            "Homer": "HO-mer", "Hophra": "HOFF-rah", "Horeb": "HOR-eb", "Hormah": "HOR-mah",
+            "Horonaim": "Hore-oh-NAY-yim", "Huram": "HYUR-am", "Hushai": "HOO-shigh", "Hyacinth": "HIGH-ah-sinth",
+            "Hymenaeus": "High-MEEN-ee-us", "Ibhar": "IB-har", "Iconium": "Eye-KO-nee-um", "Iddo": "ID-oh",
+            "Idumeans": "Ih-doo-ME-ans", "Ijon": "IGH-jon", "Illyricum": "Ih-LEER-ee-cum", "Irad": "EAR-rad",
+            "Isaac": "EYE-zek", "Isaiah": "Eye-ZAY-uh", "Ishbi-benob": "ISH-bee-BAY-nob",
+            "Ishbosheth": "ISH-boh-sheth", "Ishmael": "ISH-may-ell", "Ishmaelites": "ISH-may-eh-lites",
+            "Ishmaiah": "Ish-MIGH-ah", "Issachar": "IS-ah-kahr", "Ithamar": "ITH-ah-mar", "Ithream": "ITH-ree-um",
+            "Ivvah": "EE-vah", "Iye-abarim": "EYE-ah-bah-REEM", "Jaar": "Jah-ARE", "Jaazaniah": "Jah-az-ah-NIGH-ah",
+            "Jabal": "JAY-bal", "Jabesh-gilead": "JAH-besh-GIH-lee-ad", "Jabez": "JAH-bez", "Jabin": "JAY-bin",
+            "Jachin": "Jah-KEEN", "Jael": "Jah-ELL", "Jahaz": "JAH-hahz", "Jair": "Jah-EER", "Jambres": "JAM-bres",
+            "Jannes": "JAH-nus", "Japheth": "JAH-feth", "Japhia": "Jah-PHEE-ah", "Jared": "JAR-ed",
+            "Jashar": "Jah-SHAHR", "Jashobeam": "Jah-SHOH-bih-em", "Javan": "JAH-van", "Jazer": "JAH-zer",
+            "Jebusite": "JEB-you-site", "Jeconiah": "Jeh-coh-NIGH-ah", "Jedaiah": "Jeh-DAY-yah",
+            "Jedediah": "Jeh-deh-DIGH-uh", "Jeduthun": "Jeh-DOO-thun", "Jehiel": "Jeh-HEE-el",
+            "Jehoahaz": "Jeh-HOE-ah-haz", "Jehoiachin": "Jeh-HOY-ah-kin", "Jehoiakim": "Jeh-HOY-ah-kim",
+            "Jehoram": "Jeh-HOR-am", "Jehoshabeath": "Jeh-hoh-shah-BEE-ath", "Jehoshaphat": "Jeh-HOH-shuh-fat",
+            "Jehozadak": "Jeh-HOE-zah-dak", "Jehu": "JAY-hoo", "Jehus": "JEH-hus", "Jemimah": "Jeh-MY-mah",
+            "Jephthah": "JEF-thah", "Jephunneh": "Jeh-FOO-neh", "Jerahmeel": "Jeh-RAH-mih-el",
+            "Jerahmeelites": "Jeh-RAH-meh-uh-lites", "Jericho": "JEH-rih-koh", "Jerimoth": "JER-ih-mothe",
+            "Jerioth": "JER-ih-othe", "Jeroboam": "Jer-uh-BOH-am", "Jerubaal": "Jeh-ROO-bah-all",
+            "Jerusalem": "Jeh-ROO-sah-lem", "Jeshanah": "JESH-ah-nah", "Jeshimon": "Jeh-SHEE-mun",
+            "Jeshurun": "JEH-shoo-run", "Jezebel": "JEH-zeh-bell", "Jezreel": "Jez-REEL", "Joab": "JOH-ab",
+            "Joash": "JO-ash", "Job": "JOHB", "Jokneam": "Joke-NEE-urn", "Jonadab": "JOH-nuh-dab",
+            "Jonah": "JOH-nuh", "Joppa": "JAH-pah", "Joram": "JOR-am", "Jordan": "JORE-dun",
+            "Josheb-basshebeth": "JOH-sheh-bah-SHAY-beth", "Joshua": "JOSH-oo-ah", "Josiah": "Joh-SIGH-ah",
+            "Jotbathah": "JOT-bah-thah", "Jotham": "JOTH-em", "Jubel": "JOO-bal", "Judah": "JOO-dah",
+            "Judaism": "JUDE-ah-iz-um", "Judas Iscariot": "JOO-das-Iss-CARE-ee-ot", "Judea": "Joo-DEE-ah",
+            "Junias": "JOO-nee-as", "Jushab-hesed": "JOO-shab-HEH-sed", "Kabod": "Kah-BODE",
+            "Kadesh-barnea": "Kah-desh-bar-NEE-uh", "Kadesh": "KAY-desh", "Kedar": "KEH-dar",
+            "Kedemoth": "Keh-deh-MOTHE", "Kedesh": "KEH-desh", "Kenan": "KEN-an", "Kenaz": "KEH-naz",
+            "Kenites": "KEH-nites", "Kenizzites": "KEH-nih-zites", "Kephas": "KAY-fass",
+            "Kerenhappuch": "Keh-ren-HAH-puk", "Keturah": "Keh-TURE-ah", "Keziah": "Keh-ZIGH-ah",
+            "Kidron": "KID-ron", "Kiriath-arba": "Kir-ee-ath-AR-buh", "Kiriath-jearim": "KIR-ee-ath-jeh-ah-REEM",
+            "Kiriath-sepher": "Kir-ee-ath-SAY-fer", "Kiriathaim": "Kir-ee-ah-THAH-yim", "Kishion": "KISH-ee-un",
+            "Koa": "KO-ah", "Kohath": "KOH-hath", "Koine": "Koy-NAY", "Korah": "KOR-ah", "Kue": "KOO-eh",
+            "Laban": "LAY-ban", "Lachish": "Lah-KEESH", "Laish": "Lah-EESH", "Lamech": "LAH-meck",
+            "Laodicea": "Lay-oh-dih-SEE-ah", "Lasharon": "Lah-shah-RONE", "Leannoth": "LEE-un-noth",
+            "Leaven": "LEH-ven", "Lehi": "LEE-high", "Lemuel": "LEM-you-el", "Levi": "LEE-vigh",
+            "Leviathan": "Luh-VIE-uh-thun", "Levite": "LEE-vite", "Levitical": "Leh-VIH-tih-kal",
+            "Libnah": "LIB-nuh", "Linus": "LIGH-nus", "Logos": "LAW-goss", "Lucius": "LOO-shus", "Lud": "LOOD",
+            "Lydda": "LID-ah", "Lyre": "LIER", "Lystra": "LISS-trah", "Maacah": "Mah-ah-KAH",
+            "Maccabees": "MACK-ah-beez", "Macedonia": "Mass-eh-DOH-nee-ah", "Machir": "Mah-KEER",
+            "Machpelah": "Mahk-peh-LAH", "Madon": "Mah-DON", "Magadan": "MAH-gah-don",
+            "Magdalene": "MAG-dah-lehn", "Magog": "MAH-gog", "Mahalalel": "Mah-HAH-luh-lel",
+            "Mahalath": "Mah-hah-LATH", "Mahanaim": "Mah-hah-NIGH-im", "Mahlon": "Mah-LON", "Mahol": "MAY-hoi",
+            "Makkedah": "Mah-kay-DAH", "Malachi": "MAL-ah-kigh", "Malchishua": "Mahl-kee-SHOO-uh",
+            "Malchus": "MAHL-kuss", "Mammon": "MAA-mon", "Mamre": "MAM-reh", "Manasseh": "Man-AS-uh",
+            "Manna": "MAN-nah", "Maon": "Mah-OWN", "Marah": "MAHR-ah", "Marcion": "MAR-see-un",
+            "Marduk": "MAR-duke", "Mareshah": "Mah-reh-SHAH", "Maroth": "MAR-oth", "Martyr": "MAHR-ter",
+            "Magdelene": "MAG-dah-lehn", "Maskil": "MAHS-kil", "Massah": "MAH-suh", "Matrites": "MAH-trites",
+            "Mazzaroth": "Mah-zah-ROTHE", "Medeba": "Meh-deh-BAH", "Medes": "MEEDS", "Media": "ME-dee-ah",
+            "Megiddo": "Meh-GID-oh", "Mehujael": "Meh-HOO-jah-el", "Melchizedek": "Mel-KIH-zuh-dek",
+            "Melqart": "MEL-kart", "Memphis": "MEM-fis", "Mene": "MEN-eh", "Menorah": "Meh-NOR-ah",
+            "Mephibosheth": "Meh-FIB-oh-sheth", "Merab": "MARE-ab", "Merari": "Meh-RAH-ree",
+            "Meribah": "MARE-uh-bah", "Meribath-kadesh": "MER-ih-bath-KAH-desh", "Merodach": "MER-oh-dahk",
+            "Merom": "Mare-OME", "Meshach": "MEE-shack", "Meshech": "MEE-shek", "Meshullam": "Meh-SHOO-lam",
+            "Mesopotamia": "Meh-so-poh-TAY-mee-ah", "Messiah": "Meh-SIGH-ah", "Methuselah": "Meh-THOO-zeh-lah",
+            "Methushael": "Meh-THOO-shah-el", "Meunites": "Meh-OO-nights", "Micah": "MY-cuh",
+            "Micaiah": "Mih-KIGH-ah", "Michal": "Mee-KAHL", "Midian": "MIH-dee-an", "Midianites": "MIH-dee-ah-nites",
+            "Migdol": "MIG-dole", "Miktam": "MICK-tam", "Milcah": "MIL-kah", "Milcom": "MILL-kahm",
+            "Millenium": "Mih-LEH-nee-um", "Miriam": "MIR-ee-am", "Mishael": "MISH-ah-el",
+            "Misrephoth-maim": "MIZ-reh-foth-mah-EEM", "Mizpah": "MIZZ-puh", "Mispeh": "MIZZ-puh", "Moab": "MO-ab",
+            "Molech": "MOH-lek", "Moresheth-gath": "MOR-eh-sheth-GATH", "Moriah": "Moh-RIGH-ah", "Moses": "MOH-zez",
+            "Muth-labben": "MUTH-lab-un", "Naamah": "NAY-ah-mah", "Naamathite": "Nah-ah-MAH-thite",
+            "Naameh": "Nah-ah-MEH", "Nabal": "Nah-BALL", "Nabonidus": "Nab-boh-NIGH-dus",
+            "Nabopolasser": "Nab-boh-poh-LASS-er", "Naboth": "NAY-both", "Nacon": "Nah-CONE", "Nadab": "NAY-dab",
+            "Nahash": "Nah-HASH", "Nahor": "NAY-hor", "Nahum": "NAY-hum", "Nain": "NAY-een",
+            "Naomi": "Nay-OH-mee", "Naphath-dor": "Nah-fath-DOR", "Naphtali": "NAFF-tah-lee",
+            "Narcissus": "Nar-SIH-sus", "Nathanael": "Nah-THAN-yell", "Nazareth": "NAZ-a-reth",
+            "Nebaioth": "Neh-bah-YOTHE", "Nebat": "NEE-bat", "Nebuchadnezzar": "NEB-oo-cad-NEZ-er",
+            "Nebuzaradan": "NEH-boo-ZAH-reh-dan", "Neco": "NEH-koh", "Negeb": "NEH-geb", "Nephilim": "Neh-fih-LEEM",
+            "Nereus": "NEE-ree-us", "Nicanor": "NIGH-kan-or", "Nicolaitans": "Nih-koh-LAY-tons",
+            "Nicopolis": "Nih-KAH-poh-lis", "Niger": "NIGH-jer", "Nimbus": "NIM-bus", "Nimrod": "NIM-rod",
+            "Nineveh": "NIH-neh-vah", "Nisan": "NIGH-san", "Nisroch": "NIZ-rock", "Noah": "NOH-ah",
+            "Obed-edom": "OH-bed-EE-dum", "Oboth": "Oh-BOTHE", "Ohel": "OH-hel", "Oholah": "Oh-ho-LAH",
+            "Oholiab": "Oh-HOH-lee-ab", "Oholibah": "Oh-ho-lee-BAH", "Olympas": "Oh-LIM-pas", "Omri": "OHM-ree",
+            "Onan": "OH-nan", "Onesimus": "Oh-NEH-sih-mus", "Onias": "Oh-NIGH-us", "Ophir": "OH-fer",
+            "Oracle": "OR-ah-cul", "Oreb": "OR-ebb", "Orion": "Oh-RYE-un", "Orpah": "OR-puh",
+            "Paddan-aram": "PAD-an-AIR-em", "Palanquin": "PAL-an-keen", "Pamphylia": "Pam-FILL-ee-ah",
+            "Paphos": "PAF-ohs", "Papyrus": "Puh-PIE-russ", "Paran": "PAR-ahn", "Parmenas": "PAR-men-as",
+            "Parousia": "Par-oo-SEE-uh", "Parsin": "PAR-sin", "Parthia": "PAHR-thee-ah", "Parvaim": "Par-VAY-im",
+            "Paschal": "PASS-kul", "Pashhur": "PASH-er", "Pathros": "PATH-ros", "Patmos": "PAT-moss",
+            "Patrobas": "PAT-roh-bas", "Pekah": "PEH-kah", "Pekahiah": "Pek-ah-HIGH-ah",
+            "Pelatiah": "Pel-eh-TIGH-ah", "Peleg": "PAY-leg", "Pelethites": "PEL-eh-thites",
+            "Pelusium": "Pih-LOO-see-um", "Peniel": "PEH-nee-el", "Peninnah": "Peh-NEE-nah",
+            "Pentateuch": "PEN-tah-tuke", "Pentecost": "PEN-te-kost", "Penuel": "PEN-yoo-el", "Peor": "Peh-ORE",
+            "Perez-uzzah": "PEH-rez-OO-zah", "Perez": "PEH-rez", "Perga": "PER-gah", "Pergamum": "Per-GAH-mum",
+            "Perizim": "Pare-eh-ZEEM", "Perizzites": "PEH-rih-zites", "Persis": "PER-sis",
+            "Pestilence": "PEST-eh-lents", "Phanuel": "FAN-you-ehl", "Pharaoh": "FAIR-oh", "Pharisee": "FAIR-ih-see",
+            "Phicol": "FIGH-col", "Philemon": "Figh-LEE-mun", "Philippi": "FILL-ih-pigh",
+            "Philippians": "Fih-LIP-ee-ans", "Philistia": "Fih-LISS-tee-ah", "Philistine": "FIL-iss-teen",
+            "Philologus": "Fih-loh-LOH-gus", "Phinehas": "Fih-NAY-has", "Phlegon": "FLEH-gon", "Phoebe": "FEE-bee",
+            "Phoenicia": "Fo-NEE-shuh", "Phrygia": "FRIH-jee-ah", "Pibeseth": "Pi-BEH-seth", "Pisgah": "PIZ-guh",
+            "Pishon": "PIE-shon", "Pisidia": "Pih-SIH-dee-ah", "Pleiades": "PLEE-ah-deez", "Politarch": "POL-ih-tark",
+            "Pontius Pilate": "PON-shus PIE-let", "Portent": "POR-tent", "Potiphar": "POH-tih-far",
+            "Potiphera": "Poh-TIH-fuh-ruh", "Praetorium": "Pray-TORE-ee-um", "Prefect": "PREE-fect",
+            "Prisca": "PRIH-sah", "Prochorus": "PRO-kor-us", "Proconsul": "Pro-KON-sul", "Prologue": "PRO-log",
+            "Prophecy": "PRAH-feh-see", "Prophesy": "PRAH-feh-sigh", "Proselytes": "PRAH-sell-ites",
+            "Ptolemias": "Tol-eh-MAY-us", "Ptolemy": "TOH-leh-mee", "Puah": "POO-ah", "Pudens": "POO-denz",
+            "Purslane": "PURS-lin", "Put": "PUT", "Qesitah": "Keh-SEE-tah", "Quartus": "KWAR-tus",
+            "Quirinius": "Kwih-RIHN-ee-us", "Raamah": "Rah-ah-MAH", "Rabbah": "Rah-BAH",
+            "Rabshakeh": "RAHB-sheh-keh", "Rachel": "RAY-chel", "Rahab": "RAY-hab", "Ram": "RAHM",
+            "Ramah": "RAH-mah", "Ramathaim-zophim": "Rah-mah-THAH-eem-zoh-FEEM", "Rameses": "RAM-sees",
+            "Ramoth-gilead": "RAH-moth-GIL-ee-ad", "Rechab": "Reh-KAHB", "Rechabites": "REH-kah-bites",
+            "Regem-melech": "REH-gehm-MEH-leck", "Rehob": "RAY-hob", "Rehoboam": "Ray-uh-BOH-am",
+            "Rephaim": "Reh-fah-EEM", "Rephidim": "Reh-fih-DEEM", "Reuben": "ROO-ben", "Rezeph": "REH-zeff",
+            "Rezin": "REH-zin", "Rezon": "REH-zon", "Rhegium": "RAY-jee-um", "Rhoda": "RO-dah", "Rhodes": "ROADS",
+            "Riblah": "RIB-lah", "Rimmon": "RIM-on", "Rizpah": "RIZ-pah", "Sabeans": "Sah-BEE-ans",
+            "Sadducees": "SAD-yoo-seez", "Salecah": "Sah-leh-KAH", "Salem": "SAY-lem", "Salim": "SAY-lehm",
+            "Salmone": "Sal-MOE-nay", "Salome": "Sal-OH-may", "Samaria": "Sah-MARE-ee-ah",
+            "Samaritans": "Sah-MARE-ih-tons", "Samson": "SAM-son", "Samuel": "SAM-yoo-ell",
+            "Sanhedrin": "San-HEE-drin", "Sapphira": "Sah-FEER-ah", "Sapphire": "SAFF-ire", "Sarah": "SEHR-ah",
+            "Sarai": "Sah-RIGH", "Sardis": "SAHR-dis", "Sardonyx": "Sar-DAH-niks", "Satan": "SAY-ten",
+            "Satrap": "SAT-trap", "Scythian": "SIH-thee-an", "Seir": "Seh-EER", "Selah": "SEE-lah",
+            "Seleucus": "Seh-LOO-sus", "Selucids": "Seh-LOO-sids", "Senir": "Seh-NEER",
+            "Sennacherib": "Seh-NAK-er-ib", "Seraiah": "Ser-EYE-uh", "Sergius Paulus": "SER-jee-us-PAH-lus",
+            "Shaalim": "Shah-ah-LEEM", "Shaddai": "Shah-DIGH", "Shadrach": "SHAD-rack", "Shalishah": "Shah-lee-SHAH",
+            "Shalmaneser": "Shal-mah-NEE-zer", "Shammah": "SHAH-mah", "Shammua": "Shah-MOO-ah",
+            "Shaphan": "SHAY-fan", "Shaphat": "SHAY-faht", "Shaphir": "SHAY-fer", "Sharezer": "Shah-REE-zer",
+            "Shavsha": "SHAV-shah", "Shealtiel": "Shee-AL-tee-el", "Shear-jashub": "Sheh-ARE-yah-SHOOB",
+            "Sheba": "SHEE-buh", "Shebat": "SHE-bat", "Shechem": "SHECK-em", "Shekel": "SHECK-el",
+            "Shekinah": "Sheh-KIGH-nah", "Shelah": "Sheh-LA", "Shelomith": "Sheh-loh-MITH", "Shema": "Sheh-MAH",
+            "Shemaiah": "Sheh-MIGH-ah", "Sheminith": "SHEM-uh-nith", "Sheol": "SHEE-ohl",
+            "Shephatiah": "Sheh-fah-TEE-ah", "Shephelah": "Sheh-FAY-lah", "Shiggaion": "SHIG-eye-on",
+            "Shigionoth": "Shig-ih-OH-noth", "Shiloh": "SHY-low", "Shimeah": "Shih-MAY-ah", "Shimei": "SHIH-migh",
+            "Shimeites": "SHIM-eh-ites", "Shimron-meron": "Shim-RONE-meer-OWN", "Shinar": "SHIGH-nar",
+            "Shiphrah": "SHIF-rah", "Shishak": "SHEE-shak", "Shittim": "Shih-TEEM", "Shoa": "SHOW-ah",
+            "Shuah": "SHOO-ah", "Shuhite": "SHOO-hite", "Shulammite": "SHOO-lah-mite",
+            "Shunammite": "SHOO-nah-mite", "Shunem": "SHOO-nem", "Shur": "SURE",
+            "Shushan Eduth": "SHOE-shan-EE-doth", "Sibraim": "Sib-RAY-im", "Sicarius": "Sih-CAHR-ree-us",
+            "Sidon": "SIGH-dun", "Sihon": "SEE-hun", "Siloam": "Sih-LOH-am", "Silvanus": "Sill-VAY-nus",
+            "Simeon": "SIH-mee-un", "Sinai": "SIGH-nigh", "Sirion": "SEER-ee-on", "Sisera": "SIS-eh-rah",
+            "Smaragdus": "Smeh-RAG-dus", "Smyrna": "SMER-nah", "Sodom": "SOD-um", "Solomon": "SOL-oh-mon",
+            "Sosipater": "Sah-SIP-ah-ter", "Sosthenes": "SAHS-thuh-neez", "Stachys": "STAY-kis",
+            "Stephanas": "STEH-fah-nus", "Stoic": "STOW-ick", "Succoth": "SUK-uth", "Sukkim": "Soo-KEEM",
+            "Sumer": "SOO-mer", "Susa": "SUE-zah", "Suzerain": "SOO-zeh-rain", "Suzerainity": "SOO-zeh-rehn-tee",
+            "Sychar": "SIGH-kar", "Syene": "Sigh-EEN", "Synagogue": "SIN-ah-gog", "Syntyche": "Sin-TIH-kay",
+            "Syria": "SEER-ee-uh", "Taanach": "Tah-ah-NAHK", "Tabeel": "Tah-buh-ELL", "Taberah": "Tah-beh-RAH",
+            "Tabitha": "TAB-ith-ah", "Tabrimmon": "Tab-RIM-mon", "Tadmor": "TAD-mor", "Tahpanhes": "TAH-puh-neez",
+            "Talmai": "TAL-mai", "Tamar": "TAY-mar", "Tammuz": "Tah-MUZ", "Tappuah": "Tah-POO-uh",
+            "Tarshish": "TAR-shish", "Tarsus": "TAR-sus", "Tehaphnehes": "Teh-HOFF-neh-hees", "Tekel": "TEH-kel",
+            "Tekoa": "Teh-KOH-ah", "Tel-abib": "Tell-ah-BEEB", "Tema": "TAY-mah", "Teman": "TAY-mahn",
+            "Temanite": "TAY-man-ite", "Terah": "TER-ah", "Teraphim": "TER-ah-fim", "Terebinths": "TEAR-uh-binths",
+            "Tertius": "TER-tee-us", "Tertullus": "Ter-TULL-us", "Tether": "JAY-ther", "Thebes": "THEE-bz",
+            "Thebez": "THEH-bez", "Theophilus": "Thee-AH-fil-us", "Thessalonica": "Theh-sah-loh-NIGH-kah",
+            "Thummim": "THUM-im", "Thyatira": "Thee-ah-TEE-rah", "Tiberius": "Tie-BEER-ee-us",
+            "Tiglath-pileser": "TIG-lath-pih-LEE-zer", "Tigris-Euphrates": "TIGH-griss-you-FRAY-tees",
+            "Tilgath-pilneser": "TIL-gath-pil-NEE-zer", "Timnah": "Tim-NAH", "Timnath-serah": "Tim-nath-seh-RAH",
+            "Timon": "TIM-on", "Timothy": "TIH-moh-thee", "Tirhakah": "Tear-hah-KAH", "Tirzah": "TEER-zah",
+            "Titus": "TIE-tus", "Tobadonijah": "Toh-bad-oh-NIGH-jah", "Tobijah": "Toh-BE-jah", "Tola": "TOH-lah",
+            "Topaz": "TOH-paz", "Topheth": "TOH-feth", "Torah": "TOH-rah", "Trachonitus": "Trak-uh-NIGHT-us",
+            "Tribulation": "Trib-you-LAY-shun", "Troas": "TROH-ahs", "Trophimus": "TROH-fih-mus",
+            "Tryphaena": "Treh-FAY-nah", "Tryphosa": "Treh-FOH-sah", "Tubal-Cain": "TOO-ball-CAIN",
+            "Tubal": "TOO-bal", "Tychicus": "TIH-kih-kus", "Typology": "Tie-PAH-leh-jee", "Tyre": "TIRE",
+            "Ulai": "YOU-lie", "Uphaz": "YOU-faz", "Urbanus": "Ur-BAN-us", "Urim": "YOOR-im", "Uz": "UHZ",
+            "Uzal": "YOU-zal", "Uziel": "Oo-zee-ELL", "Uzzah": "OO-zah", "Uzziah": "You-ZIGH-ah",
+            "Uzziel": "OO-zee-ell", "Vitellius": "Vih-TELL-ee-us", "Yahweh": "YAH-way", "Yahwist": "YAH-wist",
+            "Yobel": "Yoh-BELL", "Yom Kippur": "YOME-Kih-POOR", "Zaanan": "ZAH-eh-nahn", "Zacchaeus": "Zak-EE-us",
+            "Zadok": "ZAY-dock", "Zarephath": "ZARE-eh-FATH", "Zarethan": "ZAR-eh-than", "Zebedee": "ZEH-beh-dee",
+            "Zebediah": "Zeh-beh-DIGH-ah", "Zebulun": "ZEB-yoo-lun", "Zechariah": "Zeh-kah-RIGH-uh",
+            "Zedad": "ZEE-dad", "Zedekiah": "Zeh-deh-KIGH-uh", "Zelophehad": "Zeh-LOH-feh-had", "Zelzah": "ZEL-zah",
+            "Zemaraim": "Zeh-mah-RIGH-im", "Zemer": "ZEH-mer", "Zenas": "ZEE-nas",
+            "Zephaniah": "Zeh-fah-NIGH-ah", "Zephathah": "Zeph-ah-THAH", "Zerah": "ZEH-rah",
+            "Zeredah": "ZER-eh-dah", "Zeror": "Ze-ROAR", "Zeruah": "Zeh-ROO-ah", "Zerubbabel": "Zeh-RUB-ah-bel",
+            "Zeruiah": "Zeh-roo-EYE-ah", "Ziba": "ZEE-buh", "Ziklag": "ZIK-lag", "Zilpah": "ZIL-pah",
+            "Zimri": "ZIM-ree", "Zion": "ZIGH-un", "Ziphites": "ZIF-ites", "Zipporah": "Zih-POH-rah",
+            "Zoan": "ZOH-an", "Zoar": "ZOH-ar", "Zobah": "ZOH-bah", "Zophar": "ZOH-far"
+        };
+
+        // Add pronunciation indicators to Bible text
+        function addPronunciationIndicators(text) {
+            if (!text) return '';
+
+            // Create a map for case-insensitive matching
+            const pronunciationMap = {};
+            Object.keys(PRONUNCIATION_GUIDE).forEach(word => {
+                pronunciationMap[word.toLowerCase()] = {
+                    original: word,
+                    pronunciation: PRONUNCIATION_GUIDE[word]
+                };
+            });
+
+            // Helper function to check if a word should get pronunciation help
+            // Only matches capitalized words (proper nouns like Bible names/places)
+            const shouldMatchPronunciation = (word) => {
+                if (!word) return false;
+                // Find the first letter in the word (skip apostrophes/hyphens at start)
+                const firstLetter = word.match(/[a-zA-Z]/);
+                if (!firstLetter) return false;
+                // Only show pronunciation for capitalized words (proper nouns)
+                return firstLetter[0] === firstLetter[0].toUpperCase();
+            };
+
+            // Split text into words while preserving punctuation and spaces
+            let result = '';
+            let currentWord = '';
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                // Check if character is a letter, hyphen, or apostrophe (part of a word)
+                if (/[a-zA-Z'-]/.test(char)) {
+                    currentWord += char;
+                } else {
+                    // We hit a non-word character, process the accumulated word
+                    if (currentWord) {
+                        const lowerWord = currentWord.toLowerCase();
+                        const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
+
+                        // Only match if word is capitalized (proper noun)
+                        if (shouldMatchPronunciation(currentWord)) {
+                            // Check if word has pronunciation (try exact match first, then without punctuation)
+                            if (pronunciationMap[lowerWord]) {
+                                const { pronunciation } = pronunciationMap[lowerWord];
+                                result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                            } else if (pronunciationMap[wordWithoutPunctuation]) {
+                                const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
+                                result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                            } else {
+                                result += escapeHtml(currentWord);
+                            }
+                        } else {
+                            result += escapeHtml(currentWord);
+                        }
+                        currentWord = '';
+                    }
+                    result += char; // Add the non-word character
+                }
+            }
+
+            // Process any remaining word at the end
+            if (currentWord) {
+                const lowerWord = currentWord.toLowerCase();
+                const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
+
+                // Only match if word is capitalized (proper noun)
+                if (shouldMatchPronunciation(currentWord)) {
+                    if (pronunciationMap[lowerWord]) {
+                        const { pronunciation } = pronunciationMap[lowerWord];
+                        result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                    } else if (pronunciationMap[wordWithoutPunctuation]) {
+                        const { pronunciation } = pronunciationMap[wordWithoutPunctuation];
+                        result += `<span class="pronunciation-word" aria-label="Pronunciation: ${pronunciation}">${escapeHtml(currentWord)}<span class="pronunciation-tooltip" aria-hidden="true">${escapeHtml(pronunciation)}</span></span>`;
+                    } else {
+                        result += escapeHtml(currentWord);
+                    }
+                } else {
+                    result += escapeHtml(currentWord);
+                }
+            }
+
+            return result;
+        }
+
         // Load KJV Bible text from JSON file
         async function loadBibleText() {
             if (kjvBibleData) return kjvBibleData;  // Already loaded
@@ -2387,7 +2828,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 html += `
                     <div class="bible-verse flex gap-3 p-2 rounded-lg">
                         <span class="verse-number text-sm font-bold text-indigo-600">${verseData.verse}</span>
-                        <p class="flex-1 text-slate-800 leading-relaxed">${escapeHtml(verseData.text)}</p>
+                        <p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text)}</p>
                     </div>
                 `;
             });
