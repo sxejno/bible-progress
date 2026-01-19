@@ -691,6 +691,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Time Remaining Card -->
+                    <div class="mb-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-2xl p-6 text-center">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Time to Completion</div>
+                            <div id="time-remaining-stat" class="text-2xl font-black text-purple-900">Calculating...</div>
+                        </div>
+                    </div>
+
+                    <!-- Guilt-trip Comparison Card -->
+                    <div id="reading-comparison" class="mb-6">
+                        <!-- Dynamically rendered comparison message -->
+                    </div>
                     <div class="overflow-x-auto">
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
@@ -722,6 +735,24 @@
                             </div>
                         </div>
                     </a>
+
+                    <div onclick="window.showMemorizedVerses()" class="block group mt-4 cursor-pointer">
+                        <div class="bg-gradient-to-br from-amber-50 to-yellow-50 p-8 rounded-3xl border-2 border-amber-200 hover:border-amber-400 transition-all hover:shadow-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span class="text-3xl">⭐</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-black text-amber-900 mb-2 group-hover:text-amber-700 transition-colors">My Memorized Verses</h4>
+                                    <p class="text-slate-700 leading-relaxed mb-3">View and manage verses you've marked for memorization. Add verses directly from the Bible reader.</p>
+                                    <div class="flex items-center gap-2 text-amber-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                                        <span>View Verses</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <a href="memorize.html" class="block group mt-4">
                         <div class="bg-gradient-to-br from-emerald-50 to-teal-50 p-8 rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 transition-all hover:shadow-lg relative overflow-hidden">
@@ -1348,6 +1379,20 @@
         if(!appData.wordsPerMinute) {
             appData.wordsPerMinute = 250; // Average adult reading speed
         }
+
+        // Migrate existing users to have verse memorization (per-profile)
+        if(!appData.memorizedVerses) {
+            appData.memorizedVerses = {};
+            Object.keys(appData.profiles).forEach(profileId => {
+                appData.memorizedVerses[profileId] = [];
+            });
+        }
+        // Ensure each profile has memorizedVerses array
+        Object.keys(appData.profiles).forEach(profileId => {
+            if(!appData.memorizedVerses[profileId]) {
+                appData.memorizedVerses[profileId] = [];
+            }
+        });
 
         // On app load, use defaultProfileId if it exists and is valid
         if(appData.defaultProfileId && appData.profiles[appData.defaultProfileId]) {
@@ -1982,6 +2027,9 @@
                 date: new Date().toISOString().split('T')[0],
                 completedLists: []
             };
+            // Initialize memorizedVerses for new profile
+            if(!appData.memorizedVerses) appData.memorizedVerses = {};
+            appData.memorizedVerses[sanitized] = [];
             window.switchProfile(sanitized);
         };
 
@@ -2003,6 +2051,7 @@
                 delete appData.profiles[name];
                 delete appData.profilePlans[name];
                 delete appData.hornerDailyProgress[name];
+                if(appData.memorizedVerses) delete appData.memorizedVerses[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -2847,11 +2896,28 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Render verses
             let html = '<div class="space-y-3">';
+            const memorizedForProfile = appData.memorizedVerses[appData.activeProfileId] || [];
             chapterData.verses.forEach(verseData => {
+                const verseId = `${bookName}-${chapterNumber}:${verseData.verse}`;
+                const isMemorized = memorizedForProfile.some(v => v.id === verseId);
+                const memorizedClass = isMemorized ? 'bg-amber-50 border-l-4 border-amber-400' : '';
+                const memorizedIcon = isMemorized ? '<span class="text-amber-500 text-sm" title="Memorized">⭐</span>' : '';
                 html += `
-                    <div class="bible-verse flex gap-3 p-2 rounded-lg">
-                        <span class="verse-number text-sm font-bold text-indigo-600">${verseData.verse}</span>
+                    <div class="bible-verse flex gap-3 p-2 rounded-lg ${memorizedClass} cursor-pointer hover:bg-indigo-50 transition-colors group"
+                         onclick="window.toggleVerseSelection('${verseId}', this)"
+                         data-verse-id="${verseId}"
+                         data-verse-text="${escapeHtml(verseData.text)}"
+                         data-verse-ref="${bookName} ${chapterNumber}:${verseData.verse}">
+                        <span class="verse-number text-sm font-bold text-indigo-600 flex items-center gap-1">
+                            ${verseData.verse}
+                            ${memorizedIcon}
+                        </span>
                         <p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text)}</p>
+                        <button onclick="event.stopPropagation(); window.toggleMemorizeVerse('${verseId}', '${bookName} ${chapterNumber}:${verseData.verse}', \`${verseData.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)"
+                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg ${isMemorized ? 'text-amber-500 hover:bg-amber-100' : 'text-slate-400 hover:bg-slate-100'}"
+                                title="${isMemorized ? 'Remove from memorization' : 'Add to memorization'}">
+                            ${isMemorized ? '⭐' : '☆'}
+                        </button>
                     </div>
                 `;
             });
@@ -2938,6 +3004,91 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.addEventListener('load', () => {
             loadBibleText();
         });
+
+        // Verse memorization functions
+        window.toggleMemorizeVerse = (verseId, verseRef, verseText) => {
+            if(!appData.memorizedVerses[appData.activeProfileId]) {
+                appData.memorizedVerses[appData.activeProfileId] = [];
+            }
+
+            const memorizedList = appData.memorizedVerses[appData.activeProfileId];
+            const existingIndex = memorizedList.findIndex(v => v.id === verseId);
+
+            if(existingIndex >= 0) {
+                // Remove from memorization
+                memorizedList.splice(existingIndex, 1);
+            } else {
+                // Add to memorization
+                memorizedList.push({
+                    id: verseId,
+                    ref: verseRef,
+                    text: verseText,
+                    addedDate: Date.now()
+                });
+            }
+
+            window.saveProgress();
+            // Re-render the chapter to update the UI
+            if(currentReaderBook && currentReaderChapter) {
+                renderBibleChapter(currentReaderBook, currentReaderChapter);
+            }
+        };
+
+        window.toggleVerseSelection = (verseId, element) => {
+            // Toggle selection styling
+            element.classList.toggle('selected-verse');
+            if(element.classList.contains('selected-verse')) {
+                element.style.backgroundColor = '#dbeafe';
+                element.style.borderLeft = '4px solid #3b82f6';
+            } else {
+                element.style.backgroundColor = '';
+                element.style.borderLeft = '';
+            }
+        };
+
+        window.showMemorizedVerses = () => {
+            const memorizedList = appData.memorizedVerses[appData.activeProfileId] || [];
+
+            if(memorizedList.length === 0) {
+                alert('📝 No verses memorized yet!\n\nOpen the Bible reader and click the ☆ icon next to any verse to add it to your memorization list.');
+                return;
+            }
+
+            // Create a modal to show memorized verses
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-[2rem] w-full max-w-3xl shadow-2xl modal-in border border-white/50 flex flex-col" style="max-height: 85vh;">
+                    <div class="flex justify-between items-center p-6 border-b border-slate-200">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Memorized Verses ⭐</h2>
+                            <p class="text-sm text-slate-500 mt-1">${memorizedList.length} verse${memorizedList.length !== 1 ? 's' : ''}</p>
+                        </div>
+                        <button onclick="this.closest('.fixed').remove()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-6">
+                        <div class="space-y-4">
+                            ${memorizedList.map(verse => `
+                                <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="font-bold text-indigo-900">${verse.ref}</h3>
+                                        <button onclick="window.toggleMemorizeVerse('${verse.id}', '${verse.ref}', \`${verse.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`); this.closest('.fixed').remove(); window.showMemorizedVerses();"
+                                                class="text-amber-500 hover:text-amber-700 transition-colors"
+                                                title="Remove from memorization">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        </button>
+                                    </div>
+                                    <p class="text-slate-700 leading-relaxed">${verse.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
 
         const OT_CATS = [
             { name: "Pentateuch", count: 5, style: "bg-green-100 border-green-200 text-green-900", chartColor: "#16a34a" },
@@ -3182,6 +3333,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.toggleAllInBook = (val) => {
             const book = bible[activeBookIdx];
+
+            // Add confirmation for resetting book progress
+            if (!val) {
+                const readChapters = book.ch.filter((_, i) => getProgress()[`${book.name}-${i+1}`]).length;
+                if (readChapters > 0) {
+                    const confirmReset = confirm(
+                        `⚠️ RESET ${book.name.toUpperCase()}?\n\n` +
+                        `This will unmark ${readChapters} chapter${readChapters !== 1 ? 's' : ''} as unread.\n\n` +
+                        `This action cannot be undone.\n\n` +
+                        `Are you sure?`
+                    );
+                    if (!confirmReset) return;
+                }
+            }
+
             const prog = getProgress();
             // Store timestamp when marking as read (val=true), false when clearing (val=false)
             const timestamp = val ? Date.now() : false;
@@ -3712,24 +3878,26 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('book-inner-bar').style.width = (readWordsInBook / totalWordsInBook) * 100 + '%';
 
             // Calculate and display reading time estimate for remaining chapters
-            const avgWordsPerMinute = 200;
+            const avgWordsPerMinute = appData.wordsPerMinute || 250;
             const minutesRemaining = Math.ceil(unreadWordsInBook / avgWordsPerMinute);
             let timeEstimate = '';
+            let chaptersText = `📖 ${readInBook}/${book.ch.length} ch`;
+
             if (unreadWordsInBook === 0) {
-                timeEstimate = '✓ Complete!';
+                timeEstimate = '✅ Complete!';
             } else if (minutesRemaining < 60) {
-                timeEstimate = `About ${minutesRemaining} min left`;
+                timeEstimate = `⏱️ ~${minutesRemaining} min`;
             } else {
                 const hours = Math.floor(minutesRemaining / 60);
                 const mins = minutesRemaining % 60;
                 if (mins === 0) {
-                    timeEstimate = `About ${hours} hr left`;
+                    timeEstimate = `⏱️ ~${hours} hr`;
                 } else {
-                    timeEstimate = `About ${hours} hr ${mins} min left`;
+                    timeEstimate = `⏱️ ~${hours}h ${mins}m`;
                 }
             }
 
-            document.getElementById('book-stat-detail').innerText = `${readInBook} of ${book.ch.length} Chapters • ${timeEstimate}`;
+            document.getElementById('book-stat-detail').innerText = `${chaptersText}  •  ${timeEstimate}`;
             window.updateStats();
         }
 
@@ -4259,6 +4427,59 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('avg-chapters-day').innerText = `${avgChaptersPerDay} avg/day`;
             document.getElementById('best-day').innerText = `${bestDayChapters} ch`;
             document.getElementById('year-chapters').innerText = `${yearChapters} this year`;
+
+            // Calculate and display time remaining statistics
+            const wpm = appData.wordsPerMinute || 250;
+            const unreadMinutes = Math.ceil(unreadWords / wpm);
+            const unreadHours = (unreadMinutes / 60).toFixed(1);
+            const unreadDays = Math.ceil(unreadMinutes / (60 * 2)); // Assuming 2 hours reading per day
+
+            // Update time remaining displays if elements exist
+            const timeRemainingEl = document.getElementById('time-remaining-stat');
+            if (timeRemainingEl) {
+                if (unreadWords === 0) {
+                    timeRemainingEl.innerHTML = '🎉 <span class="text-emerald-600 font-black">Complete!</span>';
+                } else if (unreadHours < 1) {
+                    timeRemainingEl.innerHTML = `⏱️ ~${unreadMinutes} min left`;
+                } else if (unreadHours < 24) {
+                    timeRemainingEl.innerHTML = `⏱️ ~${unreadHours} hrs left`;
+                } else {
+                    timeRemainingEl.innerHTML = `⏱️ ~${Math.ceil(parseFloat(unreadHours) / 24)} days left`;
+                }
+            }
+
+            // Generate playful guilt-trip comparisons
+            const comparisonEl = document.getElementById('reading-comparison');
+            if (comparisonEl && unreadWords > 0) {
+                const comparisons = [
+                    { activity: 'scrolling social media', emoji: '📱', avgMinPerDay: 145 },
+                    { activity: 'watching Netflix', emoji: '📺', avgMinPerDay: 120 },
+                    { activity: 'playing mobile games', emoji: '🎮', avgMinPerDay: 60 },
+                    { activity: 'watching YouTube', emoji: '🎬', avgMinPerDay: 90 },
+                    { activity: 'browsing the internet', emoji: '🌐', avgMinPerDay: 100 }
+                ];
+
+                const randomComparison = comparisons[Math.floor(Math.random() * comparisons.length)];
+                const daysOfActivity = (unreadMinutes / randomComparison.avgMinPerDay).toFixed(1);
+
+                let message = '';
+                if (unreadMinutes < randomComparison.avgMinPerDay) {
+                    message = `${randomComparison.emoji} You could finish in less time than you spend ${randomComparison.activity} today!`;
+                } else if (daysOfActivity < 7) {
+                    message = `${randomComparison.emoji} Finish in the time you'd spend ${randomComparison.activity} this week`;
+                } else if (daysOfActivity < 30) {
+                    message = `${randomComparison.emoji} That's ${daysOfActivity} days of ${randomComparison.activity}`;
+                } else {
+                    message = `${randomComparison.emoji} Trade ${Math.ceil(parseFloat(daysOfActivity) / 30)} month${Math.ceil(parseFloat(daysOfActivity) / 30) > 1 ? 's' : ''} of ${randomComparison.activity} for eternal wisdom`;
+                }
+
+                comparisonEl.innerHTML = `
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-4 text-center">
+                        <div class="text-sm font-bold text-indigo-900 mb-1">💡 Perspective Check</div>
+                        <div class="text-xs text-indigo-700">${message}</div>
+                    </div>
+                `;
+            }
 
             // Update streak milestone progress
             updateStreakMilestone(streaks.current);
