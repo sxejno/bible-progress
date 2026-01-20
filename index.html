@@ -646,6 +646,46 @@
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Category Breakdown</h3>
             <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
+            <!-- Readthrough Tracking Section -->
+            <div id="readthrough-section" class="mt-12">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Milestones</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-purple-50 to-purple-100/50 px-8 py-6 rounded-2xl border border-purple-100 w-full">
+                                <span class="text-4xl">🏆</span>
+                                <div class="text-center">
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Bible Completions</div>
+                                    <div id="completions-count" class="text-3xl font-black text-purple-900">0</div>
+                                    <div id="last-completion-date" class="text-[10px] text-slate-400 mt-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-indigo-50 to-indigo-100/50 px-8 py-6 rounded-2xl border border-indigo-100 w-full">
+                                <span class="text-4xl">📖</span>
+                                <div class="text-center">
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Current Readthrough</div>
+                                    <div id="current-readthrough-progress" class="text-3xl font-black text-indigo-900">0%</div>
+                                    <div id="days-until-eligible" class="text-[10px] text-slate-400 mt-1"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Horner Plan Progress Section (only shown for Horner plan users) -->
+            <div id="horner-progress-section" class="mt-12 hidden">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Horner Plan Progress</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <p class="text-sm text-slate-600 mb-6 text-center">Track your progress through each of Professor Horner's 10 reading lists</p>
+                    <div id="horner-list-stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                        <!-- Dynamically populated with Horner list progress -->
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-12">
                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Activity</h3>
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
@@ -1472,6 +1512,28 @@
             }
         });
 
+        // Migrate existing users to have readthrough tracking (per-profile)
+        if(!appData.readthroughs) {
+            appData.readthroughs = {};
+        }
+        // Ensure each profile has readthrough tracking initialized
+        Object.keys(appData.profiles).forEach(profileId => {
+            if(!appData.readthroughs[profileId]) {
+                appData.readthroughs[profileId] = {
+                    completions: [],  // Array of completion objects
+                    hornerProgress: {
+                        listCompletions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  // Track completions of each Horner list
+                    }
+                };
+            }
+            // Ensure hornerProgress exists (for users who have readthrough data but not hornerProgress)
+            if(!appData.readthroughs[profileId].hornerProgress) {
+                appData.readthroughs[profileId].hornerProgress = {
+                    listCompletions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                };
+            }
+        });
+
         // Migrate existing users to have reading time settings
         if(appData.showReadingTime === undefined) {
             appData.showReadingTime = true;
@@ -1617,6 +1679,198 @@
             resetHornerDailyProgressIfNeeded();
             const profileId = appData.activeProfileId;
             return appData.hornerDailyProgress[profileId].completedLists.includes(listIndex);
+        };
+
+        // --- READTHROUGH TRACKING HELPERS ---
+        const MINIMUM_DAYS_BETWEEN_COMPLETIONS = 60; // Minimum 60 days between Bible completions to prevent gaming
+
+        // Get the current overall progress percentage
+        const getOverallProgress = () => {
+            const prog = getProgress();
+            let totalWords = 0;
+            let readWords = 0;
+            bible.forEach(book => {
+                book.ch.forEach((wordCount, chapterIndex) => {
+                    totalWords += wordCount;
+                    if(prog[`${book.name}-${chapterIndex + 1}`]) {
+                        readWords += wordCount;
+                    }
+                });
+            });
+            return { readWords, totalWords, percentage: (readWords / totalWords) * 100 };
+        };
+
+        // Check if user just completed the Bible and record it if appropriate
+        const checkForCompletion = () => {
+            const profileId = appData.activeProfileId;
+            const progress = getOverallProgress();
+
+            // Check if 100% complete
+            if(progress.percentage >= 100) {
+                const readthroughData = appData.readthroughs[profileId];
+                const lastCompletion = readthroughData.completions.length > 0
+                    ? readthroughData.completions[readthroughData.completions.length - 1]
+                    : null;
+
+                // Check if this is a new completion (not already recorded)
+                if(!lastCompletion || !isCurrentlyComplete(lastCompletion)) {
+                    // Verify enough time has passed since last completion (if not first completion)
+                    if(canRecordNewCompletion(profileId)) {
+                        recordCompletion(profileId);
+                    }
+                }
+            }
+        };
+
+        // Check if the last recorded completion is still currently complete
+        const isCurrentlyComplete = (lastCompletion) => {
+            const progress = getOverallProgress();
+            return progress.percentage >= 100;
+        };
+
+        // Check if enough time has passed since last completion
+        const canRecordNewCompletion = (profileId) => {
+            const readthroughData = appData.readthroughs[profileId];
+            if(readthroughData.completions.length === 0) {
+                return true; // First completion always allowed
+            }
+
+            const lastCompletion = readthroughData.completions[readthroughData.completions.length - 1];
+            const daysSinceLastCompletion = (Date.now() - lastCompletion.timestamp) / (1000 * 60 * 60 * 24);
+
+            return daysSinceLastCompletion >= MINIMUM_DAYS_BETWEEN_COMPLETIONS;
+        };
+
+        // Record a Bible completion
+        const recordCompletion = (profileId) => {
+            const currentPlan = appData.profilePlans[profileId] || 'SEQUENTIAL';
+            const completionData = {
+                timestamp: Date.now(),
+                plan: currentPlan
+            };
+
+            // For Horner plan, track which lists were completed
+            if(currentPlan === 'HORNER') {
+                // Calculate how many times each Horner list has been completed
+                const prog = appData.profiles[profileId];
+                const listCompletions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+                PLAN_HORNER.forEach((listBooks, listIndex) => {
+                    let totalChaptersInList = 0;
+                    let completedChaptersInList = 0;
+
+                    listBooks.forEach(bookName => {
+                        const book = bible.find(b => b.name === bookName);
+                        if(book) {
+                            book.ch.forEach((_, chapterIndex) => {
+                                totalChaptersInList++;
+                                const chapterId = `${book.name}-${chapterIndex + 1}`;
+                                if(prog[chapterId]) {
+                                    completedChaptersInList++;
+                                }
+                            });
+                        }
+                    });
+
+                    // Calculate how many full cycles through this list
+                    listCompletions[listIndex] = Math.floor(completedChaptersInList / totalChaptersInList);
+                });
+
+                completionData.hornerListCompletions = listCompletions;
+
+                // Update the running total of Horner list completions
+                appData.readthroughs[profileId].hornerProgress.listCompletions = listCompletions;
+            }
+
+            appData.readthroughs[profileId].completions.push(completionData);
+            window.saveProgress(true);
+
+            // Show celebration notification
+            showCompletionCelebration(appData.readthroughs[profileId].completions.length);
+        };
+
+        // Show celebration when Bible is completed
+        const showCompletionCelebration = (completionCount) => {
+            const suffix = completionCount === 1 ? 'st' : completionCount === 2 ? 'nd' : completionCount === 3 ? 'rd' : 'th';
+            const message = completionCount === 1
+                ? '🎉 Congratulations! You\'ve completed reading the entire Bible!'
+                : `🎉 Amazing! You've completed your ${completionCount}${suffix} readthrough of the Bible!`;
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 max-w-md text-center shadow-2xl animate-scale-in">
+                    <div class="text-6xl mb-4">🎊</div>
+                    <h2 class="text-2xl font-black text-white mb-4">${message}</h2>
+                    <div class="bg-white/20 rounded-2xl p-4 mb-4">
+                        <p class="text-sm text-white font-medium italic">"Thy word is a lamp unto my feet, and a light unto my path." - Psalm 119:105</p>
+                    </div>
+                    ${completionCount > 1 ? `<div class="text-white/90 text-sm mb-4">Keep reading and growing in wisdom!</div>` : ''}
+                    <button onclick="this.parentElement.parentElement.remove()" class="px-8 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 shadow-lg transition-all">Glory to God! 🙏</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Confetti animation
+            for(let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.innerHTML = ['🎉', '🎊', '✨', '⭐', '🌟'][Math.floor(Math.random() * 5)];
+                    confetti.className = 'fixed text-2xl animate-confetti-fall pointer-events-none z-[201]';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-50px';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = Math.random() * 2 + 3 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        };
+
+        // Get Horner list progress statistics
+        const getHornerListStats = () => {
+            const profileId = appData.activeProfileId;
+            const prog = appData.profiles[profileId];
+            const listStats = [];
+
+            PLAN_HORNER.forEach((listBooks, listIndex) => {
+                let totalChapters = 0;
+                let completedChapters = 0;
+                let totalWords = 0;
+                let completedWords = 0;
+
+                listBooks.forEach(bookName => {
+                    const book = bible.find(b => b.name === bookName);
+                    if(book) {
+                        book.ch.forEach((wordCount, chapterIndex) => {
+                            totalChapters++;
+                            totalWords += wordCount;
+                            const chapterId = `${book.name}-${chapterIndex + 1}`;
+                            if(prog[chapterId]) {
+                                completedChapters++;
+                                completedWords += wordCount;
+                            }
+                        });
+                    }
+                });
+
+                const completionPercentage = totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
+                const timesCompleted = appData.readthroughs[profileId].hornerProgress.listCompletions[listIndex];
+
+                listStats.push({
+                    listIndex,
+                    listName: `List ${listIndex + 1}`,
+                    books: listBooks,
+                    totalChapters,
+                    completedChapters,
+                    totalWords,
+                    completedWords,
+                    completionPercentage,
+                    timesCompleted
+                });
+            });
+
+            return listStats;
         };
 
         // Reset daily progress on load if it's a new day
@@ -2146,6 +2400,14 @@
             // Initialize memorizedVerses for new profile
             if(!appData.memorizedVerses) appData.memorizedVerses = {};
             appData.memorizedVerses[sanitized] = [];
+            // Initialize readthrough tracking for new profile
+            if(!appData.readthroughs) appData.readthroughs = {};
+            appData.readthroughs[sanitized] = {
+                completions: [],
+                hornerProgress: {
+                    listCompletions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }
+            };
             window.switchProfile(sanitized);
         };
 
@@ -2168,6 +2430,7 @@
                 delete appData.profilePlans[name];
                 delete appData.hornerDailyProgress[name];
                 if(appData.memorizedVerses) delete appData.memorizedVerses[name];
+                if(appData.readthroughs) delete appData.readthroughs[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -4664,6 +4927,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
+            /* COMMENTED OUT: Perspective Check
             // Generate playful guilt-trip comparisons
             const comparisonEl = document.getElementById('reading-comparison');
             if (comparisonEl && unreadWords > 0) {
@@ -4696,6 +4960,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </div>
                 `;
             }
+            */
 
             // Update streak milestone progress
             updateStreakMilestone(streaks.current);
@@ -4705,6 +4970,83 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Check for streak milestones and celebrate if just hit
             checkStreakMilestones(streaks.current);
+
+            // Update readthrough tracking section
+            const profileId = appData.activeProfileId;
+            const readthroughData = appData.readthroughs[profileId];
+            const completionsCount = readthroughData.completions.length;
+            const overallProgress = getOverallProgress();
+
+            document.getElementById('completions-count').innerText = completionsCount;
+
+            // Show last completion date if any
+            if(completionsCount > 0) {
+                const lastCompletion = readthroughData.completions[completionsCount - 1];
+                const date = new Date(lastCompletion.timestamp);
+                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('last-completion-date').innerText = `Last: ${formattedDate}`;
+            } else {
+                document.getElementById('last-completion-date').innerText = 'Complete the Bible to earn your first!';
+            }
+
+            // Show current readthrough progress
+            document.getElementById('current-readthrough-progress').innerText = overallProgress.percentage.toFixed(1) + '%';
+
+            // Show days until eligible for next completion (if already completed once)
+            if(completionsCount > 0) {
+                const lastCompletion = readthroughData.completions[completionsCount - 1];
+                const daysSinceCompletion = (Date.now() - lastCompletion.timestamp) / (1000 * 60 * 60 * 24);
+                const daysRemaining = Math.max(0, MINIMUM_DAYS_BETWEEN_COMPLETIONS - Math.floor(daysSinceCompletion));
+
+                if(overallProgress.percentage >= 100 && daysRemaining > 0) {
+                    document.getElementById('days-until-eligible').innerText = `${daysRemaining} days until next completion eligible`;
+                } else if(overallProgress.percentage >= 100 && daysRemaining === 0) {
+                    document.getElementById('days-until-eligible').innerText = 'Ready to record next completion!';
+                } else {
+                    document.getElementById('days-until-eligible').innerText = '';
+                }
+            } else {
+                document.getElementById('days-until-eligible').innerText = '';
+            }
+
+            // Show/hide and populate Horner progress section
+            const currentPlan = appData.profilePlans[profileId] || 'SEQUENTIAL';
+            const hornerSection = document.getElementById('horner-progress-section');
+
+            if(currentPlan === 'HORNER') {
+                hornerSection.classList.remove('hidden');
+
+                // Get Horner list stats
+                const listStats = getHornerListStats();
+                const hornerListStatsContainer = document.getElementById('horner-list-stats');
+
+                hornerListStatsContainer.innerHTML = listStats.map(stat => {
+                    const progressBarWidth = stat.completionPercentage;
+                    const listColor = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500',
+                                       'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-orange-500', 'bg-cyan-500'][stat.listIndex];
+                    const borderColor = ['border-blue-200', 'border-green-200', 'border-yellow-200', 'border-red-200', 'border-purple-200',
+                                         'border-pink-200', 'border-indigo-200', 'border-teal-200', 'border-orange-200', 'border-cyan-200'][stat.listIndex];
+
+                    return `
+                        <div class="bg-white p-4 rounded-2xl border-2 ${borderColor} shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="font-black text-slate-800 text-sm">${stat.listName}</div>
+                                <div class="text-xs font-bold text-slate-500">${stat.completedChapters}/${stat.totalChapters}</div>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3 mb-2 overflow-hidden">
+                                <div class="${listColor} h-3 rounded-full transition-all duration-500" style="width: ${progressBarWidth}%"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="text-[10px] text-slate-400 uppercase tracking-wide">${stat.completionPercentage.toFixed(1)}% complete</div>
+                                ${stat.timesCompleted > 0 ? `<div class="text-[10px] font-bold text-emerald-600">✓ ${stat.timesCompleted}x completed</div>` : ''}
+                            </div>
+                            <div class="text-[9px] text-slate-400 mt-1">${stat.books.slice(0, 3).join(', ')}${stat.books.length > 3 ? '...' : ''}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                hornerSection.classList.add('hidden');
+            }
 
             renderHeatmap();
         }
@@ -5025,11 +5367,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			const wasRead = prog[id];
 
 			originalToggleChapter(id, event);
-			
+
 			// Check if just completed Psalm 119
 			if(id === 'Psalms-119' && !wasRead && getProgress()[id]) {
 				setTimeout(() => showPsalm119Achievement(), 500);
 			}
+
+			// Check for Bible completion and record readthrough if appropriate
+			setTimeout(() => checkForCompletion(), 100);
 		};
 
 		function showPsalm119Achievement() {
