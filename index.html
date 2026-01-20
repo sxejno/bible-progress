@@ -62,7 +62,7 @@
         
         /* Subtle hover lift for books */
         .book-card { transition: all 0.2s ease-out; }
-        .book-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); }
+        .book-card:hover { transform: translateY(-3px); }
         
         /* Animation */
         .animate-in { animation: fadeIn 0.4s ease-out; }
@@ -572,8 +572,8 @@
     <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
 
         <div class="tab-scroll-wrapper">
-            <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-                <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit" role="tablist" aria-label="Main navigation">
+            <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex justify-center">
+                <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max" role="tablist" aria-label="Main navigation">
                     <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-books">Bible</button>
                     <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-plan">Daily Plan</button>
                     <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-stats">Stats</button>
@@ -4109,8 +4109,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const totalWords = book.ch.reduce((sum, words) => sum + words, 0);
                 const progressPercent = (readWords / totalWords) * 100;
                 const isComplete = readChapters === book.ch.length;
-                const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-1 ring-slate-100 hover:ring-indigo-300';
-                return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-60 backdrop-blur-sm relative overflow-hidden" role="button" aria-label="Open ${book.name}, ${readChapters} of ${book.ch.length} chapters read" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.openBook(${bookIdx})">
+                const ringColor = isComplete ? 'ring-2 ring-emerald-400' : 'ring-2 ring-slate-200 hover:ring-indigo-400';
+                return `<div onclick="window.openBook(${bookIdx})" class="book-card ${book.style} p-6 rounded-[1.5rem] cursor-pointer ${ringColor} bg-opacity-90 backdrop-blur-sm relative overflow-hidden shadow-md hover:shadow-xl" role="button" aria-label="Open ${book.name}, ${readChapters} of ${book.ch.length} chapters read" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.openBook(${bookIdx})">
                     <div class="flex justify-between items-start mb-4 relative z-10">
                         <h3 class="font-black text-sm uppercase tracking-tight leading-tight">${book.name}</h3>
                         ${isComplete ? '<span class="text-sm bg-white/80 rounded-full px-1.5 py-0.5 shadow-sm" aria-label="Book completed">✅</span>' : ''}
@@ -4278,7 +4278,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.scrollToCategory = (catId) => {
             const element = document.getElementById(`category-${catId}`);
             if(element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Get the element's position
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                // Account for header height (approximately 180px) plus some padding
+                const offsetPosition = elementPosition - 200;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
             }
         }
 
@@ -5593,6 +5601,23 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				navigator.serviceWorker.register('./service-worker.js')
 					.then(registration => {
 						console.log('✅ Service Worker registered successfully:', registration.scope);
+
+						// Check for updates periodically
+						setInterval(() => {
+							registration.update();
+						}, 60000); // Check every minute
+
+						// Handle service worker updates
+						registration.addEventListener('updatefound', () => {
+							const newWorker = registration.installing;
+							newWorker.addEventListener('statechange', () => {
+								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+									// New service worker available, show update notification
+									console.log('📦 New version available! Refresh to update.');
+									showToast('New version available! Refresh to update.', 'info');
+								}
+							});
+						});
 					})
 					.catch(error => {
 						console.log('❌ Service Worker registration failed:', error);
