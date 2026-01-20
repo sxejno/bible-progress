@@ -1,0 +1,580 @@
+{
+  "program_name": "The Five Day Bible Reading Program",
+  "year": 2026,
+  "description": "A schedule to read the entire Bible (or just the New Testament) in one year by reading five times a week. The Old Testament is ordered chronologically, and the New Testament is spaced throughout the year.",
+  "source_file": "2026-5-Day-Bible-Reading-Schedule.pdf",
+  "schedule": [
+    {
+      "week_number": 1,
+      "date_range": "Dec 28 - Jan 3",
+      "readings": [
+        {"day": 1, "scriptures": ["Genesis 1-2", "Psalm 19", "Mark 1"]},
+        {"day": 2, "scriptures": ["Genesis 3-5", "Mark 2"]},
+        {"day": 3, "scriptures": ["Genesis 6-8", "Psalm 104", "Mark 3"]},
+        {"day": 4, "scriptures": ["Genesis 9-11", "Mark 4"]},
+        {"day": 5, "scriptures": ["Genesis 12-15", "Psalm 148", "Mark 5"]}
+      ]
+    },
+    {
+      "week_number": 2,
+      "date_range": "Jan 4 - 10",
+      "readings": [
+        {"day": 1, "scriptures": ["Genesis 16-18", "Mark 6"]},
+        {"day": 2, "scriptures": ["Genesis 19-20", "Psalm 1", "Mark 7"]},
+        {"day": 3, "scriptures": ["Genesis 21-23", "Psalm 107", "Mark 8"]},
+        {"day": 4, "scriptures": ["Genesis 24-25", "Psalm 4", "Mark 9"]},
+        {"day": 5, "scriptures": ["Genesis 26-27", "Mark 10"]}
+      ]
+    },
+    {
+      "week_number": 3,
+      "date_range": "Jan 11 - 17",
+      "readings": [
+        {"day": 1, "scriptures": ["Genesis 28-29", "Mark 11"]},
+        {"day": 2, "scriptures": ["Genesis 30-31", "Psalm 11", "Mark 12"]},
+        {"day": 3, "scriptures": ["Genesis 32-34", "Psalm 145", "Mark 13"]},
+        {"day": 4, "scriptures": ["Genesis 35-37", "Psalm 12", "Mark 14"]},
+        {"day": 5, "scriptures": ["Genesis 38-40", "Mark 15"]}
+      ]
+    },
+    {
+      "week_number": 4,
+      "date_range": "Jan 18 - 24",
+      "readings": [
+        {"day": 1, "scriptures": ["Genesis 41-42", "Mark 16"]},
+        {"day": 2, "scriptures": ["Genesis 43-44", "Psalm 24", "Galatians 1"]},
+        {"day": 3, "scriptures": ["Genesis 45-46", "Psalm 108", "Galatians 2"]},
+        {"day": 4, "scriptures": ["Genesis 47-48", "Psalm 25", "Galatians 3"]},
+        {"day": 5, "scriptures": ["Genesis 49-50", "Galatians 4"]}
+      ]
+    },
+    {
+      "week_number": 5,
+      "date_range": "Jan 25 - 31",
+      "readings": [
+        {"day": 1, "scriptures": ["Exodus 1-3", "Galatians 5"]},
+        {"day": 2, "scriptures": ["Exodus 4-6", "Galatians 6"]},
+        {"day": 3, "scriptures": ["Exodus 7-9", "Psalm 105", "Ephesians 1"]},
+        {"day": 4, "scriptures": ["Exodus 10-12", "Ephesians 2"]},
+        {"day": 5, "scriptures": ["Exodus 13-15", "Psalm 114", "Ephesians 3"]}
+      ]
+    },
+    {
+      "week_number": 6,
+      "date_range": "Feb 1 - 7",
+      "readings": [
+        {"day": 1, "scriptures": ["Exodus 16-18", "Ephesians 4"]},
+        {"day": 2, "scriptures": ["Exodus 19-21", "Psalm 33", "Ephesians 5"]},
+        {"day": 3, "scriptures": ["Exodus 22-24", "Psalm 109", "Ephesians 6"]},
+        {"day": 4, "scriptures": ["Exodus 25-27", "Psalm 90", "Philippians 1"]},
+        {"day": 5, "scriptures": ["Exodus 28-31", "Philippians 2"]}
+      ]
+    },
+    {
+      "week_number": 7,
+      "date_range": "Feb 8 - 14",
+      "readings": [
+        {"day": 1, "scriptures": ["Exodus 32-34", "Philippians 3"]},
+        {"day": 2, "scriptures": ["Exodus 35-37", "Psalm 26", "Philippians 4"]},
+        {"day": 3, "scriptures": ["Exodus 38-40", "Hebrews 1"]},
+        {"day": 4, "scriptures": ["Leviticus 1-3", "Psalm 27", "Hebrews 2"]},
+        {"day": 5, "scriptures": ["Leviticus 4-7", "Hebrews 3"]}
+      ]
+    },
+    {
+      "week_number": 8,
+      "date_range": "Feb 15 - 21",
+      "readings": [
+        {"day": 1, "scriptures": ["Leviticus 8-11", "Psalm 110", "Hebrews 4"]},
+        {"day": 2, "scriptures": ["Leviticus 12-14", "Psalm 111", "Hebrews 5"]},
+        {"day": 3, "scriptures": ["Leviticus 15-18", "Psalm 31", "Hebrews 6"]},
+        {"day": 4, "scriptures": ["Leviticus 19-20", "Hebrews 7"]},
+        {"day": 5, "scriptures": ["Leviticus 21-23", "Hebrews 8"]}
+      ]
+    },
+    {
+      "week_number": 9,
+      "date_range": "Feb 22 - 28",
+      "readings": [
+        {"day": 1, "scriptures": ["Leviticus 24-25", "Psalm 81", "Hebrews 9"]},
+        {"day": 2, "scriptures": ["Leviticus 26-27", "Psalm 112", "Hebrews 10"]},
+        {"day": 3, "scriptures": ["Numbers 1-2", "Psalm 64", "Hebrews 11"]},
+        {"day": 4, "scriptures": ["Numbers 3-5", "Hebrews 12"]},
+        {"day": 5, "scriptures": ["Numbers 6-7", "Hebrews 13"]}
+      ]
+    },
+    {
+      "week_number": 10,
+      "date_range": "Mar 1 - 7",
+      "readings": [
+        {"day": 1, "scriptures": ["Numbers 8-11", "Colossians 1"]},
+        {"day": 2, "scriptures": ["Numbers 12-14", "Psalm 28", "Colossians 2"]},
+        {"day": 3, "scriptures": ["Numbers 15-18", "Psalm 113", "Colossians 3"]},
+        {"day": 4, "scriptures": ["Numbers 19-21", "Colossians 4"]},
+        {"day": 5, "scriptures": ["Numbers 22-25", "Luke 1"]}
+      ]
+    },
+    {
+      "week_number": 11,
+      "date_range": "Mar 8 - 14",
+      "readings": [
+        {"day": 1, "scriptures": ["Numbers 26-29", "Luke 2"]},
+        {"day": 2, "scriptures": ["Numbers 30-33", "Psalm 35", "Luke 3"]},
+        {"day": 3, "scriptures": ["Numbers 34-36", "Luke 4"]},
+        {"day": 4, "scriptures": ["Deuteronomy 1-3", "Psalm 36", "Luke 5"]},
+        {"day": 5, "scriptures": ["Deuteronomy 4-5", "Luke 6"]}
+      ]
+    },
+    {
+      "week_number": 12,
+      "date_range": "Mar 15 - 21",
+      "readings": [
+        {"day": 1, "scriptures": ["Deuteronomy 6-9", "Luke 7"]},
+        {"day": 2, "scriptures": ["Deuteronomy 10-14", "Psalm 5", "Luke 8"]},
+        {"day": 3, "scriptures": ["Deuteronomy 15-18", "Psalm 115", "Luke 9"]},
+        {"day": 4, "scriptures": ["Deuteronomy 19-22", "Psalm 6", "Luke 10"]},
+        {"day": 5, "scriptures": ["Deuteronomy 23-26", "Luke 11"]}
+      ]
+    },
+    {
+      "week_number": 13,
+      "date_range": "Mar 22 - 28",
+      "readings": [
+        {"day": 1, "scriptures": ["Deuteronomy 27-31", "Luke 12"]},
+        {"day": 2, "scriptures": ["Deuteronomy 32-34", "Psalm 13", "Luke 13"]},
+        {"day": 3, "scriptures": ["Joshua 1-4", "Psalm 143", "Luke 14"]},
+        {"day": 4, "scriptures": ["Joshua 5-8", "Psalm 14", "Luke 15"]},
+        {"day": 5, "scriptures": ["Joshua 9-13", "Luke 16"]}
+      ]
+    },
+    {
+      "week_number": 14,
+      "date_range": "Mar 29 - Apr 4",
+      "readings": [
+        {"day": 1, "scriptures": ["Joshua 14-17", "Luke 17"]},
+        {"day": 2, "scriptures": ["Joshua 18-21", "Psalm 15", "Luke 18"]},
+        {"day": 3, "scriptures": ["Joshua 22-24", "Psalm 116", "Luke 19"]},
+        {"day": 4, "scriptures": ["Judges 1-3", "Psalm 16", "Luke 20"]},
+        {"day": 5, "scriptures": ["Judges 4-6", "Luke 21"]}
+      ]
+    },
+    {
+      "week_number": 15,
+      "date_range": "Apr 5 - 11",
+      "readings": [
+        {"day": 1, "scriptures": ["Judges 7-8", "Luke 22"]},
+        {"day": 2, "scriptures": ["Judges 9-11", "Psalm 17", "Luke 23"]},
+        {"day": 3, "scriptures": ["Judges 12-16", "Psalm 146", "Luke 24"]},
+        {"day": 4, "scriptures": ["Judges 17-18", "Psalm 21", "Acts 1"]},
+        {"day": 5, "scriptures": ["Judges 19-21", "Acts 2"]}
+      ]
+    },
+    {
+      "week_number": 16,
+      "date_range": "Apr 12 - 18",
+      "readings": [
+        {"day": 1, "scriptures": ["Ruth 1-2", "Acts 3"]},
+        {"day": 2, "scriptures": ["Ruth 3-4", "Psalm 37", "Acts 4"]},
+        {"day": 3, "scriptures": ["1 Samuel 1-2", "Psalm 120", "Acts 5"]},
+        {"day": 4, "scriptures": ["1 Samuel 3-5", "Psalm 23", "Acts 6"]},
+        {"day": 5, "scriptures": ["1 Samuel 6-8", "Acts 7"]}
+      ]
+    },
+    {
+      "week_number": 17,
+      "date_range": "Apr 19 - 25",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Samuel 9-10", "Acts 8"]},
+        {"day": 2, "scriptures": ["1 Samuel 11-13", "Psalm 38", "Acts 9"]},
+        {"day": 3, "scriptures": ["1 Samuel 14", "Psalm 124", "Acts 10"]},
+        {"day": 4, "scriptures": ["1 Samuel 15-16", "1 Chronicles 1", "Psalm 39", "Acts 11"]},
+        {"day": 5, "scriptures": ["1 Samuel 17", "1 Chronicles 2", "Acts 12"]}
+      ]
+    },
+    {
+      "week_number": 18,
+      "date_range": "Apr 26 - May 2",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Samuel 18-19", "1 Chronicles 3", "Psalm 59", "Acts 13"]},
+        {"day": 2, "scriptures": ["1 Samuel 20", "1 Chronicles 4", "Psalm 56", "Psalm 57", "Psalm 142", "Acts 14"]},
+        {"day": 3, "scriptures": ["1 Samuel 21-22", "1 Chronicles 5", "Psalm 52", "Acts 15"]},
+        {"day": 4, "scriptures": ["1 Samuel 23-24", "1 Chronicles 6", "Psalm 54", "Acts 16"]},
+        {"day": 5, "scriptures": ["1 Samuel 25", "1 Chronicles 7", "Acts 17"]}
+      ]
+    },
+    {
+      "week_number": 19,
+      "date_range": "May 3 - 9",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Samuel 26-27", "1 Chronicles 8", "Acts 18"]},
+        {"day": 2, "scriptures": ["1 Samuel 28-29", "1 Chronicles 9", "Acts 19"]},
+        {"day": 3, "scriptures": ["1 Samuel 30-31", "1 Chronicles 10", "Acts 20"]},
+        {"day": 4, "scriptures": ["2 Samuel 1-2", "1 Chronicles 11", "Psalm 96", "Psalm 106", "Acts 21"]},
+        {"day": 5, "scriptures": ["2 Samuel 3-5", "1 Chronicles 12", "Psalm 122", "Acts 22"]}
+      ]
+    },
+    {
+      "week_number": 20,
+      "date_range": "May 10 - 16",
+      "readings": [
+        {"day": 1, "scriptures": ["2 Samuel 6", "1 Chronicles 13", "Psalm 60", "Acts 23"]},
+        {"day": 2, "scriptures": ["1 Chronicles 14-16", "Acts 24"]},
+        {"day": 3, "scriptures": ["2 Samuel 7-8", "1 Chronicles 17", "Psalm 132", "Acts 25"]},
+        {"day": 4, "scriptures": ["2 Samuel 9-10", "1 Chronicles 18-19", "Psalm 89", "Acts 26"]},
+        {"day": 5, "scriptures": ["2 Samuel 11-12", "1 Chronicles 20", "Psalm 51", "Psalm 32", "Acts 27"]}
+      ]
+    },
+    {
+      "week_number": 21,
+      "date_range": "May 17 - 23",
+      "readings": [
+        {"day": 1, "scriptures": ["2 Samuel 13-14", "Acts 28"]},
+        {"day": 2, "scriptures": ["2 Samuel 15-17", "Psalm 3", "Psalm 63", "Romans 1"]},
+        {"day": 3, "scriptures": ["2 Samuel 18-20", "Psalm 34", "Romans 2"]},
+        {"day": 4, "scriptures": ["2 Samuel 21-23", "Psalm 18", "Romans 3"]},
+        {"day": 5, "scriptures": ["2 Samuel 24", "1 Chronicles 21", "Romans 4"]}
+      ]
+    },
+    {
+      "week_number": 22,
+      "date_range": "May 24 - 30",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Chronicles 22-25", "Psalm 78", "Romans 5"]},
+        {"day": 2, "scriptures": ["1 Kings 1", "1 Chronicles 26-28", "Romans 6"]},
+        {"day": 3, "scriptures": ["1 Kings 2", "1 Chronicles 29", "Romans 7"]},
+        {"day": 4, "scriptures": ["1 Kings 3", "2 Chronicles 1", "Psalm 42", "Romans 8"]},
+        {"day": 5, "scriptures": ["1 Kings 4", "Proverbs 1-2", "Psalm 43", "Romans 9"]}
+      ]
+    },
+    {
+      "week_number": 23,
+      "date_range": "May 31 - Jun 6",
+      "readings": [
+        {"day": 1, "scriptures": ["Proverbs 3-5", "Romans 10"]},
+        {"day": 2, "scriptures": ["Proverbs 6-7", "Psalm 7", "Romans 11"]},
+        {"day": 3, "scriptures": ["Proverbs 8-10", "Psalm 144", "Romans 12"]},
+        {"day": 4, "scriptures": ["Proverbs 11-13", "Psalm 8", "Romans 13"]},
+        {"day": 5, "scriptures": ["Proverbs 14-15", "Romans 14"]}
+      ]
+    },
+    {
+      "week_number": 24,
+      "date_range": "Jun 7 - 13",
+      "readings": [
+        {"day": 1, "scriptures": ["Proverbs 16-18", "Romans 15"]},
+        {"day": 2, "scriptures": ["Proverbs 19-21", "Psalm 40", "Romans 16"]},
+        {"day": 3, "scriptures": ["Proverbs 22-23", "Psalm 117", "1 Thessalonians 1"]},
+        {"day": 4, "scriptures": ["Proverbs 24-25", "Psalm 41", "1 Thessalonians 2"]},
+        {"day": 5, "scriptures": ["Proverbs 26-28", "1 Thessalonians 3"]}
+      ]
+    },
+    {
+      "week_number": 25,
+      "date_range": "Jun 14 - 20",
+      "readings": [
+        {"day": 1, "scriptures": ["Proverbs 29-31", "1 Thessalonians 4"]},
+        {"day": 2, "scriptures": ["Song of Solomon 1-3", "Psalm 72", "1 Thessalonians 5"]},
+        {"day": 3, "scriptures": ["Song of Solomon 4-6", "2 Thessalonians 1"]},
+        {"day": 4, "scriptures": ["Song of Solomon 7-8", "Psalm 127", "2 Thessalonians 2"]},
+        {"day": 5, "scriptures": ["1 Kings 5", "2 Chronicles 2", "2 Thessalonians 3"]}
+      ]
+    },
+    {
+      "week_number": 26,
+      "date_range": "Jun 21 - 27",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Kings 6", "2 Chronicles 3", "1 Timothy 1"]},
+        {"day": 2, "scriptures": ["1 Kings 7", "2 Chronicles 4", "Psalm 44", "1 Timothy 2"]},
+        {"day": 3, "scriptures": ["1 Kings 8", "Psalm 30", "1 Timothy 3"]},
+        {"day": 4, "scriptures": ["2 Chronicles 5-7", "Psalm 121", "1 Timothy 4"]},
+        {"day": 5, "scriptures": ["1 Kings 9", "2 Chronicles 8", "1 Timothy 5"]}
+      ]
+    },
+    {
+      "week_number": 27,
+      "date_range": "Jun 28 - Jul 4",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Kings 10-11", "2 Chronicles 9", "1 Timothy 6"]},
+        {"day": 2, "scriptures": ["Ecclesiastes 1-3", "Psalm 45", "2 Timothy 1"]},
+        {"day": 3, "scriptures": ["Ecclesiastes 4-6", "Psalm 125", "2 Timothy 2"]},
+        {"day": 4, "scriptures": ["Ecclesiastes 7-9", "Psalm 46", "2 Timothy 3"]},
+        {"day": 5, "scriptures": ["Ecclesiastes 10-12", "2 Timothy 4"]}
+      ]
+    },
+    {
+      "week_number": 28,
+      "date_range": "Jul 5 - 11",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Kings 12", "2 Chronicles 10-11", "Titus 1"]},
+        {"day": 2, "scriptures": ["1 Kings 13-14", "2 Chronicles 12", "Psalm 47", "Titus 2"]},
+        {"day": 3, "scriptures": ["1 Kings 15", "2 Chronicles 13-14", "Titus 3"]},
+        {"day": 4, "scriptures": ["2 Chronicles 15-16", "1 Kings 16", "Philemon"]},
+        {"day": 5, "scriptures": ["1 Kings 17-18", "Psalm 119", "Jude"]}
+      ]
+    },
+    {
+      "week_number": 29,
+      "date_range": "Jul 12 - 18",
+      "readings": [
+        {"day": 1, "scriptures": ["1 Kings 19-21", "2 Chronicles 17", "Psalm 129", "Matthew 1"]},
+        {"day": 2, "scriptures": ["1 Kings 22", "2 Chronicles 18", "Matthew 2"]},
+        {"day": 3, "scriptures": ["2 Chronicles 19-20", "2 Kings 1", "Psalm 20", "Matthew 3"]},
+        {"day": 4, "scriptures": ["2 Kings 2-3", "Psalm 48", "Matthew 4"]},
+        {"day": 5, "scriptures": ["2 Kings 4-6", "Matthew 5"]}
+      ]
+    },
+    {
+      "week_number": 30,
+      "date_range": "Jul 19 - 25",
+      "readings": [
+        {"day": 1, "scriptures": ["2 Kings 7-8", "2 Chronicles 21", "Matthew 6"]},
+        {"day": 2, "scriptures": ["2 Kings 9-10", "Psalm 49", "Matthew 7"]},
+        {"day": 3, "scriptures": ["2 Chronicles 22-23", "2 Kings 11", "Psalm 131", "Matthew 8"]},
+        {"day": 4, "scriptures": ["2 Chronicles 24", "2 Kings 12", "Psalm 50", "Matthew 9"]},
+        {"day": 5, "scriptures": ["Joel 1-3", "Matthew 10"]}
+      ]
+    },
+    {
+      "week_number": 31,
+      "date_range": "Jul 26 - Aug 1",
+      "readings": [
+        {"day": 1, "scriptures": ["Jonah 1-4", "Matthew 11"]},
+        {"day": 2, "scriptures": ["2 Kings 13-14", "2 Chronicles 25", "Psalm 53", "Matthew 12"]},
+        {"day": 3, "scriptures": ["Amos 1-3", "Matthew 13"]},
+        {"day": 4, "scriptures": ["Amos 4-6", "Psalm 55", "Matthew 14"]},
+        {"day": 5, "scriptures": ["Amos 7-9", "Matthew 15"]}
+      ]
+    },
+    {
+      "week_number": 32,
+      "date_range": "Aug 2 - 8",
+      "readings": [
+        {"day": 1, "scriptures": ["Hosea 1-3", "Matthew 16"]},
+        {"day": 2, "scriptures": ["Hosea 4-6", "Psalm 58", "Matthew 17"]},
+        {"day": 3, "scriptures": ["Hosea 7-10", "Matthew 18"]},
+        {"day": 4, "scriptures": ["Hosea 11-13", "Matthew 19"]},
+        {"day": 5, "scriptures": ["Hosea 14", "2 Chronicles 26-27", "Psalm 61", "Matthew 20"]}
+      ]
+    },
+    {
+      "week_number": 33,
+      "date_range": "Aug 9 - 15",
+      "readings": [
+        {"day": 1, "scriptures": ["2 Kings 15-16", "Matthew 21"]},
+        {"day": 2, "scriptures": ["Isaiah 1-3", "Psalm 9", "Matthew 22"]},
+        {"day": 3, "scriptures": ["Isaiah 4-6", "Matthew 23"]},
+        {"day": 4, "scriptures": ["Micah 1-4", "Psalm 10", "Matthew 24"]},
+        {"day": 5, "scriptures": ["Micah 5-7", "Matthew 25"]}
+      ]
+    },
+    {
+      "week_number": 34,
+      "date_range": "Aug 16 - 22",
+      "readings": [
+        {"day": 1, "scriptures": ["Isaiah 7-10", "Psalm 22", "Matthew 26"]},
+        {"day": 2, "scriptures": ["Isaiah 11-13", "Psalm 118", "Matthew 27"]},
+        {"day": 3, "scriptures": ["Isaiah 14-16", "Matthew 28"]},
+        {"day": 4, "scriptures": ["Isaiah 17-19", "Psalm 62", "1 Corinthians 1"]},
+        {"day": 5, "scriptures": ["Isaiah 20-22", "1 Corinthians 2"]}
+      ]
+    },
+    {
+      "week_number": 35,
+      "date_range": "Aug 23 - 29",
+      "readings": [
+        {"day": 1, "scriptures": ["Isaiah 23-25", "1 Corinthians 3"]},
+        {"day": 2, "scriptures": ["Isaiah 26-29", "Psalm 65", "1 Corinthians 4"]},
+        {"day": 3, "scriptures": ["Isaiah 30-32", "1 Corinthians 5"]},
+        {"day": 4, "scriptures": ["Isaiah 33-35", "1 Corinthians 6"]},
+        {"day": 5, "scriptures": ["2 Chronicles 28", "2 Kings 17", "Psalm 66", "1 Corinthians 7"]}
+      ]
+    },
+    {
+      "week_number": 36,
+      "date_range": "Aug 30 - Sep 5",
+      "readings": [
+        {"day": 1, "scriptures": ["2 Chronicles 29-31", "1 Corinthians 8"]},
+        {"day": 2, "scriptures": ["2 Kings 18-19", "2 Chronicles 32", "Psalm 67", "1 Corinthians 9"]},
+        {"day": 3, "scriptures": ["Isaiah 36-37", "Psalm 123", "1 Corinthians 10"]},
+        {"day": 4, "scriptures": ["2 Kings 20", "Isaiah 38-40", "Psalm 68", "1 Corinthians 11"]},
+        {"day": 5, "scriptures": ["Isaiah 41-44", "1 Corinthians 12"]}
+      ]
+    },
+    {
+      "week_number": 37,
+      "date_range": "Sep 6 - 12",
+      "readings": [
+        {"day": 1, "scriptures": ["Isaiah 45-48", "1 Corinthians 13"]},
+        {"day": 2, "scriptures": ["Isaiah 49-52", "Psalm 69", "1 Corinthians 14"]},
+        {"day": 3, "scriptures": ["Isaiah 53-55", "Psalm 128", "1 Corinthians 15"]},
+        {"day": 4, "scriptures": ["Isaiah 56-59", "Psalm 70", "1 Corinthians 16"]},
+        {"day": 5, "scriptures": ["Isaiah 60-63", "2 Corinthians 1"]}
+      ]
+    },
+    {
+      "week_number": 38,
+      "date_range": "Sep 13 - 19",
+      "readings": [
+        {"day": 1, "scriptures": ["Isaiah 64-66", "2 Corinthians 2"]},
+        {"day": 2, "scriptures": ["2 Kings 21", "2 Chronicles 33", "Psalm 71", "2 Corinthians 3"]},
+        {"day": 3, "scriptures": ["Nahum 1-3", "Psalm 149", "2 Corinthians 4"]},
+        {"day": 4, "scriptures": ["2 Kings 22-23", "Psalm 73", "2 Corinthians 5"]},
+        {"day": 5, "scriptures": ["2 Chronicles 34-35", "2 Corinthians 6"]}
+      ]
+    },
+    {
+      "week_number": 39,
+      "date_range": "Sep 20 - 26",
+      "readings": [
+        {"day": 1, "scriptures": ["Habakkuk 1-3", "2 Corinthians 7"]},
+        {"day": 2, "scriptures": ["Zephaniah 1-3", "Psalm 74", "2 Corinthians 8"]},
+        {"day": 3, "scriptures": ["Jeremiah 1-4", "Psalm 130", "2 Corinthians 9"]},
+        {"day": 4, "scriptures": ["Jeremiah 5-7", "Psalm 75", "2 Corinthians 10"]},
+        {"day": 5, "scriptures": ["Jeremiah 8-10", "2 Corinthians 11"]}
+      ]
+    },
+    {
+      "week_number": 40,
+      "date_range": "Sep 27 - Oct 3",
+      "readings": [
+        {"day": 1, "scriptures": ["Jeremiah 11-13", "2 Corinthians 12"]},
+        {"day": 2, "scriptures": ["Jeremiah 14-16", "Psalm 76", "2 Corinthians 13"]},
+        {"day": 3, "scriptures": ["Jeremiah 17-20", "James 1"]},
+        {"day": 4, "scriptures": ["Jeremiah 22", "Jeremiah 23", "Jeremiah 26", "Psalm 77", "James 2"]},
+        {"day": 5, "scriptures": ["Jeremiah 25", "Jeremiah 35", "Jeremiah 36", "Jeremiah 45", "Psalm 133", "James 3"]}
+      ]
+    },
+    {
+      "week_number": 41,
+      "date_range": "Oct 4 - 10",
+      "readings": [
+        {"day": 1, "scriptures": ["Jeremiah 27", "Jeremiah 28", "Jeremiah 29", "Jeremiah 24", "James 4"]},
+        {"day": 2, "scriptures": ["Jeremiah 37", "Jeremiah 21", "Jeremiah 34", "Psalm 79", "James 5"]},
+        {"day": 3, "scriptures": ["Jeremiah 30-33", "1 Peter 1"]},
+        {"day": 4, "scriptures": ["Jeremiah 38", "Jeremiah 39", "Jeremiah 52", "1 Peter 2"]},
+        {"day": 5, "scriptures": ["2 Kings 24-25", "2 Chronicles 36", "Psalm 126", "1 Peter 3"]}
+      ]
+    },
+    {
+      "week_number": 42,
+      "date_range": "Oct 11 - 17",
+      "readings": [
+        {"day": 1, "scriptures": ["Lamentations 1-5", "Psalm 137", "1 Peter 4"]},
+        {"day": 2, "scriptures": ["Obadiah", "Jeremiah 40-42", "Psalm 147", "1 Peter 5"]},
+        {"day": 3, "scriptures": ["Jeremiah 43", "Jeremiah 44", "Jeremiah 46", "2 Peter 1"]},
+        {"day": 4, "scriptures": ["Jeremiah 47", "Jeremiah 48", "Jeremiah 49", "Psalm 80", "2 Peter 2"]},
+        {"day": 5, "scriptures": ["Jeremiah 50-51", "2 Peter 3"]}
+      ]
+    },
+    {
+      "week_number": 43,
+      "date_range": "Oct 18 - 24",
+      "readings": [
+        {"day": 1, "scriptures": ["Ezekiel 1-3", "John 1"]},
+        {"day": 2, "scriptures": ["Ezekiel 4-6", "Psalm 82", "John 2"]},
+        {"day": 3, "scriptures": ["Ezekiel 7-9", "John 3"]},
+        {"day": 4, "scriptures": ["Ezekiel 10-12", "Psalm 83", "John 4"]},
+        {"day": 5, "scriptures": ["Ezekiel 13-15", "Psalm 136", "John 5"]}
+      ]
+    },
+    {
+      "week_number": 44,
+      "date_range": "Oct 25 - 31",
+      "readings": [
+        {"day": 1, "scriptures": ["Ezekiel 16-18", "John 6"]},
+        {"day": 2, "scriptures": ["Ezekiel 19-21", "Psalm 84", "John 7"]},
+        {"day": 3, "scriptures": ["Ezekiel 22-24", "Psalm 134", "John 8"]},
+        {"day": 4, "scriptures": ["Ezekiel 25-27", "Psalm 85", "John 9"]},
+        {"day": 5, "scriptures": ["Ezekiel 28-30", "John 10"]}
+      ]
+    },
+    {
+      "week_number": 45,
+      "date_range": "Nov 1 - 7",
+      "readings": [
+        {"day": 1, "scriptures": ["Ezekiel 31-33", "John 11"]},
+        {"day": 2, "scriptures": ["Ezekiel 34-36", "Psalm 86", "John 12"]},
+        {"day": 3, "scriptures": ["Ezekiel 37-39", "Psalm 87", "John 13"]},
+        {"day": 4, "scriptures": ["Ezekiel 40-42", "John 14"]},
+        {"day": 5, "scriptures": ["Ezekiel 43-45", "Psalm 135", "John 15"]}
+      ]
+    },
+    {
+      "week_number": 46,
+      "date_range": "Nov 8 - 14",
+      "readings": [
+        {"day": 1, "scriptures": ["Ezekiel 46-48", "John 16"]},
+        {"day": 2, "scriptures": ["Daniel 1-3", "Psalm 88", "John 17"]},
+        {"day": 3, "scriptures": ["Daniel 4-6", "John 18"]},
+        {"day": 4, "scriptures": ["Daniel 7-9", "Psalm 91", "John 19"]},
+        {"day": 5, "scriptures": ["Daniel 10-12", "John 20"]}
+      ]
+    },
+    {
+      "week_number": 47,
+      "date_range": "Nov 15 - 21",
+      "readings": [
+        {"day": 1, "scriptures": ["Ezra 1-2", "John 21"]},
+        {"day": 2, "scriptures": ["Ezra 3-4", "Psalm 92", "1 John 1"]},
+        {"day": 3, "scriptures": ["Haggai", "Zechariah 1", "Psalm 138", "1 John 2"]},
+        {"day": 4, "scriptures": ["Zechariah 2-5", "Psalm 93", "1 John 3"]},
+        {"day": 5, "scriptures": ["Zechariah 6-8", "1 John 4"]}
+      ]
+    },
+    {
+      "week_number": 48,
+      "date_range": "Nov 22 - 28",
+      "readings": [
+        {"day": 1, "scriptures": ["Zechariah 9-11", "1 John 5"]},
+        {"day": 2, "scriptures": ["Zechariah 12-14", "Psalm 94", "2 John"]},
+        {"day": 3, "scriptures": ["Ezra 5-6", "Psalm 95", "3 John"]},
+        {"day": 4, "scriptures": ["Esther 1-3", "Psalm 139", "Revelation 1"]},
+        {"day": 5, "scriptures": ["Esther 4-6", "Revelation 2"]}
+      ]
+    },
+    {
+      "week_number": 49,
+      "date_range": "Nov 29 - Dec 5",
+      "readings": [
+        {"day": 1, "scriptures": ["Esther 7-10", "Revelation 3"]},
+        {"day": 2, "scriptures": ["Ezra 7-10", "Psalm 97", "Revelation 4"]},
+        {"day": 3, "scriptures": ["Nehemiah 1-3", "Revelation 5"]},
+        {"day": 4, "scriptures": ["Nehemiah 4-6", "Psalm 98", "Revelation 6"]},
+        {"day": 5, "scriptures": ["Nehemiah 7-9", "Psalm 140", "Revelation 7"]}
+      ]
+    },
+    {
+      "week_number": 50,
+      "date_range": "Dec 6 - 12",
+      "readings": [
+        {"day": 1, "scriptures": ["Nehemiah 10-13", "Revelation 8"]},
+        {"day": 2, "scriptures": ["Malachi", "Psalm 2", "Revelation 9"]},
+        {"day": 3, "scriptures": ["Job 1-3", "Psalm 29", "Revelation 10"]},
+        {"day": 4, "scriptures": ["Job 4-7", "Psalm 99", "Revelation 11"]},
+        {"day": 5, "scriptures": ["Job 8-11", "Revelation 12"]}
+      ]
+    },
+    {
+      "week_number": 51,
+      "date_range": "Dec 13 - 19",
+      "readings": [
+        {"day": 1, "scriptures": ["Job 12-14", "Psalm 100", "Revelation 13"]},
+        {"day": 2, "scriptures": ["Job 15-17", "Revelation 14"]},
+        {"day": 3, "scriptures": ["Job 18-20", "Psalm 141", "Revelation 15"]},
+        {"day": 4, "scriptures": ["Job 21-23", "Psalm 101", "Revelation 16"]},
+        {"day": 5, "scriptures": ["Job 24-27", "Revelation 17"]}
+      ]
+    },
+    {
+      "week_number": 52,
+      "date_range": "Dec 20 - 26",
+      "readings": [
+        {"day": 1, "scriptures": ["Job 28-30", "Revelation 18"]},
+        {"day": 2, "scriptures": ["Job 31-33", "Psalm 102", "Revelation 19"]},
+        {"day": 3, "scriptures": ["Job 34-36", "Revelation 20"]},
+        {"day": 4, "scriptures": ["Job 37-39", "Psalm 103", "Revelation 21"]},
+        {"day": 5, "scriptures": ["Job 40-42", "Psalm 150", "Revelation 22"]}
+      ]
+    }
+  ]
+}
