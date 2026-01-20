@@ -7,11 +7,13 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
         body {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #4f46e5 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         /* Enhanced glass-morphism with better contrast */
@@ -42,10 +44,14 @@
 
         .first-letter-hint {
             font-family: 'Courier New', monospace;
-            letter-spacing: 0.4em;
-            font-size: 1.15em;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.6em;
+            font-size: 1.6em;
+            font-weight: 700;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            line-height: 2;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
         }
 
         .btn-mode {
@@ -59,10 +65,10 @@
         }
 
         .btn-mode.active {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
-            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.5);
+            border-color: rgba(255, 255, 255, 0.6);
         }
 
         @keyframes fadeIn {
@@ -114,7 +120,7 @@
         select option {
             background-color: #4f46e5;
             color: white;
-            font-weight: 500;
+            font-weight: 600;
             padding: 8px;
         }
 
@@ -164,8 +170,9 @@
                 font-size: 1.15rem;
             }
             .first-letter-hint {
-                font-size: 1em;
-                letter-spacing: 0.25em;
+                font-size: 1.2em;
+                letter-spacing: 0.4em;
+                padding: 1rem;
             }
         }
 
@@ -215,76 +222,64 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="max-w-4xl mx-auto space-y-5">
         <!-- Current Verse Display -->
-        <div class="glass-strong rounded-2xl p-8 shadow-2xl fade-in" id="verse-display">
-            <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
-                <h2 class="text-2xl font-bold text-white drop-shadow" id="verse-reference">Select a verse to begin</h2>
-                <div class="flex gap-3">
-                    <button onclick="window.prevVerse()" class="glass px-4 py-2 rounded-xl text-white hover:bg-white/30 transition shadow-lg" id="prev-btn" disabled>
-                        ← Previous
+        <div class="glass-strong rounded-xl p-6 shadow-2xl fade-in" id="verse-display">
+            <div class="mb-5 flex items-center justify-between flex-wrap gap-3">
+                <h2 class="text-xl font-bold text-white drop-shadow" id="verse-reference">Select a verse to begin</h2>
+                <div class="flex gap-2">
+                    <button onclick="window.prevVerse()" class="glass px-3 py-2 rounded-lg text-white hover:bg-white/30 transition shadow-lg text-sm" id="prev-btn" disabled>
+                        ← Prev
                     </button>
-                    <button onclick="window.nextVerse()" class="glass px-4 py-2 rounded-xl text-white hover:bg-white/30 transition shadow-lg" id="next-btn" disabled>
+                    <button onclick="window.nextVerse()" class="glass px-3 py-2 rounded-lg text-white hover:bg-white/30 transition shadow-lg text-sm" id="next-btn" disabled>
                         Next →
                     </button>
                 </div>
             </div>
 
-            <div class="mb-6 verse-content-bg rounded-xl p-8 min-h-[180px] flex items-center justify-center" id="verse-content">
-                <p class="text-white text-center text-lg">Select a verse from below or look up any Bible verse</p>
+            <div class="mb-5 verse-content-bg rounded-xl p-6 min-h-[160px] flex items-center justify-center" id="verse-content">
+                <p class="text-white text-center">Select a verse from below or look up any Bible verse</p>
             </div>
 
             <!-- Display Mode Buttons -->
-            <div class="flex gap-3 mb-5 flex-wrap" id="mode-buttons" style="display: none;">
-                <button onclick="window.setDisplayMode('full')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-full">
+            <div class="flex gap-2 mb-4 flex-wrap" id="mode-buttons" style="display: none;">
+                <button onclick="window.setDisplayMode('full')" class="btn-mode glass px-5 py-2 rounded-lg text-white flex-1 min-w-[120px] shadow-lg text-sm" id="btn-full">
                     📄 Full Text
                 </button>
-                <button onclick="window.setDisplayMode('hints')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-hints">
+                <button onclick="window.setDisplayMode('hints')" class="btn-mode glass px-5 py-2 rounded-lg text-white flex-1 min-w-[120px] shadow-lg text-sm" id="btn-hints">
                     💡 First Letters
                 </button>
-                <button onclick="window.setDisplayMode('hidden')" class="btn-mode glass px-6 py-3 rounded-xl text-white flex-1 min-w-[130px] shadow-lg" id="btn-hidden">
+                <button onclick="window.setDisplayMode('hidden')" class="btn-mode glass px-5 py-2 rounded-lg text-white flex-1 min-w-[120px] shadow-lg text-sm" id="btn-hidden">
                     🙈 Hidden
                 </button>
             </div>
 
             <!-- Progress Indicator -->
-            <div class="text-white text-base font-semibold" id="review-count" style="display: none;">
-                Reviews: <span id="review-number" class="bg-white/20 px-3 py-1 rounded-lg ml-2">0</span>
+            <div class="text-white text-sm font-semibold" id="review-count" style="display: none;">
+                Reviews: <span id="review-number" class="bg-white/20 px-2 py-1 rounded-lg ml-1">0</span>
             </div>
         </div>
 
         <!-- My Memorized Verses (from main app) -->
-        <div class="glass-strong rounded-2xl p-8 shadow-2xl" id="my-memorized-section" style="display: none;">
-            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+        <div class="glass-strong rounded-xl p-6 shadow-2xl" id="my-memorized-section" style="display: none;">
+            <h2 class="text-xl font-bold text-white mb-3 drop-shadow flex items-center gap-2">
                 <span>⭐</span>
                 <span>My Memorized Verses</span>
             </h2>
-            <p class="text-white/80 text-sm mb-6 font-medium">Verses you've saved from the Bible reader</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="my-memorized-verses">
+            <p class="text-white/80 text-sm mb-4 font-medium">Verses you've saved from the Bible reader</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="my-memorized-verses">
                 <!-- Populated by JavaScript -->
             </div>
         </div>
 
-        <!-- Popular Verses -->
-        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
-            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
-                <span>🌟</span>
-                <span>Popular Verses</span>
-            </h2>
-            <p class="text-white/80 text-sm mb-6 font-medium">Well-known Scripture passages to memorize</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="popular-verses">
-                <!-- Populated by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Verse Lookup -->
-        <div class="glass-strong rounded-2xl p-8 shadow-2xl">
-            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+        <!-- Verse Lookup (MOVED UP) -->
+        <div class="glass-strong rounded-xl p-6 shadow-2xl">
+            <h2 class="text-xl font-bold text-white mb-3 drop-shadow flex items-center gap-2">
                 <span>🔍</span>
-                <span>Look Up & Add Verse</span>
+                <span>Look Up Any Verse</span>
             </h2>
-            <p class="text-white/80 text-sm mb-6 font-medium">Find any Bible verse and add it to your practice list</p>
-            <div id="bible-status" class="mb-4 text-sm text-white font-medium italic hidden">
+            <p class="text-white/80 text-sm mb-4 font-medium">Find and add verses to your practice list</p>
+            <div id="bible-status" class="mb-3 text-xs text-white font-medium italic hidden">
                 <!-- Status message will be inserted here -->
             </div>
             <div class="space-y-3">
@@ -293,25 +288,25 @@
                     <input
                         type="text"
                         id="smart-reference"
-                        placeholder="Type reference (e.g., 'John 3:16', 'gal 3:16', 'Gen 1:1', '1 Cor 13:4-7')"
-                        class="w-full px-5 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-lg shadow-lg"
+                        placeholder="Type reference (e.g., 'John 3:16', 'gal 3:16', 'Gen 1:1')"
+                        class="w-full px-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 text-base shadow-lg"
                         onkeydown="if(event.key === 'Enter') window.smartLookup()"
                     >
-                    <p class="text-white text-sm mt-3 font-medium">
-                        💡 Supports: Full names (John 3:16) • Abbreviations (gal 3:16) • Chapters (Psalm 23) • Ranges (John 3:16-17)
+                    <p class="text-white text-xs mt-2 font-medium opacity-90">
+                        💡 Try: John 3:16 • gal 3:16 • Psalm 23 • 1 Cor 13:4-7
                     </p>
                 </div>
 
-                <div class="flex gap-3 flex-wrap">
+                <div class="flex gap-2 flex-wrap">
                     <button
                         onclick="window.smartLookup()"
-                        class="glass px-8 py-4 rounded-xl text-white hover:bg-white/30 transition flex-1 min-w-[200px] shadow-lg"
+                        class="glass px-6 py-3 rounded-lg text-white hover:bg-white/30 transition flex-1 min-w-[150px] shadow-lg text-sm font-bold"
                     >
                         🔍 Look Up
                     </button>
                     <button
                         onclick="window.addLookedUpVerse()"
-                        class="glass px-8 py-4 rounded-xl text-white hover:bg-emerald-500/40 transition flex-1 min-w-[200px] shadow-lg"
+                        class="glass px-6 py-3 rounded-lg text-white hover:bg-emerald-500/40 transition flex-1 min-w-[150px] shadow-lg text-sm font-bold"
                         id="add-lookup-btn"
                         style="display: none;"
                     >
@@ -319,13 +314,13 @@
                     </button>
                 </div>
 
-                <div id="lookup-result" class="verse-content-bg rounded-xl p-6 min-h-[120px]" style="display: none;">
-                    <p class="text-white text-center text-lg">Verse will appear here</p>
+                <div id="lookup-result" class="verse-content-bg rounded-xl p-5 min-h-[100px]" style="display: none;">
+                    <p class="text-white text-center">Verse will appear here</p>
                 </div>
 
                 <!-- Optional: Dropdown fallback (collapsed by default) -->
-                <details class="mt-5">
-                    <summary class="cursor-pointer text-white text-base hover:text-white/90 transition font-semibold">
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-white text-sm hover:text-white/90 transition font-semibold">
                         Or use dropdowns (click to expand) ▼
                     </summary>
                     <div class="mt-4 space-y-4">
@@ -368,15 +363,30 @@
 
 
         <!-- My Custom Verses -->
-        <div class="glass-strong rounded-2xl p-8 shadow-2xl" id="custom-verses-section" style="display: none;">
-            <h2 class="text-2xl font-bold text-white mb-4 drop-shadow flex items-center gap-3">
+        <div class="glass-strong rounded-xl p-6 shadow-2xl" id="custom-verses-section" style="display: none;">
+            <h2 class="text-xl font-bold text-white mb-3 drop-shadow flex items-center gap-2">
                 <span>📝</span>
                 <span>My Custom Verses</span>
             </h2>
-            <p class="text-white/80 text-sm mb-6 font-medium">Verses you've added through the lookup feature</p>
-            <div class="space-y-3" id="custom-verses-list">
+            <p class="text-white/80 text-sm mb-4 font-medium">Verses you've added through the lookup feature</p>
+            <div class="space-y-2" id="custom-verses-list">
                 <!-- Populated by JavaScript -->
             </div>
+        </div>
+
+        <!-- Popular Verses (MOVED DOWN and LESS PROMINENT) -->
+        <div class="glass rounded-xl p-5 shadow-xl">
+            <details open>
+                <summary class="text-lg font-bold text-white mb-3 drop-shadow flex items-center gap-2 cursor-pointer hover:text-white/90 transition">
+                    <span>🌟</span>
+                    <span>Popular Verses</span>
+                    <span class="text-xs opacity-75 ml-auto">Click to collapse ▼</span>
+                </summary>
+                <p class="text-white/80 text-xs mb-3 font-medium">Well-known Scripture passages to memorize</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="popular-verses">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </details>
         </div>
     </div>
 
@@ -572,10 +582,10 @@
             container.innerHTML = myMemorizedVerses.map((verse, index) => `
                 <button
                     onclick="window.selectVerse(${index}, 'memorized')"
-                    class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 shadow-lg"
+                    class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/30 shadow-lg"
                 >
-                    <div class="font-bold text-lg mb-1">${escapeHtml(verse.ref)}</div>
-                    <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                    <div class="font-bold text-base mb-1">${escapeHtml(verse.ref)}</div>
+                    <div class="text-xs text-white mt-1 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
                 </button>
             `).join('');
         }
@@ -972,10 +982,10 @@
             container.innerHTML = POPULAR_VERSES.map((verse, index) => `
                 <button
                     onclick="window.selectVerse(${index}, 'popular')"
-                    class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 shadow-lg"
+                    class="verse-card glass px-3 py-2 rounded-lg text-left text-white hover:bg-white/30 shadow-lg"
                 >
-                    <div class="font-bold text-lg mb-1">${escapeHtml(verse.reference)}</div>
-                    <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                    <div class="font-bold text-sm mb-1">${escapeHtml(verse.reference)}</div>
+                    <div class="text-xs text-white mt-1 truncate font-medium opacity-90">${escapeHtml(verse.text.substring(0, 45))}...</div>
                 </button>
             `).join('');
         }
@@ -992,17 +1002,17 @@
 
             section.style.display = 'block';
             container.innerHTML = customVerses.map((verse, index) => `
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
                     <button
                         onclick="window.selectVerse(${index}, 'custom')"
-                        class="verse-card glass px-5 py-4 rounded-xl text-left text-white hover:bg-white/30 flex-1 shadow-lg"
+                        class="verse-card glass px-4 py-3 rounded-lg text-left text-white hover:bg-white/30 flex-1 shadow-lg"
                     >
-                        <div class="font-bold text-lg mb-1">${escapeHtml(verse.reference)}</div>
-                        <div class="text-sm text-white mt-2 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
+                        <div class="font-bold text-base mb-1">${escapeHtml(verse.reference)}</div>
+                        <div class="text-xs text-white mt-1 truncate font-medium">${escapeHtml(verse.text.substring(0, 50))}...</div>
                     </button>
                     <button
                         onclick="window.deleteCustomVerse(${index})"
-                        class="glass px-4 py-4 rounded-xl text-white hover:bg-red-500/60 transition shadow-lg text-xl"
+                        class="glass px-3 py-3 rounded-lg text-white hover:bg-red-500/60 transition shadow-lg text-lg"
                         title="Delete verse"
                     >
                         🗑️
