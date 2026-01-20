@@ -574,9 +574,7 @@
         <div class="tab-scroll-wrapper">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
                 <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max sm:w-fit" role="tablist" aria-label="Main navigation">
-                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-books">All Books</button>
-                    <button onclick="window.setTab('OT')" id="tab-ot" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">OT Books</button>
-                    <button onclick="window.setTab('NT')" id="tab-nt" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">NT Books</button>
+                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-books">Bible</button>
                     <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-plan">Daily Plan</button>
                     <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-stats">Stats</button>
                     <button onclick="window.setTab('TOOLS')" id="tab-tools" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-tools">Tools</button>
@@ -1597,12 +1595,14 @@
             });
 
         // --- UTILITY FUNCTIONS ---
-        // Helper function to get local date string (YYYY-MM-DD) from timestamp
+        // Helper function to get Eastern Time date string (YYYY-MM-DD) from timestamp
         function getLocalDateString(timestamp) {
+            // Convert to Eastern Time (handles both EST and EDT automatically)
             const date = new Date(timestamp);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
+            const easternDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            const year = easternDate.getFullYear();
+            const month = String(easternDate.getMonth() + 1).padStart(2, '0');
+            const day = String(easternDate.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
@@ -3341,7 +3341,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.setTab = (t) => {
             activeTab = t;
             window.activeTab = t;
-            ['ALL', 'OT', 'NT', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
+            ['ALL', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
                 if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
@@ -3438,7 +3438,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.scrollTo(0,0);
         };
 
-        window.showBooks = () => window.setTab(activeTab === 'STATS' || activeTab === 'PLAN' || activeTab === 'TOOLS' || activeTab === 'ABOUT' || activeTab === 'SETTINGS' ? 'ALL' : activeTab);
+        window.showBooks = () => window.setTab('ALL');
 
         // Helper function to create celebration confetti
         window.createConfetti = (event) => {
@@ -3934,11 +3934,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             else if (activePlan === 'FIVE_DAY') {
                 descText = "<strong>Five-Day Plan:</strong> Read the entire Bible in one year, 5 days a week (weekends off!). <span class='inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold ml-2'>✨ Sustainable Pace</span><br><span class='text-xs opacity-90 mt-1 block'>Old Testament in chronological order • New Testament spread throughout the year</span>";
 
-                // Calculate current week number based on total chapters read
-                const totalChaptersRead = Object.keys(currentProg).filter(k => currentProg[k]).length;
-                const estimatedWeek = Math.min(Math.floor(totalChaptersRead / 5) + 1, 52); // 5 chapters per week average
+                // Get current day of week in Eastern Time (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+                const now = new Date();
+                const easternDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                let dayOfWeek = easternDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-                // Find the current reading position
+                // Map to plan days: Monday = 1, Tuesday = 2, ..., Friday = 5
+                // On weekends (Sat/Sun), show Monday's reading
+                let planDay = dayOfWeek;
+                if(dayOfWeek === 0) planDay = 1; // Sunday -> show Monday
+                else if(dayOfWeek === 6) planDay = 1; // Saturday -> show Monday
+                else planDay = dayOfWeek; // Monday-Friday (1-5)
+
+                // Find the current reading week position (first week with unread content)
                 let currentWeek = null;
                 for(let week of PLAN_FIVE_DAY.schedule) {
                     let allRead = true;
@@ -3969,38 +3977,46 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     return;
                 }
 
-                footerMsg.innerText = `Week ${currentWeek.week_number} of 52 (${currentWeek.date_range})`;
+                // Get the current day's reading
+                const currentDayReading = currentWeek.readings.find(r => r.day === planDay);
 
-                // Show this week's readings
-                currentWeek.readings.forEach((reading, idx) => {
-                    reading.scriptures.forEach((scriptureRef) => {
-                        const { bookName, chapterStr } = normalizeBookName(scriptureRef);
-                        const appBook = bible.find(b => b.name === bookName);
-                        if(appBook) {
-                            const chs = getChaptersFromStr(chapterStr);
-                            const firstCh = chs[0];
-                            let isRead = true;
-                            chs.forEach(c => { if(!currentProg[`${appBook.name}-${c}`]) isRead = false; });
+                if(!currentDayReading) {
+                    list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">No reading scheduled for today</div>`;
+                    return;
+                }
 
-                            // Calculate total words for this reading
-                            let totalWordsForReading = 0;
-                            chs.forEach(c => {
-                                if(appBook.ch[c-1]) {
-                                    totalWordsForReading += appBook.ch[c-1];
-                                }
-                            });
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const todayName = dayNames[dayOfWeek];
+                footerMsg.innerText = `Week ${currentWeek.week_number} of 52 • ${todayName} (Day ${planDay})`;
 
-                            nextChapters.push({
-                                book: appBook.name,
-                                chapter: firstCh,
-                                chapters: chs,
-                                words: totalWordsForReading,
-                                label: scriptureRef,
-                                badge: `Day ${reading.day}`,
-                                isComplete: isRead
-                            });
-                        }
-                    });
+                // Show only today's reading
+                currentDayReading.scriptures.forEach((scriptureRef) => {
+                    const { bookName, chapterStr } = normalizeBookName(scriptureRef);
+                    const appBook = bible.find(b => b.name === bookName);
+                    if(appBook) {
+                        const chs = getChaptersFromStr(chapterStr);
+                        const firstCh = chs[0];
+                        let isRead = true;
+                        chs.forEach(c => { if(!currentProg[`${appBook.name}-${c}`]) isRead = false; });
+
+                        // Calculate total words for this reading
+                        let totalWordsForReading = 0;
+                        chs.forEach(c => {
+                            if(appBook.ch[c-1]) {
+                                totalWordsForReading += appBook.ch[c-1];
+                            }
+                        });
+
+                        nextChapters.push({
+                            book: appBook.name,
+                            chapter: firstCh,
+                            chapters: chs,
+                            words: totalWordsForReading,
+                            label: scriptureRef,
+                            badge: `Today`,
+                            isComplete: isRead
+                        });
+                    }
                 });
             }
 
@@ -4080,7 +4096,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.renderBookGrid = () => {
             const grid = document.getElementById('book-grid');
             const currentProg = getProgress();
-            const books = bible.filter(b => (activeTab === 'ALL' || b.testament === activeTab) && b.name.toLowerCase().includes(searchQuery));
+            const books = bible.filter(b => b.name.toLowerCase().includes(searchQuery));
             if (books.length === 0) { grid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-12 bg-white/50 rounded-3xl border border-dashed border-slate-300">No books found.</div>`; return; }
 
             // Helper function to render a book card
@@ -4108,42 +4124,31 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>`;
             };
 
-            // If showing ALL books, render with testament dividers
-            if (activeTab === 'ALL' && searchQuery === '') {
-                const otBooks = books.filter(b => b.testament === 'OT');
-                const ntBooks = books.filter(b => b.testament === 'NT');
-
+            // Render with category dividers unless user is searching
+            if (searchQuery === '') {
+                const allCats = [...OT_CATS, ...NT_CATS];
                 let html = '';
 
-                if (otBooks.length > 0) {
-                    html += `<div class="col-span-full mb-2">
-                        <div class="flex items-center gap-3 sm:gap-4">
-                            <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent via-amber-400/40 to-amber-400/60 rounded-full"></div>
-                            <h2 class="text-sm sm:text-base font-black uppercase tracking-wider text-amber-800 bg-gradient-to-br from-amber-50 to-amber-100/80 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-amber-300/50 shadow-sm backdrop-blur-sm">
-                                <span class="hidden sm:inline">📜 </span>Old Testament
-                            </h2>
-                            <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent via-amber-400/40 to-amber-400/60 rounded-full"></div>
-                        </div>
-                    </div>`;
-                    html += otBooks.map(renderBookCard).join('');
-                }
-
-                if (ntBooks.length > 0) {
-                    html += `<div class="col-span-full mb-2 mt-8 sm:mt-10">
-                        <div class="flex items-center gap-3 sm:gap-4">
-                            <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent via-sky-400/40 to-sky-400/60 rounded-full"></div>
-                            <h2 class="text-sm sm:text-base font-black uppercase tracking-wider text-sky-800 bg-gradient-to-br from-sky-50 to-sky-100/80 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full border border-sky-300/50 shadow-sm backdrop-blur-sm">
-                                <span class="hidden sm:inline">✨ </span>New Testament
-                            </h2>
-                            <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent via-sky-400/40 to-sky-400/60 rounded-full"></div>
-                        </div>
-                    </div>`;
-                    html += ntBooks.map(renderBookCard).join('');
-                }
+                allCats.forEach(cat => {
+                    const categoryBooks = books.filter(b => b.cat === cat.name);
+                    if (categoryBooks.length > 0) {
+                        const catId = cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                        html += `<div id="category-${catId}" class="col-span-full mb-2 ${html ? 'mt-8 sm:mt-10' : ''}">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <div class="h-0.5 flex-1 bg-gradient-to-r from-transparent via-slate-300 to-slate-400 rounded-full"></div>
+                                <h2 class="text-sm sm:text-base font-black uppercase tracking-wider ${cat.style} px-4 sm:px-6 py-1.5 sm:py-2 rounded-full shadow-sm backdrop-blur-sm">
+                                    ${cat.name}
+                                </h2>
+                                <div class="h-0.5 flex-1 bg-gradient-to-l from-transparent via-slate-300 to-slate-400 rounded-full"></div>
+                            </div>
+                        </div>`;
+                        html += categoryBooks.map(renderBookCard).join('');
+                    }
+                });
 
                 grid.innerHTML = html;
             } else {
-                // Original behavior for OT/NT specific tabs or when searching
+                // When searching, show simple list
                 grid.innerHTML = books.map(renderBookCard).join('');
             }
         }
@@ -4256,7 +4261,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         window.renderSubdivisionStats = () => {
-            const cats = activeTab === 'ALL' ? [...OT_CATS, ...NT_CATS] : (activeTab === 'OT' ? OT_CATS : NT_CATS);
+            const cats = [...OT_CATS, ...NT_CATS];
             const container = document.getElementById('subdivision-bar');
             const currentProg = getProgress();
             let catStats = cats.map(c => {
@@ -4264,9 +4269,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 bible.filter(b => b.cat === c.name).forEach(b => {
                     b.ch.forEach((w, idx) => { totalW += w; if(currentProg[`${b.name}-${idx+1}`]) readW += w; });
                 });
-                return { ...c, percent: (readW/totalW*100).toFixed(1) };
+                const catId = c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                return { ...c, percent: (readW/totalW*100).toFixed(1), id: catId };
             });
-            container.innerHTML = catStats.map(c => `<div class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${c.style}"><span class="opacity-70">${c.name}</span><span>${c.percent}%</span></div>`).join('');
+            container.innerHTML = catStats.map(c => `<div onclick="window.scrollToCategory('${c.id}')" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${c.style} cursor-pointer hover:shadow-md transition-shadow" title="Jump to ${c.name}"><span class="opacity-70">${c.name}</span><span>${c.percent}%</span></div>`).join('');
+        }
+
+        window.scrollToCategory = (catId) => {
+            const element = document.getElementById(`category-${catId}`);
+            if(element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         // --- HEATMAP & STREAK FUNCTIONS ---
