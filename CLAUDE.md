@@ -44,8 +44,8 @@ This documentation has been comprehensively updated to reflect the latest state 
 ## Architecture
 
 ### Application Type
-- **Modular Architecture**: HTML in `index.html`, CSS in `css/`, JavaScript modules in `js/`
-- **No Build Process**: Pure HTML/CSS/JavaScript (ES6 modules)
+- **Single-File Architecture**: Entire application in `index.html`
+- **No Build Process**: Pure HTML/CSS/JavaScript (ES6)
 - **Progressive Web App**: Installable on mobile devices via `manifest.json` and `service-worker.js`
 
 ### Tech Stack
@@ -63,24 +63,8 @@ This documentation has been comprehensively updated to reflect the latest state 
 
 ```
 bible-progress/
-├── index.html           # Main HTML structure and content
-├── css/
-│   └── styles.css       # All application styles
-├── js/                  # JavaScript modules
-│   ├── bible-reader.js  # Bible text fetching and display
-│   ├── categories.js    # Bible book category definitions
-│   ├── data.js          # Bible data (books, chapters, word counts, reading plans)
-│   ├── easter-eggs.js   # Hidden features and easter eggs
-│   ├── firebase-init.js # Firebase configuration and authentication (ES6 module)
-│   ├── profiles.js      # Profile management functions
-│   ├── progress.js      # Chapter progress tracking
-│   ├── settings.js      # Settings and dark mode
-│   ├── storage.js       # LocalStorage and data migration
-│   ├── streaks.js       # Reading streak and heatmap calculations
-│   ├── ui-core.js       # Core UI functions and state management
-│   ├── ui-render.js     # Rendering functions for book grids and plans
-│   ├── utils.js         # Utility functions (colors, validation, etc.)
-│   └── verse-of-day.js  # Verse of the day functionality
+├── index.html           # Main application (3,847 lines)
+│                        # Contains all HTML, CSS, and JavaScript
 ├── manifest.json        # PWA manifest for app installation
 ├── service-worker.js    # Service worker for offline capabilities
 ├── README.md            # User-facing documentation
@@ -305,14 +289,14 @@ Seven hidden features (lines ~1271-1608):
 
 ### Adding a New Feature
 
-1. **Locate the relevant module** (HTML in index.html, styles in css/styles.css, logic in js/ modules)
-2. **Follow existing patterns** for consistency (export functions to window for onclick handlers)
+1. **Locate the relevant section** in index.html (single file)
+2. **Follow existing patterns** for consistency
 3. **Test in browser** (no build required)
 4. **Update localStorage structure** if data model changes (increment version: `kjv_v6_data` → `kjv_v7_data`)
 
 ### Modifying the Bible Data
 
-⚠️ **WARNING**: Bible data is in `js/data.js` as a minified array. Exercise extreme caution when modifying:
+⚠️ **WARNING**: Bible data is embedded as a minified array at line ~800. Exercise extreme caution when modifying:
 - Verify total word count remains 789,634
 - Update `WORD_TOTALS` constant if OT/NT split changes
 - Test all progress calculations after changes
@@ -526,42 +510,39 @@ console.log(escapeHtml('<script>alert("xss")</script>'))  // Should return escap
 
 ## Code Location Reference
 
-Quick reference for common code locations:
+Quick reference for common code locations in `index.html`:
 
-| Feature | File Location |
-|---------|--------------|
-| HTML Structure | `index.html` |
-| All Styles | `css/styles.css` |
-| Firebase Config & Auth | `js/firebase-init.js` |
-| Security Functions | `js/utils.js` |
-| Bible Data | `js/data.js` |
-| Reading Plans | `js/data.js` |
-| Word Count Totals | `js/data.js` |
-| Category Definitions | `js/categories.js` |
-| Data Migration | `js/storage.js` |
-| Profile Functions | `js/profiles.js` |
-| Progress Tracking | `js/progress.js` |
-| Heatmap & Streak Functions | `js/streaks.js` |
-| Streak Badge Update | `js/streaks.js` |
-| Streak Calculation | `js/streaks.js` |
-| Heatmap Rendering | `js/streaks.js` |
-| Milestone Celebrations | `js/streaks.js` |
-| Dark Mode | `js/settings.js` |
-| Rendering Functions | `js/ui-render.js` |
-| UI Core Functions | `js/ui-core.js` |
-| Easter Eggs | `js/easter-eggs.js` |
-| Bible Text Reader | `js/bible-reader.js` |
-| Verse of the Day | `js/verse-of-day.js` |
-| Utility Functions | `js/utils.js` |
+| Feature | Line Range |
+|---------|-----------|
+| Firebase Config | ~348-362 |
+| Security Functions | ~394-409 |
+| Bible Data | ~800-801 |
+| Reading Plans | ~804-818 |
+| Word Count Totals | ~820 |
+| Category Definitions | ~827-841 |
+| Data Migration | ~943-974 |
+| Horner Daily Progress | ~989-1009 |
+| Profile Functions | ~461-477 |
+| Auth Functions | ~478-552 |
+| Cloud Sync | ~553-590 |
+| Heatmap & Streak Functions | ~2596-3000 |
+| Streak Badge Update | ~2598-2623 |
+| Streak Calculation | ~2641-2704 |
+| Heatmap Rendering | ~2706-2829 |
+| Milestone Celebrations | ~2936-2995 |
+| Dark Mode (Settings UI) | ~571-577 |
+| Dark Mode (Implementation) | ~3200-3700 |
+| Rendering Functions | ~935-1270 |
+| Easter Eggs | ~1271-1608 |
+| Daily Plan Rendering | ~1750-1900 |
 
-**Note**: Use Grep or file search to locate specific functions within these modules.
+**Note**: Line numbers are approximate (~) due to ongoing development. Use search to locate specific functions.
 
 ## Best Practices for AI Assistants
 
 ### DO:
-✅ Maintain the modular architecture (HTML, CSS, JS separation)
+✅ Preserve the single-file architecture
 ✅ Match existing code style and conventions
-✅ Export functions to window object for onclick handlers
 ✅ Test all changes in browser before committing
 ✅ Maintain word count accuracy in bible data
 ✅ Keep localStorage version consistent (currently `kjv_v6_data`)
@@ -573,8 +554,8 @@ Quick reference for common code locations:
 ✅ Verify Horner daily progress resets at midnight correctly
 
 ### DON'T:
-❌ Add build tools or bundlers (keep it simple)
-❌ Break the modular structure (HTML, CSS, JS separation)
+❌ Split into multiple files (defeats the purpose)
+❌ Add build tools or bundlers
 ❌ Modify total word counts without verification
 ❌ Break localStorage compatibility without migration
 ❌ Remove or modify Firebase config without authorization
