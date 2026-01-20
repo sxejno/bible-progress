@@ -1,8 +1,10 @@
-const CACHE_NAME = 'bible-progress-v1';
+const CACHE_NAME = 'bible-progress-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
+    './kjv_bible.json',
+    './bible_chapter_summaries_concise.json',
     'https://cdn.tailwindcss.com',
     'https://cdn.jsdelivr.net/npm/chart.js'
 ];
