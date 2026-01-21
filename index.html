@@ -1770,7 +1770,10 @@
         };
 
         logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => window.location.reload());
+            signOut(auth).then(() => window.location.reload()).catch((error) => {
+                console.error('Logout failed:', error);
+                alert('Logout failed. Please try again.');
+            });
         });
 
         onAuthStateChanged(auth, (user) => {
@@ -2033,6 +2036,7 @@
         // --- PROFILE MANAGEMENT ---
         window.toggleProfileMenu = () => {
             const menu = document.getElementById('profile-menu');
+            if(!menu) return;
             menu.classList.toggle('hidden');
             if(!menu.classList.contains('hidden')) renderProfileList();
         };
@@ -2298,6 +2302,18 @@
                 });
             }
 
+            // Update hornerDailyProgress if exists
+            if(appData.hornerDailyProgress && appData.hornerDailyProgress[oldName]) {
+                appData.hornerDailyProgress[newName] = appData.hornerDailyProgress[oldName];
+                delete appData.hornerDailyProgress[oldName];
+            }
+
+            // Update memorizedVerses if exists
+            if(appData.memorizedVerses && appData.memorizedVerses[oldName]) {
+                appData.memorizedVerses[newName] = appData.memorizedVerses[oldName];
+                delete appData.memorizedVerses[oldName];
+            }
+
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
             alert(`✅ Profile renamed from "${oldName}" to "${newName}".`);
@@ -2403,7 +2419,7 @@
 
                 if(!sourceInput) return;
 
-                const sourceIdx = parseInt(sourceInput) - 1;
+                const sourceIdx = parseInt(sourceInput, 10) - 1;
                 if(sourceIdx < 0 || sourceIdx >= availableSourceProfiles.length) {
                     alert("❌ Invalid selection.");
                     return;
@@ -2430,7 +2446,7 @@
 
                 if(!targetInput) return;
 
-                const targetIdx = parseInt(targetInput) - 1;
+                const targetIdx = parseInt(targetInput, 10) - 1;
                 if(targetIdx < 0 || targetIdx >= availableTargetProfiles.length) {
                     alert("❌ Invalid selection.");
                     return;
@@ -5215,6 +5231,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             const reader = new FileReader();
+            reader.onerror = function() {
+                console.error('Failed to read file');
+                alert('Failed to read file. Please try again.');
+                input.value = '';
+            };
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
@@ -5312,12 +5333,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         function getChaptersFromStr(str) {
             if(!str) return [];
             if(str.includes('-')) {
-                const [start, end] = str.split('-').map(Number);
-                const arr = [];
-                for(let i=start; i<=end; i++) arr.push(i);
-                return arr;
+                const parts = str.split('-').map(Number);
+                if(parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    const [start, end] = parts;
+                    const arr = [];
+                    for(let i=start; i<=end; i++) arr.push(i);
+                    return arr;
+                }
+                // If invalid format, fall through to single number parsing
             }
-            return [parseInt(str)];
+            const num = parseInt(str, 10);
+            return isNaN(num) ? [] : [num];
         }
 
         window.renderDailyPlan = () => {
@@ -6230,7 +6256,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         function checkStreakMilestones(currentStreak) {
             // Check if just hit a milestone (need to track last checked streak)
-            const lastStreak = parseInt(localStorage.getItem(`lastStreakCheck_${appData.activeProfileId}`)) || 0;
+            const lastStreak = parseInt(localStorage.getItem(`lastStreakCheck_${appData.activeProfileId}`), 10) || 0;
             localStorage.setItem(`lastStreakCheck_${appData.activeProfileId}`, currentStreak);
 
             const milestones = [
@@ -7105,7 +7131,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		};
 
 		window.updateWPM = (value) => {
-			const wpm = parseInt(value);
+			const wpm = parseInt(value, 10);
 			if(wpm >= 100 && wpm <= 500) {
 				appData.wordsPerMinute = wpm;
 				window.saveProgress();
