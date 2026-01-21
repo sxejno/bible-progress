@@ -1292,9 +1292,6 @@
             <p class="text-xs text-slate-400 mt-2">
                 King James Version (KJV) Bible text is in the public domain.
             </p>
-            <p class="text-xs text-slate-400 mt-3 italic" id="last-updated">
-                Site last updated: <span id="last-updated-date">Loading...</span>
-            </p>
         </div>
     </footer>
 
@@ -7690,16 +7687,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		// Show cookie consent banner on page load
 		window.showCookieConsent();
 		*/
-
-		// --- LAST UPDATED INDICATOR ---
-		// Display the site's last update time (hardcoded, update manually on deployments)
-		const lastUpdatedEl = document.getElementById('last-updated-date');
-		if (lastUpdatedEl) {
-			// Set this date to the current deployment date (update this when deploying changes)
-			const lastUpdateDate = new Date('2026-01-21T00:00:00'); // Update this date when deploying
-			const options = { year: 'numeric', month: 'short', day: 'numeric' };
-			lastUpdatedEl.textContent = lastUpdateDate.toLocaleDateString('en-US', options);
-		}
 
 		// --- SERVICE WORKER REGISTRATION FOR PWA ---
 		if ('serviceWorker' in navigator) {
