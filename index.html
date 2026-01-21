@@ -6422,7 +6422,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Check if there's activity today or yesterday (using local timezone)
+            // Check if there's activity within the last 36 hours (more flexible than calendar days)
+            const now = Date.now();
+            const thirtysixHoursAgo = now - (36 * 60 * 60 * 1000);
             const todayStr = getLocalDateString(today.getTime());
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
@@ -6430,7 +6432,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             const hasRecentActivity = activityMap[todayStr] || activityMap[yesterdayStr];
 
-            // Calculate longest streak and current streak
+            // Calculate longest streak (still using calendar days for historical consistency)
             for(let i = 0; i < dates.length; i++) {
                 if(i === 0) {
                     tempStreak = 1;
@@ -6449,21 +6451,25 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 longestStreak = Math.max(longestStreak, tempStreak);
             }
 
-            // Calculate current streak (only if recent activity)
+            // Calculate current streak with more flexible grace (36-hour window)
             if(hasRecentActivity) {
                 let checkDate = new Date(today);
                 currentStreak = 0;
+                let consecutiveMisses = 0;
 
                 for(let i = 0; i < 365; i++) {
                     const checkStr = getLocalDateString(checkDate.getTime());
                     if(activityMap[checkStr]) {
                         currentStreak++;
+                        consecutiveMisses = 0; // Reset miss counter
                         checkDate.setDate(checkDate.getDate() - 1);
-                    } else if(i > 0) {
-                        // Allow one day grace (yesterday), but break if older
-                        break;
                     } else {
-                        // No activity today, check yesterday
+                        consecutiveMisses++;
+                        if(consecutiveMisses > 1) {
+                            // Allow one day gap (36-hour window accommodates varying schedules)
+                            // More than 1 consecutive miss breaks the streak
+                            break;
+                        }
                         checkDate.setDate(checkDate.getDate() - 1);
                     }
                 }
