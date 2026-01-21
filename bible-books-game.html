@@ -82,6 +82,23 @@
             font-variant-numeric: tabular-nums;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             color: #1e293b;
+            transition: color 0.3s ease;
+        }
+
+        .timer-green {
+            color: #16a34a !important; /* green-600 */
+        }
+
+        .timer-yellow {
+            color: #ca8a04 !important; /* yellow-600 */
+        }
+
+        .timer-orange {
+            color: #ea580c !important; /* orange-600 */
+        }
+
+        .timer-red {
+            color: #dc2626 !important; /* red-600 */
         }
 
         /* Enhanced text shadows for better contrast */
@@ -199,13 +216,15 @@
             <!-- Controls -->
             <div class="glass rounded-xl p-4 md:p-5">
                 <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-3">
-                    <div class="text-slate-900 text-center md:text-left">
-                        <div class="text-3xl md:text-4xl font-bold timer" id="timer">5:00</div>
-                        <div class="text-xs font-semibold text-slate-600 mt-1">Time Remaining</div>
-                    </div>
-                    <div class="text-slate-900 text-center">
-                        <div class="text-3xl md:text-4xl font-bold" id="scoreDisplay">0/66</div>
-                        <div class="text-xs font-semibold text-slate-600 mt-1">Books Found</div>
+                    <div class="flex gap-4 items-center justify-center w-full md:w-auto">
+                        <div class="text-slate-900 text-center">
+                            <div class="text-3xl md:text-4xl font-bold timer" id="timer">5:00</div>
+                            <div class="text-xs font-semibold text-slate-600 mt-1">Time Remaining</div>
+                        </div>
+                        <div class="text-slate-900 text-center">
+                            <div class="text-3xl md:text-4xl font-bold" id="scoreDisplay">0/66</div>
+                            <div class="text-xs font-semibold text-slate-600 mt-1">Books Found</div>
+                        </div>
                     </div>
                     <button onclick="startGame()" id="startBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition text-base" aria-label="Start Bible Books Memory Game">
                         Start Game
@@ -660,18 +679,20 @@
             const timerEl = document.getElementById('timer');
             timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-            // Visual warnings based on time remaining
+            // Remove all timer color classes
+            timerEl.classList.remove('timer-green', 'timer-yellow', 'timer-orange', 'timer-red', 'pulse');
+
+            // Apply color based on time remaining
             if (timeLeft <= 10 && timeLeft > 0) {
-                timerEl.classList.add('pulse');
-                timerEl.style.color = '#ef4444'; // Red
+                timerEl.classList.add('pulse', 'timer-red');
             } else if (timeLeft <= 30 && timeLeft > 0) {
-                timerEl.classList.add('pulse');
-                timerEl.style.color = '#f59e0b'; // Orange
+                timerEl.classList.add('pulse', 'timer-orange');
             } else if (timeLeft <= 60) {
-                timerEl.style.color = '#fbbf24'; // Yellow
+                timerEl.classList.add('timer-yellow');
+            } else if (timeLeft <= 120) {
+                timerEl.classList.add('timer-yellow');
             } else {
-                timerEl.style.color = '#ffffff'; // White
-                timerEl.classList.remove('pulse');
+                timerEl.classList.add('timer-green');
             }
         }
 

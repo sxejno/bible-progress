@@ -43,16 +43,16 @@
         }
 
         .first-letter-hint {
-            font-family: 'Courier New', monospace;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
             letter-spacing: 0.6em;
-            font-size: 1.6em;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            font-size: 1.8em;
+            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
             line-height: 2;
-            background: rgba(148, 163, 184, 0.1);
+            background: rgba(148, 163, 184, 0.12);
             padding: 1.5rem;
             border-radius: 1rem;
-            color: #1e293b;
+            color: #0f172a;
         }
 
         .btn-mode {
@@ -268,14 +268,17 @@
 
         <!-- My Memorized Verses (from main app) -->
         <div class="glass-strong rounded-xl p-6 shadow-2xl" id="my-memorized-section" style="display: none;">
-            <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
-                <span>⭐</span>
-                <span>My Memorized Verses</span>
-            </h2>
-            <p class="text-slate-700 text-sm mb-4 font-medium">Verses you've saved from the Bible reader</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="my-memorized-verses">
-                <!-- Populated by JavaScript -->
-            </div>
+            <details open id="my-memorized-details">
+                <summary class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition">
+                    <span>⭐</span>
+                    <span>My Memorized Verses</span>
+                    <span class="text-xs text-slate-500 ml-auto font-normal" id="my-memorized-toggle">Click to collapse ▼</span>
+                </summary>
+                <p class="text-slate-700 text-sm mb-4 font-medium">Verses you've saved from the Bible reader</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-2" id="my-memorized-verses">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </details>
         </div>
 
         <!-- Verse Lookup (MOVED UP) -->
@@ -370,23 +373,26 @@
 
         <!-- My Custom Verses -->
         <div class="glass-strong rounded-xl p-6 shadow-2xl" id="custom-verses-section" style="display: none;">
-            <h2 class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
-                <span>📝</span>
-                <span>My Custom Verses</span>
-            </h2>
-            <p class="text-slate-700 text-sm mb-4 font-medium">Verses you've added through the lookup feature</p>
-            <div class="space-y-2" id="custom-verses-list">
-                <!-- Populated by JavaScript -->
-            </div>
+            <details open id="custom-verses-details">
+                <summary class="text-xl font-bold text-slate-900 mb-3 flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition">
+                    <span>📝</span>
+                    <span>My Custom Verses</span>
+                    <span class="text-xs text-slate-500 ml-auto font-normal" id="custom-verses-toggle">Click to collapse ▼</span>
+                </summary>
+                <p class="text-slate-700 text-sm mb-4 font-medium">Verses you've added through the lookup feature</p>
+                <div class="space-y-2 max-h-[600px] overflow-y-auto pr-2" id="custom-verses-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </details>
         </div>
 
         <!-- Popular Verses (MOVED DOWN and LESS PROMINENT) -->
         <div class="glass rounded-xl p-5 shadow-xl">
-            <details open>
+            <details open id="popular-verses-details">
                 <summary class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2 cursor-pointer hover:text-indigo-600 transition">
                     <span>🌟</span>
                     <span>Popular Verses</span>
-                    <span class="text-xs text-slate-500 ml-auto">Click to collapse ▼</span>
+                    <span class="text-xs text-slate-500 ml-auto" id="popular-verses-toggle">Click to collapse ▼</span>
                 </summary>
                 <p class="text-slate-700 text-xs mb-3 font-medium">Well-known Scripture passages to memorize</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="popular-verses">
@@ -1170,6 +1176,25 @@
             if (e.key === 'ArrowLeft' && (window.currentVerseType === 'popular' || window.currentVerseType === 'memorized')) window.prevVerse();
             if (e.key === 'ArrowRight' && (window.currentVerseType === 'popular' || window.currentVerseType === 'memorized')) window.nextVerse();
         });
+
+        // Handle collapse/expand text for all details sections
+        function setupDetailsToggle(detailsId, toggleId) {
+            const details = document.getElementById(detailsId);
+            const toggle = document.getElementById(toggleId);
+            if (details && toggle) {
+                details.addEventListener('toggle', function() {
+                    if (this.open) {
+                        toggle.textContent = 'Click to collapse ▼';
+                    } else {
+                        toggle.textContent = 'Click to expand ▶';
+                    }
+                });
+            }
+        }
+
+        setupDetailsToggle('popular-verses-details', 'popular-verses-toggle');
+        setupDetailsToggle('my-memorized-details', 'my-memorized-toggle');
+        setupDetailsToggle('custom-verses-details', 'custom-verses-toggle');
 
         // Initialize on load
         init();
