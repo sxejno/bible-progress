@@ -158,6 +158,16 @@
             transition: transform 0.1s ease;
         }
 
+        /* Mark as Read button animation */
+        @keyframes markReadSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .mark-read-animate {
+            animation: markReadSuccess 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
         /* Enhanced modal entrance */
         @keyframes modalIn {
             from {
@@ -449,16 +459,16 @@
             <!-- Footer with navigation and actions -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4 p-6 border-t border-slate-200 bg-slate-50">
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <button id="bible-reader-prev" onclick="window.navigateBibleChapter(-1)" class="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition-colors border border-slate-200 flex items-center justify-center gap-2" aria-label="Previous chapter">
+                    <button id="bible-reader-prev" onclick="window.navigateBibleChapter(-1)" class="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 flex items-center justify-center gap-2 active:scale-95" aria-label="Previous chapter">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         <span class="hidden sm:inline">Previous</span>
                     </button>
-                    <button id="bible-reader-next" onclick="window.navigateBibleChapter(1)" class="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition-colors border border-slate-200 flex items-center justify-center gap-2" aria-label="Next chapter">
+                    <button id="bible-reader-next" onclick="window.navigateBibleChapter(1)" class="flex-1 sm:flex-none px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-bold transition-all border border-slate-200 flex items-center justify-center gap-2 active:scale-95" aria-label="Next chapter">
                         <span class="hidden sm:inline">Next</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
-                <button id="bible-reader-mark-read" onclick="window.markCurrentChapterAsRead()" class="w-full sm:w-auto px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition-colors shadow-sm hover:shadow-md flex items-center justify-center gap-2" aria-label="Mark chapter as read">
+                <button id="bible-reader-mark-read" onclick="window.markCurrentChapterAsRead()" class="w-full sm:w-auto px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center gap-2 active:scale-95" aria-label="Mark chapter as read">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Mark as Read
                 </button>
@@ -467,21 +477,21 @@
     </div>
 
     <header class="sticky top-0 z-50 glass border-b border-indigo-100 shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 py-4 sm:px-6">
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="max-w-5xl mx-auto px-4 py-2 sm:px-6">
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">
                             <div>
-                                <h1 class="text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
-                                <p id="books-completed-stat" class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">0 OF 66 BOOKS READ</p>
+                                <h1 class="text-xl sm:text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
+                                <p id="books-completed-stat" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">0 OF 66 BOOKS READ</p>
                             </div>
-                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-3 py-2 rounded-xl cursor-pointer hover:shadow-md transition-all" onclick="window.goToStreakSection()" role="button" aria-label="Click to view streak details" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.goToStreakSection()">
-                                <div class="flex items-center gap-2">
-                                    <span id="header-streak-emoji" class="text-xl">🔥</span>
+                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-2 py-1 rounded-lg cursor-pointer hover:shadow-md transition-all" onclick="window.goToStreakSection()" role="button" aria-label="Click to view streak details" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.goToStreakSection()">
+                                <div class="flex items-center gap-1.5">
+                                    <span id="header-streak-emoji" class="text-lg">🔥</span>
                                     <div class="flex flex-col">
-                                        <span id="header-streak-count" class="text-sm font-black text-orange-900 leading-none">0</span>
-                                        <span class="text-[9px] font-bold text-orange-600 uppercase tracking-wide">day streak</span>
+                                        <span id="header-streak-count" class="text-xs font-black text-orange-900 leading-none">0</span>
+                                        <span class="text-[8px] font-bold text-orange-600 uppercase tracking-wide">day streak</span>
                                     </div>
                                 </div>
                             </div>
@@ -525,35 +535,35 @@
 
                 <div class="space-y-1">
                     <div id="total-progress-section" class="cursor-pointer transition-all hover:opacity-90" onclick="window.toggleProgressView()" role="button" aria-label="Click to toggle between total progress and testament progress views" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.toggleProgressView()">
-                        <div class="w-full bg-gradient-to-r from-slate-200 to-slate-300 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="w-full bg-gradient-to-r from-slate-200 to-slate-300 rounded-full h-2.5 overflow-hidden shadow-inner">
                             <div id="total-progress-bar" class="bg-gradient-to-r from-indigo-600 to-purple-600 h-full progress-bar progress-bar-shine shadow-sm" style="width: 0%"></div>
                         </div>
 
-                        <div class="flex justify-between items-end px-1">
+                        <div class="flex justify-between items-end px-1 mt-1">
                              <div class="text-left">
-                                <span id="total-percent" class="text-4xl font-black text-indigo-600 leading-none">0.00%</span>
-                                <div class="text-xs font-bold text-slate-500 uppercase tracking-tight mt-1">Total Words Read</div>
+                                <span id="total-percent" class="text-3xl font-black text-indigo-600 leading-none">0.00%</span>
+                                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Total Words Read</div>
                             </div>
                         </div>
                     </div>
 
                     <div id="testament-progress-section" class="hidden cursor-pointer transition-all hover:opacity-90" onclick="window.toggleProgressView()" role="button" aria-label="Click to toggle back to total progress view" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.toggleProgressView()">
-                        <div class="grid grid-cols-2 gap-4 mt-4">
-                            <div class="bg-gradient-to-br from-white/80 to-amber-50/30 backdrop-blur-sm p-3 rounded-2xl border border-amber-100/50 shadow-sm">
-                                <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
+                        <div class="grid grid-cols-2 gap-3 mt-2">
+                            <div class="bg-gradient-to-br from-white/80 to-amber-50/30 backdrop-blur-sm p-2 rounded-xl border border-amber-100/50 shadow-sm">
+                                <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase mb-1">
                                     <span>Old Testament</span>
                                     <span id="ot-percent" class="text-amber-900 font-black">0.00%</span>
                                 </div>
-                                <div class="w-full bg-gradient-to-r from-slate-200 to-amber-100 rounded-full h-2 overflow-hidden shadow-inner">
+                                <div class="w-full bg-gradient-to-r from-slate-200 to-amber-100 rounded-full h-1.5 overflow-hidden shadow-inner">
                                     <div id="ot-progress-bar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-full progress-bar progress-bar-shine" style="width: 0%"></div>
                                 </div>
                             </div>
-                            <div class="bg-gradient-to-br from-white/80 to-emerald-50/30 backdrop-blur-sm p-3 rounded-2xl border border-emerald-100/50 shadow-sm">
-                                <div class="flex justify-between text-[11px] font-bold text-slate-500 uppercase mb-2">
+                            <div class="bg-gradient-to-br from-white/80 to-emerald-50/30 backdrop-blur-sm p-2 rounded-xl border border-emerald-100/50 shadow-sm">
+                                <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase mb-1">
                                     <span>New Testament</span>
                                     <span id="nt-percent" class="text-emerald-900 font-black">0.00%</span>
                                 </div>
-                                <div class="w-full bg-gradient-to-r from-slate-200 to-emerald-100 rounded-full h-2 overflow-hidden shadow-inner">
+                                <div class="w-full bg-gradient-to-r from-slate-200 to-emerald-100 rounded-full h-1.5 overflow-hidden shadow-inner">
                                     <div id="nt-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full progress-bar progress-bar-shine" style="width: 0%"></div>
                                 </div>
                             </div>
@@ -561,7 +571,7 @@
                     </div>
 
                     <!-- Centered verse with proper spacing -->
-                    <div id="verse-content" class="mt-4 mb-6 min-h-[60px] verse-fade-container flex items-center justify-center px-4">
+                    <div id="verse-content" class="mt-2 mb-2 min-h-[32px] verse-fade-container flex items-center justify-center px-4">
                         <div class="text-xs text-slate-400 italic leading-relaxed text-center"></div>
                     </div>
                 </div>
@@ -4613,8 +4623,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const chapterId = `${currentReaderBook}-${currentReaderChapter}`;
             window.toggleChapter(chapterId);
 
-            // Update the button state
-            updateMarkReadButton();
+            // Update the button state with animation
+            updateMarkReadButton(true);
         };
 
         // Render a Bible chapter in the reader
@@ -4752,26 +4762,35 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         // Update mark as read button state
-        function updateMarkReadButton() {
+        function updateMarkReadButton(triggerAnimation = false) {
             const chapterId = `${currentReaderBook}-${currentReaderChapter}`;
             const currentProg = getProgress();
             const isRead = currentProg[chapterId];
 
             const btn = document.getElementById('bible-reader-mark-read');
+
+            // Only trigger animation when explicitly requested (i.e., when user clicks the button)
+            if (triggerAnimation) {
+                btn.classList.add('mark-read-animate');
+                setTimeout(() => btn.classList.remove('mark-read-animate'), 300);
+            }
+
             if (isRead) {
                 btn.innerHTML = `
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Marked as Read
                 `;
-                btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
-                btn.classList.add('bg-slate-300', 'cursor-default');
+                btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-300', 'text-slate-600', 'cursor-default');
+                btn.disabled = true;
             } else {
                 btn.innerHTML = `
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     Mark as Read
                 `;
-                btn.classList.remove('bg-slate-300', 'cursor-default');
-                btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                btn.classList.remove('bg-slate-300', 'text-slate-600', 'cursor-default');
+                btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600', 'text-white');
+                btn.disabled = false;
             }
         }
 
