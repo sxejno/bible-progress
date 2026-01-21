@@ -1327,6 +1327,46 @@
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
+        // --- APPLICATION CONFIGURATION ---
+        const CONFIG = {
+            // Timing & Performance
+            SEARCH_DEBOUNCE_MS: 300,
+            TOAST_DURATION_MS: 5000,
+            EDIT_COOLDOWN_MS: 2000,
+            SAVE_DEBOUNCE_MS: 1000,
+            FIREBASE_DEBOUNCE_MS: 1000,
+            INTRO_MODAL_DELAY_MS: 500,
+
+            // Limits & Validation
+            MAX_PROFILE_NAME_LENGTH: 20,
+            MAX_PROFILES: 10,
+            MAX_BACKUP_SIZE_MB: 5,
+            DEFAULT_WPM: 250,
+
+            // Storage Keys
+            STORAGE_KEY_DATA: 'kjv_v6_data',
+            STORAGE_KEY_PROGRESS: 'kjv_v6_progress',
+            STORAGE_KEY_PLAN: 'kjv_v6_active_plan',
+            STORAGE_KEY_INTRO_SEEN: 'kjv_intro_seen',
+            STORAGE_KEY_DEBUG: 'bible_progress_debug',
+
+            // Bible Data
+            TOTAL_WORD_COUNT: 789634,
+            OT_WORD_COUNT: 609252,
+            NT_WORD_COUNT: 180382
+        };
+
+        // --- DEBUG MODE WRAPPER ---
+        const DEBUG_MODE = localStorage.getItem(CONFIG.STORAGE_KEY_DEBUG) === 'true';
+        const log = (...args) => DEBUG_MODE && console.log(...args);
+        const warn = (...args) => DEBUG_MODE && console.warn(...args);
+        const logError = (...args) => console.error(...args); // Always log errors
+
+        // Expose debug toggle for users: localStorage.setItem('bible_progress_debug', 'true')
+        if(DEBUG_MODE) {
+            console.log('🔧 Debug mode enabled. To disable: localStorage.removeItem("bible_progress_debug")');
+        }
+
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyBkQc0Hyw6zFu9s8QQz1KfEz-5lEkpPVd0",
@@ -1347,7 +1387,7 @@
 
         // --- GLOBAL ERROR HANDLER ---
         window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('❌ Global Error:', {
+            logError('❌ Global Error:', {
                 message: msg,
                 url: url,
                 line: lineNo,
@@ -1365,7 +1405,7 @@
                     });
                 }
             } catch (analyticsError) {
-                console.warn('Failed to log error to analytics:', analyticsError);
+                warn('Failed to log error to analytics:', analyticsError);
             }
 
             return false; // Allow default error handling
@@ -1373,7 +1413,7 @@
 
         // Handle unhandled promise rejections
         window.addEventListener('unhandledrejection', function(event) {
-            console.error('❌ Unhandled Promise Rejection:', {
+            logError('❌ Unhandled Promise Rejection:', {
                 reason: event.reason,
                 promise: event.promise
             });
@@ -1387,7 +1427,7 @@
                     });
                 }
             } catch (analyticsError) {
-                console.warn('Failed to log error to analytics:', analyticsError);
+                warn('Failed to log error to analytics:', analyticsError);
             }
         });
 
@@ -1408,7 +1448,7 @@
 
         // --- SANITIZE PROFILE NAME (ALPHANUMERIC ONLY, MAX 20 CHARS) ---
         function sanitizeProfileName(name) {
-            const cleaned = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20);
+            const cleaned = name.replace(/[^a-zA-Z0-9]/g, '').substring(0, CONFIG.MAX_PROFILE_NAME_LENGTH);
             return cleaned;
         }
 
@@ -1421,6 +1461,219 @@
                 return false;
             }
         }
+
+        // --- ERROR BOUNDARY WRAPPER ---
+        async function withErrorHandling(fn, errorMessage = 'An error occurred', showToast = true) {
+            try {
+                return await fn();
+            } catch (error) {
+                logError(errorMessage, error);
+
+                if (showToast && typeof window.showToast === 'function') {
+                    window.showToast(`${errorMessage}: ${error.message}`, 'error');
+                } else {
+                    // Fallback to alert if toast not available yet
+                    console.error(`${errorMessage}:`, error.message);
+                }
+
+                // Log to analytics if available
+                if (typeof analytics !== 'undefined') {
+                    try {
+                        logEvent(analytics, 'exception', {
+                            description: `${errorMessage}: ${error.message}`,
+                            fatal: false
+                        });
+                    } catch (analyticsError) {
+                        logError('Failed to log error to analytics:', analyticsError);
+                    }
+                }
+
+                throw error; // Re-throw if caller needs to handle
+            }
+        }
+
+        // --- CUSTOM MODAL SYSTEM ---
+        window.showCustomModal = (title, message, type = 'info', options = {}) => {
+            return new Promise((resolve) => {
+                // Remove any existing custom modals
+                const existingModal = document.getElementById('custom-modal-overlay');
+                if (existingModal) existingModal.remove();
+
+                // Create modal overlay
+                const overlay = document.createElement('div');
+                overlay.id = 'custom-modal-overlay';
+                overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in';
+                overlay.style.animation = 'fadeIn 0.2s ease-out';
+
+                // Determine icon and colors based on type
+                const typeConfig = {
+                    info: { icon: 'ℹ️', bgClass: 'bg-blue-50', borderClass: 'border-blue-200', titleClass: 'text-blue-900', buttonClass: 'bg-indigo-600 hover:bg-indigo-700' },
+                    success: { icon: '✅', bgClass: 'bg-emerald-50', borderClass: 'border-emerald-200', titleClass: 'text-emerald-900', buttonClass: 'bg-emerald-600 hover:bg-emerald-700' },
+                    error: { icon: '❌', bgClass: 'bg-red-50', borderClass: 'border-red-200', titleClass: 'text-red-900', buttonClass: 'bg-red-600 hover:bg-red-700' },
+                    warning: { icon: '⚠️', bgClass: 'bg-amber-50', borderClass: 'border-amber-200', titleClass: 'text-amber-900', buttonClass: 'bg-amber-600 hover:bg-amber-700' },
+                    confirm: { icon: '❓', bgClass: 'bg-slate-50', borderClass: 'border-slate-200', titleClass: 'text-slate-900', buttonClass: 'bg-indigo-600 hover:bg-indigo-700' },
+                    prompt: { icon: '✏️', bgClass: 'bg-indigo-50', borderClass: 'border-indigo-200', titleClass: 'text-indigo-900', buttonClass: 'bg-indigo-600 hover:bg-indigo-700' }
+                };
+
+                const config = typeConfig[type] || typeConfig.info;
+
+                // Create modal content
+                const modal = document.createElement('div');
+                modal.className = `glass ${config.bgClass} ${config.borderClass} border-2 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all`;
+                modal.style.animation = 'fadeIn 0.3s ease-out';
+
+                let modalHTML = `
+                    <div class="flex items-start gap-4 mb-4">
+                        <span class="text-3xl flex-shrink-0">${config.icon}</span>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-black ${config.titleClass} mb-2">${title}</h3>
+                            <p class="text-sm ${config.titleClass.replace('900', '700')} leading-relaxed whitespace-pre-wrap">${message}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Add input for prompt type
+                if (type === 'prompt') {
+                    const defaultValue = options.defaultValue || '';
+                    const placeholder = options.placeholder || '';
+                    modalHTML += `
+                        <input
+                            type="text"
+                            id="custom-modal-input"
+                            value="${defaultValue}"
+                            placeholder="${placeholder}"
+                            class="w-full px-4 py-2 mb-4 border-2 ${config.borderClass} rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                        />
+                    `;
+                }
+
+                // Add buttons based on type
+                if (type === 'confirm') {
+                    modalHTML += `
+                        <div class="flex gap-3 justify-end mt-6">
+                            <button
+                                id="custom-modal-cancel"
+                                class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                id="custom-modal-confirm"
+                                class="px-6 py-2.5 ${config.buttonClass} text-white rounded-xl text-sm font-bold transition-colors"
+                            >
+                                ${options.confirmText || 'Confirm'}
+                            </button>
+                        </div>
+                    `;
+                } else if (type === 'prompt') {
+                    modalHTML += `
+                        <div class="flex gap-3 justify-end mt-6">
+                            <button
+                                id="custom-modal-cancel"
+                                class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                id="custom-modal-submit"
+                                class="px-6 py-2.5 ${config.buttonClass} text-white rounded-xl text-sm font-bold transition-colors"
+                            >
+                                ${options.submitText || 'Submit'}
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    modalHTML += `
+                        <div class="flex justify-end mt-6">
+                            <button
+                                id="custom-modal-ok"
+                                class="px-6 py-2.5 ${config.buttonClass} text-white rounded-xl text-sm font-bold transition-colors"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    `;
+                }
+
+                modal.innerHTML = modalHTML;
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                // Focus input for prompt type
+                if (type === 'prompt') {
+                    setTimeout(() => {
+                        const input = document.getElementById('custom-modal-input');
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    }, 100);
+                }
+
+                // Handle button clicks
+                const closeModal = (result) => {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.remove(), 200);
+                    resolve(result);
+                };
+
+                if (type === 'confirm') {
+                    document.getElementById('custom-modal-confirm')?.addEventListener('click', () => closeModal(true));
+                    document.getElementById('custom-modal-cancel')?.addEventListener('click', () => closeModal(false));
+                } else if (type === 'prompt') {
+                    const submitBtn = document.getElementById('custom-modal-submit');
+                    const cancelBtn = document.getElementById('custom-modal-cancel');
+                    const input = document.getElementById('custom-modal-input');
+
+                    submitBtn?.addEventListener('click', () => {
+                        const value = input?.value || '';
+                        closeModal(value || null);
+                    });
+                    cancelBtn?.addEventListener('click', () => closeModal(null));
+
+                    // Submit on Enter key
+                    input?.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            const value = input.value || '';
+                            closeModal(value || null);
+                        } else if (e.key === 'Escape') {
+                            closeModal(null);
+                        }
+                    });
+                } else {
+                    document.getElementById('custom-modal-ok')?.addEventListener('click', () => closeModal(true));
+                }
+
+                // Close on overlay click
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        closeModal(type === 'confirm' ? false : (type === 'prompt' ? null : true));
+                    }
+                });
+
+                // Close on Escape key
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        closeModal(type === 'confirm' ? false : (type === 'prompt' ? null : true));
+                        document.removeEventListener('keydown', handleEscape);
+                    }
+                };
+                document.addEventListener('keydown', handleEscape);
+            });
+        };
+
+        // Convenience wrappers for common modal types
+        window.showAlert = (title, message, type = 'info') => {
+            return window.showCustomModal(title, message, type);
+        };
+
+        window.showConfirm = (title, message, confirmText = 'Confirm') => {
+            return window.showCustomModal(title, message, 'confirm', { confirmText });
+        };
+
+        window.showPrompt = (title, message, defaultValue = '', placeholder = '', submitText = 'Submit') => {
+            return window.showCustomModal(title, message, 'prompt', { defaultValue, placeholder, submitText });
+        };
 
         // --- VALIDATE APP DATA ---
         function validateAppData(data) {
@@ -1441,30 +1694,30 @@
         // --- APP STATE & MIGRATION ---
         let savedData = null;
         try {
-            const rawData = localStorage.getItem('kjv_v6_data');
+            const rawData = localStorage.getItem(CONFIG.STORAGE_KEY_DATA);
             if (rawData) {
                 savedData = JSON.parse(rawData);
                 if(savedData && !validateAppData(savedData)) {
-                    console.warn('Invalid saved data, resetting to defaults');
+                    warn('Invalid saved data, resetting to defaults');
                     savedData = null;
                 }
             }
         } catch (e) {
-            console.error('Failed to parse saved data:', e);
+            logError('Failed to parse saved data:', e);
             savedData = null;
         }
 
         let oldProgress = null;
         try {
-            const rawProgress = localStorage.getItem('kjv_v6_progress');
+            const rawProgress = localStorage.getItem(CONFIG.STORAGE_KEY_PROGRESS);
             if (rawProgress) {
                 oldProgress = JSON.parse(rawProgress);
             }
         } catch (e) {
-            console.error('Failed to parse old progress:', e);
+            logError('Failed to parse old progress:', e);
             oldProgress = null;
         }
-        let oldPlan = localStorage.getItem('kjv_v6_active_plan') || 'MCHEYNE';
+        let oldPlan = localStorage.getItem(CONFIG.STORAGE_KEY_PLAN) || 'MCHEYNE';
 
         let appData = savedData || {
             profiles: { "Default": oldProgress || {} },
@@ -1526,7 +1779,7 @@
             appData.showReadingTime = true;
         }
         if(!appData.wordsPerMinute) {
-            appData.wordsPerMinute = 250; // Average adult reading speed
+            appData.wordsPerMinute = CONFIG.DEFAULT_WPM; // Average adult reading speed
         }
 
         // Migrate existing users to have verse memorization (per-profile)
@@ -1589,7 +1842,8 @@
 
         // Save any migration fixes to localStorage immediately
         // This prevents the "Default" profile from being recreated on reload
-        localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+        localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData));
+        log('✅ Migrations applied and saved to localStorage');
 
         let activePlan = appData.profilePlans[appData.activeProfileId] || 'MCHEYNE';
         let currentUser = null;
@@ -1605,9 +1859,10 @@
                 data.forEach(item => {
                     chapterSummaries[item.id] = item.summary;
                 });
+                log('📖 Chapter summaries loaded');
             })
             .catch(err => {
-                console.log('Chapter summaries not loaded:', err);
+                log('Chapter summaries not loaded:', err);
             });
 
         // --- UTILITY FUNCTIONS ---
@@ -1673,8 +1928,9 @@
         // Reset daily progress on load if it's a new day
         resetHornerDailyProgressIfNeeded();
         let unsubscribe = null;
-        let saveTimeout = null;
-        let userIsEditing = false; // NEW: Prevent cloud sync during edits
+        let localSaveTimeout = null;
+        let cloudSaveTimeout = null;
+        let userIsEditing = false; // Prevent cloud sync during edits
 
         // --- UI ELEMENTS ---
         const logoutBtn = document.getElementById('logout-btn');
@@ -1725,21 +1981,21 @@
             const modal = document.getElementById('intro-modal');
             modal.classList.add('hidden');
             // Mark that user has seen the intro
-            localStorage.setItem('kjv_intro_seen', 'true');
+            localStorage.setItem(CONFIG.STORAGE_KEY_INTRO_SEEN, 'true');
         };
 
         // Check if this is the user's first visit
         function checkFirstVisit() {
-            const hasSeenIntro = localStorage.getItem('kjv_intro_seen');
+            const hasSeenIntro = localStorage.getItem(CONFIG.STORAGE_KEY_INTRO_SEEN);
             if (!hasSeenIntro) {
                 // Show intro modal after a short delay for better UX
                 setTimeout(() => {
                     window.showIntroModal();
-                }, 500);
+                }, CONFIG.INTRO_MODAL_DELAY_MS);
             }
         }
 
-        window.handleGoogleLogin = () => {
+        window.handleGoogleLogin = async () => {
             const googleBtn = document.getElementById('btn-google-login');
             const loginBtn = document.getElementById('btn-login-email');
             const signupBtn = document.getElementById('btn-signup-email');
@@ -1749,19 +2005,19 @@
             if (loginBtn) loginBtn.disabled = true;
             if (signupBtn) signupBtn.disabled = true;
 
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    window.toggleAuthModal(false);
-                })
-                .catch((error) => {
-                    alert("❌ Google Login Failed\n\n" + error.message);
-                })
-                .finally(() => {
-                    // Re-enable buttons
-                    if (googleBtn) googleBtn.disabled = false;
-                    if (loginBtn) loginBtn.disabled = false;
-                    if (signupBtn) signupBtn.disabled = false;
-                });
+            try {
+                await signInWithPopup(auth, provider);
+                window.toggleAuthModal(false);
+                window.showToast('Successfully logged in with Google', 'success', 3000);
+            } catch (error) {
+                logError('Google login failed:', error);
+                await window.showAlert('Google Login Failed', error.message, 'error');
+            } finally {
+                // Re-enable buttons
+                if (googleBtn) googleBtn.disabled = false;
+                if (loginBtn) loginBtn.disabled = false;
+                if (signupBtn) signupBtn.disabled = false;
+            }
         };
 
         window.handleEmailAuth = async (mode) => {
@@ -1816,11 +2072,15 @@
             }
         };
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => window.location.reload()).catch((error) => {
-                console.error('Logout failed:', error);
-                alert('Logout failed. Please try again.');
-            });
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.showToast('Successfully logged out', 'success', 3000);
+                setTimeout(() => window.location.reload(), 500);
+            } catch (error) {
+                logError('Logout failed:', error);
+                await window.showAlert('Logout Failed', 'Please try again. ' + error.message, 'error');
+            }
         });
 
         onAuthStateChanged(auth, (user) => {
@@ -1856,7 +2116,7 @@
             unsubscribe = onSnapshot(userDocRef, (docSnap) => {
                 // Skip sync if user is actively editing
                 if(userIsEditing) {
-                    console.log('⏸️ Skipping sync - user editing');
+                    log('⏸️ Skipping sync - user editing');
                     return;
                 }
                 
@@ -1897,7 +2157,7 @@
                             appData.showReadingTime = true;
                         }
                         if(!appData.wordsPerMinute) {
-                            appData.wordsPerMinute = 250;
+                            appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
                         }
 
                         // Ensure active profile exists
@@ -1935,8 +2195,8 @@
             window.updateStats();
         }
 
-        // --- OFFLINE/ONLINE DETECTION & TOAST NOTIFICATIONS ---
-        function showToast(message, type = 'info') {
+        // --- TOAST NOTIFICATIONS (ENHANCED) ---
+        window.showToast = function(message, type = 'info', duration = CONFIG.TOAST_DURATION_MS) {
             // Remove any existing toasts
             const existingToast = document.getElementById('connection-toast');
             if(existingToast) existingToast.remove();
@@ -1948,38 +2208,73 @@
             const bgColors = {
                 'offline': 'bg-amber-50 border-amber-200',
                 'online': 'bg-emerald-50 border-emerald-200',
+                'success': 'bg-emerald-50 border-emerald-200',
+                'error': 'bg-red-50 border-red-200',
+                'warning': 'bg-amber-50 border-amber-200',
                 'info': 'bg-slate-50 border-slate-200'
             };
 
             const textColors = {
                 'offline': 'text-amber-900',
                 'online': 'text-emerald-900',
+                'success': 'text-emerald-900',
+                'error': 'text-red-900',
+                'warning': 'text-amber-900',
                 'info': 'text-slate-900'
             };
 
             const icons = {
                 'offline': '📡',
                 'online': '✅',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
                 'info': 'ℹ️'
             };
 
             toast.innerHTML = `
-                <div class="${bgColors[type]} ${textColors[type]} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
-                    <span class="text-2xl">${icons[type]}</span>
+                <div class="${bgColors[type] || bgColors.info} ${textColors[type] || textColors.info} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
+                    <span class="text-2xl">${icons[type] || icons.info}</span>
                     <p class="text-sm font-bold leading-relaxed">${message}</p>
                 </div>
             `;
 
             document.body.appendChild(toast);
 
-            // Auto-remove after 5 seconds
+            // Auto-remove after specified duration
             setTimeout(() => {
                 if(toast && toast.parentNode) {
                     toast.style.opacity = '0';
                     setTimeout(() => toast.remove(), 300);
                 }
-            }, 5000);
-        }
+            }, duration);
+        };
+
+        // Convenience function for micro-toasts (shorter, less intrusive)
+        window.showMicroToast = function(message, duration = 2000) {
+            const existingMicroToast = document.getElementById('micro-toast');
+            if(existingMicroToast) existingMicroToast.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'micro-toast';
+            toast.className = 'fixed top-20 right-6 z-[150] transition-all duration-300';
+            toast.style.animation = 'fadeIn 0.2s ease-out';
+
+            toast.innerHTML = `
+                <div class="bg-slate-800/90 text-white px-4 py-2 rounded-lg shadow-xl border border-slate-700 flex items-center gap-2">
+                    <p class="text-xs font-bold">${message}</p>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                if(toast && toast.parentNode) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 200);
+                }
+            }, duration);
+        };
 
         function updateOfflineStatus() {
             if(!navigator.onLine) {
@@ -2005,16 +2300,16 @@
 
         // Offline event listener
         window.addEventListener('offline', () => {
-            console.log('📡 Connection lost - entering offline mode');
+            log('📡 Connection lost - entering offline mode');
             updateOfflineStatus();
-            showToast('You are offline. All changes are saved locally and will sync when you\'re back online.', 'offline');
+            window.showToast('You are offline. All changes are saved locally and will sync when you\'re back online.', 'offline');
         });
 
         // Online event listener
         window.addEventListener('online', () => {
-            console.log('✅ Connection restored - back online');
+            log('✅ Connection restored - back online');
             updateOfflineStatus();
-            showToast('Connection restored! Your progress is syncing to the cloud.', 'online');
+            window.showToast('Connection restored! Your progress is syncing to the cloud.', 'online');
 
             // Trigger a save to sync any pending changes
             if(currentUser) {
@@ -2024,71 +2319,85 @@
 
         // Check initial offline status on load
         if(!navigator.onLine) {
-            console.log('📡 Starting in offline mode');
+            log('📡 Starting in offline mode');
             updateOfflineStatus();
         }
 
         // --- GLOBAL FUNCTIONS ---
         window.saveProgress = (immediate = false) => {
-			// Always save to localStorage first (with error handling)
-			try {
-				localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
-				localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress()));
-			} catch (e) {
-				// Handle quota exceeded or other localStorage errors
-				if (e.name === 'QuotaExceededError' || e.code === 22) {
-					console.error('❌ localStorage quota exceeded');
-					alert('⚠️ Storage Quota Exceeded\n\nYour browser\'s local storage is full. Please:\n\n1. Back up your data (Settings → Backup Progress)\n2. Clear some browser data\n3. Try again\n\nYour progress is temporarily saved to the cloud if you\'re logged in.');
-				} else {
-					console.error('❌ localStorage error:', e);
-					alert('⚠️ Storage Error\n\nFailed to save your progress locally. If you\'re logged in, your data is safely synced to the cloud.');
+			// Helper function to perform localStorage save
+			const saveToLocalStorage = () => {
+				try {
+					localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData));
+					localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getProgress()));
+					log('💾 Saved to localStorage');
+				} catch (e) {
+					// Handle quota exceeded or other localStorage errors
+					if (e.name === 'QuotaExceededError' || e.code === 22) {
+						logError('❌ localStorage quota exceeded');
+						window.showAlert(
+							'Storage Quota Exceeded',
+							'Your browser\'s local storage is full. Please:\n\n1. Back up your data (Settings → Backup Progress)\n2. Clear some browser data\n3. Try again\n\nYour progress is temporarily saved to the cloud if you\'re logged in.',
+							'error'
+						);
+					} else {
+						logError('❌ localStorage error:', e);
+						window.showAlert(
+							'Storage Error',
+							'Failed to save your progress locally. If you\'re logged in, your data is safely synced to the cloud.',
+							'error'
+						);
+					}
+					// Even if localStorage fails, we still try Firebase sync below
 				}
-				// Even if localStorage fails, we still try Firebase sync below
+			};
+
+			// Helper function to perform Firebase save
+			const saveToFirebase = () => {
+				if (!currentUser) return;
+
+				const userDocRef = doc(db, "users", currentUser.uid);
+				setDoc(userDocRef, { appData: appData }, { merge: true })
+					.then(() => {
+						log('☁️ Saved to Firebase');
+						if(syncStatus) {
+							syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
+							syncStatus.title = "Cloud Synced";
+							syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M9 16.2L5.5 12.7l1.4-1.4L9 13.4l4.1-4.1 1.4 1.4z" fill="white"/></svg>';
+						}
+					})
+					.catch(err => {
+						warn('⚠️ Firebase save failed (data saved locally):', err.message);
+						if(syncStatus) {
+							syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
+							syncStatus.title = "⚠️ Sync Issue";
+							syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+						}
+					});
+			};
+
+			if(immediate) {
+				// Immediate save - cancel any pending debounced saves and save now
+				clearTimeout(localSaveTimeout);
+				clearTimeout(cloudSaveTimeout);
+				saveToLocalStorage();
+				saveToFirebase();
+			} else {
+				// Debounced save for better performance
+				clearTimeout(localSaveTimeout);
+				clearTimeout(cloudSaveTimeout);
+
+				localSaveTimeout = setTimeout(() => {
+					saveToLocalStorage();
+				}, CONFIG.SAVE_DEBOUNCE_MS);
+
+				if (currentUser) {
+					cloudSaveTimeout = setTimeout(() => {
+						saveToFirebase();
+					}, CONFIG.FIREBASE_DEBOUNCE_MS);
+				}
 			}
 
-			// Try to save to Firebase if user is logged in
-			if (currentUser) {
-				if(immediate) {
-					// Immediate save for plan changes - no debounce
-					const userDocRef = doc(db, "users", currentUser.uid);
-					setDoc(userDocRef, { appData: appData }, { merge: true })
-						.then(() => {
-							console.log('✅ Saved immediately to Firebase');
-						})
-						.catch(err => {
-							console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
-							// Update sync status to show warning
-							if(syncStatus) {
-								syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
-								syncStatus.title = "⚠️ Sync Issue";
-								syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
-							}
-						});
-				} else {
-					// Debounced save for chapter toggles
-					clearTimeout(saveTimeout);
-					saveTimeout = setTimeout(() => {
-						const userDocRef = doc(db, "users", currentUser.uid);
-						setDoc(userDocRef, { appData: appData }, { merge: true })
-							.then(() => {
-								console.log('✅ Saved to Firebase');
-								if(syncStatus) {
-									syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
-									syncStatus.title = "Cloud Synced";
-									syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M9 16.2L5.5 12.7l1.4-1.4L9 13.4l4.1-4.1 1.4 1.4z" fill="white"/></svg>';
-								}
-							})
-							.catch(err => {
-								console.warn('⚠️ Firebase save failed (data saved locally):', err.message);
-								if(syncStatus) {
-									syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
-									syncStatus.title = "⚠️ Sync Issue";
-									syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
-								}
-							});
-					}, 1000);
-				}
-			}
 			refreshUI();
 		};
 
@@ -2197,11 +2506,11 @@
             });
         }
 
-        window.switchProfile = (name) => {
+        window.switchProfile = async (name) => {
             // Validate that the profile exists
             if (!appData.profiles[name]) {
-                console.error(`❌ Profile "${name}" does not exist`);
-                alert(`⚠️ Profile Not Found\n\nThe profile "${name}" no longer exists. Switching to default profile.`);
+                logError(`❌ Profile "${name}" does not exist`);
+                await window.showAlert('Profile Not Found', `The profile "${name}" no longer exists. Switching to default profile.`, 'warning');
                 // Switch to first available profile
                 const firstProfile = Object.keys(appData.profiles)[0];
                 if (firstProfile) {
@@ -2246,30 +2555,38 @@
                 window.renderDailyPlan();
             }
 
-            setTimeout(() => { userIsEditing = false; }, 2000);
+            setTimeout(() => { userIsEditing = false; }, CONFIG.EDIT_COOLDOWN_MS);
         };
 
-        window.createNewProfile = () => {
-            const rawName = prompt("Enter new profile name (alphanumeric only, max 20 characters):\nExamples: Family, Kids, Personal2024");
+        window.createNewProfile = async () => {
+            // Check max profiles first
+            if(Object.keys(appData.profiles).length >= CONFIG.MAX_PROFILES) {
+                await window.showAlert('Maximum Profiles Reached', `Maximum ${CONFIG.MAX_PROFILES} profiles allowed.`, 'warning');
+                return;
+            }
+
+            const rawName = await window.showPrompt(
+                'Create New Profile',
+                `Enter new profile name (alphanumeric only, max ${CONFIG.MAX_PROFILE_NAME_LENGTH} characters):\n\nExamples: Family, Kids, Personal2024`,
+                '',
+                'Profile name...',
+                'Create'
+            );
+
             if(!rawName || rawName.trim() === "") return;
-            
+
             const sanitized = sanitizeProfileName(rawName);
-            
+
             if(sanitized === "") {
-                alert("Profile name must contain at least one alphanumeric character.");
+                await window.showAlert('Invalid Name', 'Profile name must contain at least one alphanumeric character.', 'warning');
                 return;
             }
-            
-            if(appData.profiles[sanitized]) { 
-                alert(`Profile "${sanitized}" already exists!`); 
-                return; 
-            }
-            
-            if(Object.keys(appData.profiles).length >= 10) {
-                alert("Maximum 10 profiles allowed.");
+
+            if(appData.profiles[sanitized]) {
+                await window.showAlert('Profile Exists', `Profile "${sanitized}" already exists!`, 'warning');
                 return;
             }
-            
+
             appData.profiles[sanitized] = {};
             appData.profilePlans[sanitized] = 'MCHEYNE';
             // Initialize hornerDailyProgress for new profile
@@ -2280,22 +2597,29 @@
             // Initialize memorizedVerses for new profile
             if(!appData.memorizedVerses) appData.memorizedVerses = {};
             appData.memorizedVerses[sanitized] = [];
+
             window.switchProfile(sanitized);
+            window.showToast(`Profile "${sanitized}" created`, 'success', 3000);
         };
 
-        window.deleteProfile = (name) => {
+        window.deleteProfile = async (name) => {
             if(name === appData.activeProfileId) {
-                alert("⚠️ Cannot delete the active profile.\n\nPlease switch to another profile first.");
+                await window.showAlert('Cannot Delete Active Profile', 'Please switch to another profile first.', 'warning');
                 return;
             }
 
             if(Object.keys(appData.profiles).length <= 1) {
-                alert("⚠️ Cannot delete the last profile.\n\nYou must have at least one profile.");
+                await window.showAlert('Cannot Delete Last Profile', 'You must have at least one profile.', 'warning');
                 return;
             }
 
-            const confirmMsg = `⚠️ DELETE PROFILE: "${name}"?\n\nThis will permanently delete:\n• All reading progress\n• Reading plan settings\n\nThis action CANNOT be undone.\n\nType the profile name to confirm:`;
-            const userInput = prompt(confirmMsg);
+            const userInput = await window.showPrompt(
+                `Delete Profile: "${name}"?`,
+                `This will permanently delete:\n• All reading progress\n• Reading plan settings\n\nThis action CANNOT be undone.\n\nType the profile name to confirm:`,
+                '',
+                'Type profile name...',
+                'Delete'
+            );
 
             if(userInput === name) {
                 delete appData.profiles[name];
@@ -2323,20 +2647,27 @@
 
                 window.saveProgress(true); // Immediate save
                 renderProfileList(); // Re-render the list
-                alert(`✅ Profile "${name}" has been deleted.`);
+                window.showToast(`Profile "${name}" deleted`, 'success', 3000);
             } else if(userInput !== null) {
-                alert("❌ Profile name did not match. Deletion cancelled.");
+                window.showToast('Deletion cancelled - name did not match', 'info', 3000);
             }
         };
 
-        window.renameProfile = (oldName) => {
-            const rawName = prompt(`Enter new name for "${oldName}":\n(alphanumeric only, max 20 characters)`, oldName);
+        window.renameProfile = async (oldName) => {
+            const rawName = await window.showPrompt(
+                `Rename Profile "${oldName}"`,
+                `Enter new name:\n(alphanumeric only, max ${CONFIG.MAX_PROFILE_NAME_LENGTH} characters)`,
+                oldName,
+                'New profile name...',
+                'Rename'
+            );
+
             if(!rawName || rawName.trim() === "") return;
 
             const newName = sanitizeProfileName(rawName);
 
             if(newName === "") {
-                alert("Profile name must contain at least one alphanumeric character.");
+                await window.showAlert('Invalid Name', 'Profile name must contain at least one alphanumeric character.', 'warning');
                 return;
             }
 
@@ -2345,7 +2676,7 @@
             }
 
             if(appData.profiles[newName]) {
-                alert(`Profile "${newName}" already exists!`);
+                await window.showAlert('Profile Exists', `Profile "${newName}" already exists!`, 'warning');
                 return;
             }
 
@@ -2401,18 +2732,19 @@
 
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
-            alert(`✅ Profile renamed from "${oldName}" to "${newName}".`);
+            window.showToast(`Profile renamed to "${newName}"`, 'success', 3000);
         };
 
         window.setDefaultProfile = (name) => {
             if(!appData.profiles[name]) {
-                alert("⚠️ Profile not found.");
+                window.showAlert('Profile Not Found', 'This profile no longer exists.', 'warning');
                 return;
             }
 
             appData.defaultProfileId = name;
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
+            window.showMicroToast(`"${name}" set as default ✓`, 2000);
         };
 
         // --- PROFILE SYNC FUNCTIONS ---
@@ -2484,7 +2816,7 @@
             });
         };
 
-        window.addProfileSyncRule = () => {
+        window.addProfileSyncRule = async () => {
             const allProfileNames = Object.keys(appData.profiles).sort();
             const syncRules = appData.profileSyncRules || {};
 
@@ -2492,7 +2824,7 @@
             const availableSourceProfiles = allProfileNames.filter(name => !syncRules[name]);
 
             if(availableSourceProfiles.length === 0) {
-                alert("⚠️ All profiles already have sync rules.\n\nEach profile can only be the source for one sync rule. Remove an existing rule to create a new one.");
+                await window.showAlert('All Profiles Have Sync Rules', 'Each profile can only be the source for one sync rule. Remove an existing rule to create a new one.', 'warning');
                 return;
             }
 
@@ -2500,13 +2832,13 @@
             if(availableSourceProfiles.length > 1) {
                 const sourceMsg = "Select SOURCE profile (chapters marked here will sync):\n\n" +
                     availableSourceProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
-                const sourceInput = prompt(sourceMsg, '1');
+                const sourceInput = await window.showPrompt('Select Source Profile', sourceMsg, '1', 'Enter number...', 'Select');
 
                 if(!sourceInput) return;
 
                 const sourceIdx = parseInt(sourceInput, 10) - 1;
                 if(sourceIdx < 0 || sourceIdx >= availableSourceProfiles.length) {
-                    alert("❌ Invalid selection.");
+                    await window.showAlert('Invalid Selection', 'Please enter a valid number from the list.', 'error');
                     return;
                 }
                 sourceProfile = availableSourceProfiles[sourceIdx];
@@ -2519,7 +2851,7 @@
             );
 
             if(availableTargetProfiles.length === 0) {
-                alert("⚠️ No available target profiles.\n\nAll other profiles are already targets of existing sync rules.");
+                await window.showAlert('No Available Target Profiles', 'All other profiles are already targets of existing sync rules.', 'warning');
                 return;
             }
 
@@ -2527,37 +2859,42 @@
             if(availableTargetProfiles.length > 1) {
                 const targetMsg = `Select TARGET profile (will receive synced chapters from "${sourceProfile}"):\n\n` +
                     availableTargetProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
-                const targetInput = prompt(targetMsg, '1');
+                const targetInput = await window.showPrompt('Select Target Profile', targetMsg, '1', 'Enter number...', 'Select');
 
                 if(!targetInput) return;
 
                 const targetIdx = parseInt(targetInput, 10) - 1;
                 if(targetIdx < 0 || targetIdx >= availableTargetProfiles.length) {
-                    alert("❌ Invalid selection.");
+                    await window.showAlert('Invalid Selection', 'Please enter a valid number from the list.', 'error');
                     return;
                 }
                 targetProfile = availableTargetProfiles[targetIdx];
             }
 
             // Confirm the rule
-            const confirmMsg = `Create sync rule?\n\n${sourceProfile} → ${targetProfile}\n\nChapters marked in "${sourceProfile}" will automatically be marked in "${targetProfile}".`;
-            if(!confirm(confirmMsg)) return;
+            const confirmMsg = `${sourceProfile} → ${targetProfile}\n\nChapters marked in "${sourceProfile}" will automatically be marked in "${targetProfile}".`;
+            const confirmed = await window.showConfirm('Create Sync Rule?', confirmMsg, 'Create');
+
+            if(!confirmed) return;
 
             appData.profileSyncRules[sourceProfile] = targetProfile;
             window.saveProgress(true);
             window.renderProfileSyncSettings();
+            window.showToast('Sync rule created', 'success', 3000);
         };
 
-        window.removeProfileSyncRule = (sourceProfile) => {
+        window.removeProfileSyncRule = async (sourceProfile) => {
             const targetProfile = appData.profileSyncRules[sourceProfile];
 
-            if(!confirm(`Remove sync rule?\n\n${sourceProfile} → ${targetProfile}\n\nChapters will no longer sync automatically.`)) {
-                return;
-            }
+            const confirmMsg = `${sourceProfile} → ${targetProfile}\n\nChapters will no longer sync automatically.`;
+            const confirmed = await window.showConfirm('Remove Sync Rule?', confirmMsg, 'Remove');
+
+            if(!confirmed) return;
 
             delete appData.profileSyncRules[sourceProfile];
             window.saveProgress(true);
             window.renderProfileSyncSettings();
+            window.showToast('Sync rule removed', 'info', 3000);
         };
 
         document.addEventListener('click', (e) => {
@@ -2583,15 +2920,15 @@
 
         window.changePlan = () => {
 			userIsEditing = true; // Block cloud sync during edit
-			
+
 			// Get the NEW selected value from dropdown
 			activePlan = document.getElementById('plan-selector').value;
-			
+
 			// Save it to appData immediately
 			appData.profilePlans[appData.activeProfileId] = activePlan;
-			
-			console.log('📝 Plan changed to:', activePlan);
-			
+
+			log('📝 Plan changed to:', activePlan);
+
 			// Save immediately (no debounce)
 			window.saveProgress(true);
 			
@@ -4991,11 +5328,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         };
 
-        window.showMemorizedVerses = () => {
+        window.showMemorizedVerses = async () => {
             const memorizedList = (appData.memorizedVerses && appData.memorizedVerses[appData.activeProfileId]) || [];
 
             if(memorizedList.length === 0) {
-                alert('📝 No verses memorized yet!\n\nOpen the Bible reader and click the ☆ icon next to any verse to add it to your memorization list.');
+                await window.showAlert('No Verses Memorized Yet', 'Open the Bible reader and click the ☆ icon next to any verse to add it to your memorization list.', 'info');
                 return;
             }
 
@@ -5335,24 +5672,24 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Security: Validate file type
             if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-                alert("❌ Invalid file type\n\nPlease upload a .json file. You can create a backup from the Settings page to get a valid backup file.");
+                window.showAlert('Invalid File Type', 'Please upload a .json file. You can create a backup from the Settings page to get a valid backup file.', 'error');
                 input.value = ''; // Clear the input
                 return;
             }
 
             // Security: Validate file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            const maxSize = CONFIG.MAX_BACKUP_SIZE_MB * 1024 * 1024;
             if (file.size > maxSize) {
                 const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                alert(`❌ File too large\n\nYour file is ${fileSizeMB} MB, but the maximum allowed size is 5 MB. Please try a different backup file.`);
+                window.showAlert('File Too Large', `Your file is ${fileSizeMB} MB, but the maximum allowed size is ${CONFIG.MAX_BACKUP_SIZE_MB} MB. Please try a different backup file.`, 'error');
                 input.value = '';
                 return;
             }
 
             const reader = new FileReader();
             reader.onerror = function() {
-                console.error('Failed to read file');
-                alert('❌ Failed to read file\n\nThe file could not be read. Please ensure the file is not corrupted and try again.');
+                logError('Failed to read file');
+                window.showAlert('Failed to Read File', 'The file could not be read. Please ensure the file is not corrupted and try again.', 'error');
                 input.value = '';
             };
             reader.onload = function(e) {
@@ -5382,7 +5719,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 appData.showReadingTime = false;
                             }
                             if(!appData.wordsPerMinute) {
-                                appData.wordsPerMinute = 250;
+                                appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
                             }
 
                             // Ensure defaultProfileId exists and is valid
@@ -5397,34 +5734,29 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                             // Log restore details for debugging
                             const profileCount = Object.keys(appData.profiles).length;
-                            console.log(`✅ Restored ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
+                            log(`✅ Restored ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
                         } else if (typeof data === 'object') {
                             // Legacy format: single profile data
                             appData.profiles[appData.activeProfileId] = data;
-                            console.log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
+                            log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
                         } else {
                             throw new Error("Invalid data structure");
                         }
                         window.saveProgress();
 
-                        // Show success message in settings view if present
-                        const msgSettings = document.getElementById('restore-msg-settings');
-                        if(msgSettings) {
-                            const profileCount = Object.keys(appData.profiles).length;
-                            const profileWord = profileCount === 1 ? 'profile' : 'profiles';
-                            msgSettings.innerText = `Success! Restored ${profileCount} ${profileWord}.`;
-                            msgSettings.classList.remove('hidden');
-                            setTimeout(() => msgSettings.classList.add('hidden'), 3000);
-                        }
+                        // Show success message
+                        const profileCount = Object.keys(appData.profiles).length;
+                        const profileWord = profileCount === 1 ? 'profile' : 'profiles';
+                        window.showToast(`Restored ${profileCount} ${profileWord} successfully`, 'success', 4000);
 
-                        window.updateStats();
-                        window.location.reload();
+                        // Reload after a short delay to show the success message
+                        setTimeout(() => window.location.reload(), 1000);
                     } else {
                         throw new Error("Invalid JSON structure");
                     }
                 } catch(err) {
-                    console.error("Restore error:", err);
-                    alert("❌ Invalid backup file\n\nThe file does not contain valid Bible Progress data. Please ensure you're using a backup file exported from this app.");
+                    logError("Restore error:", err);
+                    window.showAlert('Invalid Backup File', 'The file does not contain valid Bible Progress data. Please ensure you\'re using a backup file exported from this app.', 'error');
                 }
                 input.value = ''; // Clear input after processing
             };
