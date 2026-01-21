@@ -8,22 +8,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #4f46e5 100%);
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
             min-height: 100vh;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .glass {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
         }
 
         .book-box {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(8px);
             min-height: 2.25rem;
             display: flex;
@@ -32,17 +32,19 @@
         }
 
         .book-box:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
         }
 
         .book-box.found {
             transform: scale(1.05);
-            box-shadow: 0 0 24px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(0, 0, 0, 0.3);
-            border-width: 4px;
+            box-shadow: 0 0 24px rgba(99, 102, 241, 0.4), 0 4px 16px rgba(99, 102, 241, 0.2);
+            border-width: 3px;
             border-style: solid;
-            border-color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(99, 102, 241, 0.8);
             animation: book-found 0.5s ease-out;
+            background: rgba(255, 255, 255, 1);
         }
 
         @keyframes book-found {
@@ -78,12 +80,14 @@
 
         .timer {
             font-variant-numeric: tabular-nums;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: #1e293b;
         }
 
         /* Enhanced text shadows for better contrast */
         h1, h2, h3 {
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: #1e293b;
         }
 
         /* Button hover effects */
@@ -103,12 +107,19 @@
 
         /* Input field enhancement */
         input[type="text"] {
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) inset;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            border: 2px solid rgba(226, 232, 240, 0.8);
         }
 
         input[type="text"]:focus {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) inset, 0 0 0 3px rgba(255, 255, 255, 0.2);
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(100, 116, 139, 0.6);
         }
 
         /* Category colors with enhanced contrast */
@@ -125,12 +136,13 @@
 
         /* Link styling */
         a {
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            color: #4f46e5;
+            text-shadow: none;
             transition: all 0.2s ease;
         }
 
         a:hover {
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            color: #4338ca;
         }
 
         /* Duplicate book feedback animation */
@@ -150,14 +162,14 @@
             top: 100px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(16px);
             border: 3px solid #22c55e;
             border-radius: 20px;
             padding: 20px 28px;
             z-index: 1000;
             animation: milestone-slide-down 0.5s ease-out;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 40px rgba(34, 197, 94, 0.3);
             min-width: 280px;
             text-align: center;
             pointer-events: none;
@@ -177,9 +189,9 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-4">
-            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">📖 Bible Books Memory Game</h1>
-            <p class="text-white text-base mb-1">How many of the 66 books can you name?</p>
-            <a href="index.html" class="inline-block mt-2 text-white/90 hover:text-white transition font-medium text-sm">← Back to Bible Progress</a>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">📖 Bible Books Memory Game</h1>
+            <p class="text-slate-700 text-base mb-1 font-medium">How many of the 66 books can you name?</p>
+            <a href="index.html" class="inline-block mt-2 text-indigo-600 hover:text-indigo-700 transition font-semibold text-sm">← Back to Bible Progress</a>
         </div>
 
         <!-- Game Screen -->
@@ -187,13 +199,13 @@
             <!-- Controls -->
             <div class="glass rounded-xl p-4 md:p-5">
                 <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-3">
-                    <div class="text-white text-center md:text-left">
+                    <div class="text-slate-900 text-center md:text-left">
                         <div class="text-3xl md:text-4xl font-bold timer" id="timer">5:00</div>
-                        <div class="text-xs font-semibold opacity-90 mt-1">Time Remaining</div>
+                        <div class="text-xs font-semibold text-slate-600 mt-1">Time Remaining</div>
                     </div>
-                    <div class="text-white text-center">
+                    <div class="text-slate-900 text-center">
                         <div class="text-3xl md:text-4xl font-bold" id="scoreDisplay">0/66</div>
-                        <div class="text-xs font-semibold opacity-90 mt-1">Books Found</div>
+                        <div class="text-xs font-semibold text-slate-600 mt-1">Books Found</div>
                     </div>
                     <button onclick="startGame()" id="startBtn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition text-base" aria-label="Start Bible Books Memory Game">
                         Start Game
@@ -205,13 +217,13 @@
                     <input
                         type="text"
                         id="bookInput"
-                        class="w-full px-4 py-3 rounded-xl bg-white/25 text-white placeholder-white/60 border-2 border-white/40 focus:border-white/70 focus:outline-none text-lg font-semibold"
+                        class="w-full px-4 py-3 rounded-xl text-slate-900 text-lg font-semibold"
                         placeholder="Type book names..."
                         autocomplete="off"
                         spellcheck="false"
                         aria-label="Type Bible book names"
                     >
-                    <div class="mt-2 text-white/90 text-xs text-center">
+                    <div class="mt-2 text-slate-600 text-xs text-center font-medium">
                         💡 Type continuously. Spaces and capitals optional. Books light up when found.
                     </div>
                 </div>
@@ -220,14 +232,14 @@
             <!-- Books Grid -->
             <div class="glass rounded-xl p-4 md:p-5">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-xl md:text-2xl font-bold text-white">Old Testament <span class="text-sm opacity-90">(39)</span></h2>
-                    <div class="text-white font-bold text-base" id="otProgress">0/39</div>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">Old Testament <span class="text-sm text-slate-600">(39)</span></h2>
+                    <div class="text-slate-900 font-bold text-base" id="otProgress">0/39</div>
                 </div>
                 <div id="otGrid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-2 mb-6"></div>
 
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-xl md:text-2xl font-bold text-white">New Testament <span class="text-sm opacity-90">(27)</span></h2>
-                    <div class="text-white font-bold text-base" id="ntProgress">0/27</div>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">New Testament <span class="text-sm text-slate-600">(27)</span></h2>
+                    <div class="text-slate-900 font-bold text-base" id="ntProgress">0/27</div>
                 </div>
                 <div id="ntGrid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-10 gap-2"></div>
             </div>
@@ -237,41 +249,41 @@
         <!-- Results Screen -->
         <div id="resultsScreen" class="hidden">
             <div class="glass rounded-xl p-6 md:p-8 text-center">
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-6" id="resultsTitle">Great Work! 🎉</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6" id="resultsTitle">Great Work! 🎉</h2>
 
                 <div class="grid md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white/15 rounded-xl p-5 border-2 border-white/30">
-                        <div class="text-4xl md:text-5xl font-bold text-white" id="finalScore">0</div>
-                        <div class="text-white font-semibold mt-2 text-sm">Books Found</div>
+                    <div class="bg-slate-50 rounded-xl p-5 border-2 border-slate-200">
+                        <div class="text-4xl md:text-5xl font-bold text-slate-900" id="finalScore">0</div>
+                        <div class="text-slate-700 font-semibold mt-2 text-sm">Books Found</div>
                     </div>
-                    <div class="bg-white/15 rounded-xl p-5 border-2 border-white/30">
-                        <div class="text-4xl md:text-5xl font-bold text-white" id="finalPercentage">0%</div>
-                        <div class="text-white font-semibold mt-2 text-sm">Completion</div>
+                    <div class="bg-slate-50 rounded-xl p-5 border-2 border-slate-200">
+                        <div class="text-4xl md:text-5xl font-bold text-slate-900" id="finalPercentage">0%</div>
+                        <div class="text-slate-700 font-semibold mt-2 text-sm">Completion</div>
                     </div>
-                    <div class="bg-white/15 rounded-xl p-5 border-2 border-white/30">
-                        <div class="text-4xl md:text-5xl font-bold text-white" id="finalBonus">+0</div>
-                        <div class="text-white font-semibold mt-2 text-sm">Order Bonus</div>
+                    <div class="bg-slate-50 rounded-xl p-5 border-2 border-slate-200">
+                        <div class="text-4xl md:text-5xl font-bold text-slate-900" id="finalBonus">+0</div>
+                        <div class="text-slate-700 font-semibold mt-2 text-sm">Order Bonus</div>
                     </div>
                 </div>
 
-                <div class="bg-white/15 rounded-xl p-6 mb-6 border-2 border-white/30">
+                <div class="bg-slate-50 rounded-xl p-6 mb-6 border-2 border-slate-200">
                     <div class="text-6xl mb-4" id="performanceEmoji">📖</div>
-                    <div class="text-2xl font-bold text-white mb-2" id="performanceTitle">Great effort!</div>
-                    <div class="text-white text-base" id="performanceMessage">Keep practicing to improve your score!</div>
+                    <div class="text-2xl font-bold text-slate-900 mb-2" id="performanceTitle">Great effort!</div>
+                    <div class="text-slate-700 text-base" id="performanceMessage">Keep practicing to improve your score!</div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
                     <button onclick="resetGame()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition text-base" aria-label="Play the Bible Books Memory Game again">
                         Play Again
                     </button>
-                    <a href="index.html" class="px-8 py-3 bg-white/25 hover:bg-white/35 text-white rounded-xl font-bold transition inline-block text-base border-2 border-white/30" aria-label="Return to Bible Progress main page">
+                    <a href="index.html" class="px-8 py-3 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-xl font-bold transition inline-block text-base border-2 border-slate-300" aria-label="Return to Bible Progress main page">
                         Back to Bible Progress
                     </a>
                 </div>
 
                 <!-- Missed Books -->
                 <div id="missedBooksContainer" class="mt-8 text-left">
-                    <h3 class="text-xl font-bold text-white mb-4">Books You Missed:</h3>
+                    <h3 class="text-xl font-bold text-slate-900 mb-4">Books You Missed:</h3>
                     <div id="missedBooksList" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2"></div>
                 </div>
             </div>
@@ -395,7 +407,7 @@
                 box.className = `book-box cat-${book.cat} rounded-lg p-2 text-center cursor-default`;
                 box.id = `book-${index}`;
                 box.innerHTML = `
-                    <div class="text-[10px] sm:text-xs font-bold text-white opacity-0 transition-opacity duration-300" id="bookName-${index}" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5); line-height: 1.2;">
+                    <div class="text-[10px] sm:text-xs font-bold text-slate-900 opacity-0 transition-opacity duration-300" id="bookName-${index}" style="line-height: 1.2;">
                         ${book.name}
                     </div>
                 `;
@@ -764,7 +776,7 @@
 
             missed.forEach(book => {
                 const item = document.createElement('div');
-                item.className = 'bg-white/15 rounded-lg px-3 py-2 text-white font-semibold text-xs border-2 border-white/25';
+                item.className = 'bg-slate-50 rounded-lg px-3 py-2 text-slate-900 font-semibold text-xs border-2 border-slate-200';
                 item.textContent = book.name;
                 missedList.appendChild(item);
             });
