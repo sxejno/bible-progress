@@ -628,7 +628,7 @@
                 <div id="plan-description-box" class="relative z-10 mb-8 mt-4 p-4 bg-white/10 rounded-2xl border border-white/10 text-sm text-indigo-50 leading-relaxed hidden">
                     </div>
 
-                <div id="daily-plan-list" class="flex flex-col gap-3 relative z-10"></div>
+                <div id="daily-plan-list" class="flex flex-col gap-4 relative z-10"></div>
                 <p id="plan-footer-msg" class="text-center text-xs font-bold text-indigo-200 mt-6 uppercase tracking-widest relative z-10 opacity-70"></p>
             </div>
         </div>
@@ -5489,7 +5489,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                         words: appBook.ch[c],
                                         label: `${appBook.name} ${c+1}`,
                                         badge: `List ${listIdx+1}`,
-                                        isComplete: true  // This chapter was read today, show as complete
+                                        isComplete: true,  // This chapter was read today
+                                        completedToday: true  // Special flag for Horner items read today
                                     });
                                     foundForList = true;
                                     break;
@@ -5639,10 +5640,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const badgeHtml = item.badge ? `<span class="bg-indigo-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ml-2 opacity-90">${item.badge}</span>` : '';
                 const chapterId = `${item.book}-${item.chapter}`;
 
-                const opacityClass = item.isComplete ? "opacity-60 grayscale" : "";
-                const strikeClass = item.isComplete ? "line-through text-slate-400 decoration-slate-300" : "text-slate-800";
-                const checkMark = item.isComplete ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
-                const bgClass = item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md";
+                // Special styling for Horner plan items completed today
+                const opacityClass = item.completedToday ? "" : (item.isComplete ? "opacity-60 grayscale" : "");
+                const strikeClass = item.completedToday ? "text-slate-800" : (item.isComplete ? "line-through text-slate-400 decoration-slate-300" : "text-slate-800");
+                const checkMark = (item.isComplete || item.completedToday) ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
+                const bgClass = item.completedToday ? "bg-emerald-50 border-emerald-200 hover:border-emerald-300 hover:shadow-md" :
+                               (item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md");
 
                 // Calculate reading time and word count metadata for this chapter
                 const metadataHtml = appData.showReadingTime ?
@@ -5668,7 +5671,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         ${metadataHtml}
                         ${summaryHtml}
                     </div>
-                    ${!item.isComplete ? `
+                    ${(!item.isComplete && !item.completedToday) ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event); window.renderDailyPlan();"
                         class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
                         title="Mark as Read" aria-label="Mark ${item.label} as read">
@@ -5678,10 +5681,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         <span class="hidden sm:inline">Mark Read</span>
                     </button>
                     ` : ''}
-                    <div class="text-right flex items-center ${!item.isComplete ? 'opacity-0 group-hover:opacity-100' : ''}">
+                    <div class="text-right flex items-center ${(!item.isComplete && !item.completedToday) ? 'opacity-0 group-hover:opacity-100' : ''}">
                         <div class="flex items-center gap-1">
-                            <span class="text-xs font-bold text-indigo-500">Read</span>
-                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <span class="text-xs font-bold ${item.completedToday ? 'text-emerald-600' : 'text-indigo-500'}">Read</span>
+                            <svg class="w-4 h-4 ${item.completedToday ? 'text-emerald-600' : 'text-indigo-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                         </div>
                     </div>
                 </button>`;
