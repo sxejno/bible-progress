@@ -643,13 +643,13 @@
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50 mb-8 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
                 <div class="w-full lg:w-5/12 relative min-h-[300px] flex items-center justify-center">
                     <canvas id="mainDonutChart"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Read</span>
                         <span id="stats-page-total-percent" class="text-4xl font-black text-indigo-900">0%</span>
-                        <div class="mt-3 flex flex-col gap-1">
-                            <span id="stats-words-count" class="text-xs text-slate-500 font-semibold">0 / 789,634 words</span>
-                            <span id="stats-chapters-count" class="text-xs text-slate-500 font-semibold">0 / 0 chapters</span>
-                            <span id="stats-books-count" class="text-xs text-slate-500 font-semibold">0 / 66 books</span>
+                        <div class="mt-3 flex flex-col gap-1 items-center">
+                            <span id="stats-words-count" class="text-xs text-slate-500 font-semibold text-center">0 / 789,634 words</span>
+                            <span id="stats-chapters-count" class="text-xs text-slate-500 font-semibold text-center">0 / 0 chapters</span>
+                            <span id="stats-books-count" class="text-xs text-slate-500 font-semibold text-center">0 / 66 books</span>
                         </div>
                     </div>
                 </div>
@@ -1291,6 +1291,9 @@
             </p>
             <p class="text-xs text-slate-400 mt-2">
                 King James Version (KJV) Bible text is in the public domain.
+            </p>
+            <p class="text-xs text-slate-400 mt-3 italic" id="last-updated">
+                Site last updated: <span id="last-updated-date">Loading...</span>
             </p>
         </div>
     </footer>
@@ -6603,24 +6606,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             if(!progressEl || !emojiEl) return;
 
+            // Hide the progress text (removing clutter as per user request)
+            progressEl.innerText = '';
+
             if(currentStreak === 0) {
-                progressEl.innerText = '';
                 emojiEl.innerText = '💤';
                 return;
             }
-
-            // Find next milestone
-            let nextMilestone = milestones.find(m => m > currentStreak);
-
-            if(!nextMilestone) {
-                // Past all milestones!
-                progressEl.innerText = 'LEGENDARY! 🏆';
-                emojiEl.innerText = '👑';
-                return;
-            }
-
-            const daysToGo = nextMilestone - currentStreak;
-            progressEl.innerText = `${daysToGo} to ${nextMilestone}-day`;
 
             // Update emoji based on streak level
             if(currentStreak >= 365) emojiEl.innerText = '👑';
@@ -6845,14 +6837,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 totalChaptersRead += activityMap[dateStr];
             });
 
-            // Calculate averages
+            // Calculate averages (kept for potential future use, but not displayed to reduce clutter)
             const avgChaptersPerDay = totalReadingDays > 0 ? (totalChaptersRead / totalReadingDays).toFixed(1) : 0;
 
             // Update all stat cards
             document.getElementById('total-reading-days').innerText = totalReadingDays;
-            document.getElementById('avg-chapters-day').innerText = `${avgChaptersPerDay} avg/day`;
+            document.getElementById('avg-chapters-day').innerText = ''; // Removed to reduce clutter
             document.getElementById('total-words-read').innerText = chartTotalRead.toLocaleString();
-            document.getElementById('year-chapters').innerText = `${yearChapters} this year`;
+            document.getElementById('year-chapters').innerText = ''; // Removed to reduce clutter
 
             // Calculate and display time remaining statistics with more precision
             const wpm = appData.wordsPerMinute || 250;
@@ -7698,6 +7690,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		// Show cookie consent banner on page load
 		window.showCookieConsent();
 		*/
+
+		// --- LAST UPDATED INDICATOR ---
+		// Display the site's last update time (hardcoded, update manually on deployments)
+		const lastUpdatedEl = document.getElementById('last-updated-date');
+		if (lastUpdatedEl) {
+			// Set this date to the current deployment date (update this when deploying changes)
+			const lastUpdateDate = new Date('2026-01-21T00:00:00'); // Update this date when deploying
+			const options = { year: 'numeric', month: 'short', day: 'numeric' };
+			lastUpdatedEl.textContent = lastUpdateDate.toLocaleDateString('en-US', options);
+		}
 
 		// --- SERVICE WORKER REGISTRATION FOR PWA ---
 		if ('serviceWorker' in navigator) {
