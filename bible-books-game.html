@@ -22,22 +22,25 @@
 
         .book-box {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(148, 163, 184, 0.3);
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(8px);
-            height: 3.5rem;
+            border: 1.5px solid rgba(148, 163, 184, 0.25);
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            height: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0.6;
         }
 
         .book-box:hover {
-            border-color: rgba(99, 102, 241, 0.4);
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateY(-1px);
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(255, 255, 255, 0.7);
+            opacity: 0.8;
         }
 
         .book-box.found {
+            height: 3.5rem;
+            opacity: 1;
             transform: scale(1.05);
             box-shadow: 0 0 24px rgba(99, 102, 241, 0.4), 0 4px 16px rgba(99, 102, 241, 0.2);
             border-width: 3px;
