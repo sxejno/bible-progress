@@ -44,7 +44,6 @@ This documentation has been comprehensively updated to reflect the latest state 
 ## Architecture
 
 ### Application Type
-- **Single-File Architecture**: Entire application in `index.html`
 - **No Build Process**: Pure HTML/CSS/JavaScript (ES6)
 - **Progressive Web App**: Installable on mobile devices via `manifest.json` and `service-worker.js`
 
@@ -662,3 +661,4 @@ Comprehensive security audit and improvements:
 - **File Upload Security**: Added type, size, and structure validation for JSON backups
 - **Error Handling**: Wrapped all `JSON.parse()` calls in try-catch blocks
 - **Documentation**: Created SECURITY.md with complete security guidelines
+
