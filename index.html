@@ -324,14 +324,20 @@
             opacity: 1;
             transform: translateX(-50%) translateY(-4px);
         }
+        /* Disabled button styles for loading states */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="pb-24">
 
-    <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl modal-in border border-white/50">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
+                <h2 id="auth-modal-title" class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
                 <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close authentication modal">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -360,14 +366,14 @@
                 <div class="flex-grow border-t border-slate-100"></div>
             </div>
 
-            <button onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-50 hover:shadow-lg transition-all hover:border-slate-300 hover:scale-105 active:scale-95 group" aria-label="Sign in with Google">
+            <button id="btn-google-login" onclick="window.handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 py-3.5 rounded-xl text-sm font-bold hover:bg-slate-50 hover:shadow-lg transition-all hover:border-slate-300 hover:scale-105 active:scale-95 group" aria-label="Sign in with Google">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google logo">
                 Google
             </button>
         </div>
     </div>
 
-    <div id="intro-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="intro-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="intro-modal-title">
         <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl modal-in border border-white/50 relative overflow-hidden">
             <!-- Decorative background elements -->
             <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-200/20 rounded-full blur-3xl"></div>
@@ -387,7 +393,7 @@
                 </div>
 
                 <!-- Heading -->
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Bible Progress</h2>
+                <h2 id="intro-modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Bible Progress</h2>
                 <p class="text-center text-slate-600 mb-8 leading-relaxed">
                     Read the Bible and track your progress!
                 </p>
@@ -436,7 +442,7 @@
     </div>
 
     <!-- Bible Reader Modal -->
-    <div id="bible-reader-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 flex items-center justify-center p-4">
+    <div id="bible-reader-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="bible-reader-title">
         <div class="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl modal-in border border-white/50 flex flex-col" style="max-height: 90vh;">
             <!-- Header -->
             <div class="flex justify-between items-center p-6 border-b border-slate-200">
@@ -1734,10 +1740,27 @@
         }
 
         window.handleGoogleLogin = () => {
+            const googleBtn = document.getElementById('btn-google-login');
+            const loginBtn = document.getElementById('btn-login-email');
+            const signupBtn = document.getElementById('btn-signup-email');
+
+            // Disable all auth buttons during Google login
+            if (googleBtn) googleBtn.disabled = true;
+            if (loginBtn) loginBtn.disabled = true;
+            if (signupBtn) signupBtn.disabled = true;
+
             signInWithPopup(auth, provider)
-                .then((result) => { window.toggleAuthModal(false); })
+                .then((result) => {
+                    window.toggleAuthModal(false);
+                })
                 .catch((error) => {
-                    alert("Google Login Failed: " + error.message);
+                    alert("❌ Google Login Failed\n\n" + error.message);
+                })
+                .finally(() => {
+                    // Re-enable buttons
+                    if (googleBtn) googleBtn.disabled = false;
+                    if (loginBtn) loginBtn.disabled = false;
+                    if (signupBtn) signupBtn.disabled = false;
                 });
         };
 
@@ -1745,11 +1768,29 @@
             const email = document.getElementById('email-input').value;
             const pass = document.getElementById('pass-input').value;
             const errBox = document.getElementById('auth-error');
-            
+            const loginBtn = document.getElementById('btn-login-email');
+            const signupBtn = document.getElementById('btn-signup-email');
+
             if (!email || !pass) {
                 errBox.innerText = "Please enter both email and password.";
                 errBox.classList.remove('hidden');
                 return;
+            }
+
+            // Hide errors and show loading state
+            errBox.classList.add('hidden');
+            loginBtn.disabled = true;
+            signupBtn.disabled = true;
+
+            // Store original button text
+            const originalLoginText = loginBtn.innerText;
+            const originalSignupText = signupBtn.innerText;
+
+            // Show loading indicator on active button
+            if (mode === 'LOGIN') {
+                loginBtn.innerText = 'Logging in...';
+            } else {
+                signupBtn.innerText = 'Signing up...';
             }
 
             try {
@@ -1766,6 +1807,12 @@
                 if (error.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
                 errBox.innerText = msg;
                 errBox.classList.remove('hidden');
+            } finally {
+                // Re-enable buttons and restore original text
+                loginBtn.disabled = false;
+                signupBtn.disabled = false;
+                loginBtn.innerText = originalLoginText;
+                signupBtn.innerText = originalSignupText;
             }
         };
 
@@ -1983,10 +2030,22 @@
 
         // --- GLOBAL FUNCTIONS ---
         window.saveProgress = (immediate = false) => {
-			// Always save to localStorage first (never fails)
-			localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
-			localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress())); 
-			
+			// Always save to localStorage first (with error handling)
+			try {
+				localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+				localStorage.setItem('kjv_v6_progress', JSON.stringify(getProgress()));
+			} catch (e) {
+				// Handle quota exceeded or other localStorage errors
+				if (e.name === 'QuotaExceededError' || e.code === 22) {
+					console.error('❌ localStorage quota exceeded');
+					alert('⚠️ Storage Quota Exceeded\n\nYour browser\'s local storage is full. Please:\n\n1. Back up your data (Settings → Backup Progress)\n2. Clear some browser data\n3. Try again\n\nYour progress is temporarily saved to the cloud if you\'re logged in.');
+				} else {
+					console.error('❌ localStorage error:', e);
+					alert('⚠️ Storage Error\n\nFailed to save your progress locally. If you\'re logged in, your data is safely synced to the cloud.');
+				}
+				// Even if localStorage fails, we still try Firebase sync below
+			}
+
 			// Try to save to Firebase if user is logged in
 			if (currentUser) {
 				if(immediate) {
@@ -2036,9 +2095,13 @@
         // --- PROFILE MANAGEMENT ---
         window.toggleProfileMenu = () => {
             const menu = document.getElementById('profile-menu');
+            const btn = document.getElementById('profile-menu-btn');
             if(!menu) return;
             menu.classList.toggle('hidden');
-            if(!menu.classList.contains('hidden')) renderProfileList();
+            const isOpen = !menu.classList.contains('hidden');
+            if(isOpen) renderProfileList();
+            // Update ARIA attribute for accessibility
+            if(btn) btn.setAttribute('aria-expanded', isOpen);
         };
 
         function renderProfileList() {
@@ -2135,10 +2198,32 @@
         }
 
         window.switchProfile = (name) => {
+            // Validate that the profile exists
+            if (!appData.profiles[name]) {
+                console.error(`❌ Profile "${name}" does not exist`);
+                alert(`⚠️ Profile Not Found\n\nThe profile "${name}" no longer exists. Switching to default profile.`);
+                // Switch to first available profile
+                const firstProfile = Object.keys(appData.profiles)[0];
+                if (firstProfile) {
+                    name = firstProfile;
+                    appData.activeProfileId = firstProfile;
+                } else {
+                    // No profiles exist - create a default one
+                    appData.profiles['Default'] = {};
+                    appData.activeProfileId = 'Default';
+                    name = 'Default';
+                }
+            }
+
             userIsEditing = true;
             appData.activeProfileId = name;
             window.saveProgress(true); // Immediate save
-            document.getElementById('profile-menu').classList.add('hidden');
+            const menu = document.getElementById('profile-menu');
+            if (menu) {
+                menu.classList.add('hidden');
+                const btn = document.getElementById('profile-menu-btn');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
 
             // Re-render current view to show new profile's data
             const viewChapters = document.getElementById('view-chapters');
@@ -2480,6 +2565,19 @@
             const btn = document.getElementById('profile-menu-btn');
             if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
                 menu.classList.add('hidden');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Add keyboard handler for profile menu
+        document.addEventListener('keydown', (e) => {
+            const menu = document.getElementById('profile-menu');
+            if (!menu || menu.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                menu.classList.add('hidden');
+                const btn = document.getElementById('profile-menu-btn');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
             }
         });
 
@@ -4824,6 +4922,26 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         });
 
+        // Add keyboard handler for auth modal
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('auth-modal');
+            if (modal.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                window.toggleAuthModal(false);
+            }
+        });
+
+        // Add keyboard handler for intro modal
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('intro-modal');
+            if (modal.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                window.closeIntroModal();
+            }
+        });
+
         // Pre-load Bible text on page load (for offline use)
         window.addEventListener('load', () => {
             loadBibleText();
@@ -5217,7 +5335,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Security: Validate file type
             if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
-                alert("Invalid file type. Please upload a .json file.");
+                alert("❌ Invalid file type\n\nPlease upload a .json file. You can create a backup from the Settings page to get a valid backup file.");
                 input.value = ''; // Clear the input
                 return;
             }
@@ -5225,7 +5343,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Security: Validate file size (max 5MB)
             const maxSize = 5 * 1024 * 1024; // 5MB in bytes
             if (file.size > maxSize) {
-                alert("File too large. Maximum size is 5MB.");
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                alert(`❌ File too large\n\nYour file is ${fileSizeMB} MB, but the maximum allowed size is 5 MB. Please try a different backup file.`);
                 input.value = '';
                 return;
             }
@@ -5233,7 +5352,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const reader = new FileReader();
             reader.onerror = function() {
                 console.error('Failed to read file');
-                alert('Failed to read file. Please try again.');
+                alert('❌ Failed to read file\n\nThe file could not be read. Please ensure the file is not corrupted and try again.');
                 input.value = '';
             };
             reader.onload = function(e) {
@@ -5305,7 +5424,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                 } catch(err) {
                     console.error("Restore error:", err);
-                    alert("Invalid backup file. Please check the file format.");
+                    alert("❌ Invalid backup file\n\nThe file does not contain valid Bible Progress data. Please ensure you're using a backup file exported from this app.");
                 }
                 input.value = ''; // Clear input after processing
             };
