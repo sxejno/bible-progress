@@ -649,6 +649,7 @@
                         <div class="mt-3 flex flex-col gap-1">
                             <span id="stats-words-count" class="text-xs text-slate-500 font-semibold">0 / 789,634 words</span>
                             <span id="stats-chapters-count" class="text-xs text-slate-500 font-semibold">0 / 0 chapters</span>
+                            <span id="stats-books-count" class="text-xs text-slate-500 font-semibold">0 / 66 books</span>
                         </div>
                     </div>
                 </div>
@@ -701,27 +702,23 @@
                         </div>
                         <div class="text-center lg:text-left">
                             <div class="inline-flex flex-col items-center gap-2 bg-gradient-to-r from-rose-50 to-rose-100/50 px-6 py-4 rounded-2xl border border-rose-100 w-full">
-                                <span class="text-3xl">📊</span>
+                                <span class="text-3xl">📚</span>
                                 <div class="text-center">
-                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Best Day</div>
-                                    <div id="best-day" class="text-2xl font-black text-rose-900">0 ch</div>
+                                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Words</div>
+                                    <div id="total-words-read" class="text-2xl font-black text-rose-900">0</div>
                                     <div id="year-chapters" class="text-[10px] text-slate-400 mt-1"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Time Remaining Card -->
+                    <!-- Time Remaining and Forecast Card -->
                     <div class="mb-6">
                         <div class="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-2xl p-6 text-center">
                             <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Reading Time to Completion</div>
-                            <div id="time-remaining-stat" class="text-2xl font-black text-purple-900">Calculating...</div>
+                            <div id="time-remaining-stat" class="text-2xl font-black text-purple-900 mb-3">Calculating...</div>
+                            <div id="completion-forecast" class="text-sm text-slate-600 font-semibold"></div>
                         </div>
-                    </div>
-
-                    <!-- Guilt-trip Comparison Card -->
-                    <div id="reading-comparison" class="mb-6">
-                        <!-- Dynamically rendered comparison message -->
                     </div>
                     <div class="overflow-x-auto">
                         <div id="heatmap-container" class="min-w-[600px]"></div>
@@ -6765,14 +6762,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const unreadWords = WORD_TOTALS.GLOBAL - chartTotalRead;
             dataset.push(unreadWords); labels.push("Unread"); colors.push("#cbd5e1");
 
-            // Calculate chapter counts
+            // Calculate chapter and book counts
             let totalChapters = 0;
             let chaptersRead = 0;
+            let booksRead = 0;
             bible.forEach(b => {
                 totalChapters += b.ch.length;
+                let bookComplete = true;
                 b.ch.forEach((w, idx) => {
-                    if (currentProg[`${b.name}-${idx+1}`]) chaptersRead++;
+                    if (currentProg[`${b.name}-${idx+1}`]) {
+                        chaptersRead++;
+                    } else {
+                        bookComplete = false;
+                    }
                 });
+                if (bookComplete && b.ch.length > 0) booksRead++;
             });
 
             // Update or create main chart
@@ -6790,6 +6794,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('stats-page-total-percent').innerText = ((chartTotalRead / WORD_TOTALS.GLOBAL) * 100).toFixed(2) + '%';
             document.getElementById('stats-words-count').innerText = chartTotalRead.toLocaleString() + ' / ' + WORD_TOTALS.GLOBAL.toLocaleString() + ' words';
             document.getElementById('stats-chapters-count').innerText = chaptersRead + ' / ' + totalChapters + ' chapters';
+            document.getElementById('stats-books-count').innerText = booksRead + ' / 66 books';
             document.getElementById('legend-grid').innerHTML = allCats.map(cat => `<div class="flex items-center gap-3 text-sm p-2 bg-slate-50 rounded-lg"><div class="w-4 h-4 rounded-full flex-shrink-0 shadow-sm" style="background-color: ${cat.chartColor}"></div><span class="text-slate-700 font-bold truncate">${cat.name}</span></div>`).join('');
 
             // Only rebuild mini chart HTML if number of categories changed
@@ -6829,7 +6834,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Calculate additional statistics
             const yearStart = new Date(new Date().getFullYear(), 0, 1);
             let yearChapters = 0;
-            let bestDayChapters = 0;
             let totalReadingDays = Object.keys(activityMap).length;
             let totalChaptersRead = 0;
 
@@ -6839,7 +6843,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     yearChapters += activityMap[dateStr];
                 }
                 totalChaptersRead += activityMap[dateStr];
-                bestDayChapters = Math.max(bestDayChapters, activityMap[dateStr]);
             });
 
             // Calculate averages
@@ -6848,61 +6851,87 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Update all stat cards
             document.getElementById('total-reading-days').innerText = totalReadingDays;
             document.getElementById('avg-chapters-day').innerText = `${avgChaptersPerDay} avg/day`;
-            document.getElementById('best-day').innerText = `${bestDayChapters} ch`;
+            document.getElementById('total-words-read').innerText = chartTotalRead.toLocaleString();
             document.getElementById('year-chapters').innerText = `${yearChapters} this year`;
 
-            // Calculate and display time remaining statistics
+            // Calculate and display time remaining statistics with more precision
             const wpm = appData.wordsPerMinute || 250;
             const unreadMinutes = Math.ceil(unreadWords / wpm);
-            const unreadHours = (unreadMinutes / 60).toFixed(1);
-            const unreadDays = Math.ceil(unreadMinutes / (60 * 2)); // Assuming 2 hours reading per day
+            const unreadHours = Math.floor(unreadMinutes / 60);
+            const remainingMinutes = unreadMinutes % 60;
 
             // Update time remaining displays if elements exist
             const timeRemainingEl = document.getElementById('time-remaining-stat');
             if (timeRemainingEl) {
                 if (unreadWords === 0) {
                     timeRemainingEl.innerHTML = '🎉 <span class="text-emerald-600 font-black">Complete!</span>';
-                } else if (unreadHours < 1) {
-                    timeRemainingEl.innerHTML = `⏱️ ~${unreadMinutes} min left`;
+                } else if (unreadMinutes < 60) {
+                    timeRemainingEl.innerHTML = `⏱️ ~${unreadMinutes} minutes`;
                 } else if (unreadHours < 24) {
-                    timeRemainingEl.innerHTML = `⏱️ ~${unreadHours} hrs left`;
+                    const hourText = unreadHours === 1 ? 'hour' : 'hours';
+                    if (remainingMinutes > 0) {
+                        timeRemainingEl.innerHTML = `⏱️ ~${unreadHours} ${hourText}, ${remainingMinutes} min`;
+                    } else {
+                        timeRemainingEl.innerHTML = `⏱️ ~${unreadHours} ${hourText}`;
+                    }
                 } else {
-                    timeRemainingEl.innerHTML = `⏱️ ~${Math.ceil(parseFloat(unreadHours) / 24)} days left`;
+                    const days = Math.floor(unreadHours / 24);
+                    const hoursLeft = unreadHours % 24;
+                    const dayText = days === 1 ? 'day' : 'days';
+                    if (hoursLeft > 0) {
+                        timeRemainingEl.innerHTML = `⏱️ ~${days} ${dayText}, ${hoursLeft} hrs`;
+                    } else {
+                        timeRemainingEl.innerHTML = `⏱️ ~${days} ${dayText}`;
+                    }
                 }
             }
 
-            // Generate playful guilt-trip comparisons
-            const comparisonEl = document.getElementById('reading-comparison');
-            if (comparisonEl && unreadWords > 0) {
-                const comparisons = [
-                    { activity: 'scrolling social media', emoji: '📱', avgMinPerDay: 145 },
-                    { activity: 'watching Netflix', emoji: '📺', avgMinPerDay: 120 },
-                    { activity: 'playing mobile games', emoji: '🎮', avgMinPerDay: 60 },
-                    { activity: 'watching YouTube', emoji: '🎬', avgMinPerDay: 90 },
-                    { activity: 'browsing the internet', emoji: '🌐', avgMinPerDay: 100 }
-                ];
+            // Calculate completion forecast based on recent reading pace
+            const forecastEl = document.getElementById('completion-forecast');
+            if (forecastEl && unreadWords > 0 && totalReadingDays >= 3) {
+                // Calculate reading pace from last 30 days
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-                const randomComparison = comparisons[Math.floor(Math.random() * comparisons.length)];
-                const daysOfActivity = (unreadMinutes / randomComparison.avgMinPerDay).toFixed(1);
+                let recentChapters = 0;
+                let recentDays = 0;
+                Object.keys(activityMap).forEach(dateStr => {
+                    const date = new Date(dateStr);
+                    if (date >= thirtyDaysAgo) {
+                        recentChapters += activityMap[dateStr];
+                        recentDays++;
+                    }
+                });
 
-                let message = '';
-                if (unreadMinutes < randomComparison.avgMinPerDay) {
-                    message = `${randomComparison.emoji} You could finish in less time than you spend ${randomComparison.activity} today!`;
-                } else if (daysOfActivity < 7) {
-                    message = `${randomComparison.emoji} Finish in the time you'd spend ${randomComparison.activity} this week`;
-                } else if (daysOfActivity < 30) {
-                    message = `${randomComparison.emoji} That's ${daysOfActivity} days of ${randomComparison.activity}`;
+                // Use recent pace if available, otherwise use all-time pace
+                const chaptersPerDay = recentDays >= 3 ? (recentChapters / recentDays) : (totalChaptersRead / totalReadingDays);
+
+                if (chaptersPerDay > 0.1) {  // Only show forecast if there's meaningful activity
+                    // Calculate remaining chapters
+                    const remainingChapters = totalChapters - chaptersRead;
+                    const daysToComplete = Math.ceil(remainingChapters / chaptersPerDay);
+
+                    // Calculate completion date
+                    const completionDate = new Date();
+                    completionDate.setDate(completionDate.getDate() + daysToComplete);
+
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const formattedDate = `${monthNames[completionDate.getMonth()]} ${completionDate.getDate()}, ${completionDate.getFullYear()}`;
+
+                    if (daysToComplete < 365) {
+                        forecastEl.innerHTML = `📅 At your current pace, you'll finish around <strong>${formattedDate}</strong>`;
+                    } else {
+                        const years = Math.floor(daysToComplete / 365);
+                        const yearText = years === 1 ? 'year' : 'years';
+                        forecastEl.innerHTML = `📅 At your current pace, you'll finish in about <strong>${years} ${yearText}</strong>`;
+                    }
                 } else {
-                    message = `${randomComparison.emoji} Trade ${Math.ceil(parseFloat(daysOfActivity) / 30)} month${Math.ceil(parseFloat(daysOfActivity) / 30) > 1 ? 's' : ''} of ${randomComparison.activity} for eternal wisdom`;
+                    forecastEl.innerHTML = '📅 Keep reading regularly to see your completion forecast';
                 }
-
-                comparisonEl.innerHTML = `
-                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl p-4 text-center">
-                        <div class="text-sm font-bold text-indigo-900">💡 Perspective Check</div>
-                        <div class="text-xs text-indigo-500 mb-2 italic">Screen time vs Bible reading time</div>
-                        <div class="text-xs text-indigo-700">${message}</div>
-                    </div>
-                `;
+            } else if (forecastEl && unreadWords === 0) {
+                forecastEl.innerHTML = '';
+            } else if (forecastEl) {
+                forecastEl.innerHTML = '📅 Read for a few more days to see your completion forecast';
             }
 
             // Update streak milestone progress
