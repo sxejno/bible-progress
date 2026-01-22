@@ -160,12 +160,13 @@
 
         /* Mark as Read button animation */
         @keyframes markReadSuccess {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); filter: brightness(1); }
+            25% { transform: scale(1.08); filter: brightness(1.3); }
+            50% { transform: scale(1.05); filter: brightness(1.15); }
+            100% { transform: scale(1); filter: brightness(1); }
         }
         .mark-read-animate {
-            animation: markReadSuccess 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: markReadSuccess 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
         /* Enhanced modal entrance */
@@ -492,12 +493,12 @@
                                 <h1 class="text-xl sm:text-2xl font-black text-indigo-950 tracking-tighter">BIBLE PROGRESS</h1>
                                 <p id="books-completed-stat" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">0 OF 66 BOOKS READ</p>
                             </div>
-                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-2 py-1 rounded-lg cursor-pointer hover:shadow-md transition-all" onclick="window.goToStreakSection()" role="button" aria-label="Click to view streak details" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.goToStreakSection()">
+                            <div id="header-streak-badge" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 px-2 py-1 rounded-lg cursor-pointer hover:shadow-md transition-all" onclick="window.goToStreakSection()" role="button" aria-label="Click to view streak details" title="current day streak" tabindex="0" onkeypress="if(event.key==='Enter'||event.key===' ')window.goToStreakSection()">
                                 <div class="flex items-center gap-1.5">
                                     <span id="header-streak-emoji" class="text-lg">🔥</span>
                                     <div class="flex flex-col">
                                         <span id="header-streak-count" class="text-xs font-black text-orange-900 leading-none">0</span>
-                                        <span class="text-[8px] font-bold text-orange-600 uppercase tracking-wide">day streak</span>
+                                        <span class="text-[8px] font-bold text-orange-600 uppercase tracking-wide">DAYS!</span>
                                     </div>
                                 </div>
                             </div>
@@ -604,7 +605,7 @@
         <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative group">
-                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-transparent bg-white shadow-sm hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-200 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
+                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-indigo-200 bg-white shadow-md hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <div id="search-results-count" class="mt-2 text-sm text-slate-500 hidden"></div>
@@ -6654,7 +6655,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Only trigger animation when explicitly requested (i.e., when user clicks the button)
             if (triggerAnimation) {
                 btn.classList.add('mark-read-animate');
-                setTimeout(() => btn.classList.remove('mark-read-animate'), 300);
+                setTimeout(() => btn.classList.remove('mark-read-animate'), 500);
             }
 
             if (isRead) {

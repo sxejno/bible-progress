@@ -245,8 +245,13 @@
                         spellcheck="false"
                         aria-label="Type Bible book names"
                     >
-                    <div class="mt-2 text-slate-600 text-xs text-center font-medium">
-                        💡 Type continuously. Spaces and capitals optional. Books light up when found.
+                    <div class="mt-2 flex items-center justify-between gap-3">
+                        <div class="text-slate-600 text-xs font-medium flex-1">
+                            💡 Type continuously. Spaces and capitals optional. Books light up when found.
+                        </div>
+                        <button onclick="endGame()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-bold transition text-sm whitespace-nowrap" aria-label="Give up and end the game">
+                            I give up!
+                        </button>
                     </div>
                 </div>
             </div>
