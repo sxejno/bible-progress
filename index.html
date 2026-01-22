@@ -2201,6 +2201,17 @@
                             appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
                         }
 
+                        // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+                        Object.keys(appData.profiles).forEach(profileName => {
+                            const profile = appData.profiles[profileName];
+                            Object.keys(profile).forEach(chapterKey => {
+                                if(profile[chapterKey] === true) {
+                                    // Convert true to current timestamp (one-time migration)
+                                    profile[chapterKey] = Date.now();
+                                }
+                            });
+                        });
+
                         // Ensure active profile exists
                         if(!appData.profiles[appData.activeProfileId]) {
                             appData.activeProfileId = Object.keys(appData.profiles)[0];
@@ -7196,6 +7207,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             if(!appData.wordsPerMinute) {
                                 appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
                             }
+
+                            // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+                            Object.keys(appData.profiles).forEach(profileName => {
+                                const profile = appData.profiles[profileName];
+                                Object.keys(profile).forEach(chapterKey => {
+                                    if(profile[chapterKey] === true) {
+                                        // Convert true to current timestamp (one-time migration)
+                                        profile[chapterKey] = Date.now();
+                                    }
+                                });
+                            });
 
                             // Ensure defaultProfileId exists and is valid
                             if(!appData.defaultProfileId || !appData.profiles[appData.defaultProfileId]) {
