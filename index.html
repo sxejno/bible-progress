@@ -7826,8 +7826,22 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         }
 
+        function getWordCountForChapter(chapterKey) {
+            // Returns word count for a given chapter key (e.g., "Genesis-1")
+            const parts = chapterKey.split('-');
+            if (parts.length !== 2) return 0;
+
+            const bookName = parts[0];
+            const chapterNum = parseInt(parts[1], 10) - 1; // 0-indexed
+
+            const book = bible.find(b => b.name === bookName);
+            if (!book || !book.ch || !book.ch[chapterNum]) return 0;
+
+            return book.ch[chapterNum];
+        }
+
         function getReadingActivity() {
-            // Returns a map of date string (YYYY-MM-DD) to chapter count
+            // Returns a map of date string (YYYY-MM-DD) to word count
             const currentProg = getProgress();
             const activityMap = {};
 
@@ -7835,7 +7849,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const timestamp = currentProg[chapterKey];
                 if(timestamp && typeof timestamp === 'number') {
                     const dateStr = getLocalDateString(timestamp);
-                    activityMap[dateStr] = (activityMap[dateStr] || 0) + 1;
+                    const wordCount = getWordCountForChapter(chapterKey);
+                    activityMap[dateStr] = (activityMap[dateStr] || 0) + wordCount;
                 }
             });
 
@@ -8316,30 +8331,40 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // Calculate completion forecast based on recent reading pace
+            // Calculate completion forecast based on calendar-based reading pace
             const forecastEl = document.getElementById('completion-forecast');
             if (forecastEl && unreadWords > 0 && totalReadingDays >= 3) {
-                // Calculate reading pace from last 30 days
+                const today = new Date();
                 const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
 
-                let recentChapters = 0;
-                let recentDays = 0;
+                // Get first reading date to determine days since start
+                const allDates = Object.keys(activityMap).sort();
+                const firstReadingDate = allDates.length > 0 ? new Date(allDates[0]) : today;
+
+                const msPerDay = 1000 * 60 * 60 * 24;
+                const daysSinceStart = Math.ceil((today - firstReadingDate) / msPerDay);
+
+                // Determine the time window (30 days or days since start if less than 30)
+                let daysInWindow = 30;
+                if (daysSinceStart < 30 && daysSinceStart > 0) {
+                    daysInWindow = daysSinceStart;
+                }
+
+                // Calculate recent words read (in the window)
+                let recentWords = 0;
                 Object.keys(activityMap).forEach(dateStr => {
                     const date = new Date(dateStr);
                     if (date >= thirtyDaysAgo) {
-                        recentChapters += activityMap[dateStr];
-                        recentDays++;
+                        recentWords += activityMap[dateStr];
                     }
                 });
 
-                // Use recent pace if available, otherwise use all-time pace
-                const chaptersPerDay = recentDays >= 3 ? (recentChapters / recentDays) : (totalChaptersRead / totalReadingDays);
+                // Calculate "Calendar Velocity": Words / Calendar Days (not just active days)
+                const wordsPerDay = recentWords / daysInWindow;
 
-                if (chaptersPerDay > 0.1) {  // Only show forecast if there's meaningful activity
-                    // Calculate remaining chapters
-                    const remainingChapters = totalChapters - chaptersRead;
-                    const daysToComplete = Math.ceil(remainingChapters / chaptersPerDay);
+                if (wordsPerDay > 50) {  // Only show forecast if there's meaningful activity (at least 50 words/day)
+                    const daysToComplete = Math.ceil(unreadWords / wordsPerDay);
 
                     // Calculate completion date
                     const completionDate = new Date();
@@ -8351,12 +8376,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     if (daysToComplete < 365) {
                         forecastEl.innerHTML = `📅 At your current pace, you'll finish around <strong>${formattedDate}</strong>`;
                     } else {
-                        const years = Math.floor(daysToComplete / 365);
-                        const yearText = years === 1 ? 'year' : 'years';
-                        forecastEl.innerHTML = `📅 At your current pace, you'll finish in about <strong>${years} ${yearText}</strong>`;
+                        const years = (daysToComplete / 365).toFixed(1); // One decimal place for better precision
+                        forecastEl.innerHTML = `📅 At your current pace, you'll finish in about <strong>${years} years</strong>`;
                     }
                 } else {
-                    forecastEl.innerHTML = '📅 Keep reading regularly to see your completion forecast';
+                    forecastEl.innerHTML = '📅 Read a bit more consistently to generate a forecast';
                 }
             } else if (forecastEl && unreadWords === 0) {
                 forecastEl.innerHTML = '';
