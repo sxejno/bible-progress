@@ -7991,13 +7991,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Determine max count for statistics
             const maxCount = Math.max(...days.map(d => d.count), 1);
 
-            // Generate HTML with improved color scale based on meaningful thresholds
+            // Generate HTML with improved color scale based on word count thresholds
             const getColor = (count) => {
                 if(count === 0) return '#f1f5f9'; // slate-100 (no reading)
-                if(count <= 2) return '#bfdbfe'; // blue-200 (light day: 1-2 chapters)
-                if(count <= 5) return '#60a5fa'; // blue-400 (standard day: 3-5 chapters, M'Cheyne plan)
-                if(count <= 10) return '#3b82f6'; // blue-500 (intensive day: 6-10 chapters)
-                return '#1e40af'; // blue-800 (very intensive: 11+ chapters)
+                if(count <= 1500) return '#bfdbfe'; // blue-200 (light day: ~1-2 chapters)
+                if(count <= 3500) return '#60a5fa'; // blue-400 (standard day: ~3-5 chapters)
+                if(count <= 7000) return '#3b82f6'; // blue-500 (intensive day: ~6-10 chapters)
+                return '#1e40af'; // blue-800 (very intensive: ~11+ chapters)
             };
 
             const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -8021,7 +8021,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         html += '<div style="width: 11px; height: 11px;"></div>';
                     } else {
                         const color = getColor(day.count);
-                        const title = `${day.date}: ${day.count} chapter${day.count !== 1 ? 's' : ''}`;
+                        const title = `${day.date}: ${day.count.toLocaleString()} word${day.count !== 1 ? 's' : ''}`;
                         html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" title="${title}" class="cursor-pointer hover:ring-2 hover:ring-indigo-400 transition-all"></div>`;
                     }
                 });
@@ -8030,19 +8030,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             html += '</div></div></div>';
 
-            // Legend with meaningful labels
+            // Legend with meaningful labels (word counts)
             html += '<div class="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500">';
             [
                 { count: 0, label: 'None' },
-                { count: 1, label: '1-2' },
-                { count: 3, label: '3-5' },
-                { count: 6, label: '6-10' },
-                { count: 11, label: '11+' }
+                { count: 750, label: '1-1.5k' },
+                { count: 2500, label: '1.5-3.5k' },
+                { count: 5000, label: '3.5-7k' },
+                { count: 8000, label: '7k+' }
             ].forEach(({ count, label }) => {
                 const color = getColor(count);
                 html += `<div class="flex items-center gap-1.5">`;
                 html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" class="border border-slate-200"></div>`;
-                html += `<span class="text-[10px] font-medium">${label}</span>`;
+                html += `<span class="text-[10px] font-medium">${label} words</span>`;
                 html += `</div>`;
             });
             html += '</div>';
@@ -8331,52 +8331,57 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // Calculate completion forecast based on calendar-based reading pace
+            // Calculate completion forecast based on realistic reading patterns
             const forecastEl = document.getElementById('completion-forecast');
             if (forecastEl && unreadWords > 0 && totalReadingDays >= 3) {
                 const today = new Date();
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(today.getDate() - 30);
+                const msPerDay = 1000 * 60 * 60 * 24;
 
-                // Get first reading date to determine days since start
+                // Get all reading dates sorted
                 const allDates = Object.keys(activityMap).sort();
                 const firstReadingDate = allDates.length > 0 ? new Date(allDates[0]) : today;
-
-                const msPerDay = 1000 * 60 * 60 * 24;
                 const daysSinceStart = Math.ceil((today - firstReadingDate) / msPerDay);
 
-                // Determine the time window (30 days or days since start if less than 30)
-                let daysInWindow = 30;
-                if (daysSinceStart < 30 && daysSinceStart > 0) {
-                    daysInWindow = daysSinceStart;
-                }
+                // Use a 60-day window for more stable estimates (or days since start if less)
+                let daysInWindow = Math.min(60, Math.max(daysSinceStart, 7));
+                const windowStartDate = new Date(today);
+                windowStartDate.setDate(today.getDate() - daysInWindow);
 
-                // Calculate recent words read (in the window)
+                // Calculate recent activity within the window
                 let recentWords = 0;
+                let activeDaysInWindow = 0;
                 Object.keys(activityMap).forEach(dateStr => {
                     const date = new Date(dateStr);
-                    if (date >= thirtyDaysAgo) {
+                    if (date >= windowStartDate && activityMap[dateStr] > 0) {
                         recentWords += activityMap[dateStr];
+                        activeDaysInWindow++;
                     }
                 });
 
-                // Calculate "Calendar Velocity": Words / Calendar Days (not just active days)
-                const wordsPerDay = recentWords / daysInWindow;
+                // Calculate words per active reading day and reading frequency
+                const wordsPerActiveDay = activeDaysInWindow > 0 ? recentWords / activeDaysInWindow : 0;
+                const readingFrequency = activeDaysInWindow / daysInWindow; // Fraction of days with reading
 
-                if (wordsPerDay > 50) {  // Only show forecast if there's meaningful activity (at least 50 words/day)
-                    const daysToComplete = Math.ceil(unreadWords / wordsPerDay);
+                // Only show forecast if there's meaningful activity
+                if (wordsPerActiveDay > 100 && readingFrequency > 0.05) {
+                    // Estimate active days needed to complete
+                    const activeDaysNeeded = Math.ceil(unreadWords / wordsPerActiveDay);
+
+                    // Convert to calendar days based on reading frequency
+                    // Add 20% buffer for realistic estimation (accounts for life interruptions)
+                    const calendarDaysNeeded = Math.ceil((activeDaysNeeded / readingFrequency) * 1.2);
 
                     // Calculate completion date
                     const completionDate = new Date();
-                    completionDate.setDate(completionDate.getDate() + daysToComplete);
+                    completionDate.setDate(completionDate.getDate() + calendarDaysNeeded);
 
                     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     const formattedDate = `${monthNames[completionDate.getMonth()]} ${completionDate.getDate()}, ${completionDate.getFullYear()}`;
 
-                    if (daysToComplete < 365) {
+                    if (calendarDaysNeeded < 365) {
                         forecastEl.innerHTML = `📅 At your current pace, you'll finish around <strong>${formattedDate}</strong>`;
                     } else {
-                        const years = (daysToComplete / 365).toFixed(1); // One decimal place for better precision
+                        const years = (calendarDaysNeeded / 365).toFixed(1);
                         forecastEl.innerHTML = `📅 At your current pace, you'll finish in about <strong>${years} years</strong>`;
                     }
                 } else {
