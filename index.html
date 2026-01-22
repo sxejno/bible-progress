@@ -1224,6 +1224,49 @@
                     </p>
                 </div>
 
+                <div class="mb-8 pb-8 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Offline Mode</h3>
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-100 mb-4">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-900 mb-1">Download for Offline Use</h4>
+                                <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                    Download the Bible, games, and memorization tools to use the app completely offline. Your reading progress will automatically sync when you're back online.
+                                </p>
+                                <button onclick="window.downloadOfflineData()" id="offline-download-btn" class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all text-sm uppercase tracking-wide shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300" aria-label="Download app for offline use">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <span id="offline-download-text">Download Offline Data</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="offline-progress-container" class="hidden">
+                            <div class="bg-white/80 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span id="offline-progress-text" class="text-xs font-bold text-slate-700">Preparing...</span>
+                                    <span id="offline-progress-percent" class="text-xs font-black text-indigo-600">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div id="offline-progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="offline-status-message" class="hidden mt-4 p-3 rounded-lg bg-white/80 border border-indigo-200">
+                            <p class="text-xs font-bold text-slate-700 flex items-center gap-2">
+                                <span id="offline-status-icon"></span>
+                                <span id="offline-status-text"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        <strong>Note:</strong> The app already works offline for reading tracking, but downloading ensures all resources (Bible reader, games, memorization tools) are available without an internet connection.
+                    </p>
+                </div>
+
                 <div id="advanced-settings-container" class="mb-8" style="display: none;">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Advanced: Cross-Profile Sync</h3>
                     <p class="text-xs text-slate-500 mb-4 leading-relaxed">
@@ -9094,6 +9137,99 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				selector.value = appData.defaultTab;
 			}
 		}
+
+		// Download offline data
+		window.downloadOfflineData = async () => {
+			const btn = document.getElementById('offline-download-btn');
+			const btnText = document.getElementById('offline-download-text');
+			const progressContainer = document.getElementById('offline-progress-container');
+			const progressBar = document.getElementById('offline-progress-bar');
+			const progressText = document.getElementById('offline-progress-text');
+			const progressPercent = document.getElementById('offline-progress-percent');
+			const statusMessage = document.getElementById('offline-status-message');
+			const statusIcon = document.getElementById('offline-status-icon');
+			const statusText = document.getElementById('offline-status-text');
+
+			// Check if service worker is supported
+			if (!('serviceWorker' in navigator)) {
+				await window.showAlert(
+					'Not Supported',
+					'Your browser does not support offline mode. Please use a modern browser like Chrome, Firefox, or Safari.',
+					'error'
+				);
+				return;
+			}
+
+			// Disable button and show progress
+			btn.disabled = true;
+			btn.classList.add('opacity-50', 'cursor-not-allowed');
+			progressContainer.classList.remove('hidden');
+			statusMessage.classList.add('hidden');
+
+			// Listen for progress updates from service worker
+			navigator.serviceWorker.addEventListener('message', function handleProgress(event) {
+				if (event.data.type === 'DOWNLOAD_PROGRESS') {
+					progressText.textContent = event.data.message;
+					progressPercent.textContent = `${event.data.progress}%`;
+					progressBar.style.width = `${event.data.progress}%`;
+				} else if (event.data.type === 'DOWNLOAD_COMPLETE') {
+					// Show success message
+					progressContainer.classList.add('hidden');
+					statusMessage.classList.remove('hidden');
+					statusIcon.textContent = '✅';
+					statusText.textContent = 'Download complete! The app is now fully available offline.';
+
+					// Re-enable button
+					btn.disabled = false;
+					btn.classList.remove('opacity-50', 'cursor-not-allowed');
+					btnText.textContent = 'Re-download Offline Data';
+
+					// Remove listener
+					navigator.serviceWorker.removeEventListener('message', handleProgress);
+
+					// Log success
+					log('✅ Offline data downloaded successfully');
+				} else if (event.data.type === 'DOWNLOAD_ERROR') {
+					// Show error message
+					progressContainer.classList.add('hidden');
+					statusMessage.classList.remove('hidden');
+					statusIcon.textContent = '❌';
+					statusText.textContent = `Download failed: ${event.data.error}`;
+
+					// Re-enable button
+					btn.disabled = false;
+					btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+					// Remove listener
+					navigator.serviceWorker.removeEventListener('message', handleProgress);
+
+					// Log error
+					logError('❌ Offline data download failed:', event.data.error);
+				}
+			});
+
+			// Send message to service worker to start download
+			try {
+				const registration = await navigator.serviceWorker.ready;
+				if (registration.active) {
+					registration.active.postMessage({ type: 'DOWNLOAD_OFFLINE' });
+					log('📥 Started downloading offline data...');
+				} else {
+					throw new Error('Service worker is not active');
+				}
+			} catch (error) {
+				// Show error
+				progressContainer.classList.add('hidden');
+				statusMessage.classList.remove('hidden');
+				statusIcon.textContent = '❌';
+				statusText.textContent = 'Failed to start download. Please refresh the page and try again.';
+
+				btn.disabled = false;
+				btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+				logError('❌ Failed to communicate with service worker:', error);
+			}
+		};
 
 		function updateReadingTimeToggleUI() {
 			const toggle = document.getElementById('reading-time-toggle');
