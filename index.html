@@ -442,6 +442,118 @@
         </div>
     </div>
 
+    <!-- Reading Speed Calibration Modal -->
+    <div id="calibration-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="calibration-modal-title">
+        <div class="bg-white rounded-[2rem] p-6 w-full max-w-md shadow-2xl modal-in border border-white/50">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="calibration-modal-title" class="text-xl font-black text-slate-900 tracking-tight">Calibrate Reading Speed</h2>
+                <button onclick="window.closeCalibrationModal()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close calibration modal">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Step 1: Select Chapter -->
+            <div id="calibration-step-1">
+                <p class="text-sm text-slate-600 mb-4">Select a chapter to read, then time yourself. We'll calculate your personal reading speed.</p>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Book</label>
+                        <select id="calibration-book" onchange="window.updateCalibrationChapters()" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" aria-label="Select book for calibration">
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Chapter</label>
+                        <select id="calibration-chapter" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" aria-label="Select chapter for calibration">
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="calibration-chapter-info" class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700">Word count:</span>
+                        <span id="calibration-word-count" class="text-lg font-black text-indigo-600">—</span>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-sm font-bold text-slate-700">Est. time (at current WPM):</span>
+                        <span id="calibration-est-time" class="text-sm font-bold text-slate-500">—</span>
+                    </div>
+                </div>
+                
+                <button onclick="window.startCalibrationTimer()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-200 transition-all hover:scale-105 active:scale-95" aria-label="Start reading and timer">
+                    📖 Start Reading
+                </button>
+                
+                <p class="text-xs text-slate-400 text-center mt-4">Tip: Choose a chapter you haven't read recently for accurate results.</p>
+            </div>
+            
+            <!-- Step 2: Timer Running -->
+            <div id="calibration-step-2" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="text-6xl font-black text-indigo-600 mb-2 tabular-nums" id="calibration-timer">0:00</div>
+                    <p class="text-sm text-slate-500">Reading <span id="calibration-reading-chapter" class="font-bold text-slate-700">—</span></p>
+                    <p class="text-xs text-slate-400 mt-1"><span id="calibration-reading-words" class="font-bold">—</span> words</p>
+                </div>
+                
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6">
+                    <p class="text-sm text-amber-800 text-center">
+                        <strong>Read at your normal pace.</strong><br>
+                        Click "Done" when you finish the chapter.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="window.cancelCalibration()" class="bg-white border-2 border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Cancel calibration">
+                        Cancel
+                    </button>
+                    <button onclick="window.finishCalibration()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:from-emerald-600 hover:to-teal-600 hover:shadow-lg transition-all" aria-label="Finish reading">
+                        ✓ Done Reading
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Results -->
+            <div id="calibration-step-3" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-4xl">🎯</span>
+                    </div>
+                    <h3 class="text-lg font-black text-slate-900 mb-1">Your Reading Speed</h3>
+                    <div class="text-5xl font-black text-emerald-600 mb-1" id="calibration-result-wpm">—</div>
+                    <p class="text-sm text-slate-500">words per minute</p>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-600">Chapter read:</span>
+                        <span class="font-bold text-slate-700" id="calibration-result-chapter">—</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-600">Words:</span>
+                        <span class="font-bold text-slate-700" id="calibration-result-words">—</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-600">Time:</span>
+                        <span class="font-bold text-slate-700" id="calibration-result-time">—</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm pt-2 border-t border-slate-200">
+                        <span class="text-slate-600">Previous WPM:</span>
+                        <span class="font-bold text-slate-500" id="calibration-result-old-wpm">—</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="window.closeCalibrationModal()" class="bg-white border-2 border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Keep current WPM">
+                        Keep Old WPM
+                    </button>
+                    <button onclick="window.applyCalibrationResult()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:from-emerald-600 hover:to-teal-600 hover:shadow-lg transition-all" aria-label="Apply new WPM">
+                        ✓ Use New WPM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bible Reader Modal -->
     <div id="bible-reader-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="bible-reader-title">
         <div class="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl modal-in border border-white/50 flex flex-col" style="max-height: 90vh;">
@@ -1199,9 +1311,14 @@
                                 <span class="text-xs font-bold text-slate-500 uppercase">WPM</span>
                             </div>
                         </div>
-                        <div class="text-xs text-slate-500 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-100">
+                        <div class="text-xs text-slate-500 leading-relaxed bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3">
                             <strong>Reference:</strong> Average reading speed is 200-250 WPM. Fast readers: 300+ WPM. Slow/careful reading: 100-150 WPM.
                         </div>
+                        <button onclick="window.openCalibrationModal()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold text-sm hover:bg-indigo-200 transition-colors" aria-label="Calibrate reading speed by timing yourself">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Calibrate by Reading
+                        </button>
+                        <p class="text-xs text-slate-400 text-center mt-2">Time yourself reading a chapter to calculate your exact speed.</p>
                     </div>
                 </div>
 
@@ -9287,6 +9404,217 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			if(minutes === 1) return '1 min';
 			return `${minutes} min`;
 		}
+
+		// --- READING SPEED CALIBRATION ---
+		let calibrationState = {
+			timerInterval: null,
+			startTime: null,
+			selectedBook: null,
+			selectedChapter: null,
+			wordCount: 0,
+			calculatedWpm: null
+		};
+
+		window.openCalibrationModal = () => {
+			const modal = document.getElementById('calibration-modal');
+			const bookSelect = document.getElementById('calibration-book');
+			
+			// Reset to step 1
+			document.getElementById('calibration-step-1').classList.remove('hidden');
+			document.getElementById('calibration-step-2').classList.add('hidden');
+			document.getElementById('calibration-step-3').classList.add('hidden');
+			
+			// Clear any running timer
+			if(calibrationState.timerInterval) {
+				clearInterval(calibrationState.timerInterval);
+				calibrationState.timerInterval = null;
+			}
+			
+			// Populate book dropdown
+			bookSelect.innerHTML = '';
+			bible.forEach((book, index) => {
+				const option = document.createElement('option');
+				option.value = index;
+				option.textContent = book.name;
+				bookSelect.appendChild(option);
+			});
+			
+			// Default to John (good medium-length book for calibration)
+			const johnIndex = bible.findIndex(b => b.name === 'John');
+			if(johnIndex !== -1) {
+				bookSelect.value = johnIndex;
+			}
+			
+			// Populate chapters and update info
+			window.updateCalibrationChapters();
+			
+			modal.classList.remove('hidden');
+		};
+
+		window.closeCalibrationModal = () => {
+			const modal = document.getElementById('calibration-modal');
+			modal.classList.add('hidden');
+			
+			// Clear any running timer
+			if(calibrationState.timerInterval) {
+				clearInterval(calibrationState.timerInterval);
+				calibrationState.timerInterval = null;
+			}
+		};
+
+		window.updateCalibrationChapters = () => {
+			const bookSelect = document.getElementById('calibration-book');
+			const chapterSelect = document.getElementById('calibration-chapter');
+			const bookIndex = parseInt(bookSelect.value, 10);
+			const book = bible[bookIndex];
+			
+			if(!book) return;
+			
+			chapterSelect.innerHTML = '';
+			book.ch.forEach((wordCount, index) => {
+				const option = document.createElement('option');
+				option.value = index;
+				option.textContent = `Chapter ${index + 1} (${wordCount} words)`;
+				chapterSelect.appendChild(option);
+			});
+			
+			// Default to chapter 3 if it exists (often a good middle chapter)
+			if(book.ch.length >= 3) {
+				chapterSelect.value = 2; // 0-indexed
+			}
+			
+			window.updateCalibrationInfo();
+		};
+
+		window.updateCalibrationInfo = () => {
+			const bookSelect = document.getElementById('calibration-book');
+			const chapterSelect = document.getElementById('calibration-chapter');
+			const wordCountEl = document.getElementById('calibration-word-count');
+			const estTimeEl = document.getElementById('calibration-est-time');
+			
+			const bookIndex = parseInt(bookSelect.value, 10);
+			const chapterIndex = parseInt(chapterSelect.value, 10);
+			const book = bible[bookIndex];
+			
+			if(!book || chapterIndex >= book.ch.length) return;
+			
+			const wordCount = book.ch[chapterIndex];
+			const currentWpm = appData.wordsPerMinute || 250;
+			const estMinutes = Math.ceil(wordCount / currentWpm);
+			
+			wordCountEl.textContent = wordCount.toLocaleString();
+			estTimeEl.textContent = `~${estMinutes} min at ${currentWpm} WPM`;
+			
+			calibrationState.selectedBook = book.name;
+			calibrationState.selectedChapter = chapterIndex + 1;
+			calibrationState.wordCount = wordCount;
+		};
+
+		// Add change listener for chapter select
+		document.addEventListener('DOMContentLoaded', () => {
+			const chapterSelect = document.getElementById('calibration-chapter');
+			if(chapterSelect) {
+				chapterSelect.addEventListener('change', window.updateCalibrationInfo);
+			}
+		});
+
+		window.startCalibrationTimer = () => {
+			// Update info one more time to ensure we have current values
+			window.updateCalibrationInfo();
+			
+			// Switch to step 2
+			document.getElementById('calibration-step-1').classList.add('hidden');
+			document.getElementById('calibration-step-2').classList.remove('hidden');
+			
+			// Set chapter info
+			document.getElementById('calibration-reading-chapter').textContent = 
+				`${calibrationState.selectedBook} ${calibrationState.selectedChapter}`;
+			document.getElementById('calibration-reading-words').textContent = 
+				calibrationState.wordCount.toLocaleString();
+			
+			// Start timer
+			calibrationState.startTime = Date.now();
+			const timerEl = document.getElementById('calibration-timer');
+			
+			calibrationState.timerInterval = setInterval(() => {
+				const elapsed = Date.now() - calibrationState.startTime;
+				const seconds = Math.floor(elapsed / 1000);
+				const minutes = Math.floor(seconds / 60);
+				const remainingSeconds = seconds % 60;
+				timerEl.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+			}, 100);
+		};
+
+		window.cancelCalibration = () => {
+			// Clear timer
+			if(calibrationState.timerInterval) {
+				clearInterval(calibrationState.timerInterval);
+				calibrationState.timerInterval = null;
+			}
+			
+			// Go back to step 1
+			document.getElementById('calibration-step-2').classList.add('hidden');
+			document.getElementById('calibration-step-1').classList.remove('hidden');
+		};
+
+		window.finishCalibration = () => {
+			// Stop timer
+			const endTime = Date.now();
+			if(calibrationState.timerInterval) {
+				clearInterval(calibrationState.timerInterval);
+				calibrationState.timerInterval = null;
+			}
+			
+			// Calculate results
+			const elapsedMs = endTime - calibrationState.startTime;
+			const elapsedMinutes = elapsedMs / 60000;
+			const calculatedWpm = Math.round(calibrationState.wordCount / elapsedMinutes);
+			
+			// Clamp to reasonable range (50-600 WPM)
+			calibrationState.calculatedWpm = Math.max(50, Math.min(600, calculatedWpm));
+			
+			// Format elapsed time for display
+			const totalSeconds = Math.floor(elapsedMs / 1000);
+			const minutes = Math.floor(totalSeconds / 60);
+			const seconds = totalSeconds % 60;
+			const timeDisplay = minutes > 0 
+				? `${minutes}m ${seconds}s` 
+				: `${seconds}s`;
+			
+			// Update results display
+			document.getElementById('calibration-result-wpm').textContent = calibrationState.calculatedWpm;
+			document.getElementById('calibration-result-chapter').textContent = 
+				`${calibrationState.selectedBook} ${calibrationState.selectedChapter}`;
+			document.getElementById('calibration-result-words').textContent = 
+				calibrationState.wordCount.toLocaleString();
+			document.getElementById('calibration-result-time').textContent = timeDisplay;
+			document.getElementById('calibration-result-old-wpm').textContent = 
+				`${appData.wordsPerMinute || 250} WPM`;
+			
+			// Switch to step 3
+			document.getElementById('calibration-step-2').classList.add('hidden');
+			document.getElementById('calibration-step-3').classList.remove('hidden');
+		};
+
+		window.applyCalibrationResult = () => {
+			if(calibrationState.calculatedWpm) {
+				appData.wordsPerMinute = calibrationState.calculatedWpm;
+				window.saveProgress();
+				
+				// Update the WPM input in settings
+				const wpmInput = document.getElementById('wpm-input');
+				if(wpmInput) {
+					wpmInput.value = calibrationState.calculatedWpm;
+				}
+				
+				// Re-render daily plan if currently viewing it
+				if(window.activeTab === 'PLAN') {
+					window.renderDailyPlan();
+				}
+			}
+			
+			window.closeCalibrationModal();
+		};
 
 		console.log('🥚 Easter eggs loaded! Try: Konami Code, click profile dot 7x, complete Psalm 119, finish the Bible, type SHANE/MOM/DAD/SETH, triple-click logo, or visit on Christmas/Easter!');
 
