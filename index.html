@@ -1954,20 +1954,6 @@
             }
         });
 
-        // Migrate existing users to have dailyProgress (per-profile tracking for all plans)
-        if(!appData.dailyProgress) {
-            appData.dailyProgress = {};
-        }
-        // Ensure each profile has dailyProgress initialized
-        Object.keys(appData.profiles).forEach(profileId => {
-            if(!appData.dailyProgress[profileId]) {
-                appData.dailyProgress[profileId] = {
-                    date: new Date().toISOString().split('T')[0],
-                    completedChapters: []
-                };
-            }
-        });
-
         // On app load, use defaultProfileId if it exists and is valid
         if(appData.defaultProfileId && appData.profiles[appData.defaultProfileId]) {
             appData.activeProfileId = appData.defaultProfileId;
@@ -2097,56 +2083,8 @@
             return appData.hornerDailyProgress[profileId].completedLists.includes(listIndex);
         };
 
-        // --- DAILY PROGRESS HELPERS (for all plans) ---
-        const resetDailyProgressIfNeeded = () => {
-                        const today = getTodaysDate();
-            const profileId = appData.activeProfileId;
-
-            // Ensure dailyProgress object exists
-            if(!appData.dailyProgress) {
-                appData.dailyProgress = {};
-            }
-
-            // Ensure the profile has dailyProgress initialized
-            if(!appData.dailyProgress[profileId]) {
-                appData.dailyProgress[profileId] = {
-                    date: today,
-                    completedChapters: []
-                };
-            }
-
-            // Reset if it's a new day
-            if(appData.dailyProgress[profileId].date !== today) {
-                appData.dailyProgress[profileId] = {
-                    date: today,
-                    completedChapters: []
-                };
-            }
-        };
-
-        const markChapterCompletedToday = (chapterId) => {
-            resetDailyProgressIfNeeded();
-            const profileId = appData.activeProfileId;
-            if(!appData.dailyProgress[profileId].completedChapters.includes(chapterId)) {
-                appData.dailyProgress[profileId].completedChapters.push(chapterId);
-            }
-        };
-
-        const isChapterCompletedToday = (chapterId) => {
-            resetDailyProgressIfNeeded();
-            const profileId = appData.activeProfileId;
-            return appData.dailyProgress[profileId].completedChapters.includes(chapterId);
-        };
-
-        const getTodaysCompletedChapters = () => {
-            resetDailyProgressIfNeeded();
-            const profileId = appData.activeProfileId;
-            return appData.dailyProgress[profileId].completedChapters;
-        };
-
         // Reset daily progress on load if it's a new day
         resetHornerDailyProgressIfNeeded();
-        resetDailyProgressIfNeeded();
         let unsubscribe = null;
         let localSaveTimeout = null;
         let cloudSaveTimeout = null;
@@ -2824,12 +2762,6 @@
             appData.hornerDailyProgress[sanitized] = {
                 date: new Date().toISOString().split('T')[0],
                 completedLists: []
-            };
-            // Initialize dailyProgress for new profile
-            if(!appData.dailyProgress) appData.dailyProgress = {};
-            appData.dailyProgress[sanitized] = {
-                date: new Date().toISOString().split('T')[0],
-                completedChapters: []
             };
             // Initialize memorizedVerses for new profile
             if(!appData.memorizedVerses) appData.memorizedVerses = {};
@@ -7234,12 +7166,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // Track daily progress for all plans when marking as read
-            if(timestamp) {
-                markChapterCompletedToday(id);
-            }
-
-            // If using Horner plan and marking as read, also track list completion
+            // If using Horner plan and marking as read, track daily completion
             if(timestamp && activePlan === 'HORNER') {
                 const listIndex = getHornerListForChapter(id);
                 if(listIndex >= 0) {
@@ -7269,10 +7196,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                 }
 
-                // Track daily progress for all plans
-                markChapterCompletedToday(chapterId);
-
-                // If using Horner plan, also track list completion
+                // If using Horner plan, track daily completion
                 if(activePlan === 'HORNER') {
                     const listIndex = getHornerListForChapter(chapterId);
                     if(listIndex >= 0) {
@@ -7492,241 +7416,92 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const footerMsg = document.getElementById('plan-footer-msg');
             const descBox = document.getElementById('plan-description-box');
             const currentProg = getProgress();
-
+            
             list.innerHTML = '';
             footerMsg.innerText = '';
-
+            
             let nextChapters = [];
             let descText = "";
-            let isDailyGoalComplete = false;
-            let readAheadChapters = [];
 
             if (activePlan === 'SEQUENTIAL') {
-                resetDailyProgressIfNeeded();
-                const todaysCompleted = getTodaysCompletedChapters();
-                const dailyTarget = 3;
-
-                // First, show chapters completed today
-                todaysCompleted.forEach(chapterId => {
-                    const [bookName, chapterStr] = chapterId.split('-');
-                    const chapterNum = parseInt(chapterStr, 10);
-                    const appBook = bible.find(b => b.name === bookName);
-                    if(appBook) {
-                        nextChapters.push({
-                            book: bookName,
-                            chapter: chapterNum,
-                            chapters: [chapterNum],
-                            words: appBook.ch[chapterNum - 1],
-                            label: `${bookName} ${chapterNum}`,
-                            isComplete: true,
-                            completedToday: true
-                        });
-                    }
-                });
-
-                // Then find next unread chapters to fill up to daily target
-                let found = nextChapters.length;
-                if(found < dailyTarget) {
-                    for (let b = 0; b < bible.length; b++) {
-                        const book = bible[b];
-                        for (let c = 0; c < book.ch.length; c++) {
-                            const chapterId = `${book.name}-${c+1}`;
-                            if (!currentProg[chapterId] && !todaysCompleted.includes(chapterId)) {
-                                nextChapters.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
-                                found++;
-                                if (found >= dailyTarget) break;
-                            }
-                        }
-                        if (found >= dailyTarget) break;
-                    }
-                }
-
-                // Check if Bible is complete
-                const totalChapters = bible.reduce((sum, b) => sum + b.ch.length, 0);
-                const totalRead = Object.keys(currentProg).filter(k => currentProg[k]).length;
-                if (totalRead >= totalChapters) {
-                    list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`;
-                    return;
-                }
-
-                // Update description based on completion status
-                const completedTodayCount = todaysCompleted.length;
-                if(completedTodayCount >= dailyTarget) {
-                    isDailyGoalComplete = true;
-                    descText = `<strong>Canonical:</strong> Genesis to Revelation. <span class="text-emerald-600 font-bold">✓ Daily goal complete!</span>`;
-
-                    // Find read-ahead chapters (next 3 unread chapters)
-                    let readAheadFound = 0;
-                    for (let b = 0; b < bible.length && readAheadFound < 3; b++) {
-                        const book = bible[b];
-                        for (let c = 0; c < book.ch.length && readAheadFound < 3; c++) {
-                            const chapterId = `${book.name}-${c+1}`;
-                            if (!currentProg[chapterId]) {
-                                readAheadChapters.push({
-                                    book: book.name,
-                                    chapter: c + 1,
-                                    chapters: [c + 1],
-                                    words: book.ch[c],
-                                    label: `${book.name} ${c+1}`
-                                });
-                                readAheadFound++;
-                            }
+                descText = "<strong>Canonical:</strong> Genesis to Revelation. Next 3 unread chapters.";
+                let found = 0; const target = 3;
+                for (let b = 0; b < bible.length; b++) {
+                    const book = bible[b];
+                    for (let c = 0; c < book.ch.length; c++) {
+                        if (!currentProg[`${book.name}-${c+1}`]) {
+                            nextChapters.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
+                            found++;
+                            if (found >= target) break;
                         }
                     }
-                } else {
-                    descText = `<strong>Canonical:</strong> Genesis to Revelation. ${completedTodayCount}/${dailyTarget} chapters today.`;
+                    if (found >= target) break;
                 }
-
-                // Footer with stats
-                const chaptersRemaining = totalChapters - totalRead;
-                footerMsg.innerText = `${chaptersRemaining} chapters remaining`;
+                if (nextChapters.length === 0) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`; return; }
             }
 
             else if (activePlan === 'ONE_YEAR') {
-                resetDailyProgressIfNeeded();
-                const todaysCompleted = getTodaysCompletedChapters();
-                const dailyOtTarget = 3;
-                const dailyNtTarget = 1;
-                const dailyTarget = dailyOtTarget + dailyNtTarget;
+                descText = "<strong>One Year:</strong> 3 OT + 1 NT chapters daily.";
 
-                // Count today's completed OT and NT chapters
-                let otCompletedToday = 0;
-                let ntCompletedToday = 0;
-                todaysCompleted.forEach(chapterId => {
-                    const [bookName] = chapterId.split('-');
-                    const appBook = bible.find(b => b.name === bookName);
-                    if(appBook) {
-                        if(appBook.testament === 'OT') otCompletedToday++;
-                        else if(appBook.testament === 'NT') ntCompletedToday++;
-                    }
-                });
-
-                // First, show chapters completed today
-                todaysCompleted.forEach(chapterId => {
-                    const [bookName, chapterStr] = chapterId.split('-');
-                    const chapterNum = parseInt(chapterStr, 10);
-                    const appBook = bible.find(b => b.name === bookName);
-                    if(appBook) {
-                        nextChapters.push({
-                            book: bookName,
-                            chapter: chapterNum,
-                            chapters: [chapterNum],
-                            words: appBook.ch[chapterNum - 1],
-                            label: `${bookName} ${chapterNum}`,
-                            badge: appBook.testament === 'OT' ? "Old Testament" : "New Testament",
-                            isComplete: true,
-                            completedToday: true
-                        });
-                    }
-                });
-
-                // Find next unread OT chapters to fill up to daily OT target
-                let otFound = otCompletedToday;
-                if(otFound < dailyOtTarget) {
-                    for (let b = 0; b < bible.length; b++) {
-                        const book = bible[b];
-                        if (book.testament !== 'OT') continue;
-                        for (let c = 0; c < book.ch.length; c++) {
-                            const chapterId = `${book.name}-${c+1}`;
-                            if (!currentProg[chapterId] && !todaysCompleted.includes(chapterId)) {
-                                nextChapters.push({
-                                    book: book.name,
-                                    chapter: c + 1,
-                                    chapters: [c + 1],
-                                    words: book.ch[c],
-                                    label: `${book.name} ${c+1}`,
-                                    badge: "Old Testament"
-                                });
-                                otFound++;
-                                if (otFound >= dailyOtTarget) break;
-                            }
+                // Find next 3 unread OT chapters
+                let otFound = 0;
+                for (let b = 0; b < bible.length; b++) {
+                    const book = bible[b];
+                    if (book.testament !== 'OT') continue;
+                    for (let c = 0; c < book.ch.length; c++) {
+                        if (!currentProg[`${book.name}-${c+1}`]) {
+                            nextChapters.push({
+                                book: book.name,
+                                chapter: c + 1,
+                                chapters: [c + 1],
+                                words: book.ch[c],
+                                label: `${book.name} ${c+1}`,
+                                badge: "Old Testament"
+                            });
+                            otFound++;
+                            if (otFound >= 3) break;
                         }
-                        if (otFound >= dailyOtTarget) break;
                     }
+                    if (otFound >= 3) break;
                 }
 
-                // Find next unread NT chapter to fill up to daily NT target
-                let ntFound = ntCompletedToday;
-                if(ntFound < dailyNtTarget) {
-                    for (let b = 0; b < bible.length; b++) {
-                        const book = bible[b];
-                        if (book.testament !== 'NT') continue;
-                        for (let c = 0; c < book.ch.length; c++) {
-                            const chapterId = `${book.name}-${c+1}`;
-                            if (!currentProg[chapterId] && !todaysCompleted.includes(chapterId)) {
-                                nextChapters.push({
-                                    book: book.name,
-                                    chapter: c + 1,
-                                    chapters: [c + 1],
-                                    words: book.ch[c],
-                                    label: `${book.name} ${c+1}`,
-                                    badge: "New Testament"
-                                });
-                                ntFound++;
-                                if (ntFound >= dailyNtTarget) break;
-                            }
+                // Find next 1 unread NT chapter
+                let ntFound = 0;
+                for (let b = 0; b < bible.length; b++) {
+                    const book = bible[b];
+                    if (book.testament !== 'NT') continue;
+                    for (let c = 0; c < book.ch.length; c++) {
+                        if (!currentProg[`${book.name}-${c+1}`]) {
+                            nextChapters.push({
+                                book: book.name,
+                                chapter: c + 1,
+                                chapters: [c + 1],
+                                words: book.ch[c],
+                                label: `${book.name} ${c+1}`,
+                                badge: "New Testament"
+                            });
+                            ntFound++;
+                            if (ntFound >= 1) break;
                         }
-                        if (ntFound >= dailyNtTarget) break;
                     }
+                    if (ntFound >= 1) break;
                 }
 
-                // Check if Bible is complete
-                const totalChapters = bible.reduce((sum, b) => sum + b.ch.length, 0);
-                const totalRead = Object.keys(currentProg).filter(k => currentProg[k]).length;
-                if (totalRead >= totalChapters) {
+                if (nextChapters.length === 0) {
                     list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`;
                     return;
                 }
 
-                // Update description based on completion status
-                const completedTodayCount = todaysCompleted.length;
-                if(completedTodayCount >= dailyTarget) {
-                    isDailyGoalComplete = true;
-                    descText = `<strong>One Year:</strong> 3 OT + 1 NT chapters daily. <span class="text-emerald-600 font-bold">✓ Daily goal complete!</span>`;
-
-                    // Find read-ahead chapters (next 3 OT + 1 NT unread)
-                    let otReadAhead = 0, ntReadAhead = 0;
-                    for (let b = 0; b < bible.length; b++) {
-                        const book = bible[b];
-                        if (book.testament === 'OT' && otReadAhead < 3) {
-                            for (let c = 0; c < book.ch.length && otReadAhead < 3; c++) {
-                                const chapterId = `${book.name}-${c+1}`;
-                                if (!currentProg[chapterId]) {
-                                    readAheadChapters.push({
-                                        book: book.name, chapter: c + 1, chapters: [c + 1],
-                                        words: book.ch[c], label: `${book.name} ${c+1}`, badge: "Old Testament"
-                                    });
-                                    otReadAhead++;
-                                }
-                            }
-                        } else if (book.testament === 'NT' && ntReadAhead < 1) {
-                            for (let c = 0; c < book.ch.length && ntReadAhead < 1; c++) {
-                                const chapterId = `${book.name}-${c+1}`;
-                                if (!currentProg[chapterId]) {
-                                    readAheadChapters.push({
-                                        book: book.name, chapter: c + 1, chapters: [c + 1],
-                                        words: book.ch[c], label: `${book.name} ${c+1}`, badge: "New Testament"
-                                    });
-                                    ntReadAhead++;
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    descText = `<strong>One Year:</strong> 3 OT + 1 NT chapters daily. ${completedTodayCount}/${dailyTarget} chapters today.`;
-                }
-
-                const daysElapsed = Math.ceil(totalRead / 4);
-                footerMsg.innerText = `Approximately Day ${daysElapsed} of 365 • ${totalChapters - totalRead} chapters remaining`;
+                const totalChaptersRead = Object.keys(currentProg).filter(k => currentProg[k]).length;
+                const totalChapters = bible.reduce((sum, b) => sum + b.ch.length, 0);
+                const daysElapsed = Math.ceil(totalChaptersRead / 4); // Approximate days (4 chapters/day)
+                footerMsg.innerText = `Approximately Day ${daysElapsed} of 365 • ${totalChapters - totalChaptersRead} chapters remaining`;
             }
 
             else if (activePlan === 'MCHEYNE') {
-                resetDailyProgressIfNeeded();
-                const todaysCompleted = getTodaysCompletedChapters();
-                const todayStr = getTodaysDate();
-                const dailyTarget = 4;
+                descText = "<strong>M'Cheyne:</strong> 4 chapters daily. NT twice, OT once per year.";
                 let currentDay = null;
-
+                
                 for(let i=0; i<PLAN_MCHEYNE.length; i++) {
                     const day = PLAN_MCHEYNE[i];
                     let allRead = true;
@@ -7750,10 +7525,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
 
                 if(!currentDay) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 M'Cheyne Plan Completed!</div>`; return; }
-
-                // Count readings completed today
-                let readingsCompletedToday = 0;
-
+                
+                footerMsg.innerText = `M'Cheyne Day ${currentDay.d} of 365`;
+                
                 currentDay.r.forEach((refStr, idx) => {
                      const { bookName, chapterStr } = normalizeBookName(refStr);
                      const appBook = bible.find(b => b.name === bookName);
@@ -7761,25 +7535,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                          const chs = getChaptersFromStr(chapterStr);
                          const firstCh = chs[0];
                          let isRead = true;
-                         let wasReadToday = true;
-                         chs.forEach(c => {
-                             const chapterId = `${appBook.name}-${c}`;
-                             if(!currentProg[chapterId]) {
-                                 isRead = false;
-                                 wasReadToday = false;
-                             } else {
-                                 // Check if this specific chapter was read today
-                                 const timestamp = currentProg[chapterId];
-                                 if(!timestamp || getLocalDateString(timestamp) !== todayStr) {
-                                     wasReadToday = false;
-                                 }
-                             }
-                         });
-
-                         if(wasReadToday && isRead) readingsCompletedToday++;
-
+                         chs.forEach(c => { if(!currentProg[`${appBook.name}-${c}`]) isRead = false; });
+                         
                          const type = idx < 2 ? "Family" : "Secret";
-
+                         
                          nextChapters.push({
                              book: appBook.name,
                              chapter: firstCh,
@@ -7787,41 +7546,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                              words: appBook.ch[firstCh-1] * chs.length,
                              label: refStr,
                              badge: type,
-                             isComplete: isRead,
-                             completedToday: wasReadToday && isRead
+                             isComplete: isRead
                          });
                      }
                 });
-
-                // Update description based on completion status
-                if(readingsCompletedToday >= dailyTarget) {
-                    isDailyGoalComplete = true;
-                    descText = `<strong>M'Cheyne:</strong> 4 chapters daily. <span class="text-emerald-600 font-bold">✓ Daily goal complete!</span>`;
-
-                    // Find read-ahead chapters (next day's readings)
-                    const nextDayIdx = PLAN_MCHEYNE.findIndex(d => d.d === currentDay.d) + 1;
-                    if(nextDayIdx < PLAN_MCHEYNE.length) {
-                        const nextDay = PLAN_MCHEYNE[nextDayIdx];
-                        nextDay.r.forEach((refStr, idx) => {
-                            const { bookName, chapterStr } = normalizeBookName(refStr);
-                            const appBook = bible.find(b => b.name === bookName);
-                            if(appBook) {
-                                const chs = getChaptersFromStr(chapterStr);
-                                const firstCh = chs[0];
-                                const type = idx < 2 ? "Family" : "Secret";
-                                readAheadChapters.push({
-                                    book: appBook.name, chapter: firstCh, chapters: chs,
-                                    words: appBook.ch[firstCh-1] * chs.length, label: refStr,
-                                    badge: type
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    descText = `<strong>M'Cheyne:</strong> 4 chapters daily. ${readingsCompletedToday}/${dailyTarget} readings today.`;
-                }
-
-                footerMsg.innerText = `M'Cheyne Day ${currentDay.d} of 365`;
             }
 
             else if (activePlan === 'HORNER') {
@@ -7887,15 +7615,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                 });
                 const completedCount = appData.hornerDailyProgress[appData.activeProfileId].completedLists.length;
-                if(completedCount >= 10) {
-                    isDailyGoalComplete = true;
-                }
                 footerMsg.innerText = `Professor Horner's System (${completedCount}/10 lists completed today)`;
             }
 
             else if (activePlan === 'FIVE_DAY') {
-                resetDailyProgressIfNeeded();
-                const todayStr = getTodaysDate();
+                descText = "<strong>Five-Day Plan:</strong> Read the entire Bible in one year, 5 days a week (weekends off!). <span class='inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold ml-2'>✨ Sustainable Pace</span><br><span class='text-xs opacity-90 mt-1 block'>Old Testament in chronological order • New Testament spread throughout the year</span>";
 
                 // Get current day of week in Eastern Time (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
                 const now = new Date();
@@ -7950,12 +7674,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                 const todayName = dayNames[dayOfWeek];
+                footerMsg.innerText = `Week ${currentWeek.week_number} of 52 • ${todayName} (Day ${planDay})`;
 
-                // Count readings completed today
-                let readingsCompletedToday = 0;
-                const totalReadings = currentDayReading.scriptures.length;
-
-                // Show today's reading
+                // Show only today's reading
                 currentDayReading.scriptures.forEach((scriptureRef) => {
                     const { bookName, chapterStr } = normalizeBookName(scriptureRef);
                     const appBook = bible.find(b => b.name === bookName);
@@ -7963,21 +7684,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         const chs = getChaptersFromStr(chapterStr);
                         const firstCh = chs[0];
                         let isRead = true;
-                        let wasReadToday = true;
-                        chs.forEach(c => {
-                            const chapterId = `${appBook.name}-${c}`;
-                            if(!currentProg[chapterId]) {
-                                isRead = false;
-                                wasReadToday = false;
-                            } else {
-                                const timestamp = currentProg[chapterId];
-                                if(!timestamp || getLocalDateString(timestamp) !== todayStr) {
-                                    wasReadToday = false;
-                                }
-                            }
-                        });
-
-                        if(wasReadToday && isRead) readingsCompletedToday++;
+                        chs.forEach(c => { if(!currentProg[`${appBook.name}-${c}`]) isRead = false; });
 
                         // Calculate total words for this reading
                         let totalWordsForReading = 0;
@@ -7994,53 +7701,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             words: totalWordsForReading,
                             label: scriptureRef,
                             badge: `Today`,
-                            isComplete: isRead,
-                            completedToday: wasReadToday && isRead
+                            isComplete: isRead
                         });
                     }
                 });
-
-                // Update description based on completion status
-                if(readingsCompletedToday >= totalReadings) {
-                    isDailyGoalComplete = true;
-                    descText = `<strong>Five-Day Plan:</strong> Read 5 days a week. <span class="text-emerald-600 font-bold">✓ Daily goal complete!</span>`;
-
-                    // Find read-ahead chapters (next day's readings in this week or next week)
-                    let nextDayReading = null;
-                    const nextPlanDay = planDay < 5 ? planDay + 1 : 1; // Next day or Monday of next week
-                    nextDayReading = currentWeek.readings.find(r => r.day === nextPlanDay);
-
-                    // If no next day in current week, try next week
-                    if(!nextDayReading && nextPlanDay === 1) {
-                        const nextWeekIdx = PLAN_FIVE_DAY.schedule.findIndex(w => w.week_number === currentWeek.week_number) + 1;
-                        if(nextWeekIdx < PLAN_FIVE_DAY.schedule.length) {
-                            const nextWeek = PLAN_FIVE_DAY.schedule[nextWeekIdx];
-                            nextDayReading = nextWeek.readings.find(r => r.day === 1);
-                        }
-                    }
-
-                    if(nextDayReading) {
-                        nextDayReading.scriptures.forEach((scriptureRef) => {
-                            const { bookName, chapterStr } = normalizeBookName(scriptureRef);
-                            const appBook = bible.find(b => b.name === bookName);
-                            if(appBook) {
-                                const chs = getChaptersFromStr(chapterStr);
-                                const firstCh = chs[0];
-                                let totalWordsForReading = 0;
-                                chs.forEach(c => { if(appBook.ch[c-1]) totalWordsForReading += appBook.ch[c-1]; });
-                                readAheadChapters.push({
-                                    book: appBook.name, chapter: firstCh, chapters: chs,
-                                    words: totalWordsForReading, label: scriptureRef,
-                                    badge: "Next Day"
-                                });
-                            }
-                        });
-                    }
-                } else {
-                    descText = `<strong>Five-Day Plan:</strong> Read 5 days a week. ${readingsCompletedToday}/${totalReadings} readings today.`;
-                }
-
-                footerMsg.innerText = `Week ${currentWeek.week_number} of 52 • ${todayName} (Day ${planDay})`;
             }
 
             if(descBox) {
@@ -8116,76 +7780,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </div>
                 </button>`;
             }).join('');
-
-            // Add Read Ahead section if daily goal is complete and there are chapters to read ahead
-            if(isDailyGoalComplete && readAheadChapters.length > 0 && activePlan !== 'HORNER') {
-                const readAheadHtml = `
-                    <div class="mt-6 border-t border-slate-200 pt-6">
-                        <button onclick="window.toggleReadAhead()" id="read-ahead-toggle" class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-xl border border-indigo-200 transition-all duration-200 group" aria-expanded="false" aria-controls="read-ahead-list">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl">📚</span>
-                                <div class="text-left">
-                                    <div class="font-bold text-indigo-700">Want to Read Ahead?</div>
-                                    <div class="text-xs text-indigo-500">${readAheadChapters.length} more chapter${readAheadChapters.length > 1 ? 's' : ''} available</div>
-                                </div>
-                            </div>
-                            <svg id="read-ahead-chevron" class="w-5 h-5 text-indigo-500 transition-transform duration-200 group-hover:text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div id="read-ahead-list" class="hidden mt-4 space-y-3" aria-hidden="true">
-                            ${readAheadChapters.map(item => {
-                                const badgeHtml = item.badge ? `<span class="bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ml-2 opacity-90">${item.badge}</span>` : '';
-                                const metadataHtml = appData.showReadingTime ?
-                                    `<div class="text-[10px] font-bold text-slate-500 tracking-wide mt-1.5 flex items-center gap-2">
-                                        <span class="text-slate-400">~${item.words} words</span>
-                                        <span class="text-slate-300">•</span>
-                                        <span class="text-purple-600">📖 ${calculateReadingTime(item.words)}</span>
-                                    </div>` :
-                                    `<div class="text-[10px] font-bold text-slate-400 tracking-wide mt-1.5">~${item.words} words</div>`;
-
-                                return `<button onclick="window.openBibleReader('${item.book}', ${item.chapter})" class="block bg-white hover:bg-purple-50 text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-purple-100 hover:border-purple-200 shadow-sm hover:shadow-md hover:scale-[1.01] relative group w-full text-left cursor-pointer" aria-label="Read ahead: ${item.label}">
-                                    <div class="flex-1">
-                                        <div class="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-1">Read Ahead${badgeHtml}</div>
-                                        <div class="font-bold text-xl leading-tight text-slate-800">${item.label}</div>
-                                        ${metadataHtml}
-                                    </div>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event); window.renderDailyPlan();"
-                                        class="absolute top-2 right-2 bg-purple-500/80 hover:bg-purple-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
-                                        title="Mark as Read" aria-label="Mark ${item.label} as read">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                        <span class="hidden sm:inline">Mark Read</span>
-                                    </button>
-                                    <div class="text-right flex items-center opacity-0 group-hover:opacity-100">
-                                        <div class="flex items-center gap-1">
-                                            <span class="text-xs font-bold text-purple-500">Read</span>
-                                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                        </div>
-                                    </div>
-                                </button>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-                list.innerHTML += readAheadHtml;
-            }
         }
-
-        // Toggle Read Ahead section visibility
-        window.toggleReadAhead = () => {
-            const list = document.getElementById('read-ahead-list');
-            const chevron = document.getElementById('read-ahead-chevron');
-            const toggle = document.getElementById('read-ahead-toggle');
-            if(list && chevron && toggle) {
-                const isHidden = list.classList.contains('hidden');
-                list.classList.toggle('hidden');
-                list.setAttribute('aria-hidden', !isHidden);
-                toggle.setAttribute('aria-expanded', isHidden);
-                chevron.style.transform = isHidden ? 'rotate(180deg)' : '';
-            }
-        };
 
         window.renderBookGrid = () => {
             const grid = document.getElementById('book-grid');
@@ -10083,7 +9678,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 </body>
 
 </html>
-
 
 
 
