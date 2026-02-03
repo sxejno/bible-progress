@@ -2102,6 +2102,11 @@
             const today = getTodaysDate();
             const profileId = appData.activeProfileId;
 
+            // Ensure dailyProgress object exists
+            if(!appData.dailyProgress) {
+                appData.dailyProgress = {};
+            }
+
             // Ensure the profile has dailyProgress initialized
             if(!appData.dailyProgress[profileId]) {
                 appData.dailyProgress[profileId] = {
