@@ -2099,8 +2099,13 @@
 
         // --- DAILY PROGRESS HELPERS (for all plans) ---
         const resetDailyProgressIfNeeded = () => {
-            const today = getTodaysDate();
+                        const today = getTodaysDate();
             const profileId = appData.activeProfileId;
+
+            // Ensure dailyProgress object exists
+            if(!appData.dailyProgress) {
+                appData.dailyProgress = {};
+            }
 
             // Ensure the profile has dailyProgress initialized
             if(!appData.dailyProgress[profileId]) {
@@ -10078,6 +10083,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 </body>
 
 </html>
+
 
 
 
