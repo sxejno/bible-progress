@@ -479,9 +479,13 @@
                         <span id="calibration-est-time" class="text-sm font-bold text-slate-500">—</span>
                     </div>
                 </div>
+
+                <button onclick="window.openCalibrationReader()" class="w-full mb-3 bg-white border-2 border-slate-200 text-slate-700 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Open the selected chapter to read">
+                    📖 Read Chapter Here
+                </button>
                 
                 <button onclick="window.startCalibrationTimer()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl text-sm font-black uppercase tracking-wide hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-200 transition-all hover:scale-105 active:scale-95" aria-label="Start reading and timer">
-                    📖 Start Reading
+                    ⏱️ Start Timer
                 </button>
                 
                 <p class="text-xs text-slate-400 text-center mt-4">Tip: Choose a chapter you haven't read recently for accurate results.</p>
@@ -494,6 +498,10 @@
                     <p class="text-sm text-slate-500">Reading <span id="calibration-reading-chapter" class="font-bold text-slate-700">—</span></p>
                     <p class="text-xs text-slate-400 mt-1"><span id="calibration-reading-words" class="font-bold">—</span> words</p>
                 </div>
+
+                <button onclick="window.openCalibrationReader()" class="w-full mb-4 bg-white border-2 border-slate-200 text-slate-700 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Open the chapter text while the timer runs">
+                    📖 Open Chapter Text
+                </button>
                 
                 <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6">
                     <p class="text-sm text-amber-800 text-center">
@@ -501,6 +509,11 @@
                         Click "Done" when you finish the chapter.
                     </p>
                 </div>
+
+                <label class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-700 mb-6">
+                    <input id="calibration-credit-progress" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" checked>
+                    <span class="font-bold">Credit this chapter to my progress</span>
+                </label>
                 
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="window.cancelCalibration()" class="bg-white border-2 border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Cancel calibration">
@@ -541,6 +554,8 @@
                         <span class="font-bold text-slate-500" id="calibration-result-old-wpm">—</span>
                     </div>
                 </div>
+
+                <p id="calibration-progress-status" class="text-xs text-slate-500 text-center mb-6">—</p>
                 
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="window.closeCalibrationModal()" class="bg-white border-2 border-slate-200 text-slate-600 py-3 rounded-xl text-xs font-black uppercase tracking-wide hover:bg-slate-50 hover:border-slate-300 transition-all" aria-label="Keep current WPM">
@@ -1291,18 +1306,18 @@
                     <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
                         <div>
                             <div class="font-bold text-slate-700 text-sm mb-1">Reading Time Estimates</div>
-                            <div class="text-xs text-slate-500">Show time estimates in daily plan</div>
+                            <div class="text-xs text-slate-500">Show time estimates in the daily plan</div>
                         </div>
                         <button onclick="window.toggleReadingTime()" id="reading-time-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300" role="switch" aria-checked="false" aria-label="Toggle reading time estimates">
                             <span id="reading-time-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
                         </button>
                     </div>
 
-                    <div id="wpm-setting-container" class="p-4 rounded-xl bg-slate-50 border border-slate-200" style="display: none;">
+                    <div id="wpm-setting-container" class="p-4 rounded-xl bg-slate-50 border border-slate-200">
                         <div class="flex items-center justify-between mb-3">
                             <div>
                                 <div class="font-bold text-slate-700 text-sm mb-1">Reading Speed (WPM)</div>
-                                <div class="text-xs text-slate-500">Adjust words per minute</div>
+                                <div class="text-xs text-slate-500">Used for time estimates across the app</div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <input type="number" id="wpm-input" min="100" max="500" step="10" value="250"
@@ -9256,10 +9271,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			if(wpm >= 100 && wpm <= 500) {
 				appData.wordsPerMinute = wpm;
 				window.saveProgress();
-				// Re-render daily plan if currently viewing it
-				if(window.activeTab === 'PLAN') {
-					window.renderDailyPlan();
-				}
+				refreshReadingSpeedEstimates();
 			}
 		};
 
@@ -9373,7 +9385,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		function updateReadingTimeToggleUI() {
 			const toggle = document.getElementById('reading-time-toggle');
 			const circle = document.getElementById('reading-time-toggle-circle');
-			const wpmContainer = document.getElementById('wpm-setting-container');
 			const wpmInput = document.getElementById('wpm-input');
 
 			if(appData.showReadingTime) {
@@ -9381,13 +9392,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				toggle.classList.add('bg-indigo-500');
 				circle.classList.remove('translate-x-1');
 				circle.classList.add('translate-x-7');
-				if(wpmContainer) wpmContainer.style.display = 'block';
 			} else {
 				toggle.classList.remove('bg-indigo-500');
 				toggle.classList.add('bg-slate-300');
 				circle.classList.remove('translate-x-7');
 				circle.classList.add('translate-x-1');
-				if(wpmContainer) wpmContainer.style.display = 'none';
 			}
 
 			// Update WPM input value
@@ -9405,6 +9414,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			return `${minutes} min`;
 		}
 
+		function refreshReadingSpeedEstimates() {
+			if(window.activeTab === 'PLAN') {
+				window.renderDailyPlan();
+			}
+			if(typeof window.renderChapterGrid === 'function') {
+				window.renderChapterGrid();
+			}
+			if(typeof window.updateStats === 'function') {
+				window.updateStats();
+			}
+			if(currentReaderBook && currentReaderChapter) {
+				renderBibleChapter(currentReaderBook, currentReaderChapter);
+			}
+		}
+
 		// --- READING SPEED CALIBRATION ---
 		let calibrationState = {
 			timerInterval: null,
@@ -9412,12 +9436,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			selectedBook: null,
 			selectedChapter: null,
 			wordCount: 0,
-			calculatedWpm: null
+			calculatedWpm: null,
+			creditProgress: true
 		};
 
 		window.openCalibrationModal = () => {
 			const modal = document.getElementById('calibration-modal');
 			const bookSelect = document.getElementById('calibration-book');
+			const creditCheckbox = document.getElementById('calibration-credit-progress');
+			const progressStatus = document.getElementById('calibration-progress-status');
 			
 			// Reset to step 1
 			document.getElementById('calibration-step-1').classList.remove('hidden');
@@ -9447,6 +9474,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			
 			// Populate chapters and update info
 			window.updateCalibrationChapters();
+
+			if(creditCheckbox) {
+				creditCheckbox.checked = true;
+				calibrationState.creditProgress = true;
+			}
+			if(progressStatus) {
+				progressStatus.textContent = '—';
+			}
 			
 			modal.classList.remove('hidden');
 		};
@@ -9518,6 +9553,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			}
 		});
 
+		window.openCalibrationReader = () => {
+			window.updateCalibrationInfo();
+			if(calibrationState.selectedBook && calibrationState.selectedChapter) {
+				window.openBibleReader(calibrationState.selectedBook, calibrationState.selectedChapter);
+			}
+		};
+
 		window.startCalibrationTimer = () => {
 			// Update info one more time to ensure we have current values
 			window.updateCalibrationInfo();
@@ -9531,6 +9573,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				`${calibrationState.selectedBook} ${calibrationState.selectedChapter}`;
 			document.getElementById('calibration-reading-words').textContent = 
 				calibrationState.wordCount.toLocaleString();
+
+			// Open the chapter text for convenience
+			window.openCalibrationReader();
 			
 			// Start timer
 			calibrationState.startTime = Date.now();
@@ -9590,6 +9635,27 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			document.getElementById('calibration-result-time').textContent = timeDisplay;
 			document.getElementById('calibration-result-old-wpm').textContent = 
 				`${appData.wordsPerMinute || 250} WPM`;
+
+			// Optionally credit progress
+			const creditCheckbox = document.getElementById('calibration-credit-progress');
+			const progressStatus = document.getElementById('calibration-progress-status');
+			const shouldCredit = creditCheckbox ? creditCheckbox.checked : false;
+			let progressMessage = 'Progress not updated.';
+
+			if(shouldCredit && calibrationState.selectedBook && calibrationState.selectedChapter) {
+				const chapterId = `${calibrationState.selectedBook}-${calibrationState.selectedChapter}`;
+				const currentProg = getProgress();
+				if(currentProg[chapterId]) {
+					progressMessage = 'Already marked as read ✅';
+				} else {
+					window.markChaptersAsRead(calibrationState.selectedBook, [calibrationState.selectedChapter]);
+					progressMessage = 'Progress updated ✅';
+				}
+			}
+
+			if(progressStatus) {
+				progressStatus.textContent = progressMessage;
+			}
 			
 			// Switch to step 3
 			document.getElementById('calibration-step-2').classList.add('hidden');
@@ -9606,11 +9672,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				if(wpmInput) {
 					wpmInput.value = calibrationState.calculatedWpm;
 				}
-				
-				// Re-render daily plan if currently viewing it
-				if(window.activeTab === 'PLAN') {
-					window.renderDailyPlan();
-				}
+
+				refreshReadingSpeedEstimates();
 			}
 			
 			window.closeCalibrationModal();
