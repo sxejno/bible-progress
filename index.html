@@ -389,14 +389,14 @@
                 <!-- Icon -->
                 <div class="flex justify-center mb-6">
                     <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl shadow-indigo-300/50 rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 cursor-pointer">
-                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+                        <img src="icon-192.png" alt="Bible Progress icon" class="w-12 h-12 drop-shadow-md">
                     </div>
                 </div>
 
                 <!-- Heading -->
                 <h2 id="intro-modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Bible Progress</h2>
                 <p class="text-center text-slate-600 mb-8 leading-relaxed">
-                    Read the Bible and track your progress!
+                    Track every chapter, follow a plan, and build a faithful reading streak in minutes.
                 </p>
 
                 <!-- Key points -->
@@ -431,11 +431,11 @@
 
                 <!-- CTA buttons -->
                 <div class="space-y-3">
-                    <button onclick="window.closeIntroModal()" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors" aria-label="Start reading and close introduction">
-                        Start Reading
+                    <button onclick="window.closeIntroModal()" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors" aria-label="Start tracking reading progress">
+                        Start Tracking Today
                     </button>
-                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('ABOUT'), 300);" class="w-full bg-white text-slate-700 px-6 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors border border-slate-200" aria-label="Learn more about Bible Progress">
-                        Learn More
+                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('PLAN'), 300);" class="w-full bg-white text-slate-700 px-6 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors border border-slate-200" aria-label="View reading plans and tips">
+                        See Reading Plans
                     </button>
                 </div>
             </div>
@@ -1266,7 +1266,7 @@
                                 </p>
                                 <ul class="text-sm text-slate-600 space-y-1 list-disc list-inside">
                                     <li>No tracking without your consent</li>
-                                    <li>Export your data anytime (JSON backup)</li>
+                                    <li>Export your data anytime (JSON, CSV, PDF, Obsidian)</li>
                                     <li>GDPR & CCPA compliant</li>
                                     <li>Open source and transparent</li>
                                 </ul>
@@ -1360,8 +1360,22 @@
                         </label>
                     </div>
                     <p id="restore-msg-settings" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <button onclick="window.exportProgressCSV()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-xs uppercase tracking-wide" aria-label="Export reading progress to CSV">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Export CSV
+                        </button>
+                        <button onclick="window.exportProgressObsidian()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-xs uppercase tracking-wide" aria-label="Export reading progress for Obsidian">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Export Obsidian
+                        </button>
+                        <button onclick="window.exportProgressPDF()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-xs uppercase tracking-wide" aria-label="Export reading progress to PDF">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Export PDF
+                        </button>
+                    </div>
                     <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
-                        Backup and restore your reading progress.
+                        Backup and restore your reading progress, or export it for personal archives and Obsidian notes.
                     </p>
                 </div>
 
@@ -7293,6 +7307,44 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.renderChapterGrid();
         };
 
+        const getExportDateStamp = () => new Date().toISOString().split('T')[0];
+        const formatExportDateTime = (timestamp) => {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+        };
+        const formatExportDate = (timestamp) => {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            return Number.isNaN(date.getTime()) ? '' : date.toISOString().split('T')[0];
+        };
+        const escapeCSVValue = (value) => {
+            if (value === null || value === undefined) return '';
+            const str = String(value);
+            if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+        const getExportProfiles = () => {
+            if (!appData || !appData.profiles) return [];
+            return Object.keys(appData.profiles).map(profileName => ({
+                name: profileName,
+                progress: appData.profiles[profileName] || {}
+            }));
+        };
+        const downloadExportFile = (content, filename, type) => {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        };
+
         window.backupData = () => {
             const dataStr = JSON.stringify(appData);
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
@@ -7307,6 +7359,102 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Log backup details for debugging
             const profileCount = Object.keys(appData.profiles).length;
             console.log(`✅ Backed up ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
+        };
+
+        window.exportProgressCSV = () => {
+            const exportProfiles = getExportProfiles();
+            const rows = [['Profile', 'Book', 'Chapter', 'Testament', 'Status', 'Read Timestamp', 'Read Date']];
+
+            exportProfiles.forEach(profile => {
+                bible.forEach(book => {
+                    book.ch.forEach((_, idx) => {
+                        const chapterId = `${book.name}-${idx + 1}`;
+                        const timestamp = profile.progress[chapterId];
+                        rows.push([
+                            profile.name,
+                            book.name,
+                            idx + 1,
+                            book.testament,
+                            timestamp ? 'Read' : 'Unread',
+                            formatExportDateTime(timestamp),
+                            formatExportDate(timestamp)
+                        ]);
+                    });
+                });
+            });
+
+            const csvContent = rows.map(row => row.map(escapeCSVValue).join(',')).join('\n');
+            downloadExportFile(csvContent, `bibleprogress_export_${getExportDateStamp()}.csv`, 'text/csv;charset=utf-8;');
+        };
+
+        window.exportProgressObsidian = () => {
+            const exportProfiles = getExportProfiles();
+            const generatedDate = new Date().toISOString();
+            let content = `# Bible Progress Export\n\nGenerated: ${generatedDate}\n\n`;
+
+            exportProfiles.forEach(profile => {
+                content += `## ${profile.name}\n\n`;
+                bible.forEach(book => {
+                    content += `### ${book.name}\n`;
+                    book.ch.forEach((_, idx) => {
+                        const chapterId = `${book.name}-${idx + 1}`;
+                        const timestamp = profile.progress[chapterId];
+                        const status = timestamp ? 'x' : ' ';
+                        const dateNote = timestamp ? ` (${formatExportDate(timestamp)})` : '';
+                        content += `- [${status}] Chapter ${idx + 1}${dateNote}\n`;
+                    });
+                    content += '\n';
+                });
+            });
+
+            downloadExportFile(content, `bibleprogress_export_${getExportDateStamp()}.md`, 'text/markdown;charset=utf-8;');
+        };
+
+        window.exportProgressPDF = () => {
+            const exportProfiles = getExportProfiles();
+            const generatedDate = new Date().toLocaleString();
+            let bodyContent = `<h1>Bible Progress Export</h1><p>Generated: ${generatedDate}</p>`;
+
+            exportProfiles.forEach(profile => {
+                bodyContent += `<h2>Profile: ${profile.name}</h2>`;
+                bible.forEach(book => {
+                    bodyContent += `<h3>${book.name}</h3><ul>`;
+                    book.ch.forEach((_, idx) => {
+                        const chapterId = `${book.name}-${idx + 1}`;
+                        const timestamp = profile.progress[chapterId];
+                        const status = timestamp ? '✓' : '○';
+                        const dateNote = timestamp ? ` — ${formatExportDate(timestamp)}` : '';
+                        bodyContent += `<li>${status} Chapter ${idx + 1}${dateNote}</li>`;
+                    });
+                    bodyContent += '</ul>';
+                });
+            });
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                window.showAlert('Pop-up Blocked', 'Please allow pop-ups to export your PDF.', 'error');
+                return;
+            }
+
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Bible Progress Export</title>
+                        <style>
+                            body { font-family: 'Inter', sans-serif; color: #0f172a; padding: 24px; }
+                            h1 { font-size: 24px; margin-bottom: 4px; }
+                            h2 { font-size: 18px; margin-top: 24px; }
+                            h3 { font-size: 16px; margin-top: 16px; }
+                            ul { padding-left: 20px; }
+                            li { margin: 4px 0; }
+                        </style>
+                    </head>
+                    <body>${bodyContent}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
         };
 
         window.restoreData = (input) => {
