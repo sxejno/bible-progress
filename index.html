@@ -1101,23 +1101,8 @@
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Who Made This?</h3>
                     <div class="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
-                        <p id="person" class="text-lg font-bold text-slate-900 mb-2 cursor-default">Made by a friend!</p>
+                        <p class="text-lg font-bold text-slate-900 mb-2">Made by Shane</p>
                         <p class="text-sm text-slate-700 mb-4">I noticed that the Bible reading progress trackers I found counted chapters as equal slices, when that is not really the case with the word counts or time they take to read, so here is a simple tracker that reflects actual reading effort!</p>
-
-                        <script>
-                          const person = document.getElementById("person");
-                          person.addEventListener("mouseover", () => {
-                            const tag = document.createElement("span");
-                            tag.textContent = " (Shane)";
-                            tag.id = "hoverTag";
-                            tag.className = "text-indigo-600 ml-1 text-base font-bold";
-                            person.appendChild(tag);
-                          });
-                          person.addEventListener("mouseout", () => {
-                            const tag = document.getElementById("hoverTag");
-                            if (tag) tag.remove();
-                          });
-                        </script>
 
                         <div class="pt-4 border-t border-indigo-200/50 flex flex-col items-center">
                             <a href="https://www.buymeacoffee.com/bibleprogress" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-2 bg-[#FFDD00] text-black rounded-full font-bold text-sm hover:shadow-lg transition-shadow">
@@ -1375,7 +1360,7 @@
                         </button>
                     </div>
                     <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
-                        Backup and restore your reading progress, or export it for personal archives and Obsidian notes.
+                        Export includes all profiles, reading plans, memorized verses, goals, and settings.
                     </p>
                 </div>
 
@@ -7363,25 +7348,82 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.exportProgressCSV = () => {
             const exportProfiles = getExportProfiles();
-            const rows = [['Profile', 'Book', 'Chapter', 'Testament', 'Status', 'Read Timestamp', 'Read Date']];
+            const rows = [];
 
+            // --- Reading Progress ---
+            rows.push(['=== READING PROGRESS ===']);
+            rows.push(['Profile', 'Book', 'Chapter', 'Testament', 'Category', 'Word Count', 'Status', 'Read Timestamp', 'Read Date']);
             exportProfiles.forEach(profile => {
                 bible.forEach(book => {
-                    book.ch.forEach((_, idx) => {
+                    book.ch.forEach((wc, idx) => {
                         const chapterId = `${book.name}-${idx + 1}`;
                         const timestamp = profile.progress[chapterId];
                         rows.push([
-                            profile.name,
-                            book.name,
-                            idx + 1,
-                            book.testament,
-                            timestamp ? 'Read' : 'Unread',
-                            formatExportDateTime(timestamp),
-                            formatExportDate(timestamp)
+                            profile.name, book.name, idx + 1, book.testament, book.cat || '',
+                            wc, timestamp ? 'Read' : 'Unread',
+                            formatExportDateTime(timestamp), formatExportDate(timestamp)
                         ]);
                     });
                 });
             });
+
+            // --- Profile Settings ---
+            rows.push([]);
+            rows.push(['=== PROFILES ===']);
+            rows.push(['Profile', 'Reading Plan', 'Is Active', 'Is Default']);
+            Object.keys(appData.profiles).forEach(name => {
+                rows.push([
+                    name,
+                    (appData.profilePlans && appData.profilePlans[name]) || 'SEQUENTIAL',
+                    name === appData.activeProfileId ? 'Yes' : 'No',
+                    name === appData.defaultProfileId ? 'Yes' : 'No'
+                ]);
+            });
+
+            // --- Memorized Verses ---
+            if(appData.memorizedVerses) {
+                const hasVerses = Object.values(appData.memorizedVerses).some(v => v && v.length > 0);
+                if(hasVerses) {
+                    rows.push([]);
+                    rows.push(['=== MEMORIZED VERSES ===']);
+                    rows.push(['Profile', 'Reference', 'Verse Text', 'Date Added']);
+                    Object.keys(appData.memorizedVerses).forEach(profileName => {
+                        (appData.memorizedVerses[profileName] || []).forEach(verse => {
+                            rows.push([
+                                profileName, verse.ref || '', verse.text || '',
+                                formatExportDate(verse.addedDate)
+                            ]);
+                        });
+                    });
+                }
+            }
+
+            // --- Reading Goals ---
+            if(appData.goals) {
+                const hasGoals = Object.values(appData.goals).some(g => g && g.length > 0);
+                if(hasGoals) {
+                    rows.push([]);
+                    rows.push(['=== READING GOALS ===']);
+                    rows.push(['Profile', 'Goal Name', 'Type', 'Target', 'Deadline', 'Created']);
+                    Object.keys(appData.goals).forEach(profileName => {
+                        (appData.goals[profileName] || []).forEach(goal => {
+                            rows.push([
+                                profileName, goal.name || '', goal.type || '',
+                                getGoalTypeLabel(goal), goal.deadline || '',
+                                formatExportDate(goal.createdDate)
+                            ]);
+                        });
+                    });
+                }
+            }
+
+            // --- Settings ---
+            rows.push([]);
+            rows.push(['=== SETTINGS ===']);
+            rows.push(['Setting', 'Value']);
+            rows.push(['Words Per Minute', appData.wordsPerMinute || CONFIG.DEFAULT_WPM]);
+            rows.push(['Show Reading Time', appData.showReadingTime ? 'Yes' : 'No']);
+            rows.push(['Export Date', new Date().toISOString()]);
 
             const csvContent = rows.map(row => row.map(escapeCSVValue).join(',')).join('\n');
             downloadExportFile(csvContent, `bibleprogress_export_${getExportDateStamp()}.csv`, 'text/csv;charset=utf-8;');
@@ -7390,35 +7432,161 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.exportProgressObsidian = () => {
             const exportProfiles = getExportProfiles();
             const generatedDate = new Date().toISOString();
-            let content = `# Bible Progress Export\n\nGenerated: ${generatedDate}\n\n`;
+            const dateStamp = getExportDateStamp();
+
+            // Build a single well-structured Obsidian note
+            let content = `---\ntitle: Bible Reading Progress\ndate: ${dateStamp}\ntags:\n  - bible\n  - reading-progress\n---\n\n`;
+            content += `# Bible Reading Progress\n\n`;
+            content += `> [!info] Exported from [Bible Progress](https://bibleprogress.com) on ${dateStamp}\n\n`;
 
             exportProfiles.forEach(profile => {
+                const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
+                const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
+                const planLabel = planLabels[plan] || plan;
+
+                // Profile header
                 content += `## ${profile.name}\n\n`;
+                content += `**Reading Plan:** ${planLabel}\n\n`;
+
+                // Calculate profile stats
+                let totalWords = 0, readWords = 0, readChapters = 0, totalChapters = 0;
                 bible.forEach(book => {
-                    content += `### ${book.name}\n`;
-                    book.ch.forEach((_, idx) => {
-                        const chapterId = `${book.name}-${idx + 1}`;
-                        const timestamp = profile.progress[chapterId];
-                        const status = timestamp ? 'x' : ' ';
-                        const dateNote = timestamp ? ` (${formatExportDate(timestamp)})` : '';
-                        content += `- [${status}] Chapter ${idx + 1}${dateNote}\n`;
+                    book.ch.forEach((wc, idx) => {
+                        totalWords += wc;
+                        totalChapters++;
+                        if(profile.progress[`${book.name}-${idx + 1}`]) {
+                            readWords += wc;
+                            readChapters++;
+                        }
+                    });
+                });
+                const pct = totalWords > 0 ? (readWords / totalWords * 100).toFixed(2) : '0.00';
+                content += `**Progress:** ${readChapters}/${totalChapters} chapters (${pct}% by word count)\n\n`;
+
+                // Memorized verses for this profile
+                const memorized = (appData.memorizedVerses && appData.memorizedVerses[profile.name]) || [];
+                if(memorized.length > 0) {
+                    content += `### Memorized Verses\n\n`;
+                    memorized.forEach(verse => {
+                        const addedStr = verse.addedDate ? ` — _added ${formatExportDate(verse.addedDate)}_` : '';
+                        content += `> [!quote] ${verse.ref || verse.id}\n`;
+                        content += `> ${verse.text || ''}${addedStr}\n\n`;
+                    });
+                }
+
+                // Goals for this profile
+                const goals = (appData.goals && appData.goals[profile.name]) || [];
+                if(goals.length > 0) {
+                    content += `### Reading Goals\n\n`;
+                    goals.forEach(goal => {
+                        const { percent } = calculateGoalProgress(goal);
+                        const isComplete = percent >= 99.999;
+                        const deadlineStr = goal.deadline ? ` | Deadline: ${goal.deadline}` : '';
+                        const statusIcon = isComplete ? '✅' : '🎯';
+                        content += `- ${statusIcon} **${goal.name || getGoalTypeLabel(goal)}** — ${percent.toFixed(1)}%${deadlineStr}\n`;
                     });
                     content += '\n';
+                }
+
+                // Reading progress by category
+                content += `### Reading Progress\n\n`;
+                const categories = {};
+                bible.forEach(book => {
+                    const cat = book.cat || 'Uncategorized';
+                    if(!categories[cat]) categories[cat] = [];
+                    categories[cat].push(book);
                 });
+
+                Object.keys(categories).forEach(cat => {
+                    content += `#### ${cat}\n\n`;
+                    categories[cat].forEach(book => {
+                        const readCount = book.ch.filter((_, idx) => profile.progress[`${book.name}-${idx + 1}`]).length;
+                        const total = book.ch.length;
+                        const bookDone = readCount === total;
+                        const bookStatus = bookDone ? '✅' : readCount > 0 ? '📖' : '📕';
+                        content += `**${bookStatus} ${book.name}** (${readCount}/${total})\n`;
+
+                        book.ch.forEach((_, idx) => {
+                            const chapterId = `${book.name}-${idx + 1}`;
+                            const timestamp = profile.progress[chapterId];
+                            const status = timestamp ? 'x' : ' ';
+                            const dateNote = timestamp ? ` ✦ ${formatExportDate(timestamp)}` : '';
+                            content += `- [${status}] Chapter ${idx + 1}${dateNote}\n`;
+                        });
+                        content += '\n';
+                    });
+                });
+
+                content += `---\n\n`;
             });
 
-            downloadExportFile(content, `bibleprogress_export_${getExportDateStamp()}.md`, 'text/markdown;charset=utf-8;');
+            // App settings
+            content += `## Settings\n\n`;
+            content += `| Setting | Value |\n|---|---|\n`;
+            content += `| Words Per Minute | ${appData.wordsPerMinute || CONFIG.DEFAULT_WPM} |\n`;
+            content += `| Show Reading Time | ${appData.showReadingTime ? 'Yes' : 'No'} |\n`;
+            content += `\n`;
+
+            downloadExportFile(content, `Bible Reading Progress ${dateStamp}.md`, 'text/markdown;charset=utf-8;');
         };
 
         window.exportProgressPDF = () => {
             const exportProfiles = getExportProfiles();
             const generatedDate = new Date().toLocaleString();
-            let bodyContent = `<h1>Bible Progress Export</h1><p>Generated: ${generatedDate}</p>`;
+            const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
+
+            let bodyContent = `<h1>Bible Reading Progress</h1><p class="meta">Exported from bibleprogress.com &mdash; ${generatedDate}</p>`;
 
             exportProfiles.forEach(profile => {
-                bodyContent += `<h2>Profile: ${profile.name}</h2>`;
+                const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
+                const planLabel = planLabels[plan] || plan;
+
+                // Profile stats
+                let totalWords = 0, readWords = 0, readChapters = 0, totalChapters = 0;
                 bible.forEach(book => {
-                    bodyContent += `<h3>${book.name}</h3><ul>`;
+                    book.ch.forEach((wc, idx) => {
+                        totalWords += wc;
+                        totalChapters++;
+                        if(profile.progress[`${book.name}-${idx + 1}`]) {
+                            readWords += wc;
+                            readChapters++;
+                        }
+                    });
+                });
+                const pct = totalWords > 0 ? (readWords / totalWords * 100).toFixed(2) : '0.00';
+
+                bodyContent += `<h2>Profile: ${escapeHtml(profile.name)}</h2>`;
+                bodyContent += `<p class="profile-meta"><strong>Plan:</strong> ${planLabel} &nbsp;|&nbsp; <strong>Progress:</strong> ${readChapters}/${totalChapters} chapters (${pct}%)</p>`;
+
+                // Memorized verses
+                const memorized = (appData.memorizedVerses && appData.memorizedVerses[profile.name]) || [];
+                if(memorized.length > 0) {
+                    bodyContent += `<h3>Memorized Verses (${memorized.length})</h3><div class="verses">`;
+                    memorized.forEach(verse => {
+                        const addedStr = verse.addedDate ? ` <span class="date">${formatExportDate(verse.addedDate)}</span>` : '';
+                        bodyContent += `<div class="verse"><strong>${escapeHtml(verse.ref || verse.id)}</strong>${addedStr}<br><em>${escapeHtml(verse.text || '')}</em></div>`;
+                    });
+                    bodyContent += '</div>';
+                }
+
+                // Goals
+                const goals = (appData.goals && appData.goals[profile.name]) || [];
+                if(goals.length > 0) {
+                    bodyContent += `<h3>Reading Goals</h3><ul class="goals">`;
+                    goals.forEach(goal => {
+                        const { percent } = calculateGoalProgress(goal);
+                        const isComplete = percent >= 99.999;
+                        const deadlineStr = goal.deadline ? ` — due ${goal.deadline}` : '';
+                        const statusIcon = isComplete ? '✅' : '🎯';
+                        bodyContent += `<li>${statusIcon} <strong>${escapeHtml(goal.name || getGoalTypeLabel(goal))}</strong> — ${percent.toFixed(1)}%${deadlineStr}</li>`;
+                    });
+                    bodyContent += '</ul>';
+                }
+
+                // Chapter progress by book
+                bible.forEach(book => {
+                    const readCount = book.ch.filter((_, idx) => profile.progress[`${book.name}-${idx + 1}`]).length;
+                    bodyContent += `<h3>${book.name} <span class="count">(${readCount}/${book.ch.length})</span></h3><ul>`;
                     book.ch.forEach((_, idx) => {
                         const chapterId = `${book.name}-${idx + 1}`;
                         const timestamp = profile.progress[chapterId];
@@ -7439,14 +7607,22 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             printWindow.document.write(`
                 <html>
                     <head>
-                        <title>Bible Progress Export</title>
+                        <title>Bible Reading Progress</title>
                         <style>
-                            body { font-family: 'Inter', sans-serif; color: #0f172a; padding: 24px; }
-                            h1 { font-size: 24px; margin-bottom: 4px; }
-                            h2 { font-size: 18px; margin-top: 24px; }
+                            body { font-family: 'Inter', sans-serif; color: #0f172a; padding: 24px; max-width: 800px; margin: 0 auto; }
+                            h1 { font-size: 24px; margin-bottom: 4px; color: #1e1b4b; }
+                            .meta { font-size: 12px; color: #64748b; margin-bottom: 24px; }
+                            h2 { font-size: 20px; margin-top: 32px; border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; color: #312e81; }
+                            .profile-meta { font-size: 13px; color: #475569; margin-bottom: 16px; }
                             h3 { font-size: 16px; margin-top: 16px; }
+                            .count { font-weight: normal; color: #94a3b8; font-size: 13px; }
                             ul { padding-left: 20px; }
-                            li { margin: 4px 0; }
+                            li { margin: 4px 0; font-size: 13px; }
+                            .verses { margin-bottom: 16px; }
+                            .verse { background: #fefce8; border-left: 3px solid #f59e0b; padding: 8px 12px; margin: 8px 0; font-size: 13px; }
+                            .verse .date { color: #94a3b8; font-size: 11px; }
+                            .goals li { margin: 6px 0; }
+                            @media print { body { padding: 0; } }
                         </style>
                     </head>
                     <body>${bodyContent}</body>
