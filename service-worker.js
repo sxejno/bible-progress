@@ -17,7 +17,7 @@ const ASSETS_TO_CACHE = [
 // CDN resources to cache for offline use
 const CDN_RESOURCES = [
     'https://cdn.tailwindcss.com',
-    'https://cdn.jsdelivr.net/npm/chart.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.5.1',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
