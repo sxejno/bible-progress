@@ -8023,7 +8023,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const activityMap = getReadingActivity()
             const streaks = calculateStreaks()
             const generatedDate = new Date().toLocaleString()
-            const profileName = getActiveProfileName()
+            const profileName = appData.activeProfileId || 'Default'
 
             // Calculate totals
             let totalRead = 0, otRead = 0, ntRead = 0, chaptersRead = 0, totalChapters = 0
