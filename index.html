@@ -7290,76 +7290,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.saveProgress();
             window.renderChapterGrid();
 
-            // Immediate visual feedback on button before re-render replaces it
             if (buttonEl) {
-                buttonEl.textContent = '✓';
-                buttonEl.classList.add('bg-emerald-700', 'scale-90', '!opacity-100');
-                buttonEl.classList.remove('bg-emerald-500');
+                buttonEl.classList.add('bg-emerald-700', 'scale-95');
+                setTimeout(() => buttonEl.classList.remove('bg-emerald-700', 'scale-95'), 250);
             }
 
             if (window.showMicroToast) {
                 window.showMicroToast(`Marked ${chapters.length} chapter${chapters.length !== 1 ? 's' : ''} as read ✅`);
             }
 
-            // Delay re-render slightly so user sees the button feedback
-            setTimeout(() => {
-                if (typeof window.renderDailyPlan === 'function') {
-                    window.renderDailyPlan();
-                }
-            }, 300);
-        };
-
-        // Unmark chapters from the daily plan view (inverse of markChaptersAsRead)
-        window.markChaptersAsUnread = (bookName, chapters, event, buttonEl = null) => {
-            const prog = getProgress();
-
-            chapters.forEach(chapterNum => {
-                const chapterId = `${bookName}-${chapterNum}`;
-                prog[chapterId] = false;
-
-                // Apply cross-profile sync if rule exists
-                if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
-                    const targetProfile = appData.profileSyncRules[appData.activeProfileId];
-                    if(appData.profiles[targetProfile]) {
-                        appData.profiles[targetProfile][chapterId] = false;
-                    }
-                }
-
-                // If using Horner plan, remove list from today's completed
-                if(activePlan === 'HORNER') {
-                    const listIndex = getHornerListForChapter(chapterId);
-                    if(listIndex >= 0) {
-                        resetHornerDailyProgressIfNeeded();
-                        const profileId = appData.activeProfileId;
-                        const idx = appData.hornerDailyProgress[profileId].completedLists.indexOf(listIndex);
-                        if(idx !== -1) {
-                            appData.hornerDailyProgress[profileId].completedLists.splice(idx, 1);
-                        }
-                    }
-                }
-            });
-
-            setProgress(prog);
-
-            window.saveProgress();
-            window.renderChapterGrid();
-
-            // Immediate visual feedback on button before re-render
-            if (buttonEl) {
-                buttonEl.textContent = '↩';
-                buttonEl.classList.add('scale-90', '!opacity-100');
+            if (typeof window.renderDailyPlan === 'function') {
+                window.renderDailyPlan();
             }
-
-            if (window.showMicroToast) {
-                window.showMicroToast(`Marked ${chapters.length} chapter${chapters.length !== 1 ? 's' : ''} as unread`);
-            }
-
-            // Delay re-render slightly so user sees the button feedback
-            setTimeout(() => {
-                if (typeof window.renderDailyPlan === 'function') {
-                    window.renderDailyPlan();
-                }
-            }, 300);
         };
 
         window.toggleAllInBook = (val) => {
@@ -8628,10 +8570,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const chapterId = `${item.book}-${item.chapter}`;
 
                 // Special styling for Horner plan items completed today
-                const isItemDone = item.isComplete || item.completedToday;
-                const opacityClass = item.completedToday ? "" : (item.isComplete ? "opacity-75" : "");
+                const opacityClass = item.completedToday ? "" : (item.isComplete ? "opacity-60 grayscale" : "");
                 const strikeClass = item.completedToday ? "text-slate-800" : (item.isComplete ? "line-through text-slate-400 decoration-slate-300" : "text-slate-800");
-                const checkMark = isItemDone ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
+                const checkMark = (item.isComplete || item.completedToday) ? `<span class="text-emerald-500 mr-2 font-black">✓</span>` : '';
                 const bgClass = item.completedToday ? "bg-emerald-50 border-emerald-200 hover:border-emerald-300 hover:shadow-md" :
                                (item.isComplete ? "bg-slate-50" : "bg-white hover:bg-indigo-50 hover:border-indigo-200 hover:scale-[1.01] hover:shadow-md");
 
@@ -8659,29 +8600,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         ${metadataHtml}
                         ${summaryHtml}
                     </div>
-                    ${!isItemDone ? `
+                    ${(!item.isComplete && !item.completedToday) ? `
                     <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event, this);"
-                        class="absolute top-2 right-2 bg-emerald-500 hover:bg-emerald-600 active:scale-90 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-150 flex items-center gap-1.5 z-10"
+                        class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
                         title="Mark as Read" aria-label="Mark ${item.label} as read">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <span class="hidden sm:inline">Mark Read</span>
                     </button>
-                    ` : `
-                    <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsUnread('${item.book}', ${JSON.stringify(item.chapters)}, event, this);"
-                        class="absolute top-2 right-2 ${item.completedToday ? 'bg-amber-100 hover:bg-amber-200 text-amber-700 border border-amber-200' : 'bg-slate-100 hover:bg-slate-200 text-slate-500 border border-slate-200'} active:scale-90 p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-150 flex items-center gap-1.5 z-10"
-                        title="Mark as Unread" aria-label="Mark ${item.label} as unread">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path>
-                        </svg>
-                        <span class="hidden sm:inline">Unread</span>
-                    </button>
-                    `}
-                    <div class="text-right flex items-center">
+                    ` : ''}
+                    <div class="text-right flex items-center ${(!item.isComplete && !item.completedToday) ? 'opacity-0 group-hover:opacity-100' : ''}">
                         <div class="flex items-center gap-1">
-                            <span class="text-xs font-bold ${item.completedToday ? 'text-emerald-600' : (item.isComplete ? 'text-slate-400' : 'text-indigo-500')}">Read</span>
-                            <svg class="w-4 h-4 ${item.completedToday ? 'text-emerald-600' : (item.isComplete ? 'text-slate-400' : 'text-indigo-500')}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            <span class="text-xs font-bold ${item.completedToday ? 'text-emerald-600' : 'text-indigo-500'}">Read</span>
+                            <svg class="w-4 h-4 ${item.completedToday ? 'text-emerald-600' : 'text-indigo-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                         </div>
                     </div>
                 </button>`;
