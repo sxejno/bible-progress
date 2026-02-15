@@ -115,12 +115,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Mobile bottom nav spacing */
-        @media (max-width: 639px) {
-            body { padding-bottom: 5rem; }
-            #version-toggle-btn { bottom: 4.5rem; }
-        }
-
         /* Checkbox celebration animations */
         @keyframes checkboxCelebrate {
             0% { transform: scale(1); }
@@ -341,9 +335,9 @@
 </head>
 <body class="pb-24">
     <!-- Version Toggle -->
-    <a id="version-toggle-btn" href="./index-classic.html" class="fixed bottom-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-600 text-white text-xs font-bold rounded-full shadow-lg hover:bg-slate-700 transition-all hover:scale-105 sm:bottom-4" aria-label="Use classic version of Bible Progress" style="text-decoration:none">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
-        Use Old Version
+    <a href="./index.html" class="fixed bottom-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-xs font-bold rounded-full shadow-lg hover:bg-indigo-700 transition-all hover:scale-105" aria-label="Try new version of Bible Progress" style="text-decoration:none">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+        Try New Version
     </a>
 
     <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -386,61 +380,67 @@
     </div>
 
     <div id="intro-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="intro-modal-title">
-        <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-8 sm:p-10 w-full max-w-md shadow-2xl modal-in border border-white/50 relative overflow-hidden">
+        <div class="bg-gradient-to-br from-white to-indigo-50/30 rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl modal-in border border-white/50 relative overflow-hidden">
+            <!-- Decorative background elements -->
             <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-200/20 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl"></div>
 
+            <!-- Content -->
             <div class="relative">
                 <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm" aria-label="Close introduction modal">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
 
-                <!-- Step 1: Pick a Plan -->
-                <div id="intro-step-1">
-                    <div class="flex justify-center mb-5">
-                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-300/50">
-                            <img src="icon-192.png" alt="Bible Progress icon" class="w-10 h-10 drop-shadow-md">
-                        </div>
+                <!-- Icon -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl shadow-indigo-300/50 rotate-3 hover:rotate-0 hover:scale-110 transition-all duration-300 cursor-pointer">
+                        <img src="icon-192.png" alt="Bible Progress icon" class="w-12 h-12 drop-shadow-md">
                     </div>
-                    <h2 id="intro-modal-title" class="text-2xl font-black text-slate-900 tracking-tight mb-2 text-center">Welcome to Bible Progress</h2>
-                    <p class="text-center text-slate-500 text-sm mb-6">Pick a reading plan to get started.</p>
-                    <div class="space-y-2 mb-6 max-h-[45vh] overflow-y-auto pr-1">
-                        <button onclick="window.selectIntroPlan('SEQUENTIAL')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
-                            <div class="font-bold text-slate-900 text-sm">Canonical</div>
-                            <div class="text-xs text-slate-500">Genesis to Revelation, 3 chapters at a time</div>
-                        </button>
-                        <button onclick="window.selectIntroPlan('ONE_YEAR')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
-                            <div class="font-bold text-slate-900 text-sm">One Year (OT + NT Daily)</div>
-                            <div class="text-xs text-slate-500">3 OT + 1 NT chapter daily</div>
-                        </button>
-                        <button onclick="window.selectIntroPlan('FIVE_DAY')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
-                            <div class="font-bold text-slate-900 text-sm">Five-Day Plan</div>
-                            <div class="text-xs text-slate-500">Whole Bible in a year, weekends off</div>
-                        </button>
-                        <button onclick="window.selectIntroPlan('MCHEYNE')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
-                            <div class="font-bold text-slate-900 text-sm">M'Cheyne</div>
-                            <div class="text-xs text-slate-500">4 chapters daily, NT twice per year</div>
-                        </button>
-                        <button onclick="window.selectIntroPlan('HORNER')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
-                            <div class="font-bold text-slate-900 text-sm">Prof. Horner</div>
-                            <div class="text-xs text-slate-500">10 rotating lists, 1 chapter from each daily</div>
-                        </button>
-                    </div>
-                    <button onclick="window.closeIntroModal()" class="w-full text-slate-500 text-xs font-bold hover:text-indigo-600 transition-colors py-2" aria-label="Skip onboarding">
-                        Skip for now
-                    </button>
                 </div>
 
-                <!-- Step 2: You're set -->
-                <div id="intro-step-2" class="hidden">
-                    <div class="text-center mb-5">
-                        <span class="text-5xl">📖</span>
-                        <h2 class="text-2xl font-black text-slate-900 mt-3 mb-1">You're All Set!</h2>
-                        <p class="text-sm text-slate-500">Here's your first reading:</p>
+                <!-- Heading -->
+                <h2 id="intro-modal-title" class="text-3xl font-black text-slate-900 tracking-tight mb-3 text-center">Bible Progress</h2>
+                <p class="text-center text-slate-600 mb-8 leading-relaxed">
+                    Track every chapter, follow a plan, and build a faithful reading streak in minutes.
+                </p>
+
+                <!-- Key points -->
+                <div class="space-y-3 mb-8">
+                    <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-slate-200">
+                        <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Check chapters as you read</p>
+                        </div>
                     </div>
-                    <div id="intro-first-reading" class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-6 space-y-2 text-sm font-bold text-indigo-900"></div>
-                    <button onclick="window.closeIntroModal()" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors" aria-label="Start reading">
-                        Start Reading
+
+                    <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-slate-200">
+                        <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Follow built-in reading plans</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-slate-200">
+                        <div class="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Sync progress across devices</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA buttons -->
+                <div class="space-y-3">
+                    <button onclick="window.closeIntroModal()" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors" aria-label="Start tracking reading progress">
+                        Start Tracking Today
+                    </button>
+                    <button onclick="window.closeIntroModal(); setTimeout(() => window.setTab('PLAN'), 300);" class="w-full bg-white text-slate-700 px-6 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors border border-slate-200" aria-label="View reading plans and tips">
+                        See Reading Plans
                     </button>
                 </div>
             </div>
@@ -720,11 +720,10 @@
 
     <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
 
-        <div class="tab-scroll-wrapper hidden sm:block">
+        <div class="tab-scroll-wrapper">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex sm:justify-center">
                 <div class="flex gap-2 mb-6 p-1.5 bg-slate-200/50 rounded-2xl w-max" role="tablist" aria-label="Main navigation">
-                    <button onclick="window.setTab('DASHBOARD')" id="tab-dashboard" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-dashboard">Home</button>
-                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-books">Bible</button>
+                    <button onclick="window.setTab('ALL')" id="tab-all" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" role="tab" aria-selected="true" aria-controls="view-books">Bible</button>
                     <button onclick="window.setTab('PLAN')" id="tab-plan" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-plan">Daily Plan</button>
                     <button onclick="window.setTab('STATS')" id="tab-stats" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-stats">Stats</button>
                     <button onclick="window.setTab('TOOLS')" id="tab-tools" class="px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 whitespace-nowrap" role="tab" aria-selected="false" aria-controls="view-tools">Tools</button>
@@ -735,102 +734,7 @@
             <div id="tab-scroll-indicator" class="tab-scroll-indicator"></div>
         </div>
 
-        <!-- Dashboard View -->
-        <div id="view-dashboard" class="animate-in space-y-5">
-            <!-- Continue Reading / Comeback Card -->
-            <div id="dashboard-continue" class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-[2rem] p-6 shadow-xl text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                <div class="flex items-center justify-between mb-3 relative z-10">
-                    <h2 class="text-lg font-black tracking-tight">Continue Reading</h2>
-                    <span id="dashboard-continue-badge" class="text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full uppercase tracking-wider"></span>
-                </div>
-                <p id="dashboard-continue-chapter" class="text-2xl font-black mb-1 relative z-10"></p>
-                <p id="dashboard-continue-meta" class="text-sm text-indigo-200 mb-4 relative z-10"></p>
-                <button id="dashboard-continue-btn" onclick="window.dashboardContinueReading()" class="w-full bg-white text-indigo-700 px-6 py-3 rounded-xl text-sm font-black hover:bg-indigo-50 transition-colors shadow-md relative z-10">
-                    Open Reader
-                </button>
-            </div>
-
-            <!-- Comeback Card (hidden by default) -->
-            <div id="dashboard-comeback" class="hidden bg-gradient-to-br from-amber-50 to-orange-50 rounded-[2rem] p-6 border-2 border-amber-200 shadow-md">
-                <div class="flex items-start gap-3 mb-3">
-                    <span class="text-3xl">📖</span>
-                    <div>
-                        <p class="font-black text-amber-900 text-sm">Welcome back!</p>
-                        <p id="dashboard-comeback-text" class="text-sm text-amber-800 mt-1"></p>
-                    </div>
-                </div>
-                <button onclick="window.dashboardContinueReading()" class="w-full px-4 py-2.5 bg-amber-600 text-white rounded-xl text-sm font-bold hover:bg-amber-700 transition-colors">
-                    Pick Up Where You Left Off
-                </button>
-            </div>
-
-            <!-- Today's Plan -->
-            <div id="dashboard-plan-card" class="bg-white rounded-[2rem] p-6 shadow-lg border border-indigo-50">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Today's Plan</h3>
-                    <span id="dashboard-plan-name" class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-wider"></span>
-                </div>
-                <div id="dashboard-plan-items" class="space-y-2"></div>
-                <p id="dashboard-plan-footer" class="text-[10px] font-bold text-slate-400 mt-3 text-center uppercase tracking-wider"></p>
-            </div>
-
-            <!-- Progress Snapshot -->
-            <div class="grid grid-cols-3 gap-3">
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-total-pct" class="text-2xl font-black text-indigo-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total</div>
-                </div>
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-ot-pct" class="text-2xl font-black text-amber-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">OT</div>
-                </div>
-                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-nt-pct" class="text-2xl font-black text-emerald-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NT</div>
-                </div>
-            </div>
-
-            <!-- Streak + Velocity -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-5">
-                        <div class="text-center">
-                            <span id="dashboard-streak-emoji" class="text-2xl">🔥</span>
-                            <div id="dashboard-streak" class="text-xl font-black text-slate-900">0</div>
-                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Day Streak</div>
-                        </div>
-                        <div class="w-px h-12 bg-slate-200"></div>
-                        <div class="text-center">
-                            <div id="dashboard-velocity" class="text-xl font-black text-slate-900">0</div>
-                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Words/Day (7d)</div>
-                        </div>
-                    </div>
-                    <div id="dashboard-sparkline" class="flex-shrink-0"></div>
-                </div>
-            </div>
-
-            <!-- Weekly Recap (shown conditionally) -->
-            <div id="dashboard-weekly-recap" class="hidden bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-200 shadow-sm">
-                <h4 class="text-xs font-black text-purple-900 mb-3 uppercase tracking-widest">This Week</h4>
-                <div class="grid grid-cols-3 gap-3 text-center">
-                    <div>
-                        <div id="recap-chapters" class="text-xl font-black text-purple-700">0</div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">Chapters</div>
-                    </div>
-                    <div>
-                        <div id="recap-words" class="text-xl font-black text-purple-700">0</div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">Words</div>
-                    </div>
-                    <div>
-                        <div id="recap-vs-last" class="text-xl font-black text-slate-500">--</div>
-                        <div class="text-[9px] font-bold text-slate-400 uppercase">vs Last Wk</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-books" class="hidden animate-in">
+        <div id="view-books" class="animate-in">
             <div class="mb-6">
                 <div class="relative group">
                     <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-indigo-200 bg-white shadow-md hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
@@ -962,74 +866,6 @@
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
                     <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity over time. Each square represents a day of Bible reading.</p>
-                </div>
-            </div>
-
-            <!-- Reading Velocity -->
-            <div class="mt-12">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Velocity</h3>
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                        <div class="text-center p-4 bg-indigo-50 rounded-2xl">
-                            <div id="velocity-7d" class="text-2xl font-black text-indigo-900">0</div>
-                            <div class="text-[10px] font-bold text-slate-500 uppercase">Words/Day (7d)</div>
-                        </div>
-                        <div class="text-center p-4 bg-indigo-50 rounded-2xl">
-                            <div id="velocity-30d" class="text-2xl font-black text-indigo-900">0</div>
-                            <div class="text-[10px] font-bold text-slate-500 uppercase">Words/Day (30d)</div>
-                        </div>
-                        <div class="text-center p-4 bg-indigo-50 rounded-2xl">
-                            <div id="velocity-alltime" class="text-2xl font-black text-indigo-900">0</div>
-                            <div class="text-[10px] font-bold text-slate-500 uppercase">Words/Day (All)</div>
-                        </div>
-                        <div class="text-center p-4 rounded-2xl" id="velocity-trend-card">
-                            <div id="velocity-trend-icon" class="text-2xl"></div>
-                            <div id="velocity-trend-label" class="text-[10px] font-bold text-slate-500 uppercase"></div>
-                        </div>
-                    </div>
-                    <div class="h-48">
-                        <canvas id="velocityTrendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ETA Card -->
-            <div class="mt-8">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Completion Estimate</h3>
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                        <div class="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
-                            <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Entire Bible</div>
-                            <div id="eta-total" class="text-lg font-black text-indigo-900">--</div>
-                        </div>
-                        <div class="p-4 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl border border-amber-100">
-                            <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">Old Testament</div>
-                            <div id="eta-ot" class="text-lg font-black text-amber-900">--</div>
-                        </div>
-                        <div class="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl border border-emerald-100">
-                            <div class="text-[10px] font-bold text-slate-500 uppercase mb-1">New Testament</div>
-                            <div id="eta-nt" class="text-lg font-black text-emerald-900">--</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Personal Records -->
-            <div class="mt-8">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Personal Records</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gradient-to-br from-amber-50 to-yellow-50 p-5 rounded-2xl border border-amber-200 text-center shadow-sm">
-                        <span class="text-2xl">🏆</span>
-                        <div id="best-day-words" class="text-xl font-black text-amber-900 mt-1">0</div>
-                        <div id="best-day-date" class="text-[10px] font-bold text-amber-600"></div>
-                        <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Best Day</div>
-                    </div>
-                    <div class="bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-2xl border border-emerald-200 text-center shadow-sm">
-                        <span class="text-2xl">📅</span>
-                        <div id="best-week-words" class="text-xl font-black text-emerald-900 mt-1">0</div>
-                        <div id="best-week-date" class="text-[10px] font-bold text-emerald-600"></div>
-                        <div class="text-[10px] font-bold text-slate-500 uppercase mt-1">Best Week</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1454,7 +1290,6 @@
                             <div class="text-xs text-slate-500">Choose which tab opens when you load the app</div>
                         </div>
                         <select id="default-tab-selector" onchange="window.setDefaultTab(this.value)" class="bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 py-2 px-3 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer" aria-label="Select default tab on load">
-                            <option value="DASHBOARD">Home (Dashboard)</option>
                             <option value="ALL">All Books</option>
                             <option value="OT">OT Books</option>
                             <option value="NT">NT Books</option>
@@ -1685,7 +1520,7 @@
             TOAST_DURATION_MS: 5000,
             EDIT_COOLDOWN_MS: 2000,
             SAVE_DEBOUNCE_MS: 1000,
-            FIREBASE_DEBOUNCE_MS: 3000,
+            FIREBASE_DEBOUNCE_MS: 1000,
             INTRO_MODAL_DELAY_MS: 500,
 
             // Limits & Validation
@@ -2560,8 +2395,7 @@
             const planSelector = document.getElementById('plan-selector');
             if(planSelector) planSelector.value = activePlan;
 
-            if(window.activeTab === 'DASHBOARD') window.renderDashboard();
-            else if(window.activeTab === 'STATS') window.renderStatsPage();
+            if(window.activeTab === 'STATS') window.renderStatsPage();
             else if(window.activeTab === 'PLAN') { window.renderDailyPlan(); window.renderGoals(); }
             else if(window.activeTab === 'ABOUT') { }
             else { window.renderBookGrid(); window.renderSubdivisionStats(); }
@@ -3343,7 +3177,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         const PLAN_MCHEYNE=[{d:1,r:["Genesis 1","Matthew 1","Ezra 1","Acts 1"]},{d:2,r:["Genesis 2","Matthew 2","Ezra 2","Acts 2"]},{d:3,r:["Genesis 3","Matthew 3","Ezra 3","Acts 3"]},{d:4,r:["Genesis 4","Matthew 4","Ezra 4","Acts 4"]},{d:5,r:["Genesis 5","Matthew 5","Ezra 5","Acts 5"]},{d:6,r:["Genesis 6","Matthew 6","Ezra 6","Acts 6"]},{d:7,r:["Genesis 7","Matthew 7","Ezra 7","Acts 7"]},{d:8,r:["Genesis 8","Matthew 8","Ezra 8","Acts 8"]},{d:9,r:["Genesis 9-10","Matthew 9","Ezra 9","Acts 9"]},{d:10,r:["Genesis 11","Matthew 10","Ezra 10","Acts 10"]},{d:11,r:["Genesis 12","Matthew 11","Nehemiah 1","Acts 11"]},{d:12,r:["Genesis 13","Matthew 12","Nehemiah 2","Acts 12"]},{d:13,r:["Genesis 14","Matthew 13","Nehemiah 3","Acts 13"]},{d:14,r:["Genesis 15","Matthew 14","Nehemiah 4","Acts 14"]},{d:15,r:["Genesis 16","Matthew 15","Nehemiah 5","Acts 15"]},{d:16,r:["Genesis 17","Matthew 16","Nehemiah 6","Acts 16"]},{d:17,r:["Genesis 18","Matthew 17","Nehemiah 7","Acts 17"]},{d:18,r:["Genesis 19","Matthew 18","Nehemiah 8","Acts 18"]},{d:19,r:["Genesis 20","Matthew 19","Nehemiah 9","Acts 19"]},{d:20,r:["Genesis 21","Matthew 20","Nehemiah 10","Acts 20"]},{d:21,r:["Genesis 22","Matthew 21","Nehemiah 11","Acts 21"]},{d:22,r:["Genesis 23","Matthew 22","Nehemiah 12","Acts 22"]},{d:23,r:["Genesis 24","Matthew 23","Nehemiah 13","Acts 23"]},{d:24,r:["Genesis 25","Matthew 24","Esther 1","Acts 24"]},{d:25,r:["Genesis 26","Matthew 25","Esther 2","Acts 25"]},{d:26,r:["Genesis 27","Matthew 26","Esther 3","Acts 26"]},{d:27,r:["Genesis 28","Matthew 27","Esther 4","Acts 27"]},{d:28,r:["Genesis 29","Matthew 28","Esther 5","Acts 28"]},{d:29,r:["Genesis 30","Mark 1","Esther 6","Romans 1"]},{d:30,r:["Genesis 31","Mark 2","Esther 7","Romans 2"]},{d:31,r:["Genesis 32","Mark 3","Esther 8","Romans 3"]},{d:32,r:["Genesis 33","Mark 4","Esther 9-10","Romans 4"]},{d:33,r:["Genesis 34","Mark 5","Job 1","Romans 5"]},{d:34,r:["Genesis 35-36","Mark 6","Job 2","Romans 6"]},{d:35,r:["Genesis 37","Mark 7","Job 3","Romans 7"]},{d:36,r:["Genesis 38","Mark 8","Job 4","Romans 8"]},{d:37,r:["Genesis 39","Mark 9","Job 5","Romans 9"]},{d:38,r:["Genesis 40","Mark 10","Job 6","Romans 10"]},{d:39,r:["Genesis 41","Mark 11","Job 7","Romans 11"]},{d:40,r:["Genesis 42","Mark 12","Job 8","Romans 12"]},{d:41,r:["Genesis 43","Mark 13","Job 9","Romans 13"]},{d:42,r:["Genesis 44","Mark 14","Job 10","Romans 14"]},{d:43,r:["Genesis 45","Mark 15","Job 11","Romans 15"]},{d:44,r:["Genesis 46","Mark 16","Job 12","Romans 16"]},{d:45,r:["Genesis 47","Luke 1:1-38","Job 13","1Corinthians 1"]},{d:46,r:["Genesis 48","Luke 1:39-80","Job 14","1Corinthians 2"]},{d:47,r:["Genesis 49","Luke 2","Job 15","1Corinthians 3"]},{d:48,r:["Genesis 50","Luke 3","Job 16-17","1Corinthians 4"]},{d:49,r:["Exodus 1","Luke 4","Job 18","1Corinthians 5"]},{d:50,r:["Exodus 2","Luke 5","Job 19","1Corinthians 6"]},{d:51,r:["Exodus 3","Luke 6","Job 20","1Corinthians 7"]},{d:52,r:["Exodus 4","Luke 7","Job 21","1Corinthians 8"]},{d:53,r:["Exodus 5","Luke 8","Job 22","1Corinthians 9"]},{d:54,r:["Exodus 6","Luke 9","Job 23","1Corinthians 10"]},{d:55,r:["Exodus 7","Luke 10","Job 24","1Corinthians 11"]},{d:56,r:["Exodus 8","Luke 11","Job 25-26","1Corinthians 12"]},{d:57,r:["Exodus 9","Luke 12","Job 27","1Corinthians 13"]},{d:58,r:["Exodus 10","Luke 13","Job 28","1Corinthians 14"]},{d:59,r:["Exodus 11","Luke 14","Job 29","1Corinthians 15"]},{d:60,r:["Exodus 12","Luke 15","Job 30","1Corinthians 16"]},{d:61,r:["Exodus 13","Luke 16","Job 31","2Corinthians 1"]},{d:62,r:["Exodus 14","Luke 17","Job 32","2Corinthians 2"]},{d:63,r:["Exodus 15","Luke 18","Job 33","2Corinthians 3"]},{d:64,r:["Exodus 16","Luke 19","Job 34","2Corinthians 4"]},{d:65,r:["Exodus 17","Luke 20","Job 35","2Corinthians 5"]},{d:66,r:["Exodus 18","Luke 21","Job 36","2Corinthians 6"]},{d:67,r:["Exodus 19","Luke 22","Job 37","2Corinthians 7"]},{d:68,r:["Exodus 20","Luke 23","Job 38","2Corinthians 8"]},{d:69,r:["Exodus 21","Luke 24","Job 39","2Corinthians 9"]},{d:70,r:["Exodus 22","John 1","Job 40","2Corinthians 10"]},{d:71,r:["Exodus 23","John 2","Job 41","2Corinthians 11"]},{d:72,r:["Exodus 24","John 3","Job 42","2Corinthians 12"]},{d:73,r:["Exodus 25","John 4","Proverbs 1","2Corinthians 13"]},{d:74,r:["Exodus 26","John 5","Proverbs 2","Galatians 1"]},{d:75,r:["Exodus 27","John 6","Proverbs 3","Galatians 2"]},{d:76,r:["Exodus 28","John 7","Proverbs 4","Galatians 3"]},{d:77,r:["Exodus 29","John 8","Proverbs 5","Galatians 4"]},{d:78,r:["Exodus 30","John 9","Proverbs 6","Galatians 5"]},{d:79,r:["Exodus 31","John 10","Proverbs 7","Galatians 6"]},{d:80,r:["Exodus 32","John 11","Proverbs 8","Ephesians 1"]},{d:81,r:["Exodus 33","John 12","Proverbs 9","Ephesians 2"]},{d:82,r:["Exodus 34","John 13","Proverbs 10","Ephesians 3"]},{d:83,r:["Exodus 35","John 14","Proverbs 11","Ephesians 4"]},{d:84,r:["Exodus 36","John 15","Proverbs 12","Ephesians 5"]},{d:85,r:["Exodus 37","John 16","Proverbs 13","Ephesians 6"]},{d:86,r:["Exodus 38","John 17","Proverbs 14","Philippians 1"]},{d:87,r:["Exodus 39","John 18","Proverbs 15","Philippians 2"]},{d:88,r:["Exodus 40","John 19","Proverbs 16","Philippians 3"]},{d:89,r:["Leviticus 1","John 20","Proverbs 17","Philippians 4"]},{d:90,r:["Leviticus 2-3","John 21","Proverbs 18","Colossians 1"]},{d:91,r:["Leviticus 4","Psalm 1-2","Proverbs 19","Colossians 2"]},{d:92,r:["Leviticus 5","Psalm 3-4","Proverbs 20","Colossians 3"]},{d:93,r:["Leviticus 6","Psalm 5-6","Proverbs 21","Colossians 4"]},{d:94,r:["Leviticus 7","Psalm 7-8","Proverbs 22","1Thessalonians 1"]},{d:95,r:["Leviticus 8","Psalm 9","Proverbs 23","1Thessalonians 2"]},{d:96,r:["Leviticus 9","Psalm 10","Proverbs 24","1Thessalonians 3"]},{d:97,r:["Leviticus 10","Psalm 11-12","Proverbs 25","1Thessalonians 4"]},{d:98,r:["Leviticus 11-12","Psalm 13-14","Proverbs 26","1Thessalonians 5"]},{d:99,r:["Leviticus 13","Psalm 15-16","Proverbs 27","2Thessalonians 1"]},{d:100,r:["Leviticus 14","Psalm 17","Proverbs 28","2Thessalonians 2"]},{d:101,r:["Leviticus 15","Psalm 18","Proverbs 29","2Thessalonians 3"]},{d:102,r:["Leviticus 16","Psalm 19","Proverbs 30","1Timothy 1"]},{d:103,r:["Leviticus 17","Psalm 20-21","Proverbs 31","1Timothy 2"]},{d:104,r:["Leviticus 18","Psalm 22","Ecclesiastes 1","1Timothy 3"]},{d:105,r:["Leviticus 19","Psalm 23-24","Ecclesiastes 2","1Timothy 4"]},{d:106,r:["Leviticus 20","Psalm 25","Ecclesiastes 3","1Timothy 5"]},{d:107,r:["Leviticus 21","Psalm 26-27","Ecclesiastes 4","1Timothy 6"]},{d:108,r:["Leviticus 22","Psalm 28-29","Ecclesiastes 5","2Timothy 1"]},{d:109,r:["Leviticus 23","Psalm 30","Ecclesiastes 6","2Timothy 2"]},{d:110,r:["Leviticus 24","Psalm 31","Ecclesiastes 7","2Timothy 3"]},{d:111,r:["Leviticus 25","Psalm 32","Ecclesiastes 8","2Timothy 4"]},{d:112,r:["Leviticus 26","Psalm 33","Ecclesiastes 9","Titus 1"]},{d:113,r:["Leviticus 27","Psalm 34","Ecclesiastes 10","Titus 2"]},{d:114,r:["Numbers 1","Psalm 35","Ecclesiastes 11","Titus 3"]},{d:115,r:["Numbers 2","Psalm 36","Ecclesiastes 12","Philemon 1"]},{d:116,r:["Numbers 3","Psalm 37","SongOfSongs 1","Hebrews 1"]},{d:117,r:["Numbers 4","Psalm 38","SongOfSongs 2","Hebrews 2"]},{d:118,r:["Numbers 5","Psalm 39","SongOfSongs 3","Hebrews 3"]},{d:119,r:["Numbers 6","Psalm 40-41","SongOfSongs 4","Hebrews 4"]},{d:120,r:["Numbers 7","Psalm 42-43","SongOfSongs 5","Hebrews 5"]},{d:121,r:["Numbers 8","Psalm 44","SongOfSongs 6","Hebrews 6"]},{d:122,r:["Numbers 9","Psalm 45","SongOfSongs 7","Hebrews 7"]},{d:123,r:["Numbers 10","Psalm 46-47","SongOfSongs 8","Hebrews 8"]},{d:124,r:["Numbers 11","Psalm 48","Isaiah 1","Hebrews 9"]},{d:125,r:["Numbers 12-13","Psalm 49","Isaiah 2","Hebrews 10"]},{d:126,r:["Numbers 14","Psalm 50","Isaiah 3-4","Hebrews 11"]},{d:127,r:["Numbers 15","Psalm 51","Isaiah 5","Hebrews 12"]},{d:128,r:["Numbers 16","Psalm 52-54","Isaiah 6","Hebrews 13"]},{d:129,r:["Numbers 17-18","Psalm 55","Isaiah 7","James 1"]},{d:130,r:["Numbers 19","Psalm 56-57","Isaiah 8","James 2"]},{d:131,r:["Numbers 20","Psalm 58-59","Isaiah 9","James 3"]},{d:132,r:["Numbers 21","Psalm 60-61","Isaiah 10","James 4"]},{d:133,r:["Numbers 22","Psalm 62-63","Isaiah 11-12","James 5"]},{d:134,r:["Numbers 23","Psalm 64-65","Isaiah 13","1Peter 1"]},{d:135,r:["Numbers 24","Psalm 66-67","Isaiah 14","1Peter 2"]},{d:136,r:["Numbers 25","Psalm 68","Isaiah 15","1Peter 3"]},{d:137,r:["Numbers 26","Psalm 69","Isaiah 16","1Peter 4"]},{d:138,r:["Numbers 27","Psalm 70-71","Isaiah 17-18","1Peter 5"]},{d:139,r:["Numbers 28","Psalm 72","Isaiah 19-20","2Peter 1"]},{d:140,r:["Numbers 29","Psalm 73","Isaiah 21","2Peter 2"]},{d:141,r:["Numbers 30","Psalm 74","Isaiah 22","2Peter 3"]},{d:142,r:["Numbers 31","Psalm 75-76","Isaiah 23","1John 1"]},{d:143,r:["Numbers 32","Psalm 77","Isaiah 24","1John 2"]},{d:144,r:["Numbers 33","Psalm 78:1-39","Isaiah 25","1John 3"]},{d:145,r:["Numbers 34","Psalm 78:40-72","Isaiah 26","1John 4"]},{d:146,r:["Numbers 35","Psalm 79","Isaiah 27","1John 5"]},{d:147,r:["Numbers 36","Psalm 80","Isaiah 28","2John 1"]},{d:148,r:["Deuteronomy 1","Psalm 81-82","Isaiah 29","3John 1"]},{d:149,r:["Deuteronomy 2","Psalm 83-84","Isaiah 30","Jude 1"]},{d:150,r:["Deuteronomy 3","Psalm 85","Isaiah 31","Revelation 1"]},{d:151,r:["Deuteronomy 4","Psalm 86-87","Isaiah 32","Revelation 2"]},{d:152,r:["Deuteronomy 5","Psalm 88","Isaiah 33","Revelation 3"]},{d:153,r:["Deuteronomy 6","Psalm 89","Isaiah 34","Revelation 4"]},{d:154,r:["Deuteronomy 7","Psalm 90","Isaiah 35","Revelation 5"]},{d:155,r:["Deuteronomy 8","Psalm 91","Isaiah 36","Revelation 6"]},{d:156,r:["Deuteronomy 9","Psalm 92-93","Isaiah 37","Revelation 7"]},{d:157,r:["Deuteronomy 10","Psalm 94","Isaiah 38","Revelation 8"]},{d:158,r:["Deuteronomy 11","Psalm 95-96","Isaiah 39","Revelation 9"]},{d:159,r:["Deuteronomy 12","Psalm 97-98","Isaiah 40","Revelation 10"]},{d:160,r:["Deuteronomy 13-14","Psalm 99-101","Isaiah 41","Revelation 11"]},{d:161,r:["Deuteronomy 15","Psalm 102","Isaiah 42","Revelation 12"]},{d:162,r:["Deuteronomy 16","Psalm 103","Isaiah 43","Revelation 13"]},{d:163,r:["Deuteronomy 17","Psalm 104","Isaiah 44","Revelation 14"]},{d:164,r:["Deuteronomy 18","Psalm 105","Isaiah 45","Revelation 15"]},{d:165,r:["Deuteronomy 19","Psalm 106","Isaiah 46","Revelation 16"]},{d:166,r:["Deuteronomy 20","Psalm 107","Isaiah 47","Revelation 17"]},{d:167,r:["Deuteronomy 21","Psalm 108-109","Isaiah 48","Revelation 18"]},{d:168,r:["Deuteronomy 22","Psalm 110-111","Isaiah 49","Revelation 19"]},{d:169,r:["Deuteronomy 23","Psalm 112-113","Isaiah 50","Revelation 20"]},{d:170,r:["Deuteronomy 24","Psalm 114-115","Isaiah 51","Revelation 21"]},{d:171,r:["Deuteronomy 25","Psalm 116","Isaiah 52","Revelation 22"]},{d:172,r:["Deuteronomy 26","Psalm 117-118","Isaiah 53","Matthew 1"]},{d:173,r:["Deuteronomy 27","Psalm 119:1-24","Isaiah 54","Matthew 2"]},{d:174,r:["Deuteronomy 28","Psalm 119:25-48","Isaiah 55","Matthew 3"]},{d:175,r:["Deuteronomy 29","Psalm 119:49-72","Isaiah 56","Matthew 4"]},{d:176,r:["Deuteronomy 30","Psalm 119:73-96","Isaiah 57","Matthew 5"]},{d:177,r:["Deuteronomy 31","Psalm 119:97-120","Isaiah 58","Matthew 6"]},{d:178,r:["Deuteronomy 32","Psalm 119:121-144","Isaiah 59","Matthew 7"]},{d:179,r:["Deuteronomy 33-34","Psalm 119:145-176","Isaiah 60","Matthew 8"]},{d:180,r:["Joshua 1","Psalm 120-122","Isaiah 61","Matthew 9"]},{d:181,r:["Joshua 2","Psalm 123-125","Isaiah 62","Matthew 10"]},{d:182,r:["Joshua 3","Psalm 126-128","Isaiah 63","Matthew 11"]},{d:183,r:["Joshua 4","Psalm 129-131","Isaiah 64","Matthew 12"]},{d:184,r:["Joshua 5","Psalm 132-134","Isaiah 65","Matthew 13"]},{d:185,r:["Joshua 6","Psalm 135-136","Isaiah 66","Matthew 14"]},{d:186,r:["Joshua 7","Psalm 137-138","Jeremiah 1","Matthew 15"]},{d:187,r:["Joshua 8","Psalm 139","Jeremiah 2","Matthew 16"]},{d:188,r:["Joshua 9","Psalm 140-141","Jeremiah 3","Matthew 17"]},{d:189,r:["Joshua 10","Psalm 142-143","Jeremiah 4","Matthew 18"]},{d:190,r:["Joshua 11","Psalm 144","Jeremiah 5","Matthew 19"]},{d:191,r:["Joshua 12-13","Psalm 145","Jeremiah 6","Matthew 20"]},{d:192,r:["Joshua 14-15","Psalm 146-147","Jeremiah 7","Matthew 21"]},{d:193,r:["Joshua 16-17","Psalm 148","Jeremiah 8","Matthew 22"]},{d:194,r:["Joshua 18-19","Psalm 149-150","Jeremiah 9","Matthew 23"]},{d:195,r:["Joshua 20-21","Acts 1","Jeremiah 10","Matthew 24"]},{d:196,r:["Joshua 22","Acts 2","Jeremiah 11","Matthew 25"]},{d:197,r:["Joshua 23","Acts 3","Jeremiah 12","Matthew 26"]},{d:198,r:["Joshua 24","Acts 4","Jeremiah 13","Matthew 27"]},{d:199,r:["Judges 1","Acts 5","Jeremiah 14","Matthew 28"]},{d:200,r:["Judges 2","Acts 6","Jeremiah 15","Mark 1"]},{d:201,r:["Judges 3","Acts 7","Jeremiah 16","Mark 2"]},{d:202,r:["Judges 4","Acts 8","Jeremiah 17","Mark 3"]},{d:203,r:["Judges 5","Acts 9","Jeremiah 18","Mark 4"]},{d:204,r:["Judges 6","Acts 10","Jeremiah 19","Mark 5"]},{d:205,r:["Judges 7","Acts 11","Jeremiah 20","Mark 6"]},{d:206,r:["Judges 8","Acts 12","Jeremiah 21","Mark 7"]},{d:207,r:["Judges 9","Acts 13","Jeremiah 22","Mark 8"]},{d:208,r:["Judges 10","Acts 14","Jeremiah 23","Mark 9"]},{d:209,r:["Judges 11","Acts 15","Jeremiah 24","Mark 10"]},{d:210,r:["Judges 12","Acts 16","Jeremiah 25","Mark 11"]},{d:211,r:["Judges 13","Acts 17","Jeremiah 26","Mark 12"]},{d:212,r:["Judges 14","Acts 18","Jeremiah 27","Mark 13"]},{d:213,r:["Judges 15","Acts 19","Jeremiah 28","Mark 14"]},{d:214,r:["Judges 16","Acts 20","Jeremiah 29","Mark 15"]},{d:215,r:["Judges 17","Acts 21","Jeremiah 30-31","Mark 16"]},{d:216,r:["Judges 18","Acts 22","Jeremiah 32","Luke 1"]},{d:217,r:["Judges 19","Acts 23","Jeremiah 33","Luke 2"]},{d:218,r:["Judges 20","Acts 24","Jeremiah 34","Luke 3"]},{d:219,r:["Judges 21","Acts 25","Jeremiah 35","Luke 4"]},{d:220,r:["Ruth 1","Acts 26","Jeremiah 36","Luke 5"]},{d:221,r:["Ruth 2","Acts 27","Jeremiah 37","Luke 6"]},{d:222,r:["Ruth 3-4","Acts 28","Jeremiah 38","Luke 7"]},{d:223,r:["1Samuel 1","Romans 1","Jeremiah 39","Luke 8"]},{d:224,r:["1Samuel 2","Romans 2","Jeremiah 40","Luke 9"]},{d:225,r:["1Samuel 3","Romans 3","Jeremiah 41","Luke 10"]},{d:226,r:["1Samuel 4","Romans 4","Jeremiah 42","Luke 11"]},{d:227,r:["1Samuel 5-6","Romans 5","Jeremiah 43","Luke 12"]},{d:228,r:["1Samuel 7-8","Romans 6","Jeremiah 44-45","Luke 13"]},{d:229,r:["1Samuel 9","Romans 7","Jeremiah 46","Luke 14"]},{d:230,r:["1Samuel 10","Romans 8","Jeremiah 47","Luke 15"]},{d:231,r:["1Samuel 11","Romans 9","Jeremiah 48","Luke 16"]},{d:232,r:["1Samuel 12","Romans 10","Jeremiah 49","Luke 17"]},{d:233,r:["1Samuel 13","Romans 11","Jeremiah 50","Luke 18"]},{d:234,r:["1Samuel 14","Romans 12","Jeremiah 51","Luke 19"]},{d:235,r:["1Samuel 15","Romans 13","Jeremiah 52","Luke 20"]},{d:236,r:["1Samuel 16","Romans 14","Lamentations 1","Luke 21"]},{d:237,r:["1Samuel 17","Romans 15","Lamentations 2","Luke 22"]},{d:238,r:["1Samuel 18","Romans 16","Lamentations 3","Luke 23"]},{d:239,r:["1Samuel 19","1Corinthians 1","Lamentations 4","Luke 24"]},{d:240,r:["1Samuel 20","1Corinthians 2","Lamentations 5","John 1"]},{d:241,r:["1Samuel 21-22","1Corinthians 3","Ezekiel 1","John 2"]},{d:242,r:["1Samuel 23","1Corinthians 4","Ezekiel 2","John 3"]},{d:243,r:["1Samuel 24","1Corinthians 5","Ezekiel 3","John 4"]},{d:244,r:["1Samuel 25","1Corinthians 6","Ezekiel 4","John 5"]},{d:245,r:["1Samuel 26","1Corinthians 7","Ezekiel 5","John 6"]},{d:246,r:["1Samuel 27","1Corinthians 8","Ezekiel 6","John 7"]},{d:247,r:["1Samuel 28","1Corinthians 9","Ezekiel 7","John 8"]},{d:248,r:["1Samuel 29-30","1Corinthians 10","Ezekiel 8","John 9"]},{d:249,r:["1Samuel 31","1Corinthians 11","Ezekiel 9","John 10"]},{d:250,r:["2Samuel 1","1Corinthians 12","Ezekiel 10","John 11"]},{d:251,r:["2Samuel 2","1Corinthians 13","Ezekiel 11","John 12"]},{d:252,r:["2Samuel 3","1Corinthians 14","Ezekiel 12","John 13"]},{d:253,r:["2Samuel 4-5","1Corinthians 15","Ezekiel 13","John 14"]},{d:254,r:["2Samuel 6","1Corinthians 16","Ezekiel 14","John 15"]},{d:255,r:["2Samuel 7","2Corinthians 1","Ezekiel 15","John 16"]},{d:256,r:["2Samuel 8-9","2Corinthians 2","Ezekiel 16","John 17"]},{d:257,r:["2Samuel 10","2Corinthians 3","Ezekiel 17","John 18"]},{d:258,r:["2Samuel 11","2Corinthians 4","Ezekiel 18","John 19"]},{d:259,r:["2Samuel 12","2Corinthians 5","Ezekiel 19","John 20"]},{d:260,r:["2Samuel 13","2Corinthians 6","Ezekiel 20","John 21"]},{d:261,r:["2Samuel 14","2Corinthians 7","Ezekiel 21","Psalm 1-2"]},{d:262,r:["2Samuel 15","2Corinthians 8","Ezekiel 22","Psalm 3-4"]},{d:263,r:["2Samuel 16","2Corinthians 9","Ezekiel 23","Psalm 5-6"]},{d:264,r:["2Samuel 17","2Corinthians 10","Ezekiel 24","Psalm 7-8"]},{d:265,r:["2Samuel 18","2Corinthians 11","Ezekiel 25","Psalm 9"]},{d:266,r:["2Samuel 19","2Corinthians 12","Ezekiel 26","Psalm 10"]},{d:267,r:["2Samuel 20","2Corinthians 13","Ezekiel 27","Psalm 11-12"]},{d:268,r:["2Samuel 21","Galatians 1","Ezekiel 28","Psalm 13-14"]},{d:269,r:["2Samuel 22","Galatians 2","Ezekiel 29","Psalm 15-16"]},{d:270,r:["2Samuel 23","Galatians 3","Ezekiel 30","Psalm 17"]},{d:271,r:["2Samuel 24","Galatians 4","Ezekiel 31","Psalm 18"]},{d:272,r:["1Kings 1","Galatians 5","Ezekiel 32","Psalm 19"]},{d:273,r:["1Kings 2","Galatians 6","Ezekiel 33","Psalm 20-21"]},{d:274,r:["1Kings 3","Ephesians 1","Ezekiel 34","Psalm 22"]},{d:275,r:["1Kings 4-5","Ephesians 2","Ezekiel 35","Psalm 23-24"]},{d:276,r:["1Kings 6","Ephesians 3","Ezekiel 36","Psalm 25"]},{d:277,r:["1Kings 7","Ephesians 4","Ezekiel 37","Psalm 26-27"]},{d:278,r:["1Kings 8","Ephesians 5","Ezekiel 38","Psalm 28-29"]},{d:279,r:["1Kings 9","Ephesians 6","Ezekiel 39","Psalm 30"]},{d:280,r:["1Kings 10","Philippians 1","Ezekiel 40","Psalm 31"]},{d:281,r:["1Kings 11","Philippians 2","Ezekiel 41","Psalm 32"]},{d:282,r:["1Kings 12","Philippians 3","Ezekiel 42","Psalm 33"]},{d:283,r:["1Kings 13","Philippians 4","Ezekiel 43","Psalm 34"]},{d:284,r:["1Kings 14","Colossians 1","Ezekiel 44","Psalm 35"]},{d:285,r:["1Kings 15","Colossians 2","Ezekiel 45","Psalm 36"]},{d:286,r:["1Kings 16","Colossians 3","Ezekiel 46","Psalm 37"]},{d:287,r:["1Kings 17","Colossians 4","Ezekiel 47","Psalm 38"]},{d:288,r:["1Kings 18","1Thessalonians 1","Ezekiel 48","Psalm 39"]},{d:289,r:["1Kings 19","1Thessalonians 2","Daniel 1","Psalm 40-41"]},{d:290,r:["1Kings 20","1Thessalonians 3","Daniel 2","Psalm 42-43"]},{d:291,r:["1Kings 21","1Thessalonians 4","Daniel 3","Psalm 44"]},{d:292,r:["1Kings 22","1Thessalonians 5","Daniel 4","Psalm 45"]},{d:293,r:["2Kings 1","2Thessalonians 1","Daniel 5","Psalm 46-47"]},{d:294,r:["2Kings 2","2Thessalonians 2","Daniel 6","Psalm 48"]},{d:295,r:["2Kings 3","2Thessalonians 3","Daniel 7","Psalm 49"]},{d:296,r:["2Kings 4","1Timothy 1","Daniel 8","Psalm 50"]},{d:297,r:["2Kings 5","1Timothy 2","Daniel 9","Psalm 51"]},{d:298,r:["2Kings 6","1Timothy 3","Daniel 10","Psalm 52-54"]},{d:299,r:["2Kings 7","1Timothy 4","Daniel 11","Psalm 55"]},{d:300,r:["2Kings 8","1Timothy 5","Daniel 12","Psalm 56-57"]},{d:301,r:["2Kings 9","1Timothy 6","Hosea 1","Psalm 58-59"]},{d:302,r:["2Kings 10-11","2Timothy 1","Hosea 2","Psalm 60-61"]},{d:303,r:["2Kings 12","2Timothy 2","Hosea 3-4","Psalm 62-63"]},{d:304,r:["2Kings 13","2Timothy 3","Hosea 5-6","Psalm 64-65"]},{d:305,r:["2Kings 14","2Timothy 4","Hosea 7","Psalm 66-67"]},{d:306,r:["2Kings 15","Titus 1","Hosea 8","Psalm 68"]},{d:307,r:["2Kings 16","Titus 2","Hosea 9","Psalm 69"]},{d:308,r:["2Kings 17","Titus 3","Hosea 10","Psalm 70-71"]},{d:309,r:["2Kings 18","Philemon 1","Hosea 11","Psalm 72"]},{d:310,r:["2Kings 19","Hebrews 1","Hosea 12","Psalm 73"]},{d:311,r:["2Kings 20","Hebrews 2","Hosea 13","Psalm 74"]},{d:312,r:["2Kings 21","Hebrews 3","Hosea 14","Psalm 75-76"]},{d:313,r:["2Kings 22","Hebrews 4","Joel 1","Psalm 77"]},{d:314,r:["2Kings 23","Hebrews 5","Joel 2","Psalm 78"]},{d:315,r:["2Kings 24","Hebrews 6","Joel 3","Psalm 79"]},{d:316,r:["2Kings 25","Hebrews 7","Amos 1","Psalm 80"]},{d:317,r:["1Chronicles 1-2","Hebrews 8","Amos 2","Psalm 81-82"]},{d:318,r:["1Chronicles 3-4","Hebrews 9","Amos 3","Psalm 83-84"]},{d:319,r:["1Chronicles 5-6","Hebrews 10","Amos 4","Psalm 85"]},{d:320,r:["1Chronicles 7-8","Hebrews 11","Amos 5","Psalm 86"]},{d:321,r:["1Chronicles 9-10","Hebrews 12","Amos 6","Psalm 87-88"]},{d:322,r:["1Chronicles 11-12","Hebrews 13","Amos 7","Psalm 89"]},{d:323,r:["1Chronicles 13-14","James 1","Amos 8","Psalm 90"]},{d:324,r:["1Chronicles 15","James 2","Amos 9","Psalm 91"]},{d:325,r:["1Chronicles 16","James 3","Obadiah 1","Psalm 92-93"]},{d:326,r:["1Chronicles 17","James 4","Jonah 1","Psalm 94"]},{d:327,r:["1Chronicles 18","James 5","Jonah 2","Psalm 95-96"]},{d:328,r:["1Chronicles 19-20","1Peter 1","Jonah 3","Psalm 97-98"]},{d:329,r:["1Chronicles 21","1Peter 2","Jonah 4","Psalm 99-101"]},{d:330,r:["1Chronicles 22","1Peter 3","Micah 1","Psalm 102"]},{d:331,r:["1Chronicles 23","1Peter 4","Micah 2","Psalm 103"]},{d:332,r:["1Chronicles 24-25","1Peter 5","Micah 3","Psalm 104"]},{d:333,r:["1Chronicles 26-27","2Peter 1","Micah 4","Psalm 105"]},{d:334,r:["1Chronicles 28","2Peter 2","Micah 5","Psalm 106"]},{d:335,r:["1Chronicles 29","2Peter 3","Micah 6","Psalm 107"]},{d:336,r:["2Chronicles 1","1John 1","Micah 7","Psalm 108-109"]},{d:337,r:["2Chronicles 2","1John 2","Nahum 1","Psalm 110-111"]},{d:338,r:["2Chronicles 3-4","1John 3","Nahum 2","Psalm 112-113"]},{d:339,r:["2Chronicles 5","1John 4","Nahum 3","Psalm 114-115"]},{d:340,r:["2Chronicles 6","1John 5","Habakkuk 1","Psalm 116"]},{d:341,r:["2Chronicles 7","2John 1","Habakkuk 2","Psalm 117-118"]},{d:342,r:["2Chronicles 8","3John 1","Habakkuk 3","Psalm 119:1-24"]},{d:343,r:["2Chronicles 9","Jude 1","Zephaniah 1","Psalm 119:25-48"]},{d:344,r:["2Chronicles 10","Revelation 1","Zephaniah 2","Psalm 119:49-72"]},{d:345,r:["2Chronicles 11-12","Revelation 2","Zephaniah 3","Psalm 119:73-96"]},{d:346,r:["2Chronicles 13","Revelation 3","Haggai 1","Psalm 119:97-120"]},{d:347,r:["2Chronicles 14-15","Revelation 4","Haggai 2","Psalm 119:121-144"]},{d:348,r:["2Chronicles 16","Revelation 5","Zechariah 1","Psalm 119:145-176"]},{d:349,r:["2Chronicles 17","Revelation 6","Zechariah 2","Psalm 120-122"]},{d:350,r:["2Chronicles 18","Revelation 7","Zechariah 3","Psalm 123-125"]},{d:351,r:["2Chronicles 19-20","Revelation 8","Zechariah 4","Psalm 126-128"]},{d:352,r:["2Chronicles 21","Revelation 9","Zechariah 5","Psalm 129-131"]},{d:353,r:["2Chronicles 22-23","Revelation 10","Zechariah 6","Psalm 132-134"]},{d:354,r:["2Chronicles 24","Revelation 11","Zechariah 7","Psalm 135-136"]},{d:355,r:["2Chronicles 25","Revelation 12","Zechariah 8","Psalm 137-138"]},{d:356,r:["2Chronicles 26","Revelation 13","Zechariah 9","Psalm 139"]},{d:357,r:["2Chronicles 27-28","Revelation 14","Zechariah 10","Psalm 140-141"]},{d:358,r:["2Chronicles 29","Revelation 15","Zechariah 11","Psalm 142"]},{d:359,r:["2Chronicles 30","Revelation 16","Zechariah 12","Psalm 143"]},{d:360,r:["2Chronicles 31","Revelation 17","Zechariah 13","Psalm 144"]},{d:361,r:["2Chronicles 32","Revelation 18","Zechariah 14","Psalm 145"]},{d:362,r:["2Chronicles 33","Revelation 19","Malachi 1","Psalm 146-147"]},{d:363,r:["2Chronicles 34","Revelation 20","Malachi 2","Psalm 148"]},{d:364,r:["2Chronicles 35","Revelation 21","Malachi 3","Psalm 149"]},{d:365,r:["2Chronicles 36","Revelation 22","Malachi 4","Psalm 150"]}];
 
         const WORD_TOTALS = { GLOBAL: 789634, OT: 609252, NT: 180382 };
-        let activeTab = appData.defaultTab || 'DASHBOARD';
+        let activeTab = appData.defaultTab || 'PLAN';
         let activeBookIdx = null;
         let searchQuery = "";
         let mainChart = null;
@@ -7245,41 +7079,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.setTab = (t) => {
             activeTab = t;
             window.activeTab = t;
-            ['DASHBOARD', 'ALL', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
+            ['ALL', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
                 if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
             });
 
-            // Update bottom nav active state
-            document.querySelectorAll('.bottom-nav-item').forEach(btn => {
-                btn.classList.remove('text-indigo-600');
-                btn.classList.add('text-slate-400');
-            });
-            // Map tab names to bottom nav IDs (TOOLS and ABOUT don't have bottom nav entries)
-            const bnavMap = { 'DASHBOARD': 'bnav-dashboard', 'ALL': 'bnav-all', 'PLAN': 'bnav-plan', 'STATS': 'bnav-stats', 'SETTINGS': 'bnav-settings' };
-            const activeBnav = document.getElementById(bnavMap[t]);
-            if(activeBnav) {
-                activeBnav.classList.remove('text-slate-400');
-                activeBnav.classList.add('text-indigo-600');
-            }
-
             // Remove slide-in class from all views first, then hide them
-            ['view-dashboard', 'view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-tools', 'view-about', 'view-settings'].forEach(v => {
+            ['view-books', 'view-stats', 'view-plan', 'view-chapters', 'view-tools', 'view-about', 'view-settings'].forEach(v => {
                 const view = document.getElementById(v);
-                if(view) {
-                    view.classList.remove('slide-in-right');
-                    view.classList.add('hidden');
-                }
+                view.classList.remove('slide-in-right');
+                view.classList.add('hidden');
             });
 
             // Show the selected view with slide-in animation
-            if (t === 'DASHBOARD') {
-                const view = document.getElementById('view-dashboard');
-                view.classList.remove('hidden');
-                setTimeout(() => view.classList.add('slide-in-right'), 10);
-                window.renderDashboard();
-            }
-            else if (t === 'STATS') {
+            if (t === 'STATS') {
                 const view = document.getElementById('view-stats');
                 view.classList.remove('hidden');
                 setTimeout(() => view.classList.add('slide-in-right'), 10);
@@ -7354,7 +7167,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.openBook = (idx) => {
             activeBookIdx = idx;
             const book = bible[idx];
-            ['view-dashboard', 'view-books', 'view-stats', 'view-plan', 'view-tools', 'view-about', 'view-settings'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+            ['view-books', 'view-stats', 'view-plan', 'view-tools', 'view-about', 'view-settings'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById('view-chapters').classList.remove('hidden');
             document.getElementById('active-book-title').innerText = book.name;
             const bookLabel = document.getElementById('book-label');
@@ -9404,567 +9217,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.body.appendChild(modal);
         }
 
-        // --- DASHBOARD RENDERING ---
-        // Stores the next chapter info for the continue reading feature
-        let dashboardNextChapter = null
-
-        // Helper: Get today's plan chapters for the active plan (compact format for dashboard)
-        function getDashboardPlanChapters() {
-            const currentProg = getProgress()
-            const chapters = []
-
-            if (activePlan === 'SEQUENTIAL') {
-                let found = 0
-                for (let b = 0; b < bible.length && found < 3; b++) {
-                    for (let c = 0; c < bible[b].ch.length && found < 3; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            found++
-                        }
-                    }
-                }
-            } else if (activePlan === 'ONE_YEAR') {
-                let otFound = 0, ntFound = 0
-                for (let b = 0; b < bible.length && otFound < 3; b++) {
-                    if (bible[b].testament !== 'OT') continue
-                    for (let c = 0; c < bible[b].ch.length && otFound < 3; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            otFound++
-                        }
-                    }
-                }
-                for (let b = 0; b < bible.length && ntFound < 1; b++) {
-                    if (bible[b].testament !== 'NT') continue
-                    for (let c = 0; c < bible[b].ch.length && ntFound < 1; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            ntFound++
-                        }
-                    }
-                }
-            } else if (activePlan === 'MCHEYNE') {
-                for (let i = 0; i < PLAN_MCHEYNE.length; i++) {
-                    const day = PLAN_MCHEYNE[i]
-                    let allRead = true
-                    for (let r of day.r) {
-                        const { bookName, chapterStr } = normalizeBookName(r)
-                        const appBook = bible.find(b => b.name === bookName)
-                        if (!appBook) continue
-                        const chs = getChaptersFromStr(chapterStr)
-                        for (let c of chs) { if (!currentProg[`${appBook.name}-${c}`]) { allRead = false; break } }
-                        if (!allRead) break
-                    }
-                    if (!allRead) {
-                        day.r.forEach(refStr => {
-                            const { bookName, chapterStr } = normalizeBookName(refStr)
-                            const appBook = bible.find(b => b.name === bookName)
-                            if (appBook) {
-                                const chs = getChaptersFromStr(chapterStr)
-                                let isRead = true
-                                chs.forEach(c => { if (!currentProg[`${appBook.name}-${c}`]) isRead = false })
-                                chapters.push({ book: appBook.name, chapter: chs[0], words: appBook.ch[chs[0]-1] * chs.length, label: refStr, isComplete: isRead })
-                            }
-                        })
-                        break
-                    }
-                }
-            } else if (activePlan === 'HORNER') {
-                resetHornerDailyProgressIfNeeded()
-                const todayStr = getTodaysDate()
-                PLAN_HORNER.forEach((listBooks, listIdx) => {
-                    const isComplete = appData.hornerDailyProgress[appData.activeProfileId]?.completedLists?.includes(listIdx)
-                    let found = false
-                    if (isComplete) {
-                        for (let bName of listBooks) {
-                            const appBook = bible.find(b => b.name === bName)
-                            if (!appBook) continue
-                            for (let c = 0; c < appBook.ch.length; c++) {
-                                const ts = currentProg[`${appBook.name}-${c+1}`]
-                                if (ts && getLocalDateString(ts) === todayStr) {
-                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: true, badge: `L${listIdx+1}` })
-                                    found = true; break
-                                }
-                            }
-                            if (found) break
-                        }
-                    }
-                    if (!found) {
-                        for (let bName of listBooks) {
-                            const appBook = bible.find(b => b.name === bName)
-                            if (!appBook) continue
-                            for (let c = 0; c < appBook.ch.length; c++) {
-                                if (!currentProg[`${appBook.name}-${c+1}`]) {
-                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: false, badge: `L${listIdx+1}` })
-                                    found = true; break
-                                }
-                            }
-                            if (found) break
-                        }
-                        // If all chapters in list are read (cycling), pick oldest
-                        if (!found) {
-                            let oldest = Infinity, oldestCh = null
-                            for (let bName of listBooks) {
-                                const appBook = bible.find(b => b.name === bName)
-                                if (!appBook) continue
-                                for (let c = 0; c < appBook.ch.length; c++) {
-                                    const ts = currentProg[`${appBook.name}-${c+1}`]
-                                    if (ts && ts < oldest) { oldest = ts; oldestCh = { book: appBook.name, chapter: c+1, words: appBook.ch[c] } }
-                                }
-                            }
-                            if (oldestCh) chapters.push({ ...oldestCh, label: `${oldestCh.book} ${oldestCh.chapter}`, isComplete: false, badge: `L${listIdx+1}` })
-                        }
-                    }
-                })
-            } else if (activePlan === 'FIVE_DAY' && typeof PLAN_FIVE_DAY !== 'undefined') {
-                const now = new Date()
-                const easternDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
-                let dayOfWeek = easternDate.getDay()
-                let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
-                for (let week of PLAN_FIVE_DAY.schedule) {
-                    let allRead = true
-                    for (let reading of week.readings) {
-                        for (let scriptureRef of reading.scriptures) {
-                            const { bookName, chapterStr } = normalizeBookName(scriptureRef)
-                            const appBook = bible.find(b => b.name === bookName)
-                            if (!appBook) continue
-                            const chs = getChaptersFromStr(chapterStr)
-                            for (let c of chs) { if (!currentProg[`${appBook.name}-${c}`]) { allRead = false; break } }
-                            if (!allRead) break
-                        }
-                        if (!allRead) break
-                    }
-                    if (!allRead) {
-                        const dayReading = week.readings.find(r => r.day === planDay)
-                        if (dayReading) {
-                            dayReading.scriptures.forEach(ref => {
-                                const { bookName, chapterStr } = normalizeBookName(ref)
-                                const appBook = bible.find(b => b.name === bookName)
-                                if (appBook) {
-                                    const chs = getChaptersFromStr(chapterStr)
-                                    let isRead = true
-                                    chs.forEach(c => { if (!currentProg[`${appBook.name}-${c}`]) isRead = false })
-                                    chapters.push({ book: appBook.name, chapter: chs[0], words: appBook.ch[chs[0]-1] * chs.length, label: ref, isComplete: isRead })
-                                }
-                            })
-                        }
-                        break
-                    }
-                }
-            }
-
-            return chapters
-        }
-
-        // Helper: Get plan display name
-        function getPlanDisplayName(plan) {
-            const names = { 'SEQUENTIAL': 'Canonical', 'ONE_YEAR': 'One Year', 'MCHEYNE': "M'Cheyne", 'HORNER': 'Horner', 'FIVE_DAY': 'Five-Day' }
-            return names[plan] || plan
-        }
-
-        window.renderDashboard = () => {
-            const currentProg = getProgress()
-
-            // 1. Find last read chapter and determine next chapter
-            let lastReadKey = null, lastReadTime = 0
-            Object.entries(currentProg).forEach(([key, ts]) => {
-                if (typeof ts === 'number' && ts > lastReadTime) {
-                    lastReadTime = ts
-                    lastReadKey = key
-                }
-            })
-
-            // 2. Get today's plan chapters
-            const planChapters = getDashboardPlanChapters()
-            const firstUnread = planChapters.find(ch => !ch.isComplete)
-
-            // Set continue reading target
-            if (firstUnread) {
-                dashboardNextChapter = { book: firstUnread.book, chapter: firstUnread.chapter }
-            } else if (lastReadKey) {
-                // Find the next chapter after the last read
-                const parts = lastReadKey.split('-')
-                const bookName = parts[0]
-                const chNum = parseInt(parts[1], 10)
-                const bookIdx = bible.findIndex(b => b.name === bookName)
-                if (bookIdx >= 0) {
-                    const book = bible[bookIdx]
-                    if (chNum < book.ch.length) {
-                        dashboardNextChapter = { book: bookName, chapter: chNum + 1 }
-                    } else if (bookIdx + 1 < bible.length) {
-                        dashboardNextChapter = { book: bible[bookIdx + 1].name, chapter: 1 }
-                    }
-                }
-            }
-            if (!dashboardNextChapter) {
-                dashboardNextChapter = { book: 'Genesis', chapter: 1 }
-            }
-
-            // 3. Comeback detection
-            const daysSinceLastRead = lastReadTime > 0 ? Math.floor((Date.now() - lastReadTime) / 86400000) : -1
-            const comebackCard = document.getElementById('dashboard-comeback')
-            const continueCard = document.getElementById('dashboard-continue')
-
-            if (daysSinceLastRead >= 3 && lastReadKey) {
-                comebackCard.classList.remove('hidden')
-                continueCard.classList.add('hidden')
-                const lastBook = lastReadKey.replace('-', ' ')
-                let msg = `You were on ${escapeHtml(lastBook)}.`
-                if (daysSinceLastRead <= 7) msg += ' Pick up right where you left off.'
-                else msg += ' Every chapter counts. Ready to continue?'
-                document.getElementById('dashboard-comeback-text').textContent = msg
-            } else {
-                comebackCard.classList.add('hidden')
-                continueCard.classList.remove('hidden')
-            }
-
-            // 4. Continue reading card
-            const nextBook = bible.find(b => b.name === dashboardNextChapter.book)
-            const nextWords = nextBook ? nextBook.ch[dashboardNextChapter.chapter - 1] : 0
-            document.getElementById('dashboard-continue-chapter').textContent = `${dashboardNextChapter.book} ${dashboardNextChapter.chapter}`
-            document.getElementById('dashboard-continue-badge').textContent = getPlanDisplayName(activePlan)
-            const wpm = appData.wordsPerMinute || 250
-            const readMins = Math.ceil(nextWords / wpm)
-            document.getElementById('dashboard-continue-meta').textContent = `${nextWords.toLocaleString()} words ~ ${readMins} min read`
-
-            // 5. Today's plan items
-            const planName = document.getElementById('dashboard-plan-name')
-            planName.textContent = getPlanDisplayName(activePlan)
-            const planItemsEl = document.getElementById('dashboard-plan-items')
-
-            if (planChapters.length === 0) {
-                planItemsEl.innerHTML = '<div class="text-center text-sm text-slate-400 font-bold py-4">All caught up! 🎉</div>'
-            } else {
-                planItemsEl.innerHTML = planChapters.map(ch => {
-                    const badgeHtml = ch.badge ? `<span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded ml-2">${escapeHtml(ch.badge)}</span>` : ''
-                    return `<button onclick="window.openBibleReader('${ch.book}', ${ch.chapter})" class="w-full flex items-center justify-between p-3 rounded-xl border ${ch.isComplete ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-indigo-200 hover:bg-indigo-50'} transition-all text-left group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${ch.isComplete ? 'bg-emerald-500 text-white' : 'border-2 border-slate-300 group-hover:border-indigo-400'}">
-                                ${ch.isComplete ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
-                            </div>
-                            <div>
-                                <span class="text-sm font-bold ${ch.isComplete ? 'text-emerald-700 line-through' : 'text-slate-800'}">${escapeHtml(ch.label)}</span>${badgeHtml}
-                                <span class="text-[10px] text-slate-400 ml-2">~${ch.words} words</span>
-                            </div>
-                        </div>
-                        <svg class="w-4 h-4 text-slate-300 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>`
-                }).join('')
-            }
-
-            const planFooter = document.getElementById('dashboard-plan-footer')
-            const totalPlanWords = planChapters.reduce((sum, ch) => sum + (ch.isComplete ? 0 : ch.words), 0)
-            if (totalPlanWords > 0) {
-                const totalMins = Math.ceil(totalPlanWords / wpm)
-                planFooter.textContent = `${totalPlanWords.toLocaleString()} words remaining ~ ${totalMins} min`
-            } else {
-                planFooter.textContent = ''
-            }
-
-            // 6. Progress snapshot
-            let totalRead = 0, otRead = 0, ntRead = 0
-            bible.forEach(book => {
-                book.ch.forEach((w, idx) => {
-                    if (currentProg[`${book.name}-${idx+1}`]) {
-                        totalRead += w
-                        if (book.testament === 'OT') otRead += w
-                        else ntRead += w
-                    }
-                })
-            })
-            const getPerc = (read, total) => total > 0 ? (read / total * 100).toFixed(1) : '0.0'
-            document.getElementById('dashboard-total-pct').textContent = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%'
-            document.getElementById('dashboard-ot-pct').textContent = getPerc(otRead, WORD_TOTALS.OT) + '%'
-            document.getElementById('dashboard-nt-pct').textContent = getPerc(ntRead, WORD_TOTALS.NT) + '%'
-
-            // 7. Streak + Velocity
-            const streaks = calculateStreaks()
-            document.getElementById('dashboard-streak').textContent = streaks.current
-            const streakEmoji = document.getElementById('dashboard-streak-emoji')
-            if (streaks.current >= 365) streakEmoji.textContent = '👑'
-            else if (streaks.current >= 100) streakEmoji.textContent = '💎'
-            else if (streaks.current >= 30) streakEmoji.textContent = '🔥'
-            else if (streaks.current >= 7) streakEmoji.textContent = '⚡'
-            else streakEmoji.textContent = '🔥'
-
-            const activityMap = getReadingActivity()
-            const today = new Date()
-            let last7days = []
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date(today)
-                d.setDate(d.getDate() - i)
-                const dateStr = getLocalDateString(d.getTime())
-                last7days.push(activityMap[dateStr] || 0)
-            }
-            const avg7d = Math.round(last7days.reduce((s, v) => s + v, 0) / 7)
-            document.getElementById('dashboard-velocity').textContent = avg7d.toLocaleString()
-
-            // Sparkline SVG
-            const sparklineEl = document.getElementById('dashboard-sparkline')
-            const maxVal = Math.max(...last7days, 1)
-            const svgW = 96, svgH = 32
-            const points = last7days.map((v, i) => `${(i / 6) * svgW},${svgH - (v / maxVal) * (svgH - 4) - 2}`).join(' ')
-            sparklineEl.innerHTML = `<svg width="${svgW}" height="${svgH}" class="text-indigo-400"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="${points}"/></svg>`
-
-            // 8. Weekly recap (show on Sundays or if it's been a week since last shown)
-            const todayDay = today.getDay()
-            const lastRecapShown = localStorage.getItem('kjv_last_recap_shown')
-            const showRecap = todayDay === 0 || !lastRecapShown || (Date.now() - parseInt(lastRecapShown, 10)) > 7 * 86400000
-
-            if (showRecap && Object.keys(activityMap).length > 0) {
-                const recapEl = document.getElementById('dashboard-weekly-recap')
-                recapEl.classList.remove('hidden')
-
-                // This week: last 7 days
-                let thisWeekWords = 0, thisWeekChapters = 0
-                let lastWeekWords = 0
-                for (let i = 0; i < 7; i++) {
-                    const d = new Date(today)
-                    d.setDate(d.getDate() - i)
-                    const dateStr = getLocalDateString(d.getTime())
-                    thisWeekWords += activityMap[dateStr] || 0
-                }
-                for (let i = 7; i < 14; i++) {
-                    const d = new Date(today)
-                    d.setDate(d.getDate() - i)
-                    const dateStr = getLocalDateString(d.getTime())
-                    lastWeekWords += activityMap[dateStr] || 0
-                }
-
-                // Count chapters this week
-                Object.entries(currentProg).forEach(([key, ts]) => {
-                    if (typeof ts === 'number') {
-                        const readDate = new Date(ts)
-                        const daysDiff = Math.floor((today - readDate) / 86400000)
-                        if (daysDiff < 7) thisWeekChapters++
-                    }
-                })
-
-                document.getElementById('recap-chapters').textContent = thisWeekChapters
-                document.getElementById('recap-words').textContent = thisWeekWords > 999 ? (thisWeekWords / 1000).toFixed(1) + 'k' : thisWeekWords
-
-                const vsLastEl = document.getElementById('recap-vs-last')
-                if (lastWeekWords > 0) {
-                    const pctChange = Math.round(((thisWeekWords - lastWeekWords) / lastWeekWords) * 100)
-                    if (pctChange > 0) {
-                        vsLastEl.textContent = `+${pctChange}%`
-                        vsLastEl.className = 'text-xl font-black text-emerald-600'
-                    } else if (pctChange < 0) {
-                        vsLastEl.textContent = `${pctChange}%`
-                        vsLastEl.className = 'text-xl font-black text-amber-600'
-                    } else {
-                        vsLastEl.textContent = '0%'
-                        vsLastEl.className = 'text-xl font-black text-slate-500'
-                    }
-                } else {
-                    vsLastEl.textContent = '--'
-                    vsLastEl.className = 'text-xl font-black text-slate-500'
-                }
-
-                localStorage.setItem('kjv_last_recap_shown', Date.now().toString())
-            }
-        }
-
-        window.dashboardContinueReading = () => {
-            if (dashboardNextChapter) {
-                window.openBibleReader(dashboardNextChapter.book, dashboardNextChapter.chapter)
-            } else {
-                window.openBibleReader('Genesis', 1)
-            }
-        }
-
-        // --- ONBOARDING PLAN SELECTOR ---
-        window.selectIntroPlan = (planId) => {
-            appData.profilePlans[appData.activeProfileId] = planId
-            activePlan = planId
-            const planSelector = document.getElementById('plan-selector')
-            if (planSelector) planSelector.value = planId
-            window.saveProgress()
-
-            // Highlight the selected button
-            document.querySelectorAll('.intro-plan-btn').forEach(btn => {
-                btn.classList.remove('border-indigo-500', 'bg-indigo-50')
-                btn.classList.add('border-slate-200', 'bg-white')
-            })
-            event.currentTarget.classList.remove('border-slate-200', 'bg-white')
-            event.currentTarget.classList.add('border-indigo-500', 'bg-indigo-50')
-
-            // Generate first reading preview
-            const chapters = getDashboardPlanChapters()
-            const readingEl = document.getElementById('intro-first-reading')
-            if (chapters.length > 0) {
-                readingEl.innerHTML = chapters.slice(0, 4).map(ch =>
-                    `<div class="flex items-center gap-2"><svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>${escapeHtml(ch.label)} <span class="text-xs text-indigo-400">(~${ch.words} words)</span></div>`
-                ).join('')
-            } else {
-                readingEl.innerHTML = '<div class="text-indigo-700">Your reading plan is ready!</div>'
-            }
-
-            // Show step 2
-            document.getElementById('intro-step-1').classList.add('hidden')
-            document.getElementById('intro-step-2').classList.remove('hidden')
-        }
-
-        // --- DEEP STATS: VELOCITY + ETA + RECORDS ---
-        let velocityChart = null
-
-        function renderDeepStats(activityMap, chartTotalRead) {
-            const today = new Date()
-            const allDates = Object.keys(activityMap).sort()
-            const totalReadingDays = allDates.length
-
-            // Calculate velocity averages
-            const calcAvg = (days) => {
-                let sum = 0
-                for (let i = 0; i < days; i++) {
-                    const d = new Date(today)
-                    d.setDate(d.getDate() - i)
-                    const dateStr = getLocalDateString(d.getTime())
-                    sum += (activityMap[dateStr] || 0)
-                }
-                return Math.round(sum / days)
-            }
-
-            const avg7d = calcAvg(7)
-            const avg30d = calcAvg(30)
-            const avgAllTime = totalReadingDays > 0 ? Math.round(chartTotalRead / Math.max(totalReadingDays, 1)) : 0
-
-            document.getElementById('velocity-7d').textContent = avg7d.toLocaleString()
-            document.getElementById('velocity-30d').textContent = avg30d.toLocaleString()
-            document.getElementById('velocity-alltime').textContent = avgAllTime.toLocaleString()
-
-            // Trend detection
-            const trendCard = document.getElementById('velocity-trend-card')
-            const trendIcon = document.getElementById('velocity-trend-icon')
-            const trendLabel = document.getElementById('velocity-trend-label')
-            if (avg30d > 0) {
-                const ratio = avg7d / avg30d
-                if (ratio > 1.1) {
-                    trendCard.className = 'text-center p-4 rounded-2xl bg-emerald-50'
-                    trendIcon.textContent = '📈'
-                    trendLabel.textContent = 'Accelerating'
-                    trendLabel.className = 'text-[10px] font-bold text-emerald-600 uppercase'
-                } else if (ratio < 0.9) {
-                    trendCard.className = 'text-center p-4 rounded-2xl bg-amber-50'
-                    trendIcon.textContent = '📉'
-                    trendLabel.textContent = 'Slowing Down'
-                    trendLabel.className = 'text-[10px] font-bold text-amber-600 uppercase'
-                } else {
-                    trendCard.className = 'text-center p-4 rounded-2xl bg-blue-50'
-                    trendIcon.textContent = '📊'
-                    trendLabel.textContent = 'Steady Pace'
-                    trendLabel.className = 'text-[10px] font-bold text-blue-600 uppercase'
-                }
-            } else {
-                trendCard.className = 'text-center p-4 rounded-2xl bg-slate-50'
-                trendIcon.textContent = '📊'
-                trendLabel.textContent = 'Getting Started'
-                trendLabel.className = 'text-[10px] font-bold text-slate-500 uppercase'
-            }
-
-            // 90-day trend chart
-            const chartLabels = []
-            const chartData = []
-            for (let i = 89; i >= 0; i--) {
-                const d = new Date(today)
-                d.setDate(d.getDate() - i)
-                const dateStr = getLocalDateString(d.getTime())
-                chartLabels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))
-                chartData.push(activityMap[dateStr] || 0)
-            }
-
-            const canvasEl = document.getElementById('velocityTrendChart')
-            if (canvasEl) {
-                const ctx = canvasEl.getContext('2d')
-                if (velocityChart) {
-                    velocityChart.data.labels = chartLabels
-                    velocityChart.data.datasets[0].data = chartData
-                    velocityChart.update('none')
-                } else {
-                    velocityChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: chartLabels,
-                            datasets: [{
-                                data: chartData,
-                                borderColor: '#6366f1',
-                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                                fill: true,
-                                tension: 0.4,
-                                borderWidth: 2,
-                                pointRadius: 0,
-                                pointHoverRadius: 4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: (ctx) => `${ctx.parsed.y.toLocaleString()} words` } } },
-                            scales: {
-                                x: { display: true, grid: { display: false }, ticks: { maxTicksLimit: 6, font: { size: 10 } } },
-                                y: { display: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 }, callback: (v) => v > 999 ? (v/1000).toFixed(0) + 'k' : v } }
-                            },
-                            interaction: { mode: 'nearest', axis: 'x', intersect: false }
-                        }
-                    })
-                }
-            }
-
-            // ETA calculations
-            const unreadTotal = WORD_TOTALS.GLOBAL - chartTotalRead
-            let otRead = 0, ntRead = 0
-            const currentProg = getProgress()
-            bible.forEach(book => {
-                book.ch.forEach((w, idx) => {
-                    if (currentProg[`${book.name}-${idx+1}`]) {
-                        if (book.testament === 'OT') otRead += w
-                        else ntRead += w
-                    }
-                })
-            })
-            const unreadOT = WORD_TOTALS.OT - otRead
-            const unreadNT = WORD_TOTALS.NT - ntRead
-
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            const formatETA = (unreadWords, avgDaily) => {
-                if (unreadWords <= 0) return 'Complete! 🎉'
-                if (avgDaily <= 0) return 'Start reading!'
-                const daysNeeded = Math.ceil(unreadWords / avgDaily)
-                const etaDate = new Date()
-                etaDate.setDate(etaDate.getDate() + daysNeeded)
-                return `~${monthNames[etaDate.getMonth()]} ${etaDate.getDate()}, ${etaDate.getFullYear()}`
-            }
-
-            const paceAvg = avg30d > 0 ? avg30d : avgAllTime
-            document.getElementById('eta-total').textContent = formatETA(unreadTotal, paceAvg)
-            document.getElementById('eta-ot').textContent = formatETA(unreadOT, paceAvg)
-            document.getElementById('eta-nt').textContent = formatETA(unreadNT, paceAvg)
-
-            // Personal Records
-            let bestDay = { words: 0, date: '' }
-            let weekMap = {}
-            Object.keys(activityMap).forEach(dateStr => {
-                const words = activityMap[dateStr]
-                if (words > bestDay.words) { bestDay = { words, date: dateStr } }
-                // Group by ISO week
-                const d = new Date(dateStr)
-                const weekStart = new Date(d)
-                weekStart.setDate(d.getDate() - d.getDay())
-                const weekKey = getLocalDateString(weekStart.getTime())
-                weekMap[weekKey] = (weekMap[weekKey] || 0) + words
-            })
-
-            let bestWeek = { words: 0, date: '' }
-            Object.keys(weekMap).forEach(weekKey => {
-                if (weekMap[weekKey] > bestWeek.words) { bestWeek = { words: weekMap[weekKey], date: weekKey } }
-            })
-
-            document.getElementById('best-day-words').textContent = bestDay.words.toLocaleString()
-            document.getElementById('best-day-date').textContent = bestDay.date ? new Date(bestDay.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
-            document.getElementById('best-week-words').textContent = bestWeek.words.toLocaleString()
-            document.getElementById('best-week-date').textContent = bestWeek.date ? `Week of ${new Date(bestWeek.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''
-        }
-
         window.renderStatsPage = () => {
             const allCats = [...OT_CATS, ...NT_CATS];
             const dataset = []; const labels = []; const colors = []; let chartTotalRead = 0;
@@ -10176,9 +9428,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             checkStreakMilestones(streaks.current);
 
             renderHeatmap();
-
-            // Deep stats: velocity, ETA, records
-            renderDeepStats(activityMap, chartTotalRead);
         }
 
         // --- VERSE OF THE DAY ---
@@ -10333,7 +9582,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }, 15000);
 
         assignCategories();
-        window.setTab(appData.defaultTab || 'DASHBOARD');
+        window.setTab(appData.defaultTab || 'PLAN');
         window.updateStats();
         updateProfileColor();
         checkFirstVisit();
@@ -11317,32 +10566,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		}
 
     </script>
-
-    <!-- Mobile Bottom Navigation -->
-    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 sm:hidden" aria-label="Mobile navigation">
-        <div class="flex justify-around py-1.5 px-1 max-w-lg mx-auto">
-            <button onclick="window.setTab('DASHBOARD')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-indigo-600" id="bnav-dashboard" aria-label="Home">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                <span class="text-[10px] font-bold">Home</span>
-            </button>
-            <button onclick="window.setTab('ALL')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-all" aria-label="Bible">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                <span class="text-[10px] font-bold">Bible</span>
-            </button>
-            <button onclick="window.setTab('PLAN')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-plan" aria-label="Daily Plan">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                <span class="text-[10px] font-bold">Plan</span>
-            </button>
-            <button onclick="window.setTab('STATS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-stats" aria-label="Statistics">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                <span class="text-[10px] font-bold">Stats</span>
-            </button>
-            <button onclick="window.setTab('SETTINGS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-settings" aria-label="Settings">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="text-[10px] font-bold">Settings</span>
-            </button>
-        </div>
-    </nav>
 </body>
 
 </html>
