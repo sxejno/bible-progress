@@ -9360,8 +9360,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const summaryKey = `${item.book.toLowerCase().replace(/ /g, '-')}-${item.chapter}`;
                 const summary = chapterSummaries[summaryKey];
                 const summaryHtml = summary ?
-                    `<div class="hidden sm:block mt-3 pt-3 border-t border-slate-200">
-                        <div class="text-xs text-slate-600 leading-relaxed italic">"${summary}"</div>
+                    `<div class="mt-2.5 pt-2.5 border-t border-slate-200/60">
+                        <div class="text-[11px] text-slate-500 leading-relaxed">${summary}</div>
                     </div>` : '';
 
                 return `<button onclick="window.openBibleReader('${item.book}', ${item.chapter})" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group w-full text-left cursor-pointer" aria-label="Read ${item.label}${item.isComplete ? ', completed' : ''}">
