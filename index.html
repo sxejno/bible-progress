@@ -7231,11 +7231,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // If using Horner plan and marking as read, track daily completion
-            if(timestamp && activePlan === 'HORNER') {
+            // If using Horner plan, track daily completion
+            if(activePlan === 'HORNER') {
                 const listIndex = getHornerListForChapter(id);
                 if(listIndex >= 0) {
-                    markHornerListComplete(listIndex);
+                    if(timestamp) {
+                        markHornerListComplete(listIndex);
+                    } else {
+                        // Chapter was unmarked - remove list from today's completed lists
+                        resetHornerDailyProgressIfNeeded();
+                        const profileId = appData.activeProfileId;
+                        const idx = appData.hornerDailyProgress[profileId].completedLists.indexOf(listIndex);
+                        if(idx !== -1) {
+                            appData.hornerDailyProgress[profileId].completedLists.splice(idx, 1);
+                        }
+                    }
                 }
             }
 
@@ -8374,8 +8384,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                         words: appBook.ch[c],
                                         label: `${appBook.name} ${c+1}`,
                                         badge: `List ${listIdx+1}`,
-                                        isComplete: true,  // This chapter was read today
-                                        completedToday: true  // Special flag for Horner items read today
+                                        isComplete: true,
+                                        completedToday: true
                                     });
                                     foundForList = true;
                                     break;
@@ -8383,14 +8393,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
                             if(foundForList) break;
                         }
-                    } else {
-                        // List is NOT complete today - find the next unread chapter
+                    }
+
+                    // Fallback: find the next unread chapter in the list
+                    // (handles both "not complete today" and edge case where list was marked
+                    // complete but today's chapter timestamp couldn't be found)
+                    if(!foundForList) {
                         for(let bName of listBooks) {
                             const appBook = bible.find(b => b.name === bName);
                             if(!appBook) continue;
                             for(let c=0; c<appBook.ch.length; c++) {
                                 if(!currentProg[`${appBook.name}-${c+1}`]) {
-                                    const chapterId = `${appBook.name}-${c+1}`;
                                     nextChapters.push({
                                         book: appBook.name,
                                         chapter: c+1,
@@ -8398,13 +8411,44 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                         words: appBook.ch[c],
                                         label: `${appBook.name} ${c+1}`,
                                         badge: `List ${listIdx+1}`,
-                                        isComplete: false  // This is an unread chapter, show normally
+                                        isComplete: false
                                     });
                                     foundForList = true;
                                     break;
                                 }
                             }
                             if(foundForList) break;
+                        }
+                    }
+
+                    // All chapters in this list are fully read - Horner system cycles
+                    // back to the start. Pick the chapter read longest ago to maintain
+                    // the sequential rotation order across cycles.
+                    if(!foundForList) {
+                        let oldestTimestamp = Infinity;
+                        let oldestChapter = null;
+                        for(let bName of listBooks) {
+                            const appBook = bible.find(b => b.name === bName);
+                            if(!appBook) continue;
+                            for(let c=0; c<appBook.ch.length; c++) {
+                                const chapterId = `${appBook.name}-${c+1}`;
+                                const ts = currentProg[chapterId];
+                                if(ts && ts < oldestTimestamp) {
+                                    oldestTimestamp = ts;
+                                    oldestChapter = { book: appBook.name, chapter: c+1, words: appBook.ch[c] };
+                                }
+                            }
+                        }
+                        if(oldestChapter) {
+                            nextChapters.push({
+                                book: oldestChapter.book,
+                                chapter: oldestChapter.chapter,
+                                chapters: [oldestChapter.chapter],
+                                words: oldestChapter.words,
+                                label: `${oldestChapter.book} ${oldestChapter.chapter}`,
+                                badge: `List ${listIdx+1} ↻`,
+                                isComplete: false
+                            });
                         }
                     }
                 });
