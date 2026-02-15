@@ -339,11 +339,7 @@
     </style>
 </head>
 <body class="pb-24">
-    <!-- Version Toggle -->
-    <a id="version-toggle-btn" href="./index-classic.html" class="fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2.5 bg-slate-600 text-white text-xs font-bold rounded-full shadow-lg hover:bg-slate-700 transition-all hover:scale-105" aria-label="Use classic version of Bible Progress" style="text-decoration:none">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
-        Use Old Version
-    </a>
+    <!-- Version Toggle moved to Settings -->
 
     <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl modal-in border border-white/50">
@@ -1580,7 +1576,7 @@
                         </button>
                     </div>
 
-                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
                         <div class="flex-1">
                             <div class="font-bold text-slate-700 text-sm mb-1">Default Tab on Load</div>
                             <div class="text-xs text-slate-500">Choose which tab opens when you load the app</div>
@@ -1594,6 +1590,17 @@
                             <option value="STATS">Stats</option>
                         </select>
                     </div>
+
+                    <a href="./index-classic.html" class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors group" style="text-decoration:none" aria-label="Switch to classic version of Bible Progress">
+                        <div>
+                            <div class="font-bold text-slate-700 text-sm mb-1">Site Version</div>
+                            <div class="text-xs text-slate-500">Switch to the classic layout</div>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-500 group-hover:text-indigo-600 transition-colors">
+                            <span class="text-xs font-bold uppercase tracking-wide">Classic Version</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </a>
                 </div>
 
                 <div class="mb-8 pb-8 border-b border-slate-100">
@@ -7918,9 +7925,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.exportProgressPDF = () => {
             const exportProfiles = getExportProfiles();
             const generatedDate = new Date().toLocaleString();
+            const dateStamp = getExportDateStamp();
             const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
+            const pdfTitle = `Bible Reading Progress - ${dateStamp}`;
 
-            let bodyContent = `<h1>Bible Reading Progress</h1><p class="meta">Exported from bibleprogress.com &mdash; ${generatedDate}</p>`;
+            let bodyContent = `<div class="header"><h1>Bible Reading Progress</h1><p class="meta">Exported from bibleprogress.com &bull; ${generatedDate}</p></div>`;
 
             exportProfiles.forEach(profile => {
                 const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
@@ -7928,6 +7937,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 // Profile stats
                 let totalWords = 0, readWords = 0, readChapters = 0, totalChapters = 0;
+                let otRead = 0, ntRead = 0;
                 bible.forEach(book => {
                     book.ch.forEach((wc, idx) => {
                         totalWords += wc;
@@ -7935,13 +7945,27 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         if(profile.progress[`${book.name}-${idx + 1}`]) {
                             readWords += wc;
                             readChapters++;
+                            if (book.testament === 'OT') otRead += wc; else ntRead += wc;
                         }
                     });
                 });
-                const pct = totalWords > 0 ? (readWords / totalWords * 100).toFixed(2) : '0.00';
+                const pct = totalWords > 0 ? (readWords / totalWords * 100).toFixed(1) : '0.0';
+                const otPct = WORD_TOTALS.OT > 0 ? (otRead / WORD_TOTALS.OT * 100).toFixed(1) : '0.0';
+                const ntPct = WORD_TOTALS.NT > 0 ? (ntRead / WORD_TOTALS.NT * 100).toFixed(1) : '0.0';
+                let completedBooks = 0;
+                bible.forEach(book => { if (book.ch.every((_, i) => profile.progress[`${book.name}-${i+1}`])) completedBooks++ });
 
-                bodyContent += `<h2>Profile: ${escapeHtml(profile.name)}</h2>`;
-                bodyContent += `<p class="profile-meta"><strong>Plan:</strong> ${planLabel} &nbsp;|&nbsp; <strong>Progress:</strong> ${readChapters}/${totalChapters} chapters (${pct}%)</p>`;
+                bodyContent += `<h2>${escapeHtml(profile.name)}</h2>`;
+                bodyContent += `<div class="summary-grid">
+                    <div class="summary-item"><span class="summary-val" style="color:#4f46e5;">${pct}%</span><span class="summary-lbl">Complete</span></div>
+                    <div class="summary-item"><span class="summary-val">${readChapters}/${totalChapters}</span><span class="summary-lbl">Chapters</span></div>
+                    <div class="summary-item"><span class="summary-val">${completedBooks}/66</span><span class="summary-lbl">Books</span></div>
+                    <div class="summary-item"><span class="summary-val">${planLabel}</span><span class="summary-lbl">Plan</span></div>
+                </div>`;
+                bodyContent += `<div class="testament-row">
+                    <div class="testament-bar"><span class="testament-name">Old Testament</span><div class="bar-bg"><div class="bar-fill" style="width:${otPct}%;background:#f59e0b;"></div></div><span class="bar-pct">${otPct}%</span></div>
+                    <div class="testament-bar"><span class="testament-name">New Testament</span><div class="bar-bg"><div class="bar-fill" style="width:${ntPct}%;background:#10b981;"></div></div><span class="bar-pct">${ntPct}%</span></div>
+                </div>`;
 
                 // Memorized verses
                 const memorized = (appData.memorizedVerses && appData.memorizedVerses[profile.name]) || [];
@@ -7957,31 +7981,30 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 // Goals
                 const goals = (appData.goals && appData.goals[profile.name]) || [];
                 if(goals.length > 0) {
-                    bodyContent += `<h3>Reading Goals</h3><ul class="goals">`;
+                    bodyContent += `<h3>Reading Goals</h3>`;
                     goals.forEach(goal => {
                         const { percent } = calculateGoalProgress(goal);
                         const isComplete = percent >= 99.999;
-                        const deadlineStr = goal.deadline ? ` — due ${goal.deadline}` : '';
-                        const statusIcon = isComplete ? '✅' : '🎯';
-                        bodyContent += `<li>${statusIcon} <strong>${escapeHtml(goal.name || getGoalTypeLabel(goal))}</strong> — ${percent.toFixed(1)}%${deadlineStr}</li>`;
+                        const deadlineStr = goal.deadline ? ` &mdash; due ${goal.deadline}` : '';
+                        const barColor = isComplete ? '#16a34a' : '#6366f1';
+                        bodyContent += `<div class="goal-item"><div class="goal-top"><span>${isComplete ? '&#10003; ' : ''}<strong>${escapeHtml(goal.name || getGoalTypeLabel(goal))}</strong>${deadlineStr}</span><span style="font-weight:800;color:${barColor};">${percent.toFixed(1)}%</span></div><div class="bar-bg" style="height:6px;"><div class="bar-fill" style="width:${Math.min(percent,100)}%;background:${barColor};height:100%;"></div></div></div>`;
                     });
-                    bodyContent += '</ul>';
                 }
 
-                // Chapter progress by book
+                // Chapter progress by book (compact grid)
+                bodyContent += `<h3>Chapter Progress</h3><div class="books-list">`;
                 bible.forEach(book => {
                     const readCount = book.ch.filter((_, idx) => profile.progress[`${book.name}-${idx + 1}`]).length;
-                    bodyContent += `<h3>${book.name} <span class="count">(${readCount}/${book.ch.length})</span></h3><ul>`;
-                    book.ch.forEach((_, idx) => {
-                        const chapterId = `${book.name}-${idx + 1}`;
-                        const timestamp = profile.progress[chapterId];
-                        const status = timestamp ? '✓' : '○';
-                        const dateNote = timestamp ? ` — ${formatExportDate(timestamp)}` : '';
-                        bodyContent += `<li>${status} Chapter ${idx + 1}${dateNote}</li>`;
-                    });
-                    bodyContent += '</ul>';
+                    const bookPct = readCount / book.ch.length;
+                    let dotColor = '#cbd5e1';
+                    if (bookPct >= 1) dotColor = '#4f46e5';
+                    else if (bookPct > 0) dotColor = '#a5b4fc';
+                    bodyContent += `<div class="book-row"><span class="book-dot" style="background:${dotColor};"></span><span class="book-name">${book.name}</span><span class="book-prog">${readCount}/${book.ch.length}</span></div>`;
                 });
+                bodyContent += '</div>';
             });
+
+            bodyContent += `<div class="footer"><p>Generated by Bible Progress &bull; bibleprogress.com &bull; ${dateStamp}</p></div>`;
 
             const printWindow = window.open('', '_blank');
             if (!printWindow) {
@@ -7989,30 +8012,48 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 return;
             }
 
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Bible Reading Progress</title>
-                        <style>
-                            body { font-family: 'Inter', sans-serif; color: #0f172a; padding: 24px; max-width: 800px; margin: 0 auto; }
-                            h1 { font-size: 24px; margin-bottom: 4px; color: #1e1b4b; }
-                            .meta { font-size: 12px; color: #64748b; margin-bottom: 24px; }
-                            h2 { font-size: 20px; margin-top: 32px; border-bottom: 2px solid #e0e7ff; padding-bottom: 8px; color: #312e81; }
-                            .profile-meta { font-size: 13px; color: #475569; margin-bottom: 16px; }
-                            h3 { font-size: 16px; margin-top: 16px; }
-                            .count { font-weight: normal; color: #94a3b8; font-size: 13px; }
-                            ul { padding-left: 20px; }
-                            li { margin: 4px 0; font-size: 13px; }
-                            .verses { margin-bottom: 16px; }
-                            .verse { background: #fefce8; border-left: 3px solid #f59e0b; padding: 8px 12px; margin: 8px 0; font-size: 13px; }
-                            .verse .date { color: #94a3b8; font-size: 11px; }
-                            .goals li { margin: 6px 0; }
-                            @media print { body { padding: 0; } }
-                        </style>
-                    </head>
-                    <body>${bodyContent}</body>
-                </html>
-            `);
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(pdfTitle)}</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;padding:28px 24px;max-width:800px;margin:0 auto;line-height:1.5;}
+        .header{text-align:center;margin-bottom:28px;padding-bottom:16px;border-bottom:3px solid #e0e7ff;}
+        .header h1{font-size:24px;font-weight:900;color:#1e1b4b;letter-spacing:-0.5px;margin-bottom:4px;}
+        .meta{font-size:12px;color:#64748b;}
+        h2{font-size:18px;font-weight:800;margin-top:28px;margin-bottom:12px;color:#312e81;padding-bottom:8px;border-bottom:2px solid #e0e7ff;}
+        h3{font-size:13px;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:1px;margin-top:20px;margin-bottom:10px;}
+        .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+        .summary-item{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 8px;text-align:center;}
+        .summary-val{display:block;font-size:18px;font-weight:900;letter-spacing:-0.5px;color:#0f172a;}
+        .summary-lbl{display:block;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+        .testament-row{margin-bottom:16px;}
+        .testament-bar{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+        .testament-name{width:100px;font-size:12px;font-weight:700;color:#475569;flex-shrink:0;}
+        .bar-bg{flex:1;height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden;}
+        .bar-fill{height:100%;border-radius:5px;}
+        .bar-pct{width:44px;text-align:right;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;}
+        .verses{margin-bottom:14px;}
+        .verse{background:#fffbeb;border-left:3px solid #f59e0b;padding:8px 12px;margin:6px 0;font-size:12px;border-radius:0 6px 6px 0;}
+        .verse .date{color:#94a3b8;font-size:10px;}
+        .goal-item{margin-bottom:8px;padding:8px 0;}
+        .goal-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+        .books-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px 16px;margin-bottom:16px;}
+        .book-row{display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 0;}
+        .book-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+        .book-name{font-weight:600;color:#334155;flex:1;}
+        .book-prog{font-weight:700;color:#94a3b8;font-size:11px;}
+        .footer{text-align:center;padding-top:16px;border-top:2px solid #e0e7ff;margin-top:20px;}
+        .footer p{font-size:10px;color:#94a3b8;font-weight:600;}
+        @media print{body{padding:16px;}@page{margin:1.5cm;}}
+        @media(max-width:500px){.summary-grid{grid-template-columns:repeat(2,1fr);}}
+    </style>
+</head>
+<body>${bodyContent}</body>
+</html>`);
             printWindow.document.close();
             printWindow.focus();
             printWindow.print();
@@ -8024,23 +8065,38 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const streaks = calculateStreaks()
             const generatedDate = new Date().toLocaleString()
             const profileName = appData.activeProfileId || 'Default'
+            const dateStamp = getExportDateStamp()
+            const reportTitle = `Bible Progress Report - ${profileName} - ${dateStamp}`
 
             // Calculate totals
             let totalRead = 0, otRead = 0, ntRead = 0, chaptersRead = 0, totalChapters = 0
+            let otChaptersRead = 0, ntChaptersRead = 0, otChapters = 0, ntChapters = 0
             bible.forEach(book => {
                 book.ch.forEach((w, idx) => {
                     totalChapters++
+                    if (book.testament === 'OT') otChapters++
+                    else ntChapters++
                     if (currentProg[`${book.name}-${idx+1}`]) {
                         totalRead += w
                         chaptersRead++
-                        if (book.testament === 'OT') otRead += w
-                        else ntRead += w
+                        if (book.testament === 'OT') { otRead += w; otChaptersRead++ }
+                        else { ntRead += w; ntChaptersRead++ }
                     }
                 })
             })
             const totalPct = (totalRead / WORD_TOTALS.GLOBAL * 100).toFixed(1)
             const otPct = (otRead / WORD_TOTALS.OT * 100).toFixed(1)
             const ntPct = (ntRead / WORD_TOTALS.NT * 100).toFixed(1)
+
+            // Completed books
+            let completedBooks = 0
+            bible.forEach(book => {
+                if (book.ch.every((_, i) => currentProg[`${book.name}-${i+1}`])) completedBooks++
+            })
+
+            // Memorized verses and goals
+            const memorizedVerses = (appData.memorizedVerses && appData.memorizedVerses[profileName]) || []
+            const profileGoals = (appData.goals && appData.goals[profileName]) || []
 
             // Build 30-day activity data
             const today = new Date()
@@ -8051,11 +8107,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 d.setDate(d.getDate() - i)
                 const dateStr = getLocalDateString(d.getTime())
                 const val = activityMap[dateStr] || 0
-                days30.push({ date: dateStr, words: val, label: d.getDate().toString() })
+                const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]
+                days30.push({ date: dateStr, words: val, label: d.getDate().toString(), fullLabel: `${mo} ${d.getDate()}` })
                 if (val > max30) max30 = val
             }
 
-            // 7d and 30d averages
             const last7 = days30.slice(-7)
             const avg7d = Math.round(last7.reduce((s, d) => s + d.words, 0) / 7)
             const avg30d = Math.round(days30.reduce((s, d) => s + d.words, 0) / 30)
@@ -8073,123 +8129,128 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
             const catColors = ['#f59e0b','#f97316','#ec4899','#8b5cf6','#3b82f6','#14b8a6','#ef4444']
             const catData = Object.entries(categories).map(([name, books], i) => {
-                let total = 0, read = 0
+                let total = 0, read = 0, readCh = 0, totalCh = 0
                 books.forEach(bn => {
                     const book = bible.find(b => b.name === bn)
-                    if (book) book.ch.forEach((w, idx) => { total += w; if (currentProg[`${book.name}-${idx+1}`]) read += w })
+                    if (book) book.ch.forEach((w, idx) => { total += w; totalCh++; if (currentProg[`${book.name}-${idx+1}`]) { read += w; readCh++ } })
                 })
-                return { name, total, read, pct: total > 0 ? (read / total * 100) : 0, color: catColors[i] }
+                return { name, total, read, readCh, totalCh, pct: total > 0 ? (read / total * 100) : 0, color: catColors[i] }
             })
-
-            // Build 30-day bar chart SVG
-            const barW = 700, barH = 180, barPad = 50
-            const barSpacing = (barW - barPad * 2) / 30
-            let barsSvg = `<svg width="${barW}" height="${barH + 40}" viewBox="0 0 ${barW} ${barH + 40}" xmlns="http://www.w3.org/2000/svg">`
-            // Grid lines
-            for (let i = 0; i <= 4; i++) {
-                const y = barPad + (barH - barPad * 2) * (1 - i/4)
-                const val = Math.round(max30 * i / 4)
-                barsSvg += `<line x1="${barPad}" y1="${y}" x2="${barW - barPad}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`
-                barsSvg += `<text x="${barPad - 8}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="600">${val > 999 ? (val/1000).toFixed(1) + 'k' : val}</text>`
-            }
-            // Bars
-            days30.forEach((d, i) => {
-                const x = barPad + i * barSpacing + barSpacing * 0.2
-                const bw = barSpacing * 0.6
-                const bh = (d.words / max30) * (barH - barPad * 2)
-                const y = barPad + (barH - barPad * 2) - bh
-                const fill = d.words > 0 ? '#6366f1' : '#e2e8f0'
-                barsSvg += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="${fill}"/>`
-                if (i % 5 === 0 || i === 29) barsSvg += `<text x="${x + bw/2}" y="${barH + 15}" text-anchor="middle" fill="#64748b" font-size="9" font-weight="600">${d.label}</text>`
-            })
-            barsSvg += '</svg>'
-
-            // Main donut chart
-            const donutR = 65, donutStroke = 16
-            const donutCirc = 2 * Math.PI * donutR
-            const donutFill = donutCirc * (totalRead / WORD_TOTALS.GLOBAL)
-            const donutSvg = `<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <circle cx="90" cy="90" r="${donutR}" fill="none" stroke="#e2e8f0" stroke-width="${donutStroke}"/>
-                <circle cx="90" cy="90" r="${donutR}" fill="none" stroke="url(#donutGrad)" stroke-width="${donutStroke}" stroke-dasharray="${donutFill} ${donutCirc}" stroke-linecap="round" transform="rotate(-90 90 90)"/>
-                <text x="90" y="85" text-anchor="middle" font-size="32" font-weight="900" fill="#1e1b4b">${totalPct}%</text>
-                <text x="90" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">COMPLETE</text>
-            </svg>`
-
-            // Testament mini donuts
-            const miniR = 35, miniStroke = 8
-            const miniCirc = 2 * Math.PI * miniR
-            const otFill = miniCirc * (otRead / WORD_TOTALS.OT)
-            const ntFill = miniCirc * (ntRead / WORD_TOTALS.NT)
-            const otDonutSvg = `<svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#fef3c7" stroke-width="${miniStroke}"/>
-                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#f59e0b" stroke-width="${miniStroke}" stroke-dasharray="${otFill} ${miniCirc}" stroke-linecap="round" transform="rotate(-90 45 45)"/>
-                <text x="45" y="48" text-anchor="middle" font-size="14" font-weight="900" fill="#92400e">${otPct}%</text>
-                <text x="45" y="60" text-anchor="middle" font-size="7" font-weight="700" fill="#78350f">OLD TEST.</text>
-            </svg>`
-            const ntDonutSvg = `<svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#d1fae5" stroke-width="${miniStroke}"/>
-                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#10b981" stroke-width="${miniStroke}" stroke-dasharray="${ntFill} ${miniCirc}" stroke-linecap="round" transform="rotate(-90 45 45)"/>
-                <text x="45" y="48" text-anchor="middle" font-size="14" font-weight="900" fill="#065f46">${ntPct}%</text>
-                <text x="45" y="60" text-anchor="middle" font-size="7" font-weight="700" fill="#047857">NEW TEST.</text>
-            </svg>`
-
-            // Category bars as SVG
-            const catW = 700, catH = 240
-            let catSvg = `<svg width="${catW}" height="${catH}" viewBox="0 0 ${catW} ${catH}" xmlns="http://www.w3.org/2000/svg">`
-            catData.forEach((cat, i) => {
-                const y = i * 32
-                const barWidth = 450
-                const barX = 200
-                const filled = barWidth * (cat.pct / 100)
-                catSvg += `<text x="${barX - 10}" y="${y + 18}" text-anchor="end" fill="#475569" font-size="12" font-weight="700">${cat.name}</text>`
-                catSvg += `<rect x="${barX}" y="${y + 4}" width="${barWidth}" height="20" rx="10" fill="#f1f5f9"/>`
-                catSvg += `<rect x="${barX}" y="${y + 4}" width="${filled}" height="20" rx="10" fill="${cat.color}"/>`
-                catSvg += `<text x="${barX + barWidth + 10}" y="${y + 18}" fill="#64748b" font-size="12" font-weight="700">${Math.round(cat.pct)}%</text>`
-            })
-            catSvg += '</svg>'
 
             // Projection
             const remainingWords = WORD_TOTALS.GLOBAL - totalRead
             let projectionHtml = ''
-            if (avg30d > 0 && totalRead > 0) {
+            if (avg30d > 0 && totalRead > 0 && totalRead < WORD_TOTALS.GLOBAL) {
                 const daysLeft = Math.ceil(remainingWords / avg30d)
                 const finishDate = new Date(today)
                 finishDate.setDate(finishDate.getDate() + daysLeft)
                 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
                 const dateStr = `${monthNames[finishDate.getMonth()]} ${finishDate.getDate()}, ${finishDate.getFullYear()}`
-                projectionHtml = `<div style="background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);border:2px solid #86efac;padding:20px;border-radius:16px;margin-top:20px;">
-                    <p style="font-weight:900;font-size:16px;color:#166534;margin:0 0 6px;letter-spacing:-0.5px;">📅 Projected Completion: ${dateStr}</p>
-                    <p style="font-size:13px;color:#15803d;margin:0;font-weight:600;">${daysLeft} days remaining at your 30-day average of ${avg30d.toLocaleString()} words/day</p>
+                projectionHtml = `<div class="projection-card">
+                    <div style="font-size:24px;flex-shrink:0;">&#128197;</div>
+                    <div>
+                        <div style="font-weight:900;font-size:15px;color:#166534;margin-bottom:2px;">Projected Completion: ${dateStr}</div>
+                        <div style="font-size:12px;color:#15803d;font-weight:600;">${daysLeft.toLocaleString()} days remaining at ${avg30d.toLocaleString()} words/day</div>
+                    </div>
                 </div>`
             }
 
-            // Book grid (mini heatmap)
-            let bookGridSvg = `<svg width="700" height="200" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">`
-            let bx = 0, by = 0
-            bible.forEach((book, idx) => {
-                const readCount = book.ch.filter((_, i) => currentProg[`${book.name}-${i+1}`]).length
-                const bookPct = readCount / book.ch.length
-                let fill = '#f1f5f9'
-                if (bookPct >= 1) fill = '#4f46e5'
-                else if (bookPct >= 0.75) fill = '#818cf8'
-                else if (bookPct >= 0.5) fill = '#a5b4fc'
-                else if (bookPct >= 0.25) fill = '#c7d2fe'
-                else if (bookPct > 0) fill = '#e0e7ff'
-                const textColor = bookPct >= 0.5 ? '#fff' : '#64748b'
-                bookGridSvg += `<rect x="${bx}" y="${by}" width="32" height="32" rx="4" fill="${fill}"/>`
-                if (readCount === book.ch.length) {
-                    bookGridSvg += `<text x="${bx + 16}" y="${by + 21}" text-anchor="middle" fill="${textColor}" font-size="14" font-weight="900">✓</text>`
-                }
-                bx += 36
-                if ((idx + 1) % 19 === 0) { bx = 0; by += 36 }
+            // Goals HTML
+            let goalsHtml = ''
+            if (profileGoals.length > 0) {
+                goalsHtml = `<div class="section"><div class="section-title">Reading Goals</div>`
+                profileGoals.forEach(goal => {
+                    const { percent } = calculateGoalProgress(goal)
+                    const isComplete = percent >= 99.999
+                    const goalName = escapeHtml(goal.name || getGoalTypeLabel(goal))
+                    const deadlineStr = goal.deadline ? `Due: ${goal.deadline}` : ''
+                    const barColor = isComplete ? '#16a34a' : percent > 50 ? '#f59e0b' : '#6366f1'
+                    goalsHtml += `<div style="background:#fafbfc;border:2px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <span style="font-size:13px;font-weight:700;color:#1e293b;">${isComplete ? '&#10003; ' : ''}${goalName}</span>
+                            <span style="font-size:14px;font-weight:900;color:${barColor};">${percent.toFixed(1)}%</span>
+                        </div>
+                        <div style="height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden;"><div style="height:100%;border-radius:4px;width:${Math.min(percent, 100)}%;background:${barColor};"></div></div>
+                        ${deadlineStr ? `<div style="font-size:11px;color:#94a3b8;font-weight:600;margin-top:6px;">${deadlineStr}</div>` : ''}
+                    </div>`
+                })
+                goalsHtml += `</div>`
+            }
+
+            // Memorized verses HTML
+            let versesHtml = ''
+            if (memorizedVerses.length > 0) {
+                versesHtml = `<div class="section"><div class="section-title">Memorized Verses (${memorizedVerses.length})</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">`
+                memorizedVerses.forEach(verse => {
+                    versesHtml += `<div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fde68a;border-radius:12px;padding:14px 16px;">
+                        <div style="font-size:12px;font-weight:800;color:#92400e;margin-bottom:4px;">${escapeHtml(verse.ref || verse.id)}</div>
+                        <div style="font-size:12px;color:#78350f;font-weight:500;line-height:1.5;font-style:italic;">${escapeHtml(verse.text || '')}</div>
+                    </div>`
+                })
+                versesHtml += `</div></div>`
+            }
+
+            // Build book grid HTML (responsive CSS grid instead of SVG)
+            let bookGridHtml = ''
+            bible.forEach(book => {
+                const rc = book.ch.filter((_, i) => currentProg[`${book.name}-${i+1}`]).length
+                const bp = rc / book.ch.length
+                let fill = '#f1f5f9', tc = '#94a3b8'
+                if (bp >= 1) { fill = '#4f46e5'; tc = '#fff' }
+                else if (bp >= 0.75) { fill = '#818cf8'; tc = '#fff' }
+                else if (bp >= 0.5) { fill = '#a5b4fc'; tc = '#fff' }
+                else if (bp >= 0.25) { fill = '#c7d2fe'; tc = '#312e81' }
+                else if (bp > 0) { fill = '#e0e7ff'; tc = '#475569' }
+                const abbr = book.name.length > 5 ? book.name.substring(0,3) : book.name.substring(0,4)
+                bookGridHtml += `<div class="book-cell" style="background:${fill};color:${tc};" title="${escapeHtml(book.name)} ${rc}/${book.ch.length}">
+                    ${bp >= 1 ? '&#10003;' : escapeHtml(abbr)}
+                </div>`
             })
-            bookGridSvg += '</svg>'
+
+            // Build bar chart SVG (responsive viewBox)
+            const bW = 700, bH = 180, bPad = 50
+            const bSpacing = (bW - bPad * 2) / 30
+            let barsSvg = `<svg viewBox="0 0 ${bW} ${bH + 40}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">`
+            for (let i = 0; i <= 4; i++) {
+                const y = bPad + (bH - bPad * 2) * (1 - i/4)
+                const val = Math.round(max30 * i / 4)
+                barsSvg += `<line x1="${bPad}" y1="${y}" x2="${bW - bPad}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`
+                barsSvg += `<text x="${bPad - 8}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="600">${val > 999 ? (val/1000).toFixed(1) + 'k' : val}</text>`
+            }
+            days30.forEach((d, i) => {
+                const x = bPad + i * bSpacing + bSpacing * 0.15
+                const bw = bSpacing * 0.7
+                const bh = (d.words / max30) * (bH - bPad * 2)
+                const y = bPad + (bH - bPad * 2) - bh
+                const fill = d.words > 0 ? '#6366f1' : '#e2e8f0'
+                barsSvg += `<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(bh, 2)}" rx="3" fill="${fill}"/>`
+                if (i % 5 === 0 || i === 29) barsSvg += `<text x="${x + bw/2}" y="${bH + 15}" text-anchor="middle" fill="#64748b" font-size="9" font-weight="600">${d.fullLabel}</text>`
+            })
+            barsSvg += '</svg>'
+
+            // Donut SVGs
+            const mkDonut = (r, sw, pct, fg, bg, textColor, size) => {
+                const circ = 2 * Math.PI * r, fill = circ * (pct / 100)
+                return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+                    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${bg}" stroke-width="${sw}"/>
+                    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${fg}" stroke-width="${sw}" stroke-dasharray="${fill} ${circ}" stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/>
+                    <text x="${size/2}" y="${size/2 + (r > 50 ? 0 : 4)}" text-anchor="middle" font-size="${r > 50 ? 32 : 14}" font-weight="900" fill="${textColor}" dominant-baseline="central">${pct}%</text>
+                </svg>`
+            }
+            const mainDonut = mkDonut(65, 16, totalPct, '#6366f1', '#e2e8f0', '#1e1b4b', 180)
+            const otDonut = mkDonut(30, 7, otPct, '#f59e0b', '#fef3c7', '#92400e', 76)
+            const ntDonut = mkDonut(30, 7, ntPct, '#10b981', '#d1fae5', '#065f46', 76)
+
+            // Category bars HTML
+            let catBarsHtml = ''
+            catData.forEach(cat => {
+                catBarsHtml += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <div style="width:110px;text-align:right;font-size:12px;font-weight:700;color:#475569;flex-shrink:0;">${cat.name}</div>
+                    <div style="flex:1;height:22px;background:#f1f5f9;border-radius:11px;overflow:hidden;"><div style="height:100%;width:${cat.pct}%;background:${cat.color};border-radius:11px;"></div></div>
+                    <div style="width:42px;text-align:right;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;">${Math.round(cat.pct)}%</div>
+                    <div style="width:60px;text-align:right;font-size:10px;font-weight:600;color:#94a3b8;flex-shrink:0;">${cat.readCh}/${cat.totalCh}</div>
+                </div>`
+            })
 
             const printWindow = window.open('', '_blank')
             if (!printWindow) {
@@ -8202,255 +8263,127 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bible Progress - Visual Report</title>
+    <title>${escapeHtml(reportTitle)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: #0f172a;
-            padding: 40px;
-            max-width: 850px;
-            margin: 0 auto;
-            background: #fff;
-            line-height: 1.5;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 24px;
-            border-bottom: 3px solid #e0e7ff;
-        }
-        .header h1 {
-            font-size: 36px;
-            font-weight: 900;
-            color: #1e1b4b;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
-        }
-        .header .profile {
-            font-size: 14px;
-            color: #6366f1;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .header .timestamp {
-            font-size: 11px;
-            color: #94a3b8;
-            font-weight: 600;
-        }
-        .section {
-            margin-bottom: 36px;
-            page-break-inside: avoid;
-        }
-        .section-title {
-            font-size: 12px;
-            font-weight: 900;
-            color: #6366f1;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e0e7ff;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        .stat-val {
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: -1px;
-        }
-        .stat-label {
-            font-size: 9px;
-            font-weight: 800;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 6px;
-        }
-        .overview-row {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-            margin-bottom: 24px;
-        }
-        .testaments-row {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .overview-stats {
-            flex: 1;
-            background: #fafbfc;
-            border-radius: 12px;
-            padding: 16px;
-        }
-        .overview-stat {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .overview-stat:last-child { border-bottom: none; }
-        .chart-container {
-            background: #fafbfc;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-        .velocity-row {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-        }
-        .velocity-card {
-            flex: 1;
-            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-            border: 2px solid #c7d2fe;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-        }
-        .velocity-val {
-            font-size: 24px;
-            font-weight: 900;
-            color: #4338ca;
-        }
-        .velocity-label {
-            font-size: 10px;
-            font-weight: 800;
-            color: #6366f1;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 4px;
-        }
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e2e8f0;
-        }
-        .legend-item {
-            font-size: 10px;
-            color: #64748b;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 600;
-        }
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-        }
-        @media print {
-            body { padding: 20px; }
-            .section { page-break-inside: avoid; }
-            @page { margin: 1.5cm; }
-        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;padding:32px 24px;max-width:800px;margin:0 auto;background:#fff;line-height:1.5;}
+        .header{text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #e0e7ff;}
+        .header h1{font-size:clamp(22px,5vw,30px);font-weight:900;color:#1e1b4b;letter-spacing:-1px;margin-bottom:6px;}
+        .header .profile{font-size:14px;color:#6366f1;font-weight:700;margin-bottom:4px;}
+        .header .ts{font-size:11px;color:#94a3b8;font-weight:600;}
+        .section{margin-bottom:28px;page-break-inside:avoid;}
+        .section-title{font-size:11px;font-weight:900;color:#6366f1;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e0e7ff;}
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px;}
+        .stat-card{background:linear-gradient(135deg,#fefefe,#f8fafc);border:2px solid #e2e8f0;border-radius:14px;padding:14px 10px;text-align:center;}
+        .stat-val{font-size:clamp(18px,3.5vw,26px);font-weight:900;letter-spacing:-1px;}
+        .stat-label{font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1.5px;margin-top:3px;}
+        .overview-row{display:flex;align-items:center;gap:24px;margin-bottom:20px;flex-wrap:wrap;}
+        .overview-stats{flex:1;min-width:220px;background:#fafbfc;border:2px solid #e2e8f0;border-radius:14px;padding:14px;}
+        .overview-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:600;}
+        .overview-stat:last-child{border-bottom:none;}
+        .testaments-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
+        .testament-card{display:flex;align-items:center;gap:12px;background:#fafbfc;border:2px solid #e2e8f0;border-radius:14px;padding:14px 18px;flex:1;min-width:200px;}
+        .testament-info{font-size:13px;font-weight:600;color:#475569;}
+        .testament-info strong{display:block;font-size:12px;color:#0f172a;font-weight:800;}
+        .testament-info .sub{font-size:11px;color:#94a3b8;}
+        .chart-box{background:#fafbfc;border:2px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:14px;overflow-x:auto;}
+        .chart-box svg{display:block;width:100%;height:auto;}
+        .velocity-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+        .vel-card{background:linear-gradient(135deg,#eef2ff,#e0e7ff);border:2px solid #c7d2fe;border-radius:12px;padding:14px 10px;text-align:center;}
+        .vel-val{font-size:clamp(16px,3vw,22px);font-weight:900;color:#4338ca;}
+        .vel-label{font-size:9px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+        .projection-card{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;padding:16px;border-radius:14px;margin-top:14px;}
+        .book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:4px;}
+        .book-cell{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;cursor:default;}
+        .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;}
+        .legend-item{font-size:10px;color:#64748b;display:flex;align-items:center;gap:5px;font-weight:600;}
+        .legend-dot{width:12px;height:12px;border-radius:3px;}
+        .footer{text-align:center;padding-top:16px;border-top:2px solid #e0e7ff;margin-top:8px;}
+        .footer p{font-size:10px;color:#94a3b8;font-weight:600;}
+        @media print{body{padding:16px;}.section{page-break-inside:avoid;}@page{margin:1.5cm;}}
+        @media(max-width:500px){body{padding:16px 12px;}.overview-row{flex-direction:column;gap:16px;}}
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>📖 Bible Reading Progress</h1>
-        <div class="profile">${escapeHtml(profileName)}</div>
-        <div class="timestamp">Generated ${generatedDate} • bibleprogress.com</div>
+        <h1>Bible Reading Progress</h1>
+        <div class="profile">${escapeHtml(profileName)} &mdash; ${getPlanDisplayName(activePlan)} Plan</div>
+        <div class="ts">Generated ${generatedDate} &bull; bibleprogress.com</div>
     </div>
 
     <div class="section">
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-val" style="color:#4f46e5;">${totalPct}%</div>
-                <div class="stat-label">Total Progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-val" style="color:#0f172a;">${chaptersRead.toLocaleString()}</div>
-                <div class="stat-label">Chapters Read</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-val" style="color:#0f172a;">${(totalRead / 1000).toFixed(1)}k</div>
-                <div class="stat-label">Words Read</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-val" style="color:#f59e0b;">${streaks.current}</div>
-                <div class="stat-label">Current Streak</div>
-            </div>
+            <div class="stat-card"><div class="stat-val" style="color:#4f46e5;">${totalPct}%</div><div class="stat-label">Complete</div></div>
+            <div class="stat-card"><div class="stat-val">${chaptersRead}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/${totalChapters}</span></div><div class="stat-label">Chapters</div></div>
+            <div class="stat-card"><div class="stat-val">${totalRead >= 1000000 ? (totalRead/1000000).toFixed(2)+'M' : (totalRead/1000).toFixed(1)+'k'}</div><div class="stat-label">Words Read</div></div>
+            <div class="stat-card"><div class="stat-val">${completedBooks}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/66</span></div><div class="stat-label">Books Done</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#f59e0b;">${streaks.current}</div><div class="stat-label">Current Streak</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${streaks.longest || 0}</div><div class="stat-label">Best Streak</div></div>
+            <div class="stat-card"><div class="stat-val">${Object.keys(activityMap).length}</div><div class="stat-label">Days Read</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#10b981;">${memorizedVerses.length}</div><div class="stat-label">Memorized</div></div>
         </div>
     </div>
 
     <div class="section">
         <div class="section-title">Overall Progress</div>
         <div class="overview-row">
-            <div>${donutSvg}</div>
+            <div style="flex-shrink:0;">${mainDonut}</div>
             <div class="overview-stats">
                 <div class="overview-stat"><span>Reading Plan</span><strong style="color:#6366f1;">${getPlanDisplayName(activePlan)}</strong></div>
                 <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
                 <div class="overview-stat"><span>Words Remaining</span><strong>${((WORD_TOTALS.GLOBAL - totalRead) / 1000).toFixed(1)}k</strong></div>
-                <div class="overview-stat"><span>Longest Streak</span><strong>${streaks.longest || 0} days</strong></div>
                 <div class="overview-stat"><span>Total Days Read</span><strong>${Object.keys(activityMap).length}</strong></div>
             </div>
         </div>
         <div class="testaments-row">
-            <div>${otDonutSvg}</div>
-            <div>${ntDonutSvg}</div>
+            <div class="testament-card">
+                ${otDonut}
+                <div class="testament-info"><strong>Old Testament</strong>${otChaptersRead}/${otChapters} chapters<div class="sub">${(otRead/1000).toFixed(1)}k / ${(WORD_TOTALS.OT/1000).toFixed(1)}k words</div></div>
+            </div>
+            <div class="testament-card">
+                ${ntDonut}
+                <div class="testament-info"><strong>New Testament</strong>${ntChaptersRead}/${ntChapters} chapters<div class="sub">${(ntRead/1000).toFixed(1)}k / ${(WORD_TOTALS.NT/1000).toFixed(1)}k words</div></div>
+            </div>
         </div>
     </div>
 
     <div class="section">
         <div class="section-title">30-Day Reading Activity</div>
-        <div class="chart-container">${barsSvg}</div>
+        <div class="chart-box">${barsSvg}</div>
         <div class="velocity-row">
-            <div class="velocity-card">
-                <div class="velocity-val">${avg7d.toLocaleString()}</div>
-                <div class="velocity-label">7-Day Avg (words/day)</div>
-            </div>
-            <div class="velocity-card">
-                <div class="velocity-val">${avg30d.toLocaleString()}</div>
-                <div class="velocity-label">30-Day Avg (words/day)</div>
-            </div>
-            <div class="velocity-card">
-                <div class="velocity-val">${avgAllTime.toLocaleString()}</div>
-                <div class="velocity-label">All-Time Avg (words/day)</div>
-            </div>
+            <div class="vel-card"><div class="vel-val">${avg7d.toLocaleString()}</div><div class="vel-label">7-Day Avg (w/day)</div></div>
+            <div class="vel-card"><div class="vel-val">${avg30d.toLocaleString()}</div><div class="vel-label">30-Day Avg (w/day)</div></div>
+            <div class="vel-card"><div class="vel-val">${avgAllTime.toLocaleString()}</div><div class="vel-label">All-Time Avg (w/day)</div></div>
         </div>
         ${projectionHtml}
     </div>
 
     <div class="section">
         <div class="section-title">Progress by Category</div>
-        <div class="chart-container">${catSvg}</div>
+        <div class="chart-box" style="padding:18px 16px;">${catBarsHtml}</div>
     </div>
 
     <div class="section">
         <div class="section-title">Book Completion Grid</div>
-        <p style="font-size:11px;color:#64748b;margin-bottom:12px;font-weight:600;">All 66 books from Genesis to Revelation. Darker colors indicate higher completion. Checkmark = 100% complete.</p>
-        <div class="chart-container">${bookGridSvg}</div>
+        <p style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:600;">All 66 books &mdash; darker shading means more complete.</p>
+        <div class="chart-box" style="padding:14px;">
+            <div class="book-grid">${bookGridHtml}</div>
+        </div>
         <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e1;"></div>0% (Not Started)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1–24% (Getting Started)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25–49% (In Progress)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50–74% (Halfway There)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75–99% (Almost Done)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>100% (Complete ✓)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e1;"></div>Not Started</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1-24%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25-49%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50-74%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75-99%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>Complete</div>
         </div>
     </div>
 
+    ${goalsHtml}
+    ${versesHtml}
+
+    <div class="footer"><p>Generated by Bible Progress &bull; bibleprogress.com &bull; ${dateStamp}</p></div>
 </body>
 </html>`)
             printWindow.document.close()
