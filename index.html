@@ -2010,6 +2010,12 @@
                 };
 
                 const config = typeConfig[type] || typeConfig.info;
+                const safeTitle = escapeHtml(title);
+                const safeMessage = escapeHtml(message);
+                const safeDefaultValue = escapeHtml(options.defaultValue || '');
+                const safePlaceholder = escapeHtml(options.placeholder || '');
+                const safeConfirmText = escapeHtml(options.confirmText || 'Confirm');
+                const safeSubmitText = escapeHtml(options.submitText || 'Submit');
 
                 // Create modal content
                 const modal = document.createElement('div');
@@ -2020,8 +2026,8 @@
                     <div class="flex items-start gap-4 mb-4">
                         <span class="text-3xl flex-shrink-0">${config.icon}</span>
                         <div class="flex-1">
-                            <h3 class="text-lg font-black ${config.titleClass} mb-2">${title}</h3>
-                            <p class="text-sm ${config.titleClass.replace('900', '700')} leading-relaxed whitespace-pre-wrap">${message}</p>
+                            <h3 class="text-lg font-black ${config.titleClass} mb-2">${safeTitle}</h3>
+                            <p class="text-sm ${config.titleClass.replace('900', '700')} leading-relaxed whitespace-pre-wrap">${safeMessage}</p>
                         </div>
                     </div>
                 `;
@@ -2034,8 +2040,8 @@
                         <input
                             type="text"
                             id="custom-modal-input"
-                            value="${defaultValue}"
-                            placeholder="${placeholder}"
+                            value="${safeDefaultValue}"
+                            placeholder="${safePlaceholder}"
                             class="w-full px-4 py-2 mb-4 border-2 ${config.borderClass} rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                         />
                     `;
@@ -2055,7 +2061,7 @@
                                 id="custom-modal-confirm"
                                 class="px-6 py-2.5 ${config.buttonClass} text-white rounded-xl text-sm font-bold transition-colors"
                             >
-                                ${options.confirmText || 'Confirm'}
+                                ${safeConfirmText}
                             </button>
                         </div>
                     `;
@@ -2072,7 +2078,7 @@
                                 id="custom-modal-submit"
                                 class="px-6 py-2.5 ${config.buttonClass} text-white rounded-xl text-sm font-bold transition-colors"
                             >
-                                ${options.submitText || 'Submit'}
+                                ${safeSubmitText}
                             </button>
                         </div>
                     `;
@@ -2168,20 +2174,71 @@
         window.showPrompt = (title, message, defaultValue = '', placeholder = '', submitText = 'Submit') => {
             return window.showCustomModal(title, message, 'prompt', { defaultValue, placeholder, submitText });
         };
-
         // --- VALIDATE APP DATA ---
-        function validateAppData(data) {
-            if(!data || typeof data !== 'object') return false;
-            if(!data.profiles || typeof data.profiles !== 'object') return false;
-            // Must have at least one profile
-            if(Object.keys(data.profiles).length === 0) return false;
-            // activeProfileId should be a string (but doesn't need to exist in profiles - we'll fix that in migration)
-            if(!data.activeProfileId || typeof data.activeProfileId !== 'string') return false;
-            // Validate each profile contains valid chapter data
-            for(const profileName in data.profiles) {
-                const profile = data.profiles[profileName];
-                if(typeof profile !== 'object') return false;
+        function isPlainObject(value) {
+            return Object.prototype.toString.call(value) === '[object Object]';
+        }
+
+        function hasDangerousKeys(value) {
+            if (Array.isArray(value)) {
+                return value.some(item => hasDangerousKeys(item));
             }
+
+            if (!value || typeof value !== 'object') {
+                return false;
+            }
+
+            for (const key of Object.keys(value)) {
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                    return true;
+                }
+
+                if (hasDangerousKeys(value[key])) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function isValidChapterProgressMap(profile) {
+            if (!isPlainObject(profile)) return false;
+
+            for (const chapterKey of Object.keys(profile)) {
+                if (!chapterKey || typeof chapterKey !== 'string') {
+                    return false;
+                }
+
+                const value = profile[chapterKey];
+                const isValidValue = value === true || value === false || (typeof value === 'number' && Number.isFinite(value) && value >= 0);
+                if (!isValidValue) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function validateAppData(data) {
+            if(!isPlainObject(data)) return false;
+            if (hasDangerousKeys(data)) return false;
+            if(!isPlainObject(data.profiles)) return false;
+
+            const profileNames = Object.keys(data.profiles);
+            // Must have at least one profile
+            if(profileNames.length === 0) return false;
+
+            // activeProfileId should be a string
+            if(typeof data.activeProfileId !== 'string' || data.activeProfileId.trim() === '') return false;
+
+            // Validate each profile contains valid chapter data
+            for (const profileName of profileNames) {
+                if (!profileName || typeof profileName !== 'string') return false;
+                if (profileName === '__proto__' || profileName === 'constructor' || profileName === 'prototype') return false;
+                const profile = data.profiles[profileName];
+                if(!isValidChapterProgressMap(profile)) return false;
+            }
+
             return true;
         }
 
@@ -2751,7 +2808,7 @@
             toast.innerHTML = `
                 <div class="${bgColors[type] || bgColors.info} ${textColors[type] || textColors.info} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
                     <span class="text-2xl">${icons[type] || icons.info}</span>
-                    <p class="text-sm font-bold leading-relaxed">${message}</p>
+                    <p class="text-sm font-bold leading-relaxed">${escapeHtml(message)}</p>
                 </div>
             `;
 
@@ -2778,7 +2835,7 @@
 
             toast.innerHTML = `
                 <div class="bg-slate-800/90 text-white px-4 py-2 rounded-lg shadow-xl border border-slate-700 flex items-center gap-2">
-                    <p class="text-xs font-bold">${message}</p>
+                    <p class="text-xs font-bold">${escapeHtml(message)}</p>
                 </div>
             `;
 
@@ -8420,7 +8477,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (typeof data === 'object' && data !== null) {
+                    if (isPlainObject(data)) {
                         if(data.profiles && validateAppData(data)) {
                             appData = data;
 
@@ -8471,7 +8528,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             // Log restore details for debugging
                             const profileCount = Object.keys(appData.profiles).length;
                             log(`✅ Restored ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
-                        } else if (typeof data === 'object') {
+                        } else if (isPlainObject(data) && !hasDangerousKeys(data)) {
                             // Legacy format: single profile data
                             appData.profiles[appData.activeProfileId] = data;
                             log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
@@ -9813,7 +9870,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     } else {
                         const color = getColor(day.count);
                         const title = `${day.date}: ${day.count.toLocaleString()} word${day.count !== 1 ? 's' : ''}`;
-                        html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" title="${title}" class="cursor-pointer hover:ring-2 hover:ring-indigo-400 transition-all"></div>`;
+                        html += `<div style="width: 11px; height: 11px; background-color: ${color}; border-radius: 2px;" title="${escapeHtml(title)}" class="cursor-pointer hover:ring-2 hover:ring-indigo-400 transition-all"></div>`;
                     }
                 });
                 html += '</div>';

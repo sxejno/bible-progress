@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v5';
+const CACHE_NAME = 'bible-progress-v6';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -40,6 +40,10 @@ self.addEventListener('install', (event) => {
 
 // Fetch Event: Network first for HTML, cache first for everything else
 self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
     // Skip cross-origin requests (CDN resources will be fetched normally)
     if (!event.request.url.startsWith(self.location.origin)) {
         event.respondWith(
@@ -52,15 +56,19 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Network-first strategy for HTML to ensure updates
-    if (event.request.headers.get('accept').includes('text/html')) {
+    const acceptHeader = event.request.headers.get('accept') || '';
+
+    if (acceptHeader.includes('text/html')) {
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
                     // Cache the new version
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
+                    if (response && response.ok) {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
                     return response;
                 })
                 .catch(() => {
@@ -74,10 +82,12 @@ self.addEventListener('fetch', (event) => {
             caches.match(event.request).then((cachedResponse) => {
                 return cachedResponse || fetch(event.request).then((response) => {
                     // Cache new resources
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
+                    if (response && response.ok && response.type === 'basic') {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
                     return response;
                 });
             })
