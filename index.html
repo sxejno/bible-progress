@@ -8023,7 +8023,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const activityMap = getReadingActivity()
             const streaks = calculateStreaks()
             const generatedDate = new Date().toLocaleString()
-            const wpm = appData.wordsPerMinute || 250
+            const profileName = getActiveProfileName()
 
             // Calculate totals
             let totalRead = 0, otRead = 0, ntRead = 0, chaptersRead = 0, totalChapters = 0
@@ -8059,6 +8059,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const last7 = days30.slice(-7)
             const avg7d = Math.round(last7.reduce((s, d) => s + d.words, 0) / 7)
             const avg30d = Math.round(days30.reduce((s, d) => s + d.words, 0) / 30)
+            const avgAllTime = Object.keys(activityMap).length > 0 ? Math.round(Object.values(activityMap).reduce((s, v) => s + v, 0) / Object.keys(activityMap).length) : 0
 
             // Category progress
             const categories = {
@@ -8081,52 +8082,77 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             })
 
             // Build 30-day bar chart SVG
-            const barW = 660, barH = 200, barPad = 40
+            const barW = 700, barH = 180, barPad = 50
             const barSpacing = (barW - barPad * 2) / 30
-            let barsSvg = `<svg width="${barW}" height="${barH + 30}" viewBox="0 0 ${barW} ${barH + 30}" style="width:100%;height:auto;">`
-            // Y-axis labels
+            let barsSvg = `<svg width="${barW}" height="${barH + 40}" viewBox="0 0 ${barW} ${barH + 40}" xmlns="http://www.w3.org/2000/svg">`
+            // Grid lines
             for (let i = 0; i <= 4; i++) {
                 const y = barPad + (barH - barPad * 2) * (1 - i/4)
                 const val = Math.round(max30 * i / 4)
                 barsSvg += `<line x1="${barPad}" y1="${y}" x2="${barW - barPad}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`
-                barsSvg += `<text x="${barPad - 4}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="9">${val > 999 ? (val/1000).toFixed(0) + 'k' : val}</text>`
+                barsSvg += `<text x="${barPad - 8}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="600">${val > 999 ? (val/1000).toFixed(1) + 'k' : val}</text>`
             }
+            // Bars
             days30.forEach((d, i) => {
-                const x = barPad + i * barSpacing + barSpacing * 0.15
-                const bw = barSpacing * 0.7
+                const x = barPad + i * barSpacing + barSpacing * 0.2
+                const bw = barSpacing * 0.6
                 const bh = (d.words / max30) * (barH - barPad * 2)
                 const y = barPad + (barH - barPad * 2) - bh
                 const fill = d.words > 0 ? '#6366f1' : '#e2e8f0'
-                barsSvg += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="${fill}" opacity="0.8"/>`
-                if (i % 5 === 0 || i === 29) barsSvg += `<text x="${x + bw/2}" y="${barH + 12}" text-anchor="middle" fill="#94a3b8" font-size="8">${d.label}</text>`
+                barsSvg += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="${fill}"/>`
+                if (i % 5 === 0 || i === 29) barsSvg += `<text x="${x + bw/2}" y="${barH + 15}" text-anchor="middle" fill="#64748b" font-size="9" font-weight="600">${d.label}</text>`
             })
             barsSvg += '</svg>'
 
-            // Donut chart for overall progress
-            const donutR = 60, donutStroke = 14
+            // Main donut chart
+            const donutR = 65, donutStroke = 16
             const donutCirc = 2 * Math.PI * donutR
             const donutFill = donutCirc * (totalRead / WORD_TOTALS.GLOBAL)
-            const donutSvg = `<svg width="160" height="160" viewBox="0 0 160 160">
-                <circle cx="80" cy="80" r="${donutR}" fill="none" stroke="#e2e8f0" stroke-width="${donutStroke}"/>
-                <circle cx="80" cy="80" r="${donutR}" fill="none" stroke="#6366f1" stroke-width="${donutStroke}" stroke-dasharray="${donutFill} ${donutCirc}" stroke-linecap="round" transform="rotate(-90 80 80)"/>
-                <text x="80" y="76" text-anchor="middle" font-size="24" font-weight="900" fill="#1e1b4b">${totalPct}%</text>
-                <text x="80" y="94" text-anchor="middle" font-size="10" fill="#64748b">Complete</text>
+            const donutSvg = `<svg width="180" height="180" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle cx="90" cy="90" r="${donutR}" fill="none" stroke="#e2e8f0" stroke-width="${donutStroke}"/>
+                <circle cx="90" cy="90" r="${donutR}" fill="none" stroke="url(#donutGrad)" stroke-width="${donutStroke}" stroke-dasharray="${donutFill} ${donutCirc}" stroke-linecap="round" transform="rotate(-90 90 90)"/>
+                <text x="90" y="85" text-anchor="middle" font-size="32" font-weight="900" fill="#1e1b4b">${totalPct}%</text>
+                <text x="90" y="105" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">COMPLETE</text>
             </svg>`
 
-            // Category horizontal bars
-            let catBarsSvg = ''
+            // Testament mini donuts
+            const miniR = 35, miniStroke = 8
+            const miniCirc = 2 * Math.PI * miniR
+            const otFill = miniCirc * (otRead / WORD_TOTALS.OT)
+            const ntFill = miniCirc * (ntRead / WORD_TOTALS.NT)
+            const otDonutSvg = `<svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#fef3c7" stroke-width="${miniStroke}"/>
+                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#f59e0b" stroke-width="${miniStroke}" stroke-dasharray="${otFill} ${miniCirc}" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+                <text x="45" y="48" text-anchor="middle" font-size="14" font-weight="900" fill="#92400e">${otPct}%</text>
+                <text x="45" y="60" text-anchor="middle" font-size="7" font-weight="700" fill="#78350f">OLD TEST.</text>
+            </svg>`
+            const ntDonutSvg = `<svg width="90" height="90" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#d1fae5" stroke-width="${miniStroke}"/>
+                <circle cx="45" cy="45" r="${miniR}" fill="none" stroke="#10b981" stroke-width="${miniStroke}" stroke-dasharray="${ntFill} ${miniCirc}" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+                <text x="45" y="48" text-anchor="middle" font-size="14" font-weight="900" fill="#065f46">${ntPct}%</text>
+                <text x="45" y="60" text-anchor="middle" font-size="7" font-weight="700" fill="#047857">NEW TEST.</text>
+            </svg>`
+
+            // Category bars as SVG
+            const catW = 700, catH = 240
+            let catSvg = `<svg width="${catW}" height="${catH}" viewBox="0 0 ${catW} ${catH}" xmlns="http://www.w3.org/2000/svg">`
             catData.forEach((cat, i) => {
-                const y = i * 36
-                const w = 300
-                const filled = w * (cat.pct / 100)
-                catBarsSvg += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <span style="width:110px;text-align:right;font-size:11px;font-weight:700;color:#475569;">${cat.name}</span>
-                    <div style="flex:1;height:16px;background:#f1f5f9;border-radius:8px;overflow:hidden;">
-                        <div style="width:${cat.pct.toFixed(1)}%;height:100%;background:${cat.color};border-radius:8px;"></div>
-                    </div>
-                    <span style="width:40px;font-size:11px;font-weight:700;color:#64748b;">${Math.round(cat.pct)}%</span>
-                </div>`
+                const y = i * 32
+                const barWidth = 450
+                const barX = 200
+                const filled = barWidth * (cat.pct / 100)
+                catSvg += `<text x="${barX - 10}" y="${y + 18}" text-anchor="end" fill="#475569" font-size="12" font-weight="700">${cat.name}</text>`
+                catSvg += `<rect x="${barX}" y="${y + 4}" width="${barWidth}" height="20" rx="10" fill="#f1f5f9"/>`
+                catSvg += `<rect x="${barX}" y="${y + 4}" width="${filled}" height="20" rx="10" fill="${cat.color}"/>`
+                catSvg += `<text x="${barX + barWidth + 10}" y="${y + 18}" fill="#64748b" font-size="12" font-weight="700">${Math.round(cat.pct)}%</text>`
             })
+            catSvg += '</svg>'
 
             // Projection
             const remainingWords = WORD_TOTALS.GLOBAL - totalRead
@@ -8135,26 +8161,35 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const daysLeft = Math.ceil(remainingWords / avg30d)
                 const finishDate = new Date(today)
                 finishDate.setDate(finishDate.getDate() + daysLeft)
-                projectionHtml = `<div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:12px;margin-top:16px;">
-                    <p style="font-weight:800;color:#166534;margin:0 0 4px;">Projected Completion: ${finishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                    <p style="font-size:12px;color:#15803d;margin:0;">${daysLeft} days at your 30-day average of ${avg30d.toLocaleString()} words/day</p>
+                const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
+                const dateStr = `${monthNames[finishDate.getMonth()]} ${finishDate.getDate()}, ${finishDate.getFullYear()}`
+                projectionHtml = `<div style="background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);border:2px solid #86efac;padding:20px;border-radius:16px;margin-top:20px;">
+                    <p style="font-weight:900;font-size:16px;color:#166534;margin:0 0 6px;letter-spacing:-0.5px;">📅 Projected Completion: ${dateStr}</p>
+                    <p style="font-size:13px;color:#15803d;margin:0;font-weight:600;">${daysLeft} days remaining at your 30-day average of ${avg30d.toLocaleString()} words/day</p>
                 </div>`
             }
 
             // Book grid (mini heatmap)
-            let bookGridHtml = '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;">'
-            bible.forEach(book => {
-                const readCount = book.ch.filter((_, idx) => currentProg[`${book.name}-${idx+1}`]).length
+            let bookGridSvg = `<svg width="700" height="200" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">`
+            let bx = 0, by = 0
+            bible.forEach((book, idx) => {
+                const readCount = book.ch.filter((_, i) => currentProg[`${book.name}-${i+1}`]).length
                 const bookPct = readCount / book.ch.length
-                let bg = '#f1f5f9'
-                if (bookPct >= 1) bg = '#4f46e5'
-                else if (bookPct >= 0.75) bg = '#818cf8'
-                else if (bookPct >= 0.5) bg = '#a5b4fc'
-                else if (bookPct >= 0.25) bg = '#c7d2fe'
-                else if (bookPct > 0) bg = '#e0e7ff'
-                bookGridHtml += `<div title="${book.name}: ${readCount}/${book.ch.length}" style="width:28px;height:28px;background:${bg};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${bookPct >= 0.5 ? '#fff' : '#64748b'};cursor:default;" >${readCount === book.ch.length ? '✓' : ''}</div>`
+                let fill = '#f1f5f9'
+                if (bookPct >= 1) fill = '#4f46e5'
+                else if (bookPct >= 0.75) fill = '#818cf8'
+                else if (bookPct >= 0.5) fill = '#a5b4fc'
+                else if (bookPct >= 0.25) fill = '#c7d2fe'
+                else if (bookPct > 0) fill = '#e0e7ff'
+                const textColor = bookPct >= 0.5 ? '#fff' : '#64748b'
+                bookGridSvg += `<rect x="${bx}" y="${by}" width="32" height="32" rx="4" fill="${fill}"/>`
+                if (readCount === book.ch.length) {
+                    bookGridSvg += `<text x="${bx + 16}" y="${by + 21}" text-anchor="middle" fill="${textColor}" font-size="14" font-weight="900">✓</text>`
+                }
+                bx += 36
+                if ((idx + 1) % 19 === 0) { bx = 0; by += 36 }
             })
-            bookGridHtml += '</div>'
+            bookGridSvg += '</svg>'
 
             const printWindow = window.open('', '_blank')
             if (!printWindow) {
@@ -8162,89 +8197,262 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 return
             }
 
-            printWindow.document.write(`<html><head><title>Bible Progress - Visual Report</title>
-            <style>
-                * { box-sizing: border-box; margin: 0; padding: 0; }
-                body { font-family: 'Inter', -apple-system, sans-serif; color: #0f172a; padding: 32px; max-width: 800px; margin: 0 auto; background: #fff; }
-                .header { text-align: center; margin-bottom: 32px; }
-                .header h1 { font-size: 28px; font-weight: 900; color: #1e1b4b; }
-                .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
-                .section { margin-bottom: 28px; }
-                .section-title { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
-                .stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
-                .stat-card { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; }
-                .stat-val { font-size: 24px; font-weight: 900; }
-                .stat-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
-                .overview-row { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
-                .donut-wrap { flex-shrink: 0; }
-                .overview-stats { flex: 1; }
-                .overview-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-                .overview-stat:last-child { border-bottom: none; }
-                .chart-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-                .legend { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-                .legend-item { font-size: 8px; color: #64748b; display: flex; align-items: center; gap: 3px; }
-                .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-                @media print { body { padding: 16px; } .section { page-break-inside: avoid; } }
-            </style></head><body>
-            <div class="header">
-                <h1>Bible Reading Progress</h1>
-                <p>Generated ${generatedDate} from bibleprogress.com</p>
-            </div>
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Progress - Visual Report</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #0f172a;
+            padding: 40px;
+            max-width: 850px;
+            margin: 0 auto;
+            background: #fff;
+            line-height: 1.5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 3px solid #e0e7ff;
+        }
+        .header h1 {
+            font-size: 36px;
+            font-weight: 900;
+            color: #1e1b4b;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+        .header .profile {
+            font-size: 14px;
+            color: #6366f1;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header .timestamp {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .section {
+            margin-bottom: 36px;
+            page-break-inside: avoid;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e7ff;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-val {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .stat-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 6px;
+        }
+        .overview-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+        .testaments-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .overview-stats {
+            flex: 1;
+            background: #fafbfc;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .overview-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .overview-stat:last-child { border-bottom: none; }
+        .chart-container {
+            background: #fafbfc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .velocity-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+        .velocity-card {
+            flex: 1;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 2px solid #c7d2fe;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .velocity-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: #4338ca;
+        }
+        .velocity-label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .legend-item {
+            font-size: 10px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+            @page { margin: 1.5cm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 Bible Reading Progress</h1>
+        <div class="profile">${escapeHtml(profileName)}</div>
+        <div class="timestamp">Generated ${generatedDate} • bibleprogress.com</div>
+    </div>
 
-            <div class="section">
-                <div class="stats-row">
-                    <div class="stat-card"><div class="stat-val" style="color:#4f46e5;">${totalPct}%</div><div class="stat-label">Total Progress</div></div>
-                    <div class="stat-card"><div class="stat-val" style="color:#0f172a;">${chaptersRead.toLocaleString()}</div><div class="stat-label">Chapters Read</div></div>
-                    <div class="stat-card"><div class="stat-val" style="color:#0f172a;">${totalRead.toLocaleString()}</div><div class="stat-label">Words Read</div></div>
-                    <div class="stat-card"><div class="stat-val" style="color:#f59e0b;">${streaks.current}</div><div class="stat-label">Day Streak</div></div>
-                </div>
+    <div class="section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val" style="color:#4f46e5;">${totalPct}%</div>
+                <div class="stat-label">Total Progress</div>
             </div>
-
-            <div class="section">
-                <div class="section-title">Overview</div>
-                <div class="overview-row">
-                    <div class="donut-wrap">${donutSvg}</div>
-                    <div class="overview-stats">
-                        <div class="overview-stat"><span>Old Testament</span><strong style="color:#f59e0b;">${otPct}%</strong></div>
-                        <div class="overview-stat"><span>New Testament</span><strong style="color:#10b981;">${ntPct}%</strong></div>
-                        <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
-                        <div class="overview-stat"><span>Words Remaining</span><strong>${(WORD_TOTALS.GLOBAL - totalRead).toLocaleString()}</strong></div>
-                        <div class="overview-stat"><span>Reading Plan</span><strong>${getPlanDisplayName(activePlan)}</strong></div>
-                        <div class="overview-stat"><span>Longest Streak</span><strong>${streaks.longest || 0} days</strong></div>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color:#0f172a;">${chaptersRead.toLocaleString()}</div>
+                <div class="stat-label">Chapters Read</div>
             </div>
-
-            <div class="section">
-                <div class="section-title">30-Day Reading Activity (Words/Day)</div>
-                <div class="chart-container">${barsSvg}</div>
-                <div class="stats-row">
-                    <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${avg7d.toLocaleString()}</div><div class="stat-label">7-Day Avg</div></div>
-                    <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${avg30d.toLocaleString()}</div><div class="stat-label">30-Day Avg</div></div>
-                </div>
-                ${projectionHtml}
+            <div class="stat-card">
+                <div class="stat-val" style="color:#0f172a;">${(totalRead / 1000).toFixed(1)}k</div>
+                <div class="stat-label">Words Read</div>
             </div>
-
-            <div class="section">
-                <div class="section-title">Progress by Category</div>
-                ${catBarsSvg}
+            <div class="stat-card">
+                <div class="stat-val" style="color:#f59e0b;">${streaks.current}</div>
+                <div class="stat-label">Current Streak</div>
             </div>
+        </div>
+    </div>
 
-            <div class="section">
-                <div class="section-title">Book Completion Grid (66 Books)</div>
-                <p style="font-size:10px;color:#94a3b8;margin-bottom:8px;">Darker = more complete. Check = 100% complete. Genesis to Revelation, left to right.</p>
-                ${bookGridHtml}
-                <div class="legend" style="margin-top:12px;">
-                    <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;"></div>0%</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1-24%</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25-49%</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50-74%</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75-99%</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>100%</div>
-                </div>
+    <div class="section">
+        <div class="section-title">Overall Progress</div>
+        <div class="overview-row">
+            <div>${donutSvg}</div>
+            <div class="overview-stats">
+                <div class="overview-stat"><span>Reading Plan</span><strong style="color:#6366f1;">${getPlanDisplayName(activePlan)}</strong></div>
+                <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
+                <div class="overview-stat"><span>Words Remaining</span><strong>${((WORD_TOTALS.GLOBAL - totalRead) / 1000).toFixed(1)}k</strong></div>
+                <div class="overview-stat"><span>Longest Streak</span><strong>${streaks.longest || 0} days</strong></div>
+                <div class="overview-stat"><span>Total Days Read</span><strong>${Object.keys(activityMap).length}</strong></div>
             </div>
+        </div>
+        <div class="testaments-row">
+            <div>${otDonutSvg}</div>
+            <div>${ntDonutSvg}</div>
+        </div>
+    </div>
 
-            </body></html>`)
+    <div class="section">
+        <div class="section-title">30-Day Reading Activity</div>
+        <div class="chart-container">${barsSvg}</div>
+        <div class="velocity-row">
+            <div class="velocity-card">
+                <div class="velocity-val">${avg7d.toLocaleString()}</div>
+                <div class="velocity-label">7-Day Avg (words/day)</div>
+            </div>
+            <div class="velocity-card">
+                <div class="velocity-val">${avg30d.toLocaleString()}</div>
+                <div class="velocity-label">30-Day Avg (words/day)</div>
+            </div>
+            <div class="velocity-card">
+                <div class="velocity-val">${avgAllTime.toLocaleString()}</div>
+                <div class="velocity-label">All-Time Avg (words/day)</div>
+            </div>
+        </div>
+        ${projectionHtml}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Progress by Category</div>
+        <div class="chart-container">${catSvg}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Book Completion Grid</div>
+        <p style="font-size:11px;color:#64748b;margin-bottom:12px;font-weight:600;">All 66 books from Genesis to Revelation. Darker colors indicate higher completion. Checkmark = 100% complete.</p>
+        <div class="chart-container">${bookGridSvg}</div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e1;"></div>0% (Not Started)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1–24% (Getting Started)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25–49% (In Progress)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50–74% (Halfway There)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75–99% (Almost Done)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>100% (Complete ✓)</div>
+        </div>
+    </div>
+
+</body>
+</html>`)
             printWindow.document.close()
             printWindow.focus()
             printWindow.print()
