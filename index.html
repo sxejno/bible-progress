@@ -827,6 +827,65 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Testament Progress Bars -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                <h4 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest">Testament Progress</h4>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-slate-600">Old Testament</span>
+                            <span id="dash-ot-detail" class="text-[10px] font-bold text-amber-600">0 / 609,252 words</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="dash-ot-bar" class="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-slate-600">New Testament</span>
+                            <span id="dash-nt-detail" class="text-[10px] font-bold text-emerald-600">0 / 180,382 words</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="dash-nt-bar" class="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-slate-600">Categories</span>
+                        </div>
+                        <div id="dash-category-bars" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projection Widget -->
+            <div id="dashboard-projection" class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-5 border border-blue-100 shadow-sm">
+                <h4 class="text-xs font-black text-blue-900 mb-3 uppercase tracking-widest">Projection</h4>
+                <div id="dash-projection-content" class="space-y-2">
+                    <p class="text-sm text-slate-500">Read more to see your projected completion date.</p>
+                </div>
+            </div>
+
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                    <div id="dash-chapters-read" class="text-xl font-black text-slate-800">0</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Chapters Read</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                    <div id="dash-chapters-left" class="text-xl font-black text-slate-800">1,189</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Chapters Left</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                    <div id="dash-longest-streak" class="text-xl font-black text-slate-800">0</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Best Streak</div>
+                </div>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
+                    <div id="dash-total-words-read" class="text-xl font-black text-slate-800">0</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Words</div>
+                </div>
+            </div>
         </div>
 
         <div id="view-books" class="hidden animate-in">
@@ -856,6 +915,7 @@
                         <option value="ONE_YEAR" class="text-slate-900">One Year (OT+NT Daily)</option>
                         <option value="MCHEYNE" class="text-slate-900">M'Cheyne (1 Year)</option>
                         <option value="HORNER" class="text-slate-900">Prof. Horner (10 Lists)</option>
+                        <option value="CUSTOM" class="text-slate-900">Custom Plan</option>
                     </select>
                 </div>
                 
@@ -1031,6 +1091,57 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Reading Pattern Insights -->
+            <div class="mt-8">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Patterns</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Day of Week Chart -->
+                        <div>
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Words by Day of Week</div>
+                            <div id="day-of-week-chart" class="flex items-end justify-between gap-1 h-28"></div>
+                            <div class="flex justify-between mt-1">
+                                <span class="text-[9px] text-slate-400 font-bold">Sun</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Mon</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Tue</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Wed</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Thu</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Fri</span>
+                                <span class="text-[9px] text-slate-400 font-bold">Sat</span>
+                            </div>
+                        </div>
+                        <!-- Category Speed -->
+                        <div>
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Fastest Categories</div>
+                            <div id="category-speed-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                    <!-- OT vs NT comparison -->
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">OT vs NT Reading Pace</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                <div id="pace-ot" class="text-lg font-black text-amber-800">--</div>
+                                <div class="text-[9px] text-slate-400 font-bold uppercase">OT words/day</div>
+                            </div>
+                            <div class="text-center p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <div id="pace-nt" class="text-lg font-black text-emerald-800">--</div>
+                                <div class="text-[9px] text-slate-400 font-bold uppercase">NT words/day</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cross-Plan History -->
+            <div class="mt-8" id="cross-plan-section">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Plan History</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div id="plan-history-list" class="space-y-3"></div>
+                    <p id="plan-history-empty" class="text-center text-sm text-slate-400 font-bold py-4">Switch plans to start tracking plan history.</p>
+                </div>
+            </div>
         </div>
 
         <div id="view-tools" class="hidden animate-in">
@@ -1096,6 +1207,28 @@
 
                 <div class="mb-10">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Reading Plans</h3>
+
+                    <!-- Custom Plan Builder -->
+                    <div onclick="window.openCustomPlanBuilder()" class="block group cursor-pointer mb-4">
+                        <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-3xl border-2 border-indigo-200 hover:border-indigo-400 transition-all hover:shadow-lg relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-200/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <div class="flex items-start gap-4 relative z-10">
+                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-indigo-200">
+                                    <span class="text-3xl">🛠️</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-black text-indigo-900 mb-2 group-hover:text-indigo-700 transition-colors">Custom Plan Builder</h4>
+                                    <p class="text-slate-700 leading-relaxed mb-3">Create your own reading plan. Choose how many OT, NT, Psalms, or Proverbs chapters per day.</p>
+                                    <div id="custom-plans-count" class="text-xs text-indigo-500 font-bold mb-2"></div>
+                                    <div class="flex items-center gap-2 text-indigo-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                                        <span>Build a Plan</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="block group cursor-pointer" onclick="window.setTab('PLAN'); setTimeout(() => { document.getElementById('plan-selector').value = 'HORNER'; window.changePlan(); }, 100)">
                         <div class="bg-gradient-to-br from-rose-50 to-pink-50 p-8 rounded-3xl border-2 border-rose-200 hover:border-rose-400 transition-all hover:shadow-lg relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-rose-200/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
@@ -1514,7 +1647,7 @@
                         </label>
                     </div>
                     <p id="restore-msg-settings" class="text-center text-sm font-bold text-emerald-600 mt-4 hidden bg-emerald-50 py-2 rounded-lg"></p>
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <button onclick="window.exportProgressCSV()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-xs uppercase tracking-wide" aria-label="Export reading progress to CSV">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             Export CSV
@@ -1526,6 +1659,10 @@
                         <button onclick="window.exportProgressPDF()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-xs uppercase tracking-wide" aria-label="Export reading progress to PDF">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                             Export PDF
+                        </button>
+                        <button onclick="window.exportVisualReport()" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold hover:bg-indigo-100 transition-colors text-xs uppercase tracking-wide" aria-label="Export visual progress report with charts">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            Visual Report
                         </button>
                     </div>
                     <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
@@ -3306,9 +3443,17 @@
 
 			log('📝 Plan changed to:', activePlan);
 
+			// Track plan change for cross-plan analytics
+			trackPlanChange(activePlan);
+
+			// If CUSTOM selected, open builder if no custom plan exists
+			if (activePlan === 'CUSTOM' && !getActiveCustomPlan()) {
+				window.openCustomPlanBuilder();
+			}
+
 			// Save immediately (no debounce)
 			window.saveProgress(true);
-			
+
 			// Re-render the daily plan
 			window.renderDailyPlan();
 			
@@ -7873,6 +8018,238 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             printWindow.print();
         };
 
+        window.exportVisualReport = () => {
+            const currentProg = getProgress()
+            const activityMap = getReadingActivity()
+            const streaks = calculateStreaks()
+            const generatedDate = new Date().toLocaleString()
+            const wpm = appData.wordsPerMinute || 250
+
+            // Calculate totals
+            let totalRead = 0, otRead = 0, ntRead = 0, chaptersRead = 0, totalChapters = 0
+            bible.forEach(book => {
+                book.ch.forEach((w, idx) => {
+                    totalChapters++
+                    if (currentProg[`${book.name}-${idx+1}`]) {
+                        totalRead += w
+                        chaptersRead++
+                        if (book.testament === 'OT') otRead += w
+                        else ntRead += w
+                    }
+                })
+            })
+            const totalPct = (totalRead / WORD_TOTALS.GLOBAL * 100).toFixed(1)
+            const otPct = (otRead / WORD_TOTALS.OT * 100).toFixed(1)
+            const ntPct = (ntRead / WORD_TOTALS.NT * 100).toFixed(1)
+
+            // Build 30-day activity data
+            const today = new Date()
+            const days30 = []
+            let max30 = 1
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date(today)
+                d.setDate(d.getDate() - i)
+                const dateStr = getLocalDateString(d.getTime())
+                const val = activityMap[dateStr] || 0
+                days30.push({ date: dateStr, words: val, label: d.getDate().toString() })
+                if (val > max30) max30 = val
+            }
+
+            // 7d and 30d averages
+            const last7 = days30.slice(-7)
+            const avg7d = Math.round(last7.reduce((s, d) => s + d.words, 0) / 7)
+            const avg30d = Math.round(days30.reduce((s, d) => s + d.words, 0) / 30)
+
+            // Category progress
+            const categories = {
+                'Law': ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy'],
+                'History': ['Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther'],
+                'Poetry': ['Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon'],
+                'Prophets': ['Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'],
+                'Gospels': ['Matthew','Mark','Luke','John'],
+                'Acts & Epistles': ['Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude'],
+                'Revelation': ['Revelation']
+            }
+            const catColors = ['#f59e0b','#f97316','#ec4899','#8b5cf6','#3b82f6','#14b8a6','#ef4444']
+            const catData = Object.entries(categories).map(([name, books], i) => {
+                let total = 0, read = 0
+                books.forEach(bn => {
+                    const book = bible.find(b => b.name === bn)
+                    if (book) book.ch.forEach((w, idx) => { total += w; if (currentProg[`${book.name}-${idx+1}`]) read += w })
+                })
+                return { name, total, read, pct: total > 0 ? (read / total * 100) : 0, color: catColors[i] }
+            })
+
+            // Build 30-day bar chart SVG
+            const barW = 660, barH = 200, barPad = 40
+            const barSpacing = (barW - barPad * 2) / 30
+            let barsSvg = `<svg width="${barW}" height="${barH + 30}" viewBox="0 0 ${barW} ${barH + 30}" style="width:100%;height:auto;">`
+            // Y-axis labels
+            for (let i = 0; i <= 4; i++) {
+                const y = barPad + (barH - barPad * 2) * (1 - i/4)
+                const val = Math.round(max30 * i / 4)
+                barsSvg += `<line x1="${barPad}" y1="${y}" x2="${barW - barPad}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`
+                barsSvg += `<text x="${barPad - 4}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="9">${val > 999 ? (val/1000).toFixed(0) + 'k' : val}</text>`
+            }
+            days30.forEach((d, i) => {
+                const x = barPad + i * barSpacing + barSpacing * 0.15
+                const bw = barSpacing * 0.7
+                const bh = (d.words / max30) * (barH - barPad * 2)
+                const y = barPad + (barH - barPad * 2) - bh
+                const fill = d.words > 0 ? '#6366f1' : '#e2e8f0'
+                barsSvg += `<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2" fill="${fill}" opacity="0.8"/>`
+                if (i % 5 === 0 || i === 29) barsSvg += `<text x="${x + bw/2}" y="${barH + 12}" text-anchor="middle" fill="#94a3b8" font-size="8">${d.label}</text>`
+            })
+            barsSvg += '</svg>'
+
+            // Donut chart for overall progress
+            const donutR = 60, donutStroke = 14
+            const donutCirc = 2 * Math.PI * donutR
+            const donutFill = donutCirc * (totalRead / WORD_TOTALS.GLOBAL)
+            const donutSvg = `<svg width="160" height="160" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="${donutR}" fill="none" stroke="#e2e8f0" stroke-width="${donutStroke}"/>
+                <circle cx="80" cy="80" r="${donutR}" fill="none" stroke="#6366f1" stroke-width="${donutStroke}" stroke-dasharray="${donutFill} ${donutCirc}" stroke-linecap="round" transform="rotate(-90 80 80)"/>
+                <text x="80" y="76" text-anchor="middle" font-size="24" font-weight="900" fill="#1e1b4b">${totalPct}%</text>
+                <text x="80" y="94" text-anchor="middle" font-size="10" fill="#64748b">Complete</text>
+            </svg>`
+
+            // Category horizontal bars
+            let catBarsSvg = ''
+            catData.forEach((cat, i) => {
+                const y = i * 36
+                const w = 300
+                const filled = w * (cat.pct / 100)
+                catBarsSvg += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="width:110px;text-align:right;font-size:11px;font-weight:700;color:#475569;">${cat.name}</span>
+                    <div style="flex:1;height:16px;background:#f1f5f9;border-radius:8px;overflow:hidden;">
+                        <div style="width:${cat.pct.toFixed(1)}%;height:100%;background:${cat.color};border-radius:8px;"></div>
+                    </div>
+                    <span style="width:40px;font-size:11px;font-weight:700;color:#64748b;">${Math.round(cat.pct)}%</span>
+                </div>`
+            })
+
+            // Projection
+            const remainingWords = WORD_TOTALS.GLOBAL - totalRead
+            let projectionHtml = ''
+            if (avg30d > 0 && totalRead > 0) {
+                const daysLeft = Math.ceil(remainingWords / avg30d)
+                const finishDate = new Date(today)
+                finishDate.setDate(finishDate.getDate() + daysLeft)
+                projectionHtml = `<div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px;border-radius:12px;margin-top:16px;">
+                    <p style="font-weight:800;color:#166534;margin:0 0 4px;">Projected Completion: ${finishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    <p style="font-size:12px;color:#15803d;margin:0;">${daysLeft} days at your 30-day average of ${avg30d.toLocaleString()} words/day</p>
+                </div>`
+            }
+
+            // Book grid (mini heatmap)
+            let bookGridHtml = '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:8px;">'
+            bible.forEach(book => {
+                const readCount = book.ch.filter((_, idx) => currentProg[`${book.name}-${idx+1}`]).length
+                const bookPct = readCount / book.ch.length
+                let bg = '#f1f5f9'
+                if (bookPct >= 1) bg = '#4f46e5'
+                else if (bookPct >= 0.75) bg = '#818cf8'
+                else if (bookPct >= 0.5) bg = '#a5b4fc'
+                else if (bookPct >= 0.25) bg = '#c7d2fe'
+                else if (bookPct > 0) bg = '#e0e7ff'
+                bookGridHtml += `<div title="${book.name}: ${readCount}/${book.ch.length}" style="width:28px;height:28px;background:${bg};border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${bookPct >= 0.5 ? '#fff' : '#64748b'};cursor:default;" >${readCount === book.ch.length ? '✓' : ''}</div>`
+            })
+            bookGridHtml += '</div>'
+
+            const printWindow = window.open('', '_blank')
+            if (!printWindow) {
+                window.showAlert('Pop-up Blocked', 'Please allow pop-ups to export your visual report.', 'error')
+                return
+            }
+
+            printWindow.document.write(`<html><head><title>Bible Progress - Visual Report</title>
+            <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body { font-family: 'Inter', -apple-system, sans-serif; color: #0f172a; padding: 32px; max-width: 800px; margin: 0 auto; background: #fff; }
+                .header { text-align: center; margin-bottom: 32px; }
+                .header h1 { font-size: 28px; font-weight: 900; color: #1e1b4b; }
+                .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
+                .section { margin-bottom: 28px; }
+                .section-title { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+                .stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
+                .stat-card { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; }
+                .stat-val { font-size: 24px; font-weight: 900; }
+                .stat-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+                .overview-row { display: flex; align-items: center; gap: 24px; margin-bottom: 20px; }
+                .donut-wrap { flex-shrink: 0; }
+                .overview-stats { flex: 1; }
+                .overview-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+                .overview-stat:last-child { border-bottom: none; }
+                .chart-container { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+                .legend { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+                .legend-item { font-size: 8px; color: #64748b; display: flex; align-items: center; gap: 3px; }
+                .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+                @media print { body { padding: 16px; } .section { page-break-inside: avoid; } }
+            </style></head><body>
+            <div class="header">
+                <h1>Bible Reading Progress</h1>
+                <p>Generated ${generatedDate} from bibleprogress.com</p>
+            </div>
+
+            <div class="section">
+                <div class="stats-row">
+                    <div class="stat-card"><div class="stat-val" style="color:#4f46e5;">${totalPct}%</div><div class="stat-label">Total Progress</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:#0f172a;">${chaptersRead.toLocaleString()}</div><div class="stat-label">Chapters Read</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:#0f172a;">${totalRead.toLocaleString()}</div><div class="stat-label">Words Read</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:#f59e0b;">${streaks.current}</div><div class="stat-label">Day Streak</div></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Overview</div>
+                <div class="overview-row">
+                    <div class="donut-wrap">${donutSvg}</div>
+                    <div class="overview-stats">
+                        <div class="overview-stat"><span>Old Testament</span><strong style="color:#f59e0b;">${otPct}%</strong></div>
+                        <div class="overview-stat"><span>New Testament</span><strong style="color:#10b981;">${ntPct}%</strong></div>
+                        <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
+                        <div class="overview-stat"><span>Words Remaining</span><strong>${(WORD_TOTALS.GLOBAL - totalRead).toLocaleString()}</strong></div>
+                        <div class="overview-stat"><span>Reading Plan</span><strong>${getPlanDisplayName(activePlan)}</strong></div>
+                        <div class="overview-stat"><span>Longest Streak</span><strong>${streaks.longest || 0} days</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">30-Day Reading Activity (Words/Day)</div>
+                <div class="chart-container">${barsSvg}</div>
+                <div class="stats-row">
+                    <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${avg7d.toLocaleString()}</div><div class="stat-label">7-Day Avg</div></div>
+                    <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${avg30d.toLocaleString()}</div><div class="stat-label">30-Day Avg</div></div>
+                </div>
+                ${projectionHtml}
+            </div>
+
+            <div class="section">
+                <div class="section-title">Progress by Category</div>
+                ${catBarsSvg}
+            </div>
+
+            <div class="section">
+                <div class="section-title">Book Completion Grid (66 Books)</div>
+                <p style="font-size:10px;color:#94a3b8;margin-bottom:8px;">Darker = more complete. Check = 100% complete. Genesis to Revelation, left to right.</p>
+                ${bookGridHtml}
+                <div class="legend" style="margin-top:12px;">
+                    <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;"></div>0%</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1-24%</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25-49%</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50-74%</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75-99%</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>100%</div>
+                </div>
+            </div>
+
+            </body></html>`)
+            printWindow.document.close()
+            printWindow.focus()
+            printWindow.print()
+        }
+
         window.restoreData = (input) => {
             const file = input.files[0];
             if (!file) return;
@@ -8736,6 +9113,68 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 });
             }
 
+            else if (activePlan === 'CUSTOM') {
+                const customPlan = getActiveCustomPlan()
+                if (!customPlan) {
+                    descText = "<strong>Custom Plan:</strong> No custom plan configured. <a href='#' onclick='window.openCustomPlanBuilder(); return false;' class='text-white underline'>Create one now</a>."
+                } else {
+                    const cfg = customPlan.config
+                    descText = `<strong>${escapeHtml(customPlan.name)}:</strong> ${cfg.ot} OT + ${cfg.nt} NT + ${cfg.psalms} Psalms + ${cfg.proverbs} Proverbs chapters daily.`
+
+                    // Find next unread OT chapters (excluding Psalms & Proverbs)
+                    let otFound = 0
+                    for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
+                        for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                nextChapters.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'OT' })
+                                otFound++
+                            }
+                        }
+                    }
+                    // Find next unread NT chapters
+                    let ntFound = 0
+                    for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'NT') continue
+                        for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                nextChapters.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'NT' })
+                                ntFound++
+                            }
+                        }
+                    }
+                    // Find next unread Psalms
+                    const psalmsBook = bible.find(b => b.name === 'Psalms')
+                    if (psalmsBook && cfg.psalms > 0) {
+                        let psFound = 0
+                        for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
+                            if (!currentProg[`Psalms-${c+1}`]) {
+                                nextChapters.push({ book: 'Psalms', chapter: c+1, chapters: [c+1], words: psalmsBook.ch[c], label: `Psalms ${c+1}`, badge: 'Psalms' })
+                                psFound++
+                            }
+                        }
+                    }
+                    // Find next unread Proverbs
+                    const proverbsBook = bible.find(b => b.name === 'Proverbs')
+                    if (proverbsBook && cfg.proverbs > 0) {
+                        let prFound = 0
+                        for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
+                            if (!currentProg[`Proverbs-${c+1}`]) {
+                                nextChapters.push({ book: 'Proverbs', chapter: c+1, chapters: [c+1], words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, badge: 'Proverbs' })
+                                prFound++
+                            }
+                        }
+                    }
+                    if (nextChapters.length === 0) {
+                        list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 Custom plan completed!</div>`
+                        return
+                    }
+                    footerMsg.innerText = `${escapeHtml(customPlan.name)} • ${nextChapters.length} chapters today`
+                }
+            }
+
             if(descBox) {
                 descBox.innerHTML = descText;
                 descBox.classList.remove('hidden');
@@ -9403,6 +9842,309 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.body.appendChild(modal);
         }
 
+        // --- CUSTOM PLAN BUILDER ---
+        const cpbState = { ot: 2, nt: 1, psalms: 1, proverbs: 0 }
+
+        window.openCustomPlanBuilder = () => {
+            const modal = document.getElementById('plan-builder-modal')
+            modal.classList.remove('hidden')
+            document.body.style.overflow = 'hidden'
+
+            // If editing existing custom plan, load its config
+            const customPlans = appData.customPlans || {}
+            const profilePlans = customPlans[appData.activeProfileId]
+            if (profilePlans && profilePlans.length > 0) {
+                // Load the active custom plan config if exists
+                const active = profilePlans.find(p => p.active) || profilePlans[0]
+                if (active.config) {
+                    cpbState.ot = active.config.ot || 0
+                    cpbState.nt = active.config.nt || 0
+                    cpbState.psalms = active.config.psalms || 0
+                    cpbState.proverbs = active.config.proverbs || 0
+                    document.getElementById('cpb-name').value = active.name || ''
+                }
+            } else {
+                cpbState.ot = 2; cpbState.nt = 1; cpbState.psalms = 1; cpbState.proverbs = 0
+                document.getElementById('cpb-name').value = ''
+            }
+
+            cpbUpdateUI()
+            cpbRenderSavedPlans()
+        }
+
+        window.closePlanBuilder = () => {
+            document.getElementById('plan-builder-modal').classList.add('hidden')
+            document.body.style.overflow = ''
+        }
+
+        window.cpbAdjust = (field, delta) => {
+            cpbState[field] = Math.max(0, Math.min(10, cpbState[field] + delta))
+            cpbUpdateUI()
+        }
+
+        function cpbUpdateUI() {
+            document.getElementById('cpb-ot').textContent = cpbState.ot
+            document.getElementById('cpb-nt').textContent = cpbState.nt
+            document.getElementById('cpb-psalms').textContent = cpbState.psalms
+            document.getElementById('cpb-proverbs').textContent = cpbState.proverbs
+
+            const total = cpbState.ot + cpbState.nt + cpbState.psalms + cpbState.proverbs
+            document.getElementById('cpb-daily-total').textContent = total
+
+            // Estimate days to completion
+            if (total > 0) {
+                // OT books (excluding Psalms & Proverbs): 929 chapters - 150 (Psalms) - 31 (Proverbs) = 748
+                // But we need to count actual chapters
+                let otChapters = 0, ntChapters = 0
+                bible.forEach(b => {
+                    if (b.testament === 'OT' && b.name !== 'Psalms' && b.name !== 'Proverbs') otChapters += b.ch.length
+                    else if (b.testament === 'NT') ntChapters += b.ch.length
+                })
+                const psalmsCh = 150, proverbsCh = 31
+
+                let maxDays = 0
+                if (cpbState.ot > 0) maxDays = Math.max(maxDays, Math.ceil(otChapters / cpbState.ot))
+                if (cpbState.nt > 0) maxDays = Math.max(maxDays, Math.ceil(ntChapters / cpbState.nt))
+                if (cpbState.psalms > 0) maxDays = Math.max(maxDays, Math.ceil(psalmsCh / cpbState.psalms))
+                if (cpbState.proverbs > 0) maxDays = Math.max(maxDays, Math.ceil(proverbsCh / cpbState.proverbs))
+
+                document.getElementById('cpb-est-days').textContent = `~${maxDays} days`
+            } else {
+                document.getElementById('cpb-est-days').textContent = '--'
+            }
+        }
+
+        function cpbRenderSavedPlans() {
+            const customPlans = appData.customPlans?.[appData.activeProfileId] || []
+            const container = document.getElementById('cpb-saved-plans')
+            const list = document.getElementById('cpb-saved-list')
+
+            if (customPlans.length === 0) {
+                container.classList.add('hidden')
+                return
+            }
+            container.classList.remove('hidden')
+            list.innerHTML = customPlans.map((plan, idx) => `
+                <div class="flex items-center justify-between p-3 rounded-xl border ${plan.active ? 'bg-indigo-50 border-indigo-200' : 'bg-slate-50 border-slate-200'}">
+                    <div>
+                        <div class="text-sm font-bold ${plan.active ? 'text-indigo-900' : 'text-slate-700'}">${escapeHtml(plan.name)}${plan.active ? ' <span class="text-[9px] bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-full uppercase">Active</span>' : ''}</div>
+                        <div class="text-[10px] text-slate-500">${plan.config.ot} OT + ${plan.config.nt} NT + ${plan.config.psalms} Ps + ${plan.config.proverbs} Pr</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="window.activateCustomPlan(${idx})" class="text-[10px] font-bold px-3 py-1.5 rounded-lg ${plan.active ? 'bg-indigo-200 text-indigo-700' : 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'} transition-colors">Use</button>
+                        <button onclick="window.deleteCustomPlan(${idx})" class="text-[10px] font-bold px-2 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">X</button>
+                    </div>
+                </div>
+            `).join('')
+        }
+
+        window.saveCustomPlan = () => {
+            const name = document.getElementById('cpb-name').value.trim() || 'Custom Plan'
+            const total = cpbState.ot + cpbState.nt + cpbState.psalms + cpbState.proverbs
+            if (total === 0) {
+                window.showToast('Add at least one chapter per day.', 'warning')
+                return
+            }
+
+            if (!appData.customPlans) appData.customPlans = {}
+            if (!appData.customPlans[appData.activeProfileId]) appData.customPlans[appData.activeProfileId] = []
+
+            const plans = appData.customPlans[appData.activeProfileId]
+            // Deactivate all existing
+            plans.forEach(p => p.active = false)
+            // Add or update
+            const existing = plans.findIndex(p => p.name === name)
+            const planObj = { name, config: { ...cpbState }, active: true, createdDate: new Date().toISOString() }
+            if (existing >= 0) plans[existing] = planObj
+            else plans.push(planObj)
+
+            // Switch to CUSTOM plan
+            activePlan = 'CUSTOM'
+            appData.profilePlans[appData.activeProfileId] = 'CUSTOM'
+            const planSelector = document.getElementById('plan-selector')
+            if (planSelector) planSelector.value = 'CUSTOM'
+
+            window.saveProgress(true)
+            window.closePlanBuilder()
+            window.showToast(`"${escapeHtml(name)}" plan saved and activated!`, 'success')
+
+            // Track plan change
+            trackPlanChange('CUSTOM')
+
+            if (window.activeTab === 'PLAN') { window.renderDailyPlan(); window.renderGoals() }
+            else if (window.activeTab === 'DASHBOARD') window.renderDashboard()
+        }
+
+        window.activateCustomPlan = (idx) => {
+            const plans = appData.customPlans?.[appData.activeProfileId] || []
+            if (!plans[idx]) return
+            plans.forEach(p => p.active = false)
+            plans[idx].active = true
+
+            activePlan = 'CUSTOM'
+            appData.profilePlans[appData.activeProfileId] = 'CUSTOM'
+            const planSelector = document.getElementById('plan-selector')
+            if (planSelector) planSelector.value = 'CUSTOM'
+
+            window.saveProgress(true)
+            cpbRenderSavedPlans()
+            window.showToast(`Switched to "${escapeHtml(plans[idx].name)}"`, 'success')
+            trackPlanChange('CUSTOM')
+        }
+
+        window.deleteCustomPlan = (idx) => {
+            const plans = appData.customPlans?.[appData.activeProfileId] || []
+            if (!plans[idx]) return
+            const wasActive = plans[idx].active
+            plans.splice(idx, 1)
+            if (wasActive && plans.length > 0) plans[0].active = true
+            window.saveProgress(true)
+            cpbRenderSavedPlans()
+        }
+
+        // Get active custom plan config
+        function getActiveCustomPlan() {
+            const plans = appData.customPlans?.[appData.activeProfileId] || []
+            return plans.find(p => p.active) || plans[0] || null
+        }
+
+        // --- CROSS-PLAN HISTORY TRACKING ---
+        function trackPlanChange(newPlan) {
+            if (!appData.planHistory) appData.planHistory = {}
+            if (!appData.planHistory[appData.activeProfileId]) appData.planHistory[appData.activeProfileId] = []
+            const history = appData.planHistory[appData.activeProfileId]
+            const now = Date.now()
+            // Close the previous entry
+            if (history.length > 0 && !history[history.length - 1].endDate) {
+                history[history.length - 1].endDate = now
+            }
+            // Don't add duplicate consecutive entries
+            if (history.length > 0 && history[history.length - 1].plan === newPlan) return
+            history.push({ plan: newPlan, startDate: now, endDate: null })
+            // Keep last 50 entries
+            if (history.length > 50) history.splice(0, history.length - 50)
+        }
+
+        // --- READING PATTERN INSIGHTS ---
+        function renderReadingPatterns(activityMap) {
+            const currentProg = getProgress()
+
+            // Day of week chart
+            const dayTotals = [0, 0, 0, 0, 0, 0, 0]
+            const dayCounts = [0, 0, 0, 0, 0, 0, 0]
+            Object.keys(activityMap).forEach(dateStr => {
+                const d = new Date(dateStr)
+                const day = d.getDay()
+                dayTotals[day] += activityMap[dateStr]
+                dayCounts[day]++
+            })
+
+            const dayAvgs = dayTotals.map((total, i) => dayCounts[i] > 0 ? Math.round(total / dayCounts[i]) : 0)
+            const maxDayAvg = Math.max(...dayAvgs, 1)
+            const dayColors = ['#818cf8', '#6366f1', '#4f46e5', '#4338ca', '#3730a3', '#312e81', '#818cf8']
+
+            const chartEl = document.getElementById('day-of-week-chart')
+            if (chartEl) {
+                chartEl.innerHTML = dayAvgs.map((avg, i) => {
+                    const height = Math.max(4, (avg / maxDayAvg) * 100)
+                    return `<div class="flex-1 flex flex-col items-center gap-1">
+                        <div class="text-[8px] font-bold text-slate-400">${avg > 0 ? avg.toLocaleString() : ''}</div>
+                        <div class="w-full rounded-t-lg transition-all" style="height:${height}%;background:${dayColors[i]};min-height:4px"></div>
+                    </div>`
+                }).join('')
+            }
+
+            // Category speed (chapters/day for each category)
+            const catSpeed = {}
+            const allCats = typeof OT_CATS !== 'undefined' && typeof NT_CATS !== 'undefined' ? [...OT_CATS, ...NT_CATS] : []
+            allCats.forEach(cat => {
+                let catChaptersRead = 0, catTotalChapters = 0
+                bible.filter(b => b.cat === cat.name).forEach(b => {
+                    b.ch.forEach((_, idx) => {
+                        catTotalChapters++
+                        if (currentProg[`${b.name}-${idx+1}`]) catChaptersRead++
+                    })
+                })
+                if (catChaptersRead > 0 && catTotalChapters > 0) {
+                    catSpeed[cat.name] = { read: catChaptersRead, total: catTotalChapters, pct: ((catChaptersRead / catTotalChapters) * 100).toFixed(0) }
+                }
+            })
+
+            const speedList = document.getElementById('category-speed-list')
+            if (speedList) {
+                const sorted = Object.entries(catSpeed).sort((a, b) => parseFloat(b[1].pct) - parseFloat(a[1].pct)).slice(0, 5)
+                if (sorted.length > 0) {
+                    speedList.innerHTML = sorted.map(([name, data]) => `
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-600 truncate">${name}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-500 rounded-full" style="width:${data.pct}%"></div></div>
+                                <span class="text-[10px] font-bold text-indigo-600 w-10 text-right">${data.pct}%</span>
+                            </div>
+                        </div>
+                    `).join('')
+                } else {
+                    speedList.innerHTML = '<div class="text-xs text-slate-400 font-bold">Start reading to see category progress</div>'
+                }
+            }
+
+            // OT vs NT reading pace
+            let otWords = 0, ntWords = 0
+            const allDates = Object.keys(activityMap).sort()
+            const totalDays = allDates.length || 1
+
+            Object.entries(currentProg).forEach(([key, ts]) => {
+                if (typeof ts !== 'number') return
+                const parts = key.split('-')
+                const book = bible.find(b => b.name === parts[0])
+                if (!book) return
+                const words = book.ch[parseInt(parts[1], 10) - 1] || 0
+                if (book.testament === 'OT') otWords += words
+                else ntWords += words
+            })
+
+            const paceOtEl = document.getElementById('pace-ot')
+            const paceNtEl = document.getElementById('pace-nt')
+            if (paceOtEl) paceOtEl.textContent = Math.round(otWords / totalDays).toLocaleString()
+            if (paceNtEl) paceNtEl.textContent = Math.round(ntWords / totalDays).toLocaleString()
+        }
+
+        // --- CROSS-PLAN HISTORY RENDERING ---
+        function renderPlanHistory() {
+            const history = appData.planHistory?.[appData.activeProfileId] || []
+            const listEl = document.getElementById('plan-history-list')
+            const emptyEl = document.getElementById('plan-history-empty')
+            if (!listEl || !emptyEl) return
+
+            if (history.length === 0) {
+                listEl.innerHTML = ''
+                emptyEl.classList.remove('hidden')
+                return
+            }
+            emptyEl.classList.add('hidden')
+
+            const planNames = { 'SEQUENTIAL': 'Canonical', 'ONE_YEAR': 'One Year', 'MCHEYNE': "M'Cheyne", 'HORNER': 'Horner', 'FIVE_DAY': 'Five-Day', 'CUSTOM': 'Custom' }
+            const planColors = { 'SEQUENTIAL': 'indigo', 'ONE_YEAR': 'emerald', 'MCHEYNE': 'purple', 'HORNER': 'rose', 'FIVE_DAY': 'sky', 'CUSTOM': 'amber' }
+
+            listEl.innerHTML = history.slice().reverse().slice(0, 10).map(entry => {
+                const name = planNames[entry.plan] || entry.plan
+                const color = planColors[entry.plan] || 'slate'
+                const start = new Date(entry.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                const end = entry.endDate ? new Date(entry.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Current'
+                const days = entry.endDate ? Math.ceil((entry.endDate - entry.startDate) / 86400000) : Math.ceil((Date.now() - entry.startDate) / 86400000)
+                return `<div class="flex items-center justify-between p-3 rounded-xl bg-${color}-50 border border-${color}-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 rounded-full bg-${color}-500"></div>
+                        <div>
+                            <div class="text-sm font-bold text-slate-800">${name}</div>
+                            <div class="text-[10px] text-slate-500">${start} — ${end}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs font-bold text-slate-500">${days}d</div>
+                </div>`
+            }).join('')
+        }
+
         // --- DASHBOARD RENDERING ---
         // Stores the next chapter info for the continue reading feature
         let dashboardNextChapter = null
@@ -9550,6 +10292,57 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         break
                     }
                 }
+            } else if (activePlan === 'CUSTOM') {
+                const customPlan = getActiveCustomPlan()
+                if (customPlan) {
+                    const cfg = customPlan.config
+                    // OT chapters (excluding Psalms & Proverbs)
+                    let otFound = 0
+                    for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
+                        for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
+                                otFound++
+                            }
+                        }
+                    }
+                    // NT chapters
+                    let ntFound = 0
+                    for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'NT') continue
+                        for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
+                                ntFound++
+                            }
+                        }
+                    }
+                    // Psalms
+                    const psalmsBook = bible.find(b => b.name === 'Psalms')
+                    if (psalmsBook && cfg.psalms > 0) {
+                        let psFound = 0
+                        for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
+                            if (!currentProg[`Psalms-${c+1}`]) {
+                                chapters.push({ book: 'Psalms', chapter: c+1, words: psalmsBook.ch[c], label: `Psalms ${c+1}`, isComplete: false })
+                                psFound++
+                            }
+                        }
+                    }
+                    // Proverbs
+                    const proverbsBook = bible.find(b => b.name === 'Proverbs')
+                    if (proverbsBook && cfg.proverbs > 0) {
+                        let prFound = 0
+                        for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
+                            if (!currentProg[`Proverbs-${c+1}`]) {
+                                chapters.push({ book: 'Proverbs', chapter: c+1, words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, isComplete: false })
+                                prFound++
+                            }
+                        }
+                    }
+                }
             }
 
             return chapters
@@ -9557,7 +10350,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // Helper: Get plan display name
         function getPlanDisplayName(plan) {
-            const names = { 'SEQUENTIAL': 'Canonical', 'ONE_YEAR': 'One Year', 'MCHEYNE': "M'Cheyne", 'HORNER': 'Horner', 'FIVE_DAY': 'Five-Day' }
+            const names = { 'SEQUENTIAL': 'Canonical', 'ONE_YEAR': 'One Year', 'MCHEYNE': "M'Cheyne", 'HORNER': 'Horner', 'FIVE_DAY': 'Five-Day', 'CUSTOM': 'Custom' }
             return names[plan] || plan
         }
 
@@ -9762,6 +10555,134 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 localStorage.setItem('kjv_last_recap_shown', Date.now().toString())
             }
+
+            // 9. Testament progress bars
+            const otPct = WORD_TOTALS.OT > 0 ? (otRead / WORD_TOTALS.OT * 100) : 0
+            const ntPct = WORD_TOTALS.NT > 0 ? (ntRead / WORD_TOTALS.NT * 100) : 0
+            const otBar = document.getElementById('dash-ot-bar')
+            const ntBar = document.getElementById('dash-nt-bar')
+            if (otBar) otBar.style.width = otPct.toFixed(1) + '%'
+            if (ntBar) ntBar.style.width = ntPct.toFixed(1) + '%'
+            const otDetail = document.getElementById('dash-ot-detail')
+            const ntDetail = document.getElementById('dash-nt-detail')
+            if (otDetail) otDetail.textContent = `${otRead.toLocaleString()} / ${WORD_TOTALS.OT.toLocaleString()} words`
+            if (ntDetail) ntDetail.textContent = `${ntRead.toLocaleString()} / ${WORD_TOTALS.NT.toLocaleString()} words`
+
+            // Category breakdown bars
+            const categories = {
+                'Law': ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy'],
+                'History': ['Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther'],
+                'Poetry': ['Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon'],
+                'Major Prophets': ['Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel'],
+                'Minor Prophets': ['Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'],
+                'Gospels': ['Matthew','Mark','Luke','John'],
+                'Acts': ['Acts'],
+                'Epistles': ['Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude'],
+                'Revelation': ['Revelation']
+            }
+            const catColors = { 'Law': 'bg-amber-400', 'History': 'bg-orange-400', 'Poetry': 'bg-rose-400', 'Major Prophets': 'bg-violet-400', 'Minor Prophets': 'bg-purple-400', 'Gospels': 'bg-sky-400', 'Acts': 'bg-cyan-400', 'Epistles': 'bg-teal-400', 'Revelation': 'bg-red-400' }
+            const catBarsEl = document.getElementById('dash-category-bars')
+            if (catBarsEl) {
+                let catHtml = ''
+                Object.entries(categories).forEach(([catName, books]) => {
+                    let catTotal = 0, catRead = 0
+                    books.forEach(bookName => {
+                        const book = bible.find(b => b.name === bookName)
+                        if (book) {
+                            book.ch.forEach((w, idx) => {
+                                catTotal += w
+                                if (currentProg[`${book.name}-${idx+1}`]) catRead += w
+                            })
+                        }
+                    })
+                    const pct = catTotal > 0 ? (catRead / catTotal * 100) : 0
+                    const color = catColors[catName] || 'bg-indigo-400'
+                    catHtml += `<div class="flex items-center gap-2">
+                        <span class="text-[9px] font-bold text-slate-500 w-24 text-right truncate">${catName}</span>
+                        <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full ${color} rounded-full transition-all duration-700" style="width: ${pct.toFixed(1)}%"></div>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-400 w-8">${Math.round(pct)}%</span>
+                    </div>`
+                })
+                catBarsEl.innerHTML = catHtml
+            }
+
+            // 10. Projection widget
+            const projEl = document.getElementById('dash-projection-content')
+            if (projEl) {
+                const remainingWords = WORD_TOTALS.GLOBAL - totalRead
+                if (avg7d > 0 && totalRead > 0) {
+                    const daysLeft = Math.ceil(remainingWords / avg7d)
+                    const finishDate = new Date(today)
+                    finishDate.setDate(finishDate.getDate() + daysLeft)
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+                    const dateStr = `${months[finishDate.getMonth()]} ${finishDate.getDate()}, ${finishDate.getFullYear()}`
+
+                    const otRemaining = WORD_TOTALS.OT - otRead
+                    const ntRemaining = WORD_TOTALS.NT - ntRead
+                    const otDays = avg7d > 0 ? Math.ceil(otRemaining / avg7d) : 0
+                    const ntDays = avg7d > 0 ? Math.ceil(ntRemaining / avg7d) : 0
+
+                    let projHtml = `<div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">📅</span>
+                        <div>
+                            <p class="text-sm font-black text-slate-800">Finish by ${dateStr}</p>
+                            <p class="text-xs text-slate-500">${daysLeft} days at your 7-day pace (${avg7d.toLocaleString()} words/day)</p>
+                        </div>
+                    </div>`
+                    if (otRemaining > 0 || ntRemaining > 0) {
+                        projHtml += `<div class="grid grid-cols-2 gap-2 mt-2">`
+                        if (otRemaining > 0) {
+                            const otFinish = new Date(today)
+                            otFinish.setDate(otFinish.getDate() + otDays)
+                            projHtml += `<div class="bg-amber-50 rounded-lg p-2 text-center">
+                                <div class="text-xs font-black text-amber-700">${otDays}d</div>
+                                <div class="text-[9px] text-amber-500 font-bold">OT Left</div>
+                            </div>`
+                        } else {
+                            projHtml += `<div class="bg-emerald-50 rounded-lg p-2 text-center">
+                                <div class="text-xs font-black text-emerald-700">Done!</div>
+                                <div class="text-[9px] text-emerald-500 font-bold">OT Complete</div>
+                            </div>`
+                        }
+                        if (ntRemaining > 0) {
+                            projHtml += `<div class="bg-emerald-50 rounded-lg p-2 text-center">
+                                <div class="text-xs font-black text-emerald-700">${ntDays}d</div>
+                                <div class="text-[9px] text-emerald-500 font-bold">NT Left</div>
+                            </div>`
+                        } else {
+                            projHtml += `<div class="bg-emerald-50 rounded-lg p-2 text-center">
+                                <div class="text-xs font-black text-emerald-700">Done!</div>
+                                <div class="text-[9px] text-emerald-500 font-bold">NT Complete</div>
+                            </div>`
+                        }
+                        projHtml += `</div>`
+                    }
+                    projEl.innerHTML = projHtml
+                } else if (totalRead > 0) {
+                    projEl.innerHTML = `<p class="text-sm text-slate-500">Keep reading to build your pace data for projections.</p>`
+                } else {
+                    projEl.innerHTML = `<p class="text-sm text-slate-500">Start reading to see your projected completion date.</p>`
+                }
+            }
+
+            // 11. Quick stats grid
+            let chaptersRead = 0, totalChapters = 0
+            bible.forEach(book => {
+                book.ch.forEach((w, idx) => {
+                    totalChapters++
+                    if (currentProg[`${book.name}-${idx+1}`]) chaptersRead++
+                })
+            })
+            const dashChapRead = document.getElementById('dash-chapters-read')
+            const dashChapLeft = document.getElementById('dash-chapters-left')
+            const dashLongest = document.getElementById('dash-longest-streak')
+            const dashTotalWords = document.getElementById('dash-total-words-read')
+            if (dashChapRead) dashChapRead.textContent = chaptersRead.toLocaleString()
+            if (dashChapLeft) dashChapLeft.textContent = (totalChapters - chaptersRead).toLocaleString()
+            if (dashLongest) dashLongest.textContent = streaks.longest || 0
+            if (dashTotalWords) dashTotalWords.textContent = totalRead > 999999 ? (totalRead / 1000000).toFixed(1) + 'M' : totalRead > 999 ? (totalRead / 1000).toFixed(1) + 'k' : totalRead
         }
 
         window.dashboardContinueReading = () => {
@@ -10178,6 +11099,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Deep stats: velocity, ETA, records
             renderDeepStats(activityMap, chartTotalRead);
+
+            // Reading pattern insights
+            renderReadingPatterns(activityMap);
+
+            // Cross-plan history
+            renderPlanHistory();
         }
 
         // --- VERSE OF THE DAY ---
@@ -11316,6 +12243,103 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		}
 
     </script>
+
+    <!-- Custom Plan Builder Modal -->
+    <div id="plan-builder-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="plan-builder-title">
+        <div class="bg-white rounded-[2rem] p-6 sm:p-8 w-full max-w-lg shadow-2xl modal-in border border-white/50 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="plan-builder-title" class="text-xl font-black text-slate-900 tracking-tight">Custom Plan Builder</h2>
+                <button onclick="window.closePlanBuilder()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close plan builder">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Plan Name -->
+            <div class="mb-5">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1 block">Plan Name</label>
+                <input type="text" id="cpb-name" placeholder="e.g., My Daily Reading" maxlength="30" class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none" aria-label="Custom plan name">
+            </div>
+
+            <!-- Daily Readings Configuration -->
+            <div class="mb-5">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3 block">Daily Readings</label>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-100">
+                        <div>
+                            <div class="text-sm font-bold text-amber-900">Old Testament</div>
+                            <div class="text-[10px] text-amber-600">Genesis through Malachi</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.cpbAdjust('ot', -1)" class="w-8 h-8 rounded-lg bg-white border border-amber-200 text-amber-700 font-bold flex items-center justify-center hover:bg-amber-100">-</button>
+                            <span id="cpb-ot" class="w-8 text-center text-lg font-black text-amber-900">2</span>
+                            <button onclick="window.cpbAdjust('ot', 1)" class="w-8 h-8 rounded-lg bg-white border border-amber-200 text-amber-700 font-bold flex items-center justify-center hover:bg-amber-100">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <div>
+                            <div class="text-sm font-bold text-emerald-900">New Testament</div>
+                            <div class="text-[10px] text-emerald-600">Matthew through Revelation</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.cpbAdjust('nt', -1)" class="w-8 h-8 rounded-lg bg-white border border-emerald-200 text-emerald-700 font-bold flex items-center justify-center hover:bg-emerald-100">-</button>
+                            <span id="cpb-nt" class="w-8 text-center text-lg font-black text-emerald-900">1</span>
+                            <button onclick="window.cpbAdjust('nt', 1)" class="w-8 h-8 rounded-lg bg-white border border-emerald-200 text-emerald-700 font-bold flex items-center justify-center hover:bg-emerald-100">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl border border-purple-100">
+                        <div>
+                            <div class="text-sm font-bold text-purple-900">Psalms</div>
+                            <div class="text-[10px] text-purple-600">150 chapters of worship</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.cpbAdjust('psalms', -1)" class="w-8 h-8 rounded-lg bg-white border border-purple-200 text-purple-700 font-bold flex items-center justify-center hover:bg-purple-100">-</button>
+                            <span id="cpb-psalms" class="w-8 text-center text-lg font-black text-purple-900">1</span>
+                            <button onclick="window.cpbAdjust('psalms', 1)" class="w-8 h-8 rounded-lg bg-white border border-purple-200 text-purple-700 font-bold flex items-center justify-center hover:bg-purple-100">+</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-sky-50 rounded-xl border border-sky-100">
+                        <div>
+                            <div class="text-sm font-bold text-sky-900">Proverbs</div>
+                            <div class="text-[10px] text-sky-600">31 chapters of wisdom</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.cpbAdjust('proverbs', -1)" class="w-8 h-8 rounded-lg bg-white border border-sky-200 text-sky-700 font-bold flex items-center justify-center hover:bg-sky-100">-</button>
+                            <span id="cpb-proverbs" class="w-8 text-center text-lg font-black text-sky-900">0</span>
+                            <button onclick="window.cpbAdjust('proverbs', 1)" class="w-8 h-8 rounded-lg bg-white border border-sky-200 text-sky-700 font-bold flex items-center justify-center hover:bg-sky-100">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estimate -->
+            <div class="mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="font-bold text-indigo-700">Chapters/day:</span>
+                    <span id="cpb-daily-total" class="font-black text-indigo-900">4</span>
+                </div>
+                <div class="flex items-center justify-between text-sm mt-1">
+                    <span class="font-bold text-indigo-700">Est. completion:</span>
+                    <span id="cpb-est-days" class="font-black text-indigo-900">~298 days</span>
+                </div>
+            </div>
+
+            <!-- Saved Custom Plans -->
+            <div id="cpb-saved-plans" class="mb-6 hidden">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2 block">Your Custom Plans</label>
+                <div id="cpb-saved-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button onclick="window.saveCustomPlan()" class="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">
+                    Save & Activate
+                </button>
+                <button onclick="window.closePlanBuilder()" class="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile Bottom Navigation -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 sm:hidden" aria-label="Mobile navigation">
