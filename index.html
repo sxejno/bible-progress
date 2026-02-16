@@ -330,6 +330,69 @@
             opacity: 1;
             transform: translateX(-50%) translateY(-4px);
         }
+        .meaning-word {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            border-bottom: 1px dashed #f59e0b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .meaning-word:hover {
+            color: #b45309;
+            border-bottom-color: #b45309;
+        }
+        .meaning-word-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 0.95rem;
+            height: 0.95rem;
+            border-radius: 9999px;
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 1;
+            user-select: none;
+        }
+        .meaning-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+            min-width: 180px;
+            max-width: 260px;
+            white-space: normal;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+            text-align: left;
+        }
+        .meaning-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #b45309;
+        }
+        .meaning-word:hover .meaning-tooltip,
+        .meaning-word:focus-visible .meaning-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-4px);
+        }
         /* Disabled button styles for loading states */
         button:disabled {
             opacity: 0.6;
@@ -6840,8 +6903,61 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			"Zuzim": "ZOO-zim"
 		};
 
-        // Add pronunciation indicators to Bible text
-        function addPronunciationIndicators(text) {
+        const BOOK_REFERENCE_ALIASES = {
+            Gen: 'Genesis', Exd: 'Exodus', Lev: 'Leviticus', Num: 'Numbers', Deu: 'Deuteronomy', Jos: 'Joshua',
+            Jdg: 'Judges', '1Sa': '1 Samuel', '2Sa': '2 Samuel', '1Ki': '1 Kings', '2Ki': '2 Kings',
+            '1Ch': '1 Chronicles', '2Ch': '2 Chronicles', Job: 'Job', Psa: 'Psalms', Ecc: 'Ecclesiastes',
+            Isa: 'Isaiah', Jer: 'Jeremiah', Eze: 'Ezekiel', Dan: 'Daniel', Zec: 'Zechariah', Mat: 'Matthew',
+            Mar: 'Mark', Luk: 'Luke', Act: 'Acts', Rom: 'Romans', '1Cr': '1 Corinthians', '2Cr': '2 Corinthians',
+            '1Th': '1 Thessalonians', Hbr: 'Hebrews', Jam: 'James', '1Pe': '1 Peter', '2Pe': '2 Peter',
+            '1Jo': '1 John', Rev: 'Revelation'
+        };
+
+        const ARCHAIC_WORD_REFERENCE_ENTRIES = [
+            ['Gen 41:2', 'Kine', 'Heifers'], ['Exd 3:5', 'Shoes', 'Sandals'], ['Exd 3:22', 'Borrow', 'Ask'], ['Exd 4:24', 'Inn', 'Lodging-place'], ['Exd 5:4', 'Let', 'Hinder'], ['Exd 5:8', 'Tale', 'Number'], ['Exd 13:18', 'Harnessed', 'In ranks'], ['Exd 28:40', 'Bonnets', 'Turbans'], ['Exd 34:15', 'Whoring', 'Astray'], ['Exd 34:26', 'Seethe', 'Boil'], ['Exd 34:29', 'Wish', 'Knew'], ['Exd 35:11', 'Taches', 'Clasps'], ['Exd 37:29', 'Apothecary', 'Perfumer'], ['Exd 39:23', 'Habergeon', 'Coat of Mail'], ['Lev 2:1', 'Meat-offerings', 'Wheat-offerings'], ['Num 1:2', 'Polls', 'One by one'], ['Deu 11:30', 'Champaign', 'Plain'], ['Deu 16:1-4', 'Coast', 'Districts'], ['Jos 6:9', 'Rereward', 'Rear'], ['Jos 13:25', 'Children of Ammon', 'Ammonites'], ['Jos 20:3', 'Unwittingly', 'Unintentionally'], ['Jos 23:1', 'Stricken in age', 'Advanced in years'], ['Jdg 3:24', 'Covereth his feet', 'Reposeth'], ['Jdg 7:10', 'Host', 'Camp army'], ['Jdg 7:10', 'Fellow', 'Comrade'], ['Jdg 14:13', 'Shirts', 'Sheets'], ['Jdg 15:4', 'Foxes', 'Jackals'], ['Jdg 18:2', 'Children of Dan', 'Danites'], ['1Sa 1:15', 'Daughter of Belial', 'Worthless woman'], ['1Sa 2:5', 'Seven', 'Many'], ['1Sa 2:12', 'Sons of Belial', 'Worthless men'], ['1Sa 2:29', 'Kick', 'Spurn'], ['1Sa 3:18', 'Every whit', 'Everything'], ['1Sa 5:9', 'Secret Parts', 'Inwardly'], ['1Sa 8:12', 'Ear', 'Till'], ['1Sa 13:17', 'Spoilers', 'Foragers'], ['1Sa 13:20', 'Coultery', 'Spade'], ['1Sa 17:24', 'Carriage', 'Baggage'], ['1Sa 17:24', 'Sore', 'Exceedingly, greatly'], ['1Sa 17:39', 'Assayed', 'Attempted'], ['1Sa 22:17', 'Footman', 'Guard'], ['1Sa 26:5', 'Pitched', 'Encamped'], ['1Sa 26:11', 'Cruse', 'Jug'], ['1Sa 30:13', 'Agone', 'Ago'], ['2Sa 3:12', 'League', 'Covenant'], ['2Sa 17:10', 'Utterly melt', 'Be utterly dismayed'], ['2Sa 22:6', 'Prevented', 'Surrounded'], ['1Ki 2:8', 'Cursed', 'Reviled'], ['1Ki 3:7', 'Go out or come in', 'Conduct affairs'], ['1Ki 4:2', 'Princes', 'Chief officers'], ['1Ki 6:18', 'Knops', 'Knobs'], ['1Ki 7:16', 'Chapiters', 'Capitals'], ['1Ki 9:22', 'Rulers of chariots', 'Charioteers'], ['1Ki 10:26', 'Bestowed', 'Stationed'], ['1Ki 11:22', 'Howbeit', 'Notwithstanding'], ['1Ki 11:28', 'Charge', 'Imposts'], ['1Ki 14:3', 'Cracknels', 'Cakes'], ['1Ki 20:12,16', 'Pavilions', 'Booths'], ['2Ki 4:43', 'Servitor', 'Servant'], ['2Ki 5:24', 'Tower', 'Secret place'], ['2Ki 24:16', 'Craftsmen', 'Carpenters'], ['1Ch 22:5', 'Magnifical', 'Magnificient'], ['2Ch 26:14', 'Habergeons', 'Breastplates'], ['Job 1:1', 'Perfect', 'Sincere'], ['Job 1:1', 'Eschewed', 'Avoided'], ['Job 3:12', 'Prevent', 'Receive'], ['Job 9:33', 'Daysman', 'Umpire'], ['Job 41:26', 'Habergeon', 'Javelin'], ['Psa 4:2', 'Leasing', 'Falsehood, lying'], ['Psa 7:10', 'Plate', 'Crown'], ['Psa 16:10', 'Soul in hell', 'Body in the grave'], ['Psa 44:19', 'Dragons', 'Serpents'], ['Psa 59:10', 'Prevent', 'Come before--i.e., give timely aid'], ['Psa 79:8', 'Prevent', 'Succor'], ['Psa 107:3', 'Minished', 'Diminished'], ['Psa 119:148', 'Prevent', 'Anticipate'], ['Ecc 4:4', 'Travail', 'Labor'], ['Isa 3:22', 'Wimples', 'Shawls'], ['Isa 3:22', 'Crisping-pins', 'Purses'], ['Isa 7:23', 'Silverlings', 'Pieces of silver'], ['Isa 30:24', 'Ear', 'Till'], ['Isa 31:3', 'Holpen', 'Helped'], ['Isa 44:9', 'Delectable', 'Delightful'], ['Jer 4:30', 'Rentest thy face', 'Distend thine eyes'], ['Jer 7:23', 'Fray', 'Scare'], ['Jer 10:22', 'Bruit', 'Rumor'], ['Eze 13:18', 'Sew pillows', 'Apply cushions'], ['Dan 3:21', 'Hosen', 'Turbans'], ['Zec 13:6', 'My fellows', 'United to me'], ['Mat 3:12', 'Fan', 'Winnowing-shovel'], ['Mat 5:46', 'Publicans', 'Tax-gatherers'], ['Mat 6:24', 'Mammon', 'Riches'], ['Mat 12:29', 'Garnished', 'Set in order'], ['Mat 13:20', 'Anon', 'Immediately'], ['Mat 17:12', 'Listed', 'Chose'], ['Mar 11:13', 'Haply', 'Perhaps'], ['Luk 2:49', 'Wish', 'Know'], ['Luk 7:1', 'Audience', 'Hearing'], ['Luk 12:58', 'Hale', 'Drag'], ['Luk 17:9', 'Trow', 'Think'], ['Act 1:2', 'Passion', 'Suffering'], ['Act 7:45', 'Jesus', 'Joshua'], ['Act 9:26', 'Assayed', 'Attempted'], ['Act 9:5', 'Pricks', 'Goads'], ['Act 10:42', 'Quick', 'Living'], ['Rom 1:13', 'Let', 'Hindered'], ['Rom 7:8', 'Concupiscence', 'Evil desires'], ['Rom 8:13', 'Mortify', 'To kill'], ['Rom 15:11', 'Laud', 'Celebrate'], ['1Cr 10:11', 'Ensamples', 'Examples'], ['1Cr 11:29', 'Unworthy', 'Irreverently'], ['1Cr 11:29', 'Damnation', 'Condemnation'], ['1Cr 13:1', 'Charity', 'Love'], ['2Cr 1:12', 'Conversation', 'Behavior'], ['2Cr 5:21', 'Sin', 'Sin-offering'], ['2Cr 8:1', 'Do you to wit', 'Make known to you'], ['1Th 4:15', 'Prevent', 'Go up before'], ['Hbr 1:1', 'Divers', 'Various'], ['Hbr 1:3', 'Person', 'Substance'], ['Hbr 2:11', 'Sanctifieth', 'Expiateth'], ['Hbr 4:8', 'Jesus', 'Joshua'], ['Jam 3:13', 'Good conversation', 'Consistent conduct'], ['Jam 3:4', 'Governor listeth', 'Pilot chooseth'], ['1Pe 2:2', 'Sincere', 'Unadulterated'], ['1Pe 3:11', 'Eschew', 'Avoid'], ['1Pe 3:11', 'Ensue', 'Pursue'], ['2Pe 3:12', 'Hastening unto', 'Earnestly desiring'], ['2Pe 3:9', 'Slack', 'Slow'], ['1Jo 2:17', 'Lust', 'Desire'], ['1Jo 2:20', 'Unction', 'Anointing'], ['1Jo 5:6,8,9', 'Witness', 'Testimony'], ['Rev 1:13', 'Candlestick', 'Lamps'], ['Rev 21:19', 'Garnished', 'Adorned']
+        ];
+
+        function expandReferenceToVerseKeys(reference) {
+            const [bookAbbrev, chapterAndVersesRaw] = reference.trim().split(/\s+/, 2);
+            const bookName = BOOK_REFERENCE_ALIASES[bookAbbrev];
+            if (!bookName || !chapterAndVersesRaw) return [];
+
+            const [chapterRaw, verseSectionRaw] = chapterAndVersesRaw.split(':');
+            const chapter = Number(chapterRaw);
+            if (!Number.isInteger(chapter) || !verseSectionRaw) return [];
+
+            const keys = [];
+            verseSectionRaw.split(',').forEach(part => {
+                const cleanedPart = part.trim();
+                if (!cleanedPart) return;
+                if (cleanedPart.includes('-')) {
+                    const [startRaw, endRaw] = cleanedPart.split('-').map(v => Number(v.trim()));
+                    if (Number.isInteger(startRaw) && Number.isInteger(endRaw) && endRaw >= startRaw) {
+                        for (let verse = startRaw; verse <= endRaw; verse++) {
+                            keys.push(`${bookName} ${chapter}:${verse}`);
+                        }
+                    }
+                } else {
+                    const verse = Number(cleanedPart);
+                    if (Number.isInteger(verse)) keys.push(`${bookName} ${chapter}:${verse}`);
+                }
+            });
+            return keys;
+        }
+
+        const ARCHAIC_WORD_GUIDE_BY_VERSE = (() => {
+            const guide = {};
+            ARCHAIC_WORD_REFERENCE_ENTRIES.forEach(([reference, term, modernMeaning]) => {
+                expandReferenceToVerseKeys(reference).forEach(key => {
+                    if (!guide[key]) guide[key] = [];
+                    guide[key].push({ term, modernMeaning });
+                });
+            });
+            return guide;
+        })();
+
+        // Add pronunciation indicators + archaic word meaning indicators to Bible text
+        function addPronunciationIndicators(text, verseReference = '') {
             if (!text) return '';
 
             // Create a map for case-insensitive matching
@@ -6852,6 +6968,26 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     pronunciation: PRONUNCIATION_GUIDE[word]
                 };
             });
+
+            const explanationEntries = ARCHAIC_WORD_GUIDE_BY_VERSE[verseReference] || [];
+            const explanationMap = {};
+            explanationEntries.forEach(({ term, modernMeaning }) => {
+                explanationMap[term.toLowerCase()] = modernMeaning;
+            });
+            const phraseEntries = explanationEntries
+                .filter(({ term }) => term.includes(' '))
+                .map(({ term, modernMeaning }) => ({ term, modernMeaning, lower: term.toLowerCase() }))
+                .sort((a, b) => b.term.length - a.term.length);
+
+            const renderMeaningIndicator = (word, modernMeaning) => {
+                return `<span class="meaning-word" tabindex="0" role="button" aria-label="Meaning help: ${escapeHtml(word)} means ${escapeHtml(modernMeaning)}">${escapeHtml(word)}<span class="meaning-word-indicator" aria-hidden="true">?</span><span class="meaning-tooltip" aria-hidden="true"><span class="font-black uppercase tracking-wide text-[10px] text-amber-200 block mb-1">Modern Meaning</span>${escapeHtml(modernMeaning)}</span></span>`;
+            };
+
+            const meaningForWord = (word) => {
+                const lowerWord = word.toLowerCase();
+                const wordWithoutPunctuation = word.replace(/['-]/g, '').toLowerCase();
+                return explanationMap[lowerWord] || explanationMap[wordWithoutPunctuation] || null;
+            };
 
             // Helper function to check if a word should get pronunciation help
             // Only matches capitalized words (proper nouns like Bible names/places)
@@ -6871,12 +7007,36 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             for (let i = 0; i < text.length; i++) {
                 const char = text[i];
 
+                if (phraseEntries.length > 0) {
+                    const phraseMatch = phraseEntries.find(({ lower }) => {
+                        if (i + lower.length > text.length) return false;
+                        if (text.slice(i, i + lower.length).toLowerCase() !== lower) return false;
+                        const charBefore = i > 0 ? text[i - 1] : '';
+                        const charAfter = i + lower.length < text.length ? text[i + lower.length] : '';
+                        return !/[a-zA-Z]/.test(charBefore) && !/[a-zA-Z]/.test(charAfter);
+                    });
+
+                    if (phraseMatch) {
+                        result += renderMeaningIndicator(text.slice(i, i + phraseMatch.term.length), phraseMatch.modernMeaning);
+                        i += phraseMatch.term.length - 1;
+                        continue;
+                    }
+                }
+
                 // Check if character is a letter, hyphen, or apostrophe (part of a word)
                 if (/[a-zA-Z'-]/.test(char)) {
                     currentWord += char;
                 } else {
                     // We hit a non-word character, process the accumulated word
                     if (currentWord) {
+                        const modernMeaning = meaningForWord(currentWord);
+                        if (modernMeaning) {
+                            result += renderMeaningIndicator(currentWord, modernMeaning);
+                            currentWord = '';
+                            result += char;
+                            continue;
+                        }
+
                         const lowerWord = currentWord.toLowerCase();
                         const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
 
@@ -6903,6 +7063,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Process any remaining word at the end
             if (currentWord) {
+                const modernMeaning = meaningForWord(currentWord);
+                if (modernMeaning) {
+                    result += renderMeaningIndicator(currentWord, modernMeaning);
+                    return result;
+                }
+
                 const lowerWord = currentWord.toLowerCase();
                 const wordWithoutPunctuation = currentWord.replace(/['-]/g, '').toLowerCase();
 
@@ -7141,7 +7307,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             ${verseData.verse}
                             ${memorizedIcon}
                         </span>
-                        <p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text)}</p>
+                        <p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text, bookName + ' ' + chapterNumber + ':' + verseData.verse)}</p>
                         <button onclick="event.stopPropagation(); window.toggleMemorizeVerse('${verseId}', '${bookName} ${chapterNumber}:${verseData.verse}', \`${verseData.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)"
                                 class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg ${isMemorized ? 'text-amber-500 hover:bg-amber-100' : 'text-slate-400 hover:bg-slate-100'}"
                                 title="${isMemorized ? 'Remove from memorization' : 'Add to memorization'}">
