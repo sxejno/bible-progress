@@ -6945,12 +6945,41 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return keys;
         }
 
+        function normalizeVerseReference(reference) {
+            if (!reference) return '';
+            const cleaned = String(reference).replace(/\s+/g, ' ').trim();
+            const match = cleaned.match(/^(.+?)\s+(\d+)\s*:\s*(\d+)$/);
+            if (!match) return cleaned;
+            const [, rawBook, chapter, verse] = match;
+            return `${rawBook.trim()} ${Number(chapter)}:${Number(verse)}`;
+        }
+
+        function getArchaicExplanationEntriesForVerse(verseReference) {
+            const normalizedReference = normalizeVerseReference(verseReference);
+            if (!normalizedReference) return [];
+
+            const directEntries = ARCHAIC_WORD_GUIDE_BY_VERSE[normalizedReference];
+            if (directEntries) return directEntries;
+
+            // Fallback: if book was abbreviated in a caller, map abbreviation to full book name.
+            const parts = normalizedReference.split(' ');
+            const maybeAbbrev = parts[0];
+            const fullBook = BOOK_REFERENCE_ALIASES[maybeAbbrev];
+            if (fullBook) {
+                const fallbackReference = normalizeVerseReference(normalizedReference.replace(maybeAbbrev, fullBook));
+                return ARCHAIC_WORD_GUIDE_BY_VERSE[fallbackReference] || [];
+            }
+
+            return [];
+        }
+
         const ARCHAIC_WORD_GUIDE_BY_VERSE = (() => {
             const guide = {};
             ARCHAIC_WORD_REFERENCE_ENTRIES.forEach(([reference, term, modernMeaning]) => {
                 expandReferenceToVerseKeys(reference).forEach(key => {
-                    if (!guide[key]) guide[key] = [];
-                    guide[key].push({ term, modernMeaning });
+                    const normalizedKey = normalizeVerseReference(key);
+                    if (!guide[normalizedKey]) guide[normalizedKey] = [];
+                    guide[normalizedKey].push({ term, modernMeaning });
                 });
             });
             return guide;
@@ -6969,7 +6998,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 };
             });
 
-            const explanationEntries = ARCHAIC_WORD_GUIDE_BY_VERSE[verseReference] || [];
+            const explanationEntries = getArchaicExplanationEntriesForVerse(verseReference);
             const explanationMap = {};
             explanationEntries.forEach(({ term, modernMeaning }) => {
                 explanationMap[term.toLowerCase()] = modernMeaning;
