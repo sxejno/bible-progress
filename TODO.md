@@ -2,7 +2,7 @@
 
 This document provides a strategic roadmap for the Bible Progress application, organized by priority and timeline.
 
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-02-17
 **Current Version:** kjv_v6_data
 **Application Status:** Production-ready with active feature development
 
@@ -46,16 +46,11 @@ These issues significantly impact user experience and should be addressed ASAP.
     - Visible focus indicators throughout
 
 ### User Experience Issues
-- [ ] **🔴 Replace native alerts with custom modals** - 19 instances found
+- [ ] **🔴 Replace remaining native confirm() with custom modal** - 1 instance remaining
   - **Impact**: Poor UX, breaks mobile flow, looks unprofessional
-  - **Effort**: High (4-5 hours)
-  - **Locations**:
-    - `index.html:953` - Auth errors
-    - `index.html:1369-1497` - Profile management (8 alerts)
-    - `index.html:1583-1642` - Sync operations (6 alerts)
-    - `index.html:1850-1925` - Backup/restore (3 alerts)
-  - **Solution**: Create reusable modal component matching auth-modal styling
-  - **Priority reasoning**: This is the #1 UX complaint from users
+  - **Location**: `index.html:8004` - toggleAllInBook reset confirmation
+  - **Solution**: Use existing `window.showConfirm()` custom modal system
+  - **Note**: Most native alerts were already replaced with custom modal system (lines ~2052+)
 
 ---
 
@@ -125,7 +120,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 **Goals**: Help users understand and improve reading habits
 **Status**: 🟡 Design phase
 
-- [ ] **Reading heatmap enhancement** - `index.html:389`
+- [ ] **Reading heatmap enhancement**
   - [ ] GitHub-style contribution heatmap
   - [ ] Show reading intensity over time (daily/weekly/monthly views)
   - [ ] Highlight longest/current streaks visually
@@ -210,11 +205,10 @@ These issues significantly impact user experience and should be addressed ASAP.
 **Priority**: 🟡 Medium - Address as time permits
 
 #### Code Quality
-- [ ] **Remove production console.log statements** - 22+ instances
-  - `index.html:1839, 1896` - Backup/restore logging
+- [ ] **Remove production console.log statements** - 9 instances
+  - `index.html` - Debug mode, Bible load, backup, easter eggs, service worker registration
   - `service-worker.js` - Registration logs
-  - **Action**: Keep only error logging, remove debug logs
-  - **Consider**: Implementing proper error tracking (Sentry, LogRocket)
+  - **Action**: Keep only error logging, remove debug logs or gate behind DEBUG_MODE
 
 - [ ] **Standardize code style**
   - [ ] Consistent semicolon usage (pick a style and apply)
@@ -248,7 +242,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 ### Single-File Architecture Trade-offs
 
-**Current Status**: `index.html` is 3,847 lines
+**Current Status**: `index.html` is ~13,000 lines
 **Decision Point**: When to refactor?
 
 **Pros of current approach:**
@@ -280,7 +274,7 @@ These issues significantly impact user experience and should be addressed ASAP.
    - Improve inline documentation
    - Better IDE navigation with landmarks
 
-**Recommendation**: Review at 5,000 lines or when adding team members
+**Recommendation**: Already past 13,000 lines — review before adding team members
 
 ### Bible Data Extraction
 
@@ -358,7 +352,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 ### Active Bugs (Need Fixes)
 
 - [ ] **🔴 HIGH: Service worker caches stale CDN resources**
-  - **Location**: `service-worker.js:2-8`
+  - **Location**: `service-worker.js`
   - **Impact**: Users may see outdated Tailwind/Chart.js after CDN updates
   - **Solution**: Version cache name or use network-first for CDNs
   - **Priority**: High (affects all users on update)
@@ -385,7 +379,6 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 - [x] **Search results don't show count** ✅ **COMPLETED 2026-01-17**
   - Added "X books found" counter below search box
-  - Location: `index.html:295, 1810-1822`
 
 - [x] **Horner plan showing chapters as read incorrectly** ✅ **COMPLETED 2026-01-18** (#69)
   - Fixed list completion vs. chapter read status confusion
@@ -393,6 +386,75 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 - [x] **Daily plan "Mark as Read" button broken for ranges** ✅ **COMPLETED 2026-01-18** (#68)
   - Fixed event parameter forwarding in wrapper functions
+
+### February 2026 Achievements
+
+- [x] **Search clear button** ✅ **COMPLETED 2026-02-17**
+  - Added X button to book search input for clearing search text
+  - Shows/hides dynamically based on input content
+
+- [x] **Replaced last native confirm() with custom modal** ✅ **COMPLETED 2026-02-17**
+  - `toggleAllInBook` now uses `window.showConfirm()` instead of native `confirm()`
+
+- [x] **Fixed planLabels missing FIVE_DAY and CUSTOM** ✅ **COMPLETED 2026-02-17**
+  - Obsidian and PDF exports now show proper labels for all 6 plan types
+
+- [x] **Updated all documentation** ✅ **COMPLETED 2026-02-17**
+  - Fixed stale line references in TODO.md, SECURITY.md
+  - Updated line count from ~3,900 to ~13,000 across CLAUDE.md, README.md, TODO.md
+  - Updated reading plan count from 3/4 to 6 in CLAUDE.md, README.md
+  - Added FIVE_DAY and CUSTOM to data model in CLAUDE.md
+
+---
+
+## 🎯 Top UX & Feature Improvements (Prioritized)
+
+These are the highest-impact improvements identified from a Feb 2026 audit.
+
+### Tier 1: High Impact, Low Effort
+
+- [ ] **1. Increase touch target sizes for close/action buttons**
+  - Multiple close buttons are 20x20px; WCAG minimum is 44x44px
+  - Affects: All modal close buttons, help button, search clear button
+  - Fix: Increase padding on icon buttons (e.g., `p-2` to `p-3`)
+
+- [ ] **2. Add keyboard arrow-key navigation for main tabs**
+  - Tabs have `role="tab"` and `aria-selected` but no arrow key support
+  - Bible reader already has arrow key support (good pattern to follow)
+  - Fix: Add keydown listener for ArrowLeft/ArrowRight on tab bar
+
+- [ ] **3. Add focus trap to modals**
+  - Focus can escape to background elements when modals are open
+  - Fix: Trap Tab/Shift+Tab within modal bounds
+
+### Tier 2: High Impact, Medium Effort
+
+- [ ] **4. Proper dark mode with CSS custom properties**
+  - Current: `filter: invert(0.9)` — causes image distortion, potential perf issues
+  - Fix: Use CSS variables for background/text/accent colors per theme
+  - Benefit: Better colors, better performance, no image distortion
+
+- [ ] **5. Add loading indicator for Firebase sync operations**
+  - Login shows "Logging in..." (good), but cloud sync has no visual feedback
+  - Fix: Show spinner/toast during sync writes and reads
+
+- [ ] **6. Add scroll-to-top floating button for Books view**
+  - Mobile users scrolling 66 books have no quick way back to top
+  - Fix: Floating button that appears after scrolling past threshold
+
+### Tier 3: Nice-to-Have
+
+- [ ] **7. Add skip-to-main-content link**
+  - Standard accessibility feature for keyboard/screen reader users
+  - Fix: Hidden link at top of page that becomes visible on focus
+
+- [ ] **8. Empty state for dashboard when no chapters read**
+  - Dashboard shows 0% but no helpful onboarding prompt
+  - Fix: Show CTA to pick a reading plan or mark first chapter
+
+- [ ] **9. Profile name truncation for long names**
+  - Names 50+ characters overflow UI elements
+  - Fix: CSS `truncate` class + title tooltip
 
 ---
 
@@ -403,7 +465,6 @@ These issues significantly impact user experience and should be addressed ASAP.
 **Goal**: Improve code organization without breaking single-file philosophy
 
 - [ ] **Extract profile management**
-  - **Location**: `index.html:461-477` + related functions
   - **Size**: ~300 lines
   - **Benefit**: Easier testing, clear boundaries
   - **Approach**: ES6 module with dynamic import
@@ -451,7 +512,6 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 - [x] **Reading streak system** ✅
   - Heatmap visualization, milestone celebrations, dynamic emoji progression
-  - Location: `index.html:2596-3000`
 
 - [x] **Comprehensive ARIA labels** ✅
   - 35+ labels for full screen reader support
@@ -469,7 +529,6 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 - [x] **Delightful animations** ✅
   - Tab transitions, progress bars, confetti celebrations
-  - Location: `index.html:71-136`
 
 - [x] **Dark mode (dual access)** ✅
   - Settings toggle + triple-click logo easter egg
@@ -585,7 +644,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 ---
 
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-02-17
 **Document Owner:** Shane (with AI assistance)
 **Codebase Version:** kjv_v6_data
-**Next Review:** End of Q1 2026 (March 31, 2026)
+**Next Review:** End of Q1 2026 (March 2026)

@@ -9,29 +9,24 @@ This document outlines the security measures implemented in the Bible Progress a
 ### 1. XSS (Cross-Site Scripting) Prevention
 
 **Added HTML Escaping Utility Function**
-- Location: `index.html:394-399`
 - Function: `escapeHtml(text)` - Safely escapes user-provided text before rendering in DOM
 - Usage: Use this function when rendering any user-generated content
 
 **Replaced innerHTML with textContent**
 - All sync status messages now use `textContent` instead of `innerHTML` to prevent XSS injection
-- Locations: Lines 578, 585, 664, 677, 684
 
 ### 2. URL Validation
 
 **HTTPS URL Validation for User Photos**
-- Location: `index.html:402-409`
 - Function: `isValidHttpsUrl(urlString)` - Validates URLs are HTTPS before using as image sources
 - Applied to Firebase user photoURL to prevent:
   - JavaScript injection via `javascript:` URLs
   - Data URL exploits
   - Open redirect attacks
-- Location: `index.html:572-576`
 
 ### 3. File Upload Security
 
 **Backup File Restoration Validation**
-- Location: `index.html:947-996`
 - Implemented security checks:
   - ✅ File type validation (must be `.json`)
   - ✅ File size limit (5MB maximum)
@@ -43,7 +38,6 @@ This document outlines the security measures implemented in the Bible Progress a
 
 **JSON Parsing Protection**
 - All `JSON.parse()` calls wrapped in try-catch blocks
-- Locations: Lines 421-445 (localStorage parsing)
 - Prevents application crashes from malformed data
 - Logs errors for debugging without exposing sensitive info
 
@@ -233,6 +227,6 @@ Priority improvements for consideration:
 
 ---
 
-**Last Updated**: 2026-01-08
+**Last Updated**: 2026-02-17
 **Security Level**: Good (for a client-side Bible tracker)
 **Compliance**: OWASP Top 10 addressed

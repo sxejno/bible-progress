@@ -950,8 +950,11 @@
         <div id="view-books" class="hidden animate-in">
             <div class="mb-6">
                 <div class="relative group">
-                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-indigo-200 bg-white shadow-md hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
+                    <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-12 py-4 rounded-2xl border-2 border-indigo-200 bg-white shadow-md hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <button id="book-search-clear" onclick="window.clearBookSearch()" class="absolute right-3 top-3 p-1 rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-all hidden" aria-label="Clear search">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
                 <div id="search-results-count" class="mt-2 text-sm text-slate-500 hidden"></div>
             </div>
@@ -7826,6 +7829,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.handleSearch = () => {
             searchQuery = document.getElementById('book-search').value.toLowerCase();
 
+            // Show/hide clear button
+            const clearBtn = document.getElementById('book-search-clear');
+            if (clearBtn) {
+                if (searchQuery) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
             // Calculate and display search results count
             const resultsCountEl = document.getElementById('search-results-count');
             if (searchQuery) {
@@ -7842,6 +7852,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             window.renderBookGrid();
+        };
+
+        window.clearBookSearch = () => {
+            const input = document.getElementById('book-search');
+            if (input) input.value = '';
+            window.handleSearch();
+            input?.focus();
         };
 
         // Debounced version of handleSearch (300ms delay)
@@ -7994,18 +8011,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         };
 
-        window.toggleAllInBook = (val) => {
+        window.toggleAllInBook = async (val) => {
             const book = bible[activeBookIdx];
 
             // Add confirmation for resetting book progress
             if (!val) {
                 const readChapters = book.ch.filter((_, i) => getProgress()[`${book.name}-${i+1}`]).length;
                 if (readChapters > 0) {
-                    const confirmReset = confirm(
-                        `⚠️ RESET ${book.name.toUpperCase()}?\n\n` +
-                        `This will unmark ${readChapters} chapter${readChapters !== 1 ? 's' : ''} as unread.\n\n` +
-                        `This action cannot be undone.\n\n` +
-                        `Are you sure?`
+                    const confirmReset = await window.showConfirm(
+                        `Reset ${book.name}?`,
+                        `This will unmark ${readChapters} chapter${readChapters !== 1 ? 's' : ''} as unread. This action cannot be undone.`,
+                        'Reset'
                     );
                     if (!confirmReset) return;
                 }
@@ -8190,7 +8206,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             exportProfiles.forEach(profile => {
                 const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
-                const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
+                const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
                 const planLabel = planLabels[plan] || plan;
 
                 // Profile header
@@ -8285,7 +8301,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const exportProfiles = getExportProfilesFiltered(selectedNames);
             const generatedDate = new Date().toLocaleString();
             const dateStamp = getExportDateStamp();
-            const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
+            const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
             const pdfTitle = `Bible Reading Progress - ${dateStamp}`;
 
             let bodyContent = `<div class="header"><h1>Bible Reading Progress</h1><p class="meta">Exported from bibleprogress.com &bull; ${generatedDate}</p></div>`;
