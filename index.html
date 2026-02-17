@@ -1736,7 +1736,7 @@
                         </button>
                     </div>
                     <p class="text-xs text-slate-500 mt-4 text-center leading-relaxed">
-                        Export includes all profiles, reading plans, memorized verses, goals, and settings.
+                        Choose which profiles to include in the export. Backup (JSON) always includes all data.
                     </p>
                 </div>
 
@@ -2230,6 +2230,131 @@
 
         window.showPrompt = (title, message, defaultValue = '', placeholder = '', submitText = 'Submit') => {
             return window.showCustomModal(title, message, 'prompt', { defaultValue, placeholder, submitText });
+        };
+
+        // Profile picker modal for exports - shows checkboxes for each profile
+        window.showProfilePicker = (exportLabel = 'Export') => {
+            return new Promise((resolve) => {
+                const allNames = Object.keys(appData.profiles || {})
+
+                // Single profile: skip picker entirely
+                if (allNames.length <= 1) {
+                    resolve(allNames)
+                    return
+                }
+
+                // Remove any existing modal
+                const existingModal = document.getElementById('custom-modal-overlay')
+                if (existingModal) existingModal.remove()
+
+                const overlay = document.createElement('div')
+                overlay.id = 'custom-modal-overlay'
+                overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm'
+                overlay.style.animation = 'fadeIn 0.2s ease-out'
+
+                const modal = document.createElement('div')
+                modal.className = 'glass bg-white border-2 border-indigo-200 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all'
+                modal.style.animation = 'fadeIn 0.3s ease-out'
+                modal.setAttribute('role', 'dialog')
+                modal.setAttribute('aria-label', `Select profiles to ${exportLabel.toLowerCase()}`)
+
+                let checkboxesHtml = ''
+                allNames.forEach((name, idx) => {
+                    const color = stringToColor(name)
+                    const isActive = name === appData.activeProfileId
+                    const escapedName = escapeHtml(name)
+                    checkboxesHtml += `
+                        <label class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer" for="profile-pick-${idx}">
+                            <input type="checkbox" id="profile-pick-${idx}" data-profile-idx="${idx}"
+                                ${isActive ? 'checked' : ''}
+                                class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 accent-indigo-600"
+                                aria-label="Select profile ${escapedName}" />
+                            <span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color.solid}"></span>
+                            <span class="text-sm font-bold text-slate-700 truncate">${escapedName}</span>
+                            ${isActive ? '<span class="ml-auto text-[8px] text-indigo-500 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0">Active</span>' : ''}
+                        </label>`
+                })
+
+                modal.innerHTML = `
+                    <div class="flex items-start gap-4 mb-4">
+                        <span class="text-3xl flex-shrink-0">&#128203;</span>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-black text-indigo-900 mb-1">Select Profiles</h3>
+                            <p class="text-sm text-indigo-700 leading-relaxed">Choose which profiles to include in the ${escapeHtml(exportLabel.toLowerCase())}.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-2 px-1">
+                        <button id="profile-pick-toggle-all" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors" aria-label="Toggle select all profiles">Select All</button>
+                        <span id="profile-pick-count" class="text-xs font-bold text-slate-400"></span>
+                    </div>
+                    <div class="max-h-64 overflow-y-auto border border-slate-200 rounded-xl mb-4" role="group" aria-label="Profile list">
+                        ${checkboxesHtml}
+                    </div>
+                    <div class="flex gap-3 justify-end">
+                        <button id="profile-pick-cancel" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors">Cancel</button>
+                        <button id="profile-pick-export" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">${escapeHtml(exportLabel)}</button>
+                    </div>`
+
+                overlay.appendChild(modal)
+                document.body.appendChild(overlay)
+
+                const checkboxes = modal.querySelectorAll('input[type="checkbox"]')
+                const exportBtn = document.getElementById('profile-pick-export')
+                const toggleAllBtn = document.getElementById('profile-pick-toggle-all')
+                const countSpan = document.getElementById('profile-pick-count')
+
+                const updateState = () => {
+                    const checked = modal.querySelectorAll('input[type="checkbox"]:checked').length
+                    const total = checkboxes.length
+                    countSpan.textContent = `${checked} of ${total} selected`
+                    exportBtn.disabled = checked === 0
+                    toggleAllBtn.textContent = checked === total ? 'Deselect All' : 'Select All'
+                }
+                updateState()
+
+                checkboxes.forEach(cb => cb.addEventListener('change', updateState))
+
+                toggleAllBtn.addEventListener('click', () => {
+                    const allChecked = modal.querySelectorAll('input[type="checkbox"]:checked').length === checkboxes.length
+                    checkboxes.forEach(cb => { cb.checked = !allChecked })
+                    updateState()
+                })
+
+                const closeModal = (result) => {
+                    overlay.style.opacity = '0'
+                    setTimeout(() => overlay.remove(), 200)
+                    resolve(result)
+                }
+
+                exportBtn.addEventListener('click', () => {
+                    const selected = []
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) selected.push(allNames[parseInt(cb.dataset.profileIdx)])
+                    })
+                    closeModal(selected.length > 0 ? selected : null)
+                })
+
+                document.getElementById('profile-pick-cancel').addEventListener('click', () => closeModal(null))
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(null) })
+
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        closeModal(null)
+                        document.removeEventListener('keydown', handleEscape)
+                    }
+                }
+                document.addEventListener('keydown', handleEscape)
+
+                modal.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && e.target.type !== 'checkbox') {
+                        const selected = []
+                        checkboxes.forEach(cb => {
+                            if (cb.checked) selected.push(allNames[parseInt(cb.dataset.profileIdx)])
+                        })
+                        if (selected.length > 0) closeModal(selected)
+                    }
+                })
+            })
         };
 
         // --- VALIDATE APP DATA ---
@@ -7932,6 +8057,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 progress: appData.profiles[profileName] || {}
             }));
         };
+        const getExportProfilesFiltered = (selectedNames) => {
+            if (!selectedNames || !appData || !appData.profiles) return getExportProfiles()
+            return selectedNames
+                .filter(name => appData.profiles[name])
+                .map(name => ({ name, progress: appData.profiles[name] || {} }))
+        };
         const downloadExportFile = (content, filename, type) => {
             const blob = new Blob([content], { type });
             const url = URL.createObjectURL(blob);
@@ -7960,8 +8091,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             console.log(`✅ Backed up ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
         };
 
-        window.exportProgressCSV = () => {
-            const exportProfiles = getExportProfiles();
+        window.exportProgressCSV = async () => {
+            const selectedNames = await window.showProfilePicker('Export CSV')
+            if (!selectedNames) return
+            const exportProfiles = getExportProfilesFiltered(selectedNames);
             const rows = [];
 
             // --- Reading Progress ---
@@ -7985,7 +8118,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             rows.push([]);
             rows.push(['=== PROFILES ===']);
             rows.push(['Profile', 'Reading Plan', 'Is Active', 'Is Default']);
-            Object.keys(appData.profiles).forEach(name => {
+            selectedNames.forEach(name => {
                 rows.push([
                     name,
                     (appData.profilePlans && appData.profilePlans[name]) || 'SEQUENTIAL',
@@ -7996,12 +8129,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // --- Memorized Verses ---
             if(appData.memorizedVerses) {
-                const hasVerses = Object.values(appData.memorizedVerses).some(v => v && v.length > 0);
-                if(hasVerses) {
+                const selectedVerseProfiles = selectedNames.filter(n => appData.memorizedVerses[n] && appData.memorizedVerses[n].length > 0);
+                if(selectedVerseProfiles.length > 0) {
                     rows.push([]);
                     rows.push(['=== MEMORIZED VERSES ===']);
                     rows.push(['Profile', 'Reference', 'Verse Text', 'Date Added']);
-                    Object.keys(appData.memorizedVerses).forEach(profileName => {
+                    selectedVerseProfiles.forEach(profileName => {
                         (appData.memorizedVerses[profileName] || []).forEach(verse => {
                             rows.push([
                                 profileName, verse.ref || '', verse.text || '',
@@ -8014,12 +8147,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // --- Reading Goals ---
             if(appData.goals) {
-                const hasGoals = Object.values(appData.goals).some(g => g && g.length > 0);
-                if(hasGoals) {
+                const selectedGoalProfiles = selectedNames.filter(n => appData.goals[n] && appData.goals[n].length > 0);
+                if(selectedGoalProfiles.length > 0) {
                     rows.push([]);
                     rows.push(['=== READING GOALS ===']);
                     rows.push(['Profile', 'Goal Name', 'Type', 'Target', 'Deadline', 'Created']);
-                    Object.keys(appData.goals).forEach(profileName => {
+                    selectedGoalProfiles.forEach(profileName => {
                         (appData.goals[profileName] || []).forEach(goal => {
                             rows.push([
                                 profileName, goal.name || '', goal.type || '',
@@ -8043,8 +8176,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             downloadExportFile(csvContent, `bibleprogress_export_${getExportDateStamp()}.csv`, 'text/csv;charset=utf-8;');
         };
 
-        window.exportProgressObsidian = () => {
-            const exportProfiles = getExportProfiles();
+        window.exportProgressObsidian = async () => {
+            const selectedNames = await window.showProfilePicker('Export Obsidian')
+            if (!selectedNames) return
+            const exportProfiles = getExportProfilesFiltered(selectedNames);
             const generatedDate = new Date().toISOString();
             const dateStamp = getExportDateStamp();
 
@@ -8144,8 +8279,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             downloadExportFile(content, `Bible Reading Progress ${dateStamp}.md`, 'text/markdown;charset=utf-8;');
         };
 
-        window.exportProgressPDF = () => {
-            const exportProfiles = getExportProfiles();
+        window.exportProgressPDF = async () => {
+            const selectedNames = await window.showProfilePicker('Export PDF')
+            if (!selectedNames) return
+            const exportProfiles = getExportProfilesFiltered(selectedNames);
             const generatedDate = new Date().toLocaleString();
             const dateStamp = getExportDateStamp();
             const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)' };
@@ -8281,14 +8418,22 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             printWindow.print();
         };
 
-        window.exportVisualReport = () => {
-            const currentProg = getProgress()
-            const activityMap = getReadingActivity()
-            const streaks = calculateStreaks()
+        window.exportVisualReport = async () => {
+            const selectedNames = await window.showProfilePicker('Visual Report')
+            if (!selectedNames) return
+
             const generatedDate = new Date().toLocaleString()
-            const profileName = appData.activeProfileId || 'Default'
             const dateStamp = getExportDateStamp()
-            const reportTitle = `Bible Progress Report - ${profileName} - ${dateStamp}`
+            const reportTitle = `Bible Progress Report - ${dateStamp}`
+
+            // Generate per-profile report sections
+            let allProfilesHtml = ''
+
+            selectedNames.forEach((profileName, profileIdx) => {
+            const currentProg = appData.profiles[profileName] || {}
+            const activityMap = getReadingActivity(currentProg)
+            const streaks = calculateStreaks(currentProg)
+            const profilePlan = (appData.profilePlans && appData.profilePlans[profileName]) || 'SEQUENTIAL'
 
             // Calculate totals
             let totalRead = 0, otRead = 0, ntRead = 0, chaptersRead = 0, totalChapters = 0
@@ -8382,7 +8527,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (profileGoals.length > 0) {
                 goalsHtml = `<div class="section"><div class="section-title">Reading Goals</div>`
                 profileGoals.forEach(goal => {
-                    const { percent } = calculateGoalProgress(goal)
+                    const { percent } = calculateGoalProgress(goal, currentProg)
                     const isComplete = percent >= 99.999
                     const goalName = escapeHtml(goal.name || getGoalTypeLabel(goal))
                     const deadlineStr = goal.deadline ? `Due: ${goal.deadline}` : ''
@@ -8474,6 +8619,90 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>`
             })
 
+            if (profileIdx > 0) allProfilesHtml += '<div style="page-break-before:always;margin-top:40px;border-top:3px solid #e0e7ff;padding-top:32px;"></div>'
+
+            allProfilesHtml += `
+    <div class="header">
+        <h1>Bible Reading Progress</h1>
+        <div class="profile">${escapeHtml(profileName)} &mdash; ${getPlanDisplayName(profilePlan)} Plan</div>
+        <div class="ts">Generated ${generatedDate} &bull; bibleprogress.com</div>
+    </div>
+
+    <div class="section">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-val" style="color:#4f46e5;">${totalPct}%</div><div class="stat-label">Complete</div></div>
+            <div class="stat-card"><div class="stat-val">${chaptersRead}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/${totalChapters}</span></div><div class="stat-label">Chapters</div></div>
+            <div class="stat-card"><div class="stat-val">${totalRead >= 1000000 ? (totalRead/1000000).toFixed(2)+'M' : (totalRead/1000).toFixed(1)+'k'}</div><div class="stat-label">Words Read</div></div>
+            <div class="stat-card"><div class="stat-val">${completedBooks}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/66</span></div><div class="stat-label">Books Done</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#f59e0b;">${streaks.current}</div><div class="stat-label">Current Streak</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${streaks.longest || 0}</div><div class="stat-label">Best Streak</div></div>
+            <div class="stat-card"><div class="stat-val">${Object.keys(activityMap).length}</div><div class="stat-label">Days Read</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:#10b981;">${memorizedVerses.length}</div><div class="stat-label">Memorized</div></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Overall Progress</div>
+        <div class="overview-row">
+            <div style="flex-shrink:0;">${mainDonut}</div>
+            <div class="overview-stats">
+                <div class="overview-stat"><span>Reading Plan</span><strong style="color:#6366f1;">${getPlanDisplayName(profilePlan)}</strong></div>
+                <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
+                <div class="overview-stat"><span>Words Remaining</span><strong>${((WORD_TOTALS.GLOBAL - totalRead) / 1000).toFixed(1)}k</strong></div>
+                <div class="overview-stat"><span>Total Days Read</span><strong>${Object.keys(activityMap).length}</strong></div>
+            </div>
+        </div>
+        <div class="testaments-row">
+            <div class="testament-card">
+                ${otDonut}
+                <div class="testament-info"><strong>Old Testament</strong>${otChaptersRead}/${otChapters} chapters<div class="sub">${(otRead/1000).toFixed(1)}k / ${(WORD_TOTALS.OT/1000).toFixed(1)}k words</div></div>
+            </div>
+            <div class="testament-card">
+                ${ntDonut}
+                <div class="testament-info"><strong>New Testament</strong>${ntChaptersRead}/${ntChapters} chapters<div class="sub">${(ntRead/1000).toFixed(1)}k / ${(WORD_TOTALS.NT/1000).toFixed(1)}k words</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">30-Day Reading Activity</div>
+        <div class="chart-box">${barsSvg}</div>
+        <div class="velocity-row">
+            <div class="vel-card"><div class="vel-val">${avg7d.toLocaleString()}</div><div class="vel-label">7-Day Avg (w/day)</div></div>
+            <div class="vel-card"><div class="vel-val">${avg30d.toLocaleString()}</div><div class="vel-label">30-Day Avg (w/day)</div></div>
+            <div class="vel-card"><div class="vel-val">${avgAllTime.toLocaleString()}</div><div class="vel-label">All-Time Avg (w/day)</div></div>
+        </div>
+        ${projectionHtml}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Progress by Category</div>
+        <div class="chart-box" style="padding:18px 16px;">${catBarsHtml}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Book Completion Grid</div>
+        <p style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:600;">All 66 books &mdash; darker shading means more complete.</p>
+        <div class="chart-box" style="padding:14px;">
+            <div class="book-grid">${bookGridHtml}</div>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e1;"></div>Not Started</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1-24%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25-49%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50-74%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75-99%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>Complete</div>
+        </div>
+    </div>
+
+    ${goalsHtml}
+    ${versesHtml}
+
+    <div class="footer"><p>Generated by Bible Progress &bull; bibleprogress.com &bull; ${dateStamp}</p></div>
+`
+            }) // end selectedNames.forEach
+
             const printWindow = window.open('', '_blank')
             if (!printWindow) {
                 window.showAlert('Pop-up Blocked', 'Please allow pop-ups to export your visual report.', 'error')
@@ -8528,84 +8757,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Bible Reading Progress</h1>
-        <div class="profile">${escapeHtml(profileName)} &mdash; ${getPlanDisplayName(activePlan)} Plan</div>
-        <div class="ts">Generated ${generatedDate} &bull; bibleprogress.com</div>
-    </div>
-
-    <div class="section">
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-val" style="color:#4f46e5;">${totalPct}%</div><div class="stat-label">Complete</div></div>
-            <div class="stat-card"><div class="stat-val">${chaptersRead}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/${totalChapters}</span></div><div class="stat-label">Chapters</div></div>
-            <div class="stat-card"><div class="stat-val">${totalRead >= 1000000 ? (totalRead/1000000).toFixed(2)+'M' : (totalRead/1000).toFixed(1)+'k'}</div><div class="stat-label">Words Read</div></div>
-            <div class="stat-card"><div class="stat-val">${completedBooks}<span style="font-size:13px;color:#94a3b8;font-weight:700;">/66</span></div><div class="stat-label">Books Done</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:#f59e0b;">${streaks.current}</div><div class="stat-label">Current Streak</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:#6366f1;">${streaks.longest || 0}</div><div class="stat-label">Best Streak</div></div>
-            <div class="stat-card"><div class="stat-val">${Object.keys(activityMap).length}</div><div class="stat-label">Days Read</div></div>
-            <div class="stat-card"><div class="stat-val" style="color:#10b981;">${memorizedVerses.length}</div><div class="stat-label">Memorized</div></div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Overall Progress</div>
-        <div class="overview-row">
-            <div style="flex-shrink:0;">${mainDonut}</div>
-            <div class="overview-stats">
-                <div class="overview-stat"><span>Reading Plan</span><strong style="color:#6366f1;">${getPlanDisplayName(activePlan)}</strong></div>
-                <div class="overview-stat"><span>Chapters Remaining</span><strong>${(totalChapters - chaptersRead).toLocaleString()}</strong></div>
-                <div class="overview-stat"><span>Words Remaining</span><strong>${((WORD_TOTALS.GLOBAL - totalRead) / 1000).toFixed(1)}k</strong></div>
-                <div class="overview-stat"><span>Total Days Read</span><strong>${Object.keys(activityMap).length}</strong></div>
-            </div>
-        </div>
-        <div class="testaments-row">
-            <div class="testament-card">
-                ${otDonut}
-                <div class="testament-info"><strong>Old Testament</strong>${otChaptersRead}/${otChapters} chapters<div class="sub">${(otRead/1000).toFixed(1)}k / ${(WORD_TOTALS.OT/1000).toFixed(1)}k words</div></div>
-            </div>
-            <div class="testament-card">
-                ${ntDonut}
-                <div class="testament-info"><strong>New Testament</strong>${ntChaptersRead}/${ntChapters} chapters<div class="sub">${(ntRead/1000).toFixed(1)}k / ${(WORD_TOTALS.NT/1000).toFixed(1)}k words</div></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">30-Day Reading Activity</div>
-        <div class="chart-box">${barsSvg}</div>
-        <div class="velocity-row">
-            <div class="vel-card"><div class="vel-val">${avg7d.toLocaleString()}</div><div class="vel-label">7-Day Avg (w/day)</div></div>
-            <div class="vel-card"><div class="vel-val">${avg30d.toLocaleString()}</div><div class="vel-label">30-Day Avg (w/day)</div></div>
-            <div class="vel-card"><div class="vel-val">${avgAllTime.toLocaleString()}</div><div class="vel-label">All-Time Avg (w/day)</div></div>
-        </div>
-        ${projectionHtml}
-    </div>
-
-    <div class="section">
-        <div class="section-title">Progress by Category</div>
-        <div class="chart-box" style="padding:18px 16px;">${catBarsHtml}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Book Completion Grid</div>
-        <p style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:600;">All 66 books &mdash; darker shading means more complete.</p>
-        <div class="chart-box" style="padding:14px;">
-            <div class="book-grid">${bookGridHtml}</div>
-        </div>
-        <div class="legend">
-            <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;border:1px solid #cbd5e1;"></div>Not Started</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#e0e7ff;"></div>1-24%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#c7d2fe;"></div>25-49%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#a5b4fc;"></div>50-74%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div>75-99%</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#4f46e5;"></div>Complete</div>
-        </div>
-    </div>
-
-    ${goalsHtml}
-    ${versesHtml}
-
-    <div class="footer"><p>Generated by Bible Progress &bull; bibleprogress.com &bull; ${dateStamp}</p></div>
+    ${allProfilesHtml}
 </body>
 </html>`)
             printWindow.document.close()
@@ -8764,8 +8916,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return appData.goals[pid];
         }
 
-        function calculateGoalProgress(goal) {
-            const prog = getProgress();
+        function calculateGoalProgress(goal, progressOverride) {
+            const prog = progressOverride || getProgress();
             let totalWords = 0;
             let readWords = 0;
 
@@ -9932,9 +10084,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return book.ch[chapterNum];
         }
 
-        function getReadingActivity() {
+        function getReadingActivity(progressOverride) {
             // Returns a map of date string (YYYY-MM-DD) to word count
-            const currentProg = getProgress();
+            const currentProg = progressOverride || getProgress();
             const activityMap = {};
 
             Object.keys(currentProg).forEach(chapterKey => {
@@ -9949,8 +10101,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return activityMap;
         }
 
-        function calculateStreaks() {
-            const activityMap = getReadingActivity();
+        function calculateStreaks(progressOverride) {
+            const activityMap = getReadingActivity(progressOverride);
             const dates = Object.keys(activityMap).sort();
 
             if(dates.length === 0) {
