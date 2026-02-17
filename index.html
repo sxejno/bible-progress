@@ -2331,6 +2331,16 @@
             }
         });
 
+        // Migrate existing users to have dailyPlanProgress (per-profile chapter pinning)
+        if(!appData.dailyPlanProgress) {
+            appData.dailyPlanProgress = {};
+        }
+        Object.keys(appData.profiles).forEach(profileId => {
+            if(!appData.dailyPlanProgress[profileId]) {
+                appData.dailyPlanProgress[profileId] = { date: '', plan: '', chapters: [] };
+            }
+        });
+
         // Migrate existing users to have reading time settings
         if(appData.showReadingTime === undefined) {
             appData.showReadingTime = true;
@@ -3174,6 +3184,9 @@
                 date: new Date().toISOString().split('T')[0],
                 completedLists: []
             };
+            // Initialize dailyPlanProgress for new profile
+            if(!appData.dailyPlanProgress) appData.dailyPlanProgress = {};
+            appData.dailyPlanProgress[sanitized] = { date: '', plan: '', chapters: [] };
             // Initialize memorizedVerses for new profile
             if(!appData.memorizedVerses) appData.memorizedVerses = {};
             appData.memorizedVerses[sanitized] = [];
@@ -3208,6 +3221,7 @@
                 delete appData.profiles[name];
                 delete appData.profilePlans[name];
                 delete appData.hornerDailyProgress[name];
+                if(appData.dailyPlanProgress) delete appData.dailyPlanProgress[name];
                 if(appData.memorizedVerses) delete appData.memorizedVerses[name];
                 if(appData.goals) delete appData.goals[name];
 
@@ -3306,6 +3320,12 @@
             if(appData.hornerDailyProgress && appData.hornerDailyProgress[oldName]) {
                 appData.hornerDailyProgress[newName] = appData.hornerDailyProgress[oldName];
                 delete appData.hornerDailyProgress[oldName];
+            }
+
+            // Update dailyPlanProgress if exists
+            if(appData.dailyPlanProgress && appData.dailyPlanProgress[oldName]) {
+                appData.dailyPlanProgress[newName] = appData.dailyPlanProgress[oldName];
+                delete appData.dailyPlanProgress[oldName];
             }
 
             // Update memorizedVerses if exists
@@ -3510,6 +3530,11 @@
 
 			// Save it to appData immediately
 			appData.profilePlans[appData.activeProfileId] = activePlan;
+
+			// Invalidate pinned daily chapters when plan changes
+			if(appData.dailyPlanProgress && appData.dailyPlanProgress[appData.activeProfileId]) {
+				appData.dailyPlanProgress[appData.activeProfileId] = { date: '', plan: '', chapters: [] };
+			}
 
 			log('📝 Plan changed to:', activePlan);
 
@@ -7789,6 +7814,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress();
             window.renderChapterGrid();
+            if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (typeof window.renderDashboard === 'function') window.renderDashboard();
         };
 
         // Mark multiple chapters as read (for daily plans with chapter ranges)
@@ -9119,6 +9146,69 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             });
         }
 
+        // Helper: Get or create pinned daily chapters for plans that show "next N unread"
+        // Stores today's assigned chapters so they don't cycle when marked as read
+        function getPinnedDailyChapters(profileId, planType, computeChaptersFn) {
+            const todayStr = getTodaysDate()
+
+            if (!appData.dailyPlanProgress) appData.dailyPlanProgress = {}
+            if (!appData.dailyPlanProgress[profileId]) {
+                appData.dailyPlanProgress[profileId] = { date: '', plan: '', chapters: [] }
+            }
+
+            const stored = appData.dailyPlanProgress[profileId]
+            const currentProg = getProgress()
+
+            // Use stored chapters if same day + same plan + non-empty
+            if (stored.date === todayStr && stored.plan === planType && stored.chapters.length > 0) {
+                // For multi-chapter readings, check all chapters in the range
+                return stored.chapters.map(ch => {
+                    let isComplete = true
+                    if (ch.chapters && ch.chapters.length > 0) {
+                        ch.chapters.forEach(c => {
+                            if (!currentProg[`${ch.book}-${c}`]) isComplete = false
+                        })
+                    } else {
+                        isComplete = !!currentProg[`${ch.book}-${ch.chapter}`]
+                    }
+                    return { ...ch, isComplete }
+                })
+            }
+
+            // Compute fresh chapters (new day, plan switch, or first time)
+            const freshChapters = computeChaptersFn()
+
+            if (freshChapters.length > 0) {
+                // Store pinned chapters (without transient state like isComplete)
+                appData.dailyPlanProgress[profileId] = {
+                    date: todayStr,
+                    plan: planType,
+                    chapters: freshChapters.map(ch => ({
+                        book: ch.book,
+                        chapter: ch.chapter,
+                        chapters: ch.chapters,
+                        words: ch.words,
+                        label: ch.label,
+                        badge: ch.badge || ''
+                    }))
+                }
+                window.saveProgress()
+            }
+
+            const currentProg2 = getProgress()
+            return freshChapters.map(ch => {
+                let isComplete = true
+                if (ch.chapters && ch.chapters.length > 0) {
+                    ch.chapters.forEach(c => {
+                        if (!currentProg2[`${ch.book}-${c}`]) isComplete = false
+                    })
+                } else {
+                    isComplete = !!currentProg2[`${ch.book}-${ch.chapter}`]
+                }
+                return { ...ch, isComplete }
+            })
+        }
+
         window.renderDailyPlan = () => {
             const list = document.getElementById('daily-plan-list');
             const footerMsg = document.getElementById('plan-footer-msg');
@@ -9133,67 +9223,64 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             if (activePlan === 'SEQUENTIAL') {
                 descText = "<strong>Canonical:</strong> Genesis to Revelation. Next 3 unread chapters.";
-                let found = 0; const target = 3;
-                for (let b = 0; b < bible.length; b++) {
-                    const book = bible[b];
-                    for (let c = 0; c < book.ch.length; c++) {
-                        if (!currentProg[`${book.name}-${c+1}`]) {
-                            nextChapters.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
-                            found++;
-                            if (found >= target) break;
+
+                const computeFn = () => {
+                    const chs = [];
+                    let found = 0;
+                    for (let b = 0; b < bible.length && found < 3; b++) {
+                        const book = bible[b];
+                        for (let c = 0; c < book.ch.length && found < 3; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
+                                found++;
+                            }
                         }
                     }
-                    if (found >= target) break;
+                    return chs;
                 }
+
+                nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'SEQUENTIAL', computeFn);
+
                 if (nextChapters.length === 0) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`; return; }
             }
 
             else if (activePlan === 'ONE_YEAR') {
                 descText = "<strong>One Year:</strong> 3 OT + 1 NT chapters daily.";
 
-                // Find next 3 unread OT chapters
-                let otFound = 0;
-                for (let b = 0; b < bible.length; b++) {
-                    const book = bible[b];
-                    if (book.testament !== 'OT') continue;
-                    for (let c = 0; c < book.ch.length; c++) {
-                        if (!currentProg[`${book.name}-${c+1}`]) {
-                            nextChapters.push({
-                                book: book.name,
-                                chapter: c + 1,
-                                chapters: [c + 1],
-                                words: book.ch[c],
-                                label: `${book.name} ${c+1}`,
-                                badge: "Old Testament"
-                            });
-                            otFound++;
-                            if (otFound >= 3) break;
+                const computeFn = () => {
+                    const chs = [];
+                    // Find next 3 unread OT chapters
+                    let otFound = 0;
+                    for (let b = 0; b < bible.length; b++) {
+                        const book = bible[b];
+                        if (book.testament !== 'OT') continue;
+                        for (let c = 0; c < book.ch.length; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: "Old Testament" });
+                                otFound++;
+                                if (otFound >= 3) break;
+                            }
                         }
+                        if (otFound >= 3) break;
                     }
-                    if (otFound >= 3) break;
+                    // Find next 1 unread NT chapter
+                    let ntFound = 0;
+                    for (let b = 0; b < bible.length; b++) {
+                        const book = bible[b];
+                        if (book.testament !== 'NT') continue;
+                        for (let c = 0; c < book.ch.length; c++) {
+                            if (!currentProg[`${book.name}-${c+1}`]) {
+                                chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: "New Testament" });
+                                ntFound++;
+                                if (ntFound >= 1) break;
+                            }
+                        }
+                        if (ntFound >= 1) break;
+                    }
+                    return chs;
                 }
 
-                // Find next 1 unread NT chapter
-                let ntFound = 0;
-                for (let b = 0; b < bible.length; b++) {
-                    const book = bible[b];
-                    if (book.testament !== 'NT') continue;
-                    for (let c = 0; c < book.ch.length; c++) {
-                        if (!currentProg[`${book.name}-${c+1}`]) {
-                            nextChapters.push({
-                                book: book.name,
-                                chapter: c + 1,
-                                chapters: [c + 1],
-                                words: book.ch[c],
-                                label: `${book.name} ${c+1}`,
-                                badge: "New Testament"
-                            });
-                            ntFound++;
-                            if (ntFound >= 1) break;
-                        }
-                    }
-                    if (ntFound >= 1) break;
-                }
+                nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'ONE_YEAR', computeFn);
 
                 if (nextChapters.length === 0) {
                     list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`;
@@ -9457,52 +9544,59 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     const cfg = customPlan.config
                     descText = `<strong>${escapeHtml(customPlan.name)}:</strong> ${cfg.ot} OT + ${cfg.nt} NT + ${cfg.psalms} Psalms + ${cfg.proverbs} Proverbs chapters daily.`
 
-                    // Find next unread OT chapters (excluding Psalms & Proverbs)
-                    let otFound = 0
-                    for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
-                        const book = bible[b]
-                        if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
-                        for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
-                                nextChapters.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'OT' })
-                                otFound++
+                    const computeFn = () => {
+                        const chs = []
+                        // Find next unread OT chapters (excluding Psalms & Proverbs)
+                        let otFound = 0
+                        for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
+                            const book = bible[b]
+                            if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
+                            for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
+                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                    chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'OT' })
+                                    otFound++
+                                }
                             }
                         }
-                    }
-                    // Find next unread NT chapters
-                    let ntFound = 0
-                    for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
-                        const book = bible[b]
-                        if (book.testament !== 'NT') continue
-                        for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
-                                nextChapters.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'NT' })
-                                ntFound++
+                        // Find next unread NT chapters
+                        let ntFound = 0
+                        for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
+                            const book = bible[b]
+                            if (book.testament !== 'NT') continue
+                            for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
+                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                    chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'NT' })
+                                    ntFound++
+                                }
                             }
                         }
-                    }
-                    // Find next unread Psalms
-                    const psalmsBook = bible.find(b => b.name === 'Psalms')
-                    if (psalmsBook && cfg.psalms > 0) {
-                        let psFound = 0
-                        for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
-                            if (!currentProg[`Psalms-${c+1}`]) {
-                                nextChapters.push({ book: 'Psalms', chapter: c+1, chapters: [c+1], words: psalmsBook.ch[c], label: `Psalms ${c+1}`, badge: 'Psalms' })
-                                psFound++
+                        // Find next unread Psalms
+                        const psalmsBook = bible.find(b => b.name === 'Psalms')
+                        if (psalmsBook && cfg.psalms > 0) {
+                            let psFound = 0
+                            for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
+                                if (!currentProg[`Psalms-${c+1}`]) {
+                                    chs.push({ book: 'Psalms', chapter: c+1, chapters: [c+1], words: psalmsBook.ch[c], label: `Psalms ${c+1}`, badge: 'Psalms' })
+                                    psFound++
+                                }
                             }
                         }
-                    }
-                    // Find next unread Proverbs
-                    const proverbsBook = bible.find(b => b.name === 'Proverbs')
-                    if (proverbsBook && cfg.proverbs > 0) {
-                        let prFound = 0
-                        for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
-                            if (!currentProg[`Proverbs-${c+1}`]) {
-                                nextChapters.push({ book: 'Proverbs', chapter: c+1, chapters: [c+1], words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, badge: 'Proverbs' })
-                                prFound++
+                        // Find next unread Proverbs
+                        const proverbsBook = bible.find(b => b.name === 'Proverbs')
+                        if (proverbsBook && cfg.proverbs > 0) {
+                            let prFound = 0
+                            for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
+                                if (!currentProg[`Proverbs-${c+1}`]) {
+                                    chs.push({ book: 'Proverbs', chapter: c+1, chapters: [c+1], words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, badge: 'Proverbs' })
+                                    prFound++
+                                }
                             }
                         }
+                        return chs
                     }
+
+                    nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'CUSTOM', computeFn)
+
                     if (nextChapters.length === 0) {
                         list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 Custom plan completed!</div>`
                         return
@@ -9559,7 +9653,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         <div class="text-[11px] text-slate-500 leading-relaxed">${summary}</div>
                     </div>` : '';
 
-                return `<button onclick="window.openBibleReader('${item.book}', ${item.chapter})" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group w-full text-left cursor-pointer" aria-label="Read ${item.label}${item.isComplete ? ', completed' : ''}">
+                return `<button onclick="window.openBibleReader('${escapeHtml(item.book)}', ${item.chapter})" class="block ${bgClass} text-slate-800 p-5 rounded-2xl flex items-center justify-between transition-all duration-200 border border-slate-100 shadow-sm ${opacityClass} relative group w-full text-left cursor-pointer" aria-label="Read ${escapeHtml(item.label)}${item.isComplete ? ', completed' : ''}">
                     <div class="flex-1">
                         <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1">Read Now${badgeHtml}</div>
                         <div class="font-bold text-xl leading-tight ${strikeClass}">${checkMark}${item.label}</div>
@@ -9567,8 +9661,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         ${summaryHtml}
                     </div>
                     ${(!item.isComplete && !item.completedToday) ? `
-                    <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${item.book}', ${JSON.stringify(item.chapters)}, event, this);"
-                        class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-0 group-hover:opacity-100"
+                    <button onclick="event.preventDefault(); event.stopPropagation(); window.markChaptersAsRead('${escapeHtml(item.book)}', ${JSON.stringify(item.chapters)}, event, this);"
+                        class="absolute top-2 right-2 bg-emerald-500/80 hover:bg-emerald-600 text-white p-2 sm:px-3 sm:py-2 rounded-lg text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-1.5 z-10 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Mark as Read" aria-label="Mark ${item.label} as read">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -9584,6 +9678,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     </div>
                 </button>`;
             }).join('');
+
+            // Show completion celebration for pinned plans when all daily chapters are done
+            if (['SEQUENTIAL', 'ONE_YEAR', 'CUSTOM'].includes(activePlan)) {
+                const allComplete = nextChapters.length > 0 && nextChapters.every(ch => ch.isComplete)
+                if (allComplete) {
+                    list.innerHTML += `<div class="text-center p-6 bg-emerald-50 border-2 border-emerald-200 rounded-2xl">
+                        <div class="text-3xl mb-2">&#127881;</div>
+                        <div class="font-bold text-emerald-800 text-lg">Today's reading complete!</div>
+                        <p class="text-sm text-emerald-600 mt-1">Great job finishing all your chapters for today.</p>
+                    </div>`
+                }
+            }
         }
 
         window.renderBookGrid = () => {
@@ -10491,32 +10597,48 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const chapters = []
 
             if (activePlan === 'SEQUENTIAL') {
-                let found = 0
-                for (let b = 0; b < bible.length && found < 3; b++) {
-                    for (let c = 0; c < bible[b].ch.length && found < 3; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            found++
+                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
+                const todayStr = getTodaysDate()
+                if (stored && stored.date === todayStr && stored.plan === 'SEQUENTIAL' && stored.chapters.length > 0) {
+                    stored.chapters.forEach(ch => {
+                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
+                    })
+                } else {
+                    let found = 0
+                    for (let b = 0; b < bible.length && found < 3; b++) {
+                        for (let c = 0; c < bible[b].ch.length && found < 3; c++) {
+                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
+                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                                found++
+                            }
                         }
                     }
                 }
             } else if (activePlan === 'ONE_YEAR') {
-                let otFound = 0, ntFound = 0
-                for (let b = 0; b < bible.length && otFound < 3; b++) {
-                    if (bible[b].testament !== 'OT') continue
-                    for (let c = 0; c < bible[b].ch.length && otFound < 3; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            otFound++
+                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
+                const todayStr = getTodaysDate()
+                if (stored && stored.date === todayStr && stored.plan === 'ONE_YEAR' && stored.chapters.length > 0) {
+                    stored.chapters.forEach(ch => {
+                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
+                    })
+                } else {
+                    let otFound = 0, ntFound = 0
+                    for (let b = 0; b < bible.length && otFound < 3; b++) {
+                        if (bible[b].testament !== 'OT') continue
+                        for (let c = 0; c < bible[b].ch.length && otFound < 3; c++) {
+                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
+                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                                otFound++
+                            }
                         }
                     }
-                }
-                for (let b = 0; b < bible.length && ntFound < 1; b++) {
-                    if (bible[b].testament !== 'NT') continue
-                    for (let c = 0; c < bible[b].ch.length && ntFound < 1; c++) {
-                        if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                            chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
-                            ntFound++
+                    for (let b = 0; b < bible.length && ntFound < 1; b++) {
+                        if (bible[b].testament !== 'NT') continue
+                        for (let c = 0; c < bible[b].ch.length && ntFound < 1; c++) {
+                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
+                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                                ntFound++
+                            }
                         }
                     }
                 }
@@ -10629,52 +10751,60 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                 }
             } else if (activePlan === 'CUSTOM') {
-                const customPlan = getActiveCustomPlan()
-                if (customPlan) {
-                    const cfg = customPlan.config
-                    // OT chapters (excluding Psalms & Proverbs)
-                    let otFound = 0
-                    for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
-                        const book = bible[b]
-                        if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
-                        for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
-                                chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
-                                otFound++
+                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
+                const todayStr = getTodaysDate()
+                if (stored && stored.date === todayStr && stored.plan === 'CUSTOM' && stored.chapters.length > 0) {
+                    stored.chapters.forEach(ch => {
+                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
+                    })
+                } else {
+                    const customPlan = getActiveCustomPlan()
+                    if (customPlan) {
+                        const cfg = customPlan.config
+                        // OT chapters (excluding Psalms & Proverbs)
+                        let otFound = 0
+                        for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
+                            const book = bible[b]
+                            if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
+                            for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
+                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                    chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
+                                    otFound++
+                                }
                             }
                         }
-                    }
-                    // NT chapters
-                    let ntFound = 0
-                    for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
-                        const book = bible[b]
-                        if (book.testament !== 'NT') continue
-                        for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
-                                chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
-                                ntFound++
+                        // NT chapters
+                        let ntFound = 0
+                        for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
+                            const book = bible[b]
+                            if (book.testament !== 'NT') continue
+                            for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
+                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                    chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
+                                    ntFound++
+                                }
                             }
                         }
-                    }
-                    // Psalms
-                    const psalmsBook = bible.find(b => b.name === 'Psalms')
-                    if (psalmsBook && cfg.psalms > 0) {
-                        let psFound = 0
-                        for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
-                            if (!currentProg[`Psalms-${c+1}`]) {
-                                chapters.push({ book: 'Psalms', chapter: c+1, words: psalmsBook.ch[c], label: `Psalms ${c+1}`, isComplete: false })
-                                psFound++
+                        // Psalms
+                        const psalmsBook = bible.find(b => b.name === 'Psalms')
+                        if (psalmsBook && cfg.psalms > 0) {
+                            let psFound = 0
+                            for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
+                                if (!currentProg[`Psalms-${c+1}`]) {
+                                    chapters.push({ book: 'Psalms', chapter: c+1, words: psalmsBook.ch[c], label: `Psalms ${c+1}`, isComplete: false })
+                                    psFound++
+                                }
                             }
                         }
-                    }
-                    // Proverbs
-                    const proverbsBook = bible.find(b => b.name === 'Proverbs')
-                    if (proverbsBook && cfg.proverbs > 0) {
-                        let prFound = 0
-                        for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
-                            if (!currentProg[`Proverbs-${c+1}`]) {
-                                chapters.push({ book: 'Proverbs', chapter: c+1, words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, isComplete: false })
-                                prFound++
+                        // Proverbs
+                        const proverbsBook = bible.find(b => b.name === 'Proverbs')
+                        if (proverbsBook && cfg.proverbs > 0) {
+                            let prFound = 0
+                            for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
+                                if (!currentProg[`Proverbs-${c+1}`]) {
+                                    chapters.push({ book: 'Proverbs', chapter: c+1, words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, isComplete: false })
+                                    prFound++
+                                }
                             }
                         }
                     }
@@ -10765,7 +10895,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             } else {
                 planItemsEl.innerHTML = planChapters.map(ch => {
                     const badgeHtml = ch.badge ? `<span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded ml-2">${escapeHtml(ch.badge)}</span>` : ''
-                    return `<button onclick="window.openBibleReader('${ch.book}', ${ch.chapter})" class="w-full flex items-center justify-between p-3 rounded-xl border ${ch.isComplete ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-indigo-200 hover:bg-indigo-50'} transition-all text-left group">
+                    return `<button onclick="window.openBibleReader('${escapeHtml(ch.book)}', ${ch.chapter})" class="w-full flex items-center justify-between p-3 rounded-xl border ${ch.isComplete ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-indigo-200 hover:bg-indigo-50'} transition-all text-left group">
                         <div class="flex items-center gap-3">
                             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${ch.isComplete ? 'bg-emerald-500 text-white' : 'border-2 border-slate-300 group-hover:border-indigo-400'}">
                                 ${ch.isComplete ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
