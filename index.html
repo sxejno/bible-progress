@@ -8161,6 +8161,25 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
+            // --- Custom Plans ---
+            if(appData.customPlans) {
+                const selectedCustomProfiles = selectedNames.filter(n => appData.customPlans[n] && appData.customPlans[n].length > 0);
+                if(selectedCustomProfiles.length > 0) {
+                    rows.push([]);
+                    rows.push(['=== CUSTOM PLANS ===']);
+                    rows.push(['Profile', 'Plan Name', 'OT/Day', 'NT/Day', 'Psalms/Day', 'Proverbs/Day', 'Active', 'Created']);
+                    selectedCustomProfiles.forEach(profileName => {
+                        (appData.customPlans[profileName] || []).forEach(plan => {
+                            rows.push([
+                                profileName, plan.name || '', plan.config?.ot || 0, plan.config?.nt || 0,
+                                plan.config?.psalms || 0, plan.config?.proverbs || 0,
+                                plan.active ? 'Yes' : 'No', formatExportDate(plan.createdDate)
+                            ]);
+                        });
+                    });
+                }
+            }
+
             // --- Reading Goals ---
             if(appData.goals) {
                 const selectedGoalProfiles = selectedNames.filter(n => appData.goals[n] && appData.goals[n].length > 0);
@@ -8211,7 +8230,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 // Profile header
                 content += `## ${profile.name}\n\n`;
-                content += `**Reading Plan:** ${planLabel}\n\n`;
+                content += `**Reading Plan:** ${planLabel}\n`;
+                // Include custom plan details if applicable
+                if (plan === 'CUSTOM' && appData.customPlans && appData.customPlans[profile.name]) {
+                    const activePlanObj = appData.customPlans[profile.name].find(p => p.active) || appData.customPlans[profile.name][0]
+                    if (activePlanObj && activePlanObj.config) {
+                        const c = activePlanObj.config
+                        content += `**Custom Config:** ${c.ot} OT + ${c.nt} NT + ${c.psalms} Psalms + ${c.proverbs} Proverbs daily\n`
+                    }
+                }
+                content += `\n`;
 
                 // Calculate profile stats
                 let totalWords = 0, readWords = 0, readChapters = 0, totalChapters = 0;
@@ -8337,6 +8365,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     <div class="summary-item"><span class="summary-val">${completedBooks}/66</span><span class="summary-lbl">Books</span></div>
                     <div class="summary-item"><span class="summary-val">${planLabel}</span><span class="summary-lbl">Plan</span></div>
                 </div>`;
+                // Include custom plan config details in PDF
+                if (plan === 'CUSTOM' && appData.customPlans && appData.customPlans[profile.name]) {
+                    const activePlanObj = appData.customPlans[profile.name].find(p => p.active) || appData.customPlans[profile.name][0]
+                    if (activePlanObj && activePlanObj.config) {
+                        const c = activePlanObj.config
+                        bodyContent += `<p style="text-align:center;color:#6366f1;font-size:12px;margin:-8px 0 8px;">${escapeHtml(activePlanObj.name)}: ${c.ot} OT + ${c.nt} NT + ${c.psalms} Psalms + ${c.proverbs} Proverbs daily</p>`
+                    }
+                }
                 bodyContent += `<div class="testament-row">
                     <div class="testament-bar"><span class="testament-name">Old Testament</span><div class="bar-bg"><div class="bar-fill" style="width:${otPct}%;background:#f59e0b;"></div></div><span class="bar-pct">${otPct}%</span></div>
                     <div class="testament-bar"><span class="testament-name">New Testament</span><div class="bar-bg"><div class="bar-fill" style="width:${ntPct}%;background:#10b981;"></div></div><span class="bar-pct">${ntPct}%</span></div>
@@ -8836,6 +8872,24 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             if(!appData.wordsPerMinute) {
                                 appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
                             }
+
+                            // Ensure customPlans exists (migration for existing backups)
+                            if(!appData.customPlans) {
+                                appData.customPlans = {};
+                            }
+                            // Validate custom plan structure for each profile
+                            Object.keys(appData.customPlans).forEach(profileName => {
+                                const plans = appData.customPlans[profileName];
+                                if (!Array.isArray(plans)) {
+                                    appData.customPlans[profileName] = [];
+                                    return;
+                                }
+                                // Ensure each plan has required fields
+                                appData.customPlans[profileName] = plans.filter(p =>
+                                    p && typeof p === 'object' && p.name && p.config &&
+                                    typeof p.config.ot === 'number' && typeof p.config.nt === 'number'
+                                );
+                            });
 
                             // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
                             Object.keys(appData.profiles).forEach(profileName => {
@@ -10514,26 +10568,49 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const total = cpbState.ot + cpbState.nt + cpbState.psalms + cpbState.proverbs
             document.getElementById('cpb-daily-total').textContent = total
 
-            // Estimate days to completion
+            // Estimate days to completion based on REMAINING unread chapters
+            const breakdownEl = document.getElementById('cpb-est-breakdown')
             if (total > 0) {
-                // OT books (excluding Psalms & Proverbs): 929 chapters - 150 (Psalms) - 31 (Proverbs) = 748
-                // But we need to count actual chapters
-                let otChapters = 0, ntChapters = 0
+                const currentProg = getProgress()
+                let otTotal = 0, otUnread = 0, ntTotal = 0, ntUnread = 0
+                let psalmsTotal = 0, psalmsUnread = 0, proverbsTotal = 0, proverbsUnread = 0
+
                 bible.forEach(b => {
-                    if (b.testament === 'OT' && b.name !== 'Psalms' && b.name !== 'Proverbs') otChapters += b.ch.length
-                    else if (b.testament === 'NT') ntChapters += b.ch.length
+                    if (b.name === 'Psalms') {
+                        b.ch.forEach((_, i) => { psalmsTotal++; if (!currentProg[`Psalms-${i+1}`]) psalmsUnread++ })
+                    } else if (b.name === 'Proverbs') {
+                        b.ch.forEach((_, i) => { proverbsTotal++; if (!currentProg[`Proverbs-${i+1}`]) proverbsUnread++ })
+                    } else if (b.testament === 'OT') {
+                        b.ch.forEach((_, i) => { otTotal++; if (!currentProg[`${b.name}-${i+1}`]) otUnread++ })
+                    } else if (b.testament === 'NT') {
+                        b.ch.forEach((_, i) => { ntTotal++; if (!currentProg[`${b.name}-${i+1}`]) ntUnread++ })
+                    }
                 })
-                const psalmsCh = 150, proverbsCh = 31
 
-                let maxDays = 0
-                if (cpbState.ot > 0) maxDays = Math.max(maxDays, Math.ceil(otChapters / cpbState.ot))
-                if (cpbState.nt > 0) maxDays = Math.max(maxDays, Math.ceil(ntChapters / cpbState.nt))
-                if (cpbState.psalms > 0) maxDays = Math.max(maxDays, Math.ceil(psalmsCh / cpbState.psalms))
-                if (cpbState.proverbs > 0) maxDays = Math.max(maxDays, Math.ceil(proverbsCh / cpbState.proverbs))
+                const streams = []
+                if (cpbState.ot > 0) streams.push({ name: 'OT', days: Math.ceil(otUnread / cpbState.ot), unread: otUnread, total: otTotal })
+                if (cpbState.nt > 0) streams.push({ name: 'NT', days: Math.ceil(ntUnread / cpbState.nt), unread: ntUnread, total: ntTotal })
+                if (cpbState.psalms > 0) streams.push({ name: 'Psalms', days: Math.ceil(psalmsUnread / cpbState.psalms), unread: psalmsUnread, total: psalmsTotal })
+                if (cpbState.proverbs > 0) streams.push({ name: 'Proverbs', days: Math.ceil(proverbsUnread / cpbState.proverbs), unread: proverbsUnread, total: proverbsTotal })
 
-                document.getElementById('cpb-est-days').textContent = `~${maxDays} days`
+                const maxDays = streams.reduce((max, s) => Math.max(max, s.days), 0)
+                const bottleneck = streams.find(s => s.days === maxDays)
+
+                if (maxDays === 0) {
+                    document.getElementById('cpb-est-days').textContent = 'Complete! 🎉'
+                    breakdownEl.innerHTML = ''
+                } else {
+                    document.getElementById('cpb-est-days').textContent = `~${maxDays} days`
+                    // Show per-stream breakdown so user understands the bottleneck
+                    breakdownEl.innerHTML = streams.map(s =>
+                        `<div class="flex justify-between${s === bottleneck ? ' font-bold text-indigo-800' : ''}">` +
+                        `<span>${s.name}: ${s.unread} of ${s.total} left</span>` +
+                        `<span>~${s.days} days${s === bottleneck && streams.length > 1 ? ' ⬅' : ''}</span></div>`
+                    ).join('')
+                }
             } else {
                 document.getElementById('cpb-est-days').textContent = '--'
+                breakdownEl.innerHTML = ''
             }
         }
 
@@ -12999,8 +13076,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>
                 <div class="flex items-center justify-between text-sm mt-1">
                     <span class="font-bold text-indigo-700">Est. completion:</span>
-                    <span id="cpb-est-days" class="font-black text-indigo-900">~298 days</span>
+                    <span id="cpb-est-days" class="font-black text-indigo-900">--</span>
                 </div>
+                <div id="cpb-est-breakdown" class="mt-2 pt-2 border-t border-indigo-200/50 text-[10px] text-indigo-600 space-y-0.5"></div>
             </div>
 
             <!-- Saved Custom Plans -->
