@@ -5,7 +5,7 @@
 Word-weighted KJV Bible reading tracker. Progress by word count, not just chapters.
 
 - **Site**: [bibleprogress.com](https://bibleprogress.com)
-- **Architecture**: Single-file PWA (`index.html` ~3,900 lines). No build process.
+- **Architecture**: Single-file PWA (`index.html` ~13,000 lines). No build process.
 - **Stack**: HTML5, Tailwind CSS (CDN), Chart.js (CDN), Vanilla JS (ES6), Firebase Auth + Firestore
 - **Storage**: localStorage (`kjv_v6_data`) is primary; Firestore is secondary backup
 - **Total Words**: 789,634 (OT: 609,252 | NT: 180,382)
@@ -15,12 +15,13 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
 ```javascript
 {
     profiles: { [id]: { "Genesis-1": timestamp_ms, ... } },  // chapter progress
-    profilePlans: { [id]: "SEQUENTIAL"|"MCHEYNE"|"HORNER"|"ONEYEAR" },
+    profilePlans: { [id]: "SEQUENTIAL"|"MCHEYNE"|"HORNER"|"ONEYEAR"|"FIVE_DAY"|"CUSTOM" },
     activeProfileId: string,
     defaultProfileId: string,
     hornerDailyProgress: { [id]: { date: "YYYY-MM-DD", completedLists: [0,1,...] } },
     memorizedVerses: { [id]: [{ id, ref, text, addedDate }] },
     goals: { [id]: [{ name, type, target, deadline, createdDate }] },
+    customPlans: { [id]: { name, ot_chapters, nt_chapters } },
     showReadingTime: boolean,
     wordsPerMinute: number
 }
@@ -31,7 +32,7 @@ Progress values are **timestamps** (not booleans). Auto-migrated on load.
 ## Key Features
 
 - **Profiles**: Multi-user with per-profile plans, colors, goals, memorized verses
-- **Reading Plans**: Sequential, One Year (OT+NT Daily), M'Cheyne (4/day), Horner (10 rotating lists)
+- **Reading Plans**: Sequential, One Year (OT+NT Daily), M'Cheyne (4/day), Horner (10 rotating lists), Five-Day (weekends off), Custom
 - **Streaks**: Consecutive reading days with 1-day grace, heatmap, milestone celebrations
 - **Bible Reader**: In-app KJV text with verse memorization (star icon)
 - **Goals**: Deadline-based reading goals (whole Bible, testament, books, category)
@@ -61,7 +62,7 @@ Progress values are **timestamps** (not booleans). Auto-migrated on load.
 ## Quick Reference
 
 - **Firebase**: Project `bible-reading-d9286`, Firestore per-user docs
-- **Bible data**: Minified array at ~line 800 (66 books with word counts per chapter)
+- **Bible data**: Minified array near top of JS section (66 books with word counts per chapter)
 - **Chapter key format**: `"BookName-ChapterNumber"` (e.g., `"Genesis-1"`, `"Psalms-119"`)
 - **Security functions**: `escapeHtml()`, `isValidHttpsUrl()`, `validateAppData()`
 - **Deployment**: GitHub Pages from main branch, domain via CNAME

@@ -8,7 +8,7 @@ A word-weighted Bible reading tracker. Unlike trackers that treat every chapter 
 
 - **Word-weighted progress** — True completion percentage based on 789,634 total KJV words
 - **Built-in Bible reader** — Read KJV text with pronunciation guides, chapter summaries, and mark-as-read in one flow
-- **3 reading plans** — Sequential, M'Cheyne (365-day), and Horner (10-list rotation)
+- **6 reading plans** — Sequential, One Year (OT+NT daily), M'Cheyne (365-day), Horner (10-list rotation), Five-Day (weekends off), and Custom
 - **Reading streaks** — Streak tracking with heatmap, milestones, and grace period
 - **Multi-profile** — Separate profiles for family members or different reading goals
 - **Cloud sync** — Optional Google/email sign-in via Firebase; local-first by default
@@ -29,7 +29,7 @@ Visit [bibleprogress.com](https://bibleprogress.com) — no account required.
 - Vanilla HTML/JS — no frameworks, no build step
 - Tailwind CSS + Chart.js (CDN)
 - Firebase Auth + Firestore (optional cloud sync)
-- Single-file architecture (~9,700 lines)
+- Single-file architecture (~13,000 lines)
 
 ## Data
 
