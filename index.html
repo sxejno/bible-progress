@@ -2630,6 +2630,35 @@
             return appData.hornerDailyProgress[profileId].completedLists.includes(listIndex);
         };
 
+        // --- HORNER CYCLE (READ-THROUGH) TRACKING ---
+        const ensureHornerCycleCount = () => {
+            if (!appData.hornerCycleCount) appData.hornerCycleCount = {}
+            const profileId = appData.activeProfileId
+            if (!appData.hornerCycleCount[profileId]) {
+                appData.hornerCycleCount[profileId] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+        }
+
+        // Check if all chapters in a list are now read (triggers a cycle increment)
+        const checkHornerCycleCompletion = (chapterId) => {
+            const listIndex = getHornerListForChapter(chapterId)
+            if (listIndex < 0) return
+            const listBooks = PLAN_HORNER[listIndex]
+            const currentProg = getProgress()
+
+            // Check if every chapter in this list is now read
+            for (const bName of listBooks) {
+                const appBook = bible.find(b => b.name === bName)
+                if (!appBook) continue
+                for (let c = 0; c < appBook.ch.length; c++) {
+                    if (!currentProg[`${appBook.name}-${c + 1}`]) return // still unread chapters
+                }
+            }
+            // All chapters read — completed a full read-through
+            ensureHornerCycleCount()
+            appData.hornerCycleCount[appData.activeProfileId][listIndex]++
+        }
+
         // Reset daily progress on load if it's a new day
         resetHornerDailyProgressIfNeeded();
         let unsubscribe = null;
@@ -7936,12 +7965,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // If using Horner plan, track daily completion
+            // If using Horner plan, track daily completion and cycle count
             if(activePlan === 'HORNER') {
                 const listIndex = getHornerListForChapter(id);
                 if(listIndex >= 0) {
                     if(timestamp) {
                         markHornerListComplete(listIndex);
+                        checkHornerCycleCompletion(id);
                     } else {
                         // Chapter was unmarked - remove list from today's completed lists
                         resetHornerDailyProgressIfNeeded();
@@ -7988,6 +8018,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             });
 
             setProgress(prog);
+
+            // If using Horner plan, check for cycle completion after all chapters saved
+            if(activePlan === 'HORNER' && chapters.length > 0) {
+                checkHornerCycleCompletion(`${bookName}-${chapters[0]}`);
+            }
 
             // Show celebration animation
             if (event) {
@@ -8175,6 +8210,22 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 plan.config?.psalms || 0, plan.config?.proverbs || 0,
                                 plan.active ? 'Yes' : 'No', formatExportDate(plan.createdDate)
                             ]);
+                        });
+                    });
+                }
+            }
+
+            // --- Horner Cycle Counts ---
+            if(appData.hornerCycleCount) {
+                const hornerListNames = ['Gospels', 'Pentateuch', 'Epistles (Major)', 'Epistles (Minor)', 'Wisdom', 'Psalms', 'Proverbs', 'History', 'Prophets', 'Acts']
+                const selectedHornerProfiles = selectedNames.filter(n => appData.hornerCycleCount[n] && appData.hornerCycleCount[n].some(c => c > 0));
+                if(selectedHornerProfiles.length > 0) {
+                    rows.push([]);
+                    rows.push(['=== HORNER READ-THROUGHS ===']);
+                    rows.push(['Profile', 'List', 'List Name', 'Read-Throughs']);
+                    selectedHornerProfiles.forEach(profileName => {
+                        (appData.hornerCycleCount[profileName] || []).forEach((count, idx) => {
+                            if (count > 0) rows.push([profileName, `List ${idx+1}`, hornerListNames[idx] || '', count]);
                         });
                     });
                 }
@@ -8891,6 +8942,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 );
                             });
 
+                            // Ensure hornerCycleCount exists (migration for existing backups)
+                            if(!appData.hornerCycleCount) {
+                                appData.hornerCycleCount = {};
+                            }
+
                             // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
                             Object.keys(appData.profiles).forEach(profileName => {
                                 const profile = appData.profiles[profileName];
@@ -9581,8 +9637,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 resetHornerDailyProgressIfNeeded();
                 const todayStr = getTodaysDate();
 
+                ensureHornerCycleCount()
+                const cycleCounts = appData.hornerCycleCount[appData.activeProfileId]
+
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     const isListCompleteToday = appData.hornerDailyProgress[appData.activeProfileId].completedLists.includes(listIdx);
+                    const cycles = cycleCounts[listIdx] || 0
+                    const cycleLabel = cycles > 0 ? ` ×${cycles}` : ''
 
                     let foundForList = false;
 
@@ -9603,7 +9664,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                         chapters: [c+1],
                                         words: appBook.ch[c],
                                         label: `${appBook.name} ${c+1}`,
-                                        badge: `List ${listIdx+1}`,
+                                        badge: `List ${listIdx+1}${cycleLabel}`,
                                         isComplete: true,
                                         completedToday: true
                                     });
@@ -9630,7 +9691,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                         chapters: [c+1],
                                         words: appBook.ch[c],
                                         label: `${appBook.name} ${c+1}`,
-                                        badge: `List ${listIdx+1}`,
+                                        badge: `List ${listIdx+1}${cycleLabel}`,
                                         isComplete: false
                                     });
                                     foundForList = true;
@@ -9666,14 +9727,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 chapters: [oldestChapter.chapter],
                                 words: oldestChapter.words,
                                 label: `${oldestChapter.book} ${oldestChapter.chapter}`,
-                                badge: `List ${listIdx+1} ↻`,
+                                badge: `List ${listIdx+1} ↻${cycleLabel}`,
                                 isComplete: false
                             });
                         }
                     }
                 });
                 const completedCount = appData.hornerDailyProgress[appData.activeProfileId].completedLists.length;
-                footerMsg.innerText = `Professor Horner's System (${completedCount}/10 lists completed today)`;
+                const totalCycles = cycleCounts.reduce((sum, c) => sum + c, 0)
+                let footerText = `Professor Horner's System (${completedCount}/10 lists today)`
+                if (totalCycles > 0) footerText += ` • ${totalCycles} read-through${totalCycles !== 1 ? 's' : ''}`
+                footerMsg.innerText = footerText;
             }
 
             else if (activePlan === 'FIVE_DAY') {
@@ -10939,9 +11003,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             } else if (activePlan === 'HORNER') {
                 resetHornerDailyProgressIfNeeded()
+                ensureHornerCycleCount()
                 const todayStr = getTodaysDate()
+                const dashCycles = appData.hornerCycleCount[appData.activeProfileId]
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     const isComplete = appData.hornerDailyProgress[appData.activeProfileId]?.completedLists?.includes(listIdx)
+                    const cc = dashCycles[listIdx] || 0
+                    const cl = cc > 0 ? ` ×${cc}` : ''
                     let found = false
                     if (isComplete) {
                         for (let bName of listBooks) {
@@ -10950,7 +11018,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             for (let c = 0; c < appBook.ch.length; c++) {
                                 const ts = currentProg[`${appBook.name}-${c+1}`]
                                 if (ts && getLocalDateString(ts) === todayStr) {
-                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: true, badge: `L${listIdx+1}` })
+                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: true, badge: `L${listIdx+1}${cl}` })
                                     found = true; break
                                 }
                             }
@@ -10963,7 +11031,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             if (!appBook) continue
                             for (let c = 0; c < appBook.ch.length; c++) {
                                 if (!currentProg[`${appBook.name}-${c+1}`]) {
-                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: false, badge: `L${listIdx+1}` })
+                                    chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: false, badge: `L${listIdx+1}${cl}` })
                                     found = true; break
                                 }
                             }
@@ -10980,7 +11048,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                     if (ts && ts < oldest) { oldest = ts; oldestCh = { book: appBook.name, chapter: c+1, words: appBook.ch[c] } }
                                 }
                             }
-                            if (oldestCh) chapters.push({ ...oldestCh, label: `${oldestCh.book} ${oldestCh.chapter}`, isComplete: false, badge: `L${listIdx+1}` })
+                            if (oldestCh) chapters.push({ ...oldestCh, label: `${oldestCh.book} ${oldestCh.chapter}`, isComplete: false, badge: `L${listIdx+1} ↻${cl}` })
                         }
                     }
                 })
