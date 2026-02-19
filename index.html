@@ -9703,30 +9703,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
 
                     // All chapters in this list are fully read - Horner system cycles
-                    // back to the start. Pick the chapter read longest ago to maintain
-                    // the sequential rotation order across cycles.
+                    // back to the start. Always restart from the first chapter in
+                    // the list (e.g., Acts 1 for the Acts list).
                     if(!foundForList) {
-                        let oldestTimestamp = Infinity;
-                        let oldestChapter = null;
-                        for(let bName of listBooks) {
-                            const appBook = bible.find(b => b.name === bName);
-                            if(!appBook) continue;
-                            for(let c=0; c<appBook.ch.length; c++) {
-                                const chapterId = `${appBook.name}-${c+1}`;
-                                const ts = currentProg[chapterId];
-                                if(ts && ts < oldestTimestamp) {
-                                    oldestTimestamp = ts;
-                                    oldestChapter = { book: appBook.name, chapter: c+1, words: appBook.ch[c] };
-                                }
-                            }
-                        }
-                        if(oldestChapter) {
+                        const firstBook = listBooks[0];
+                        const appBook = bible.find(b => b.name === firstBook);
+                        if(appBook) {
                             nextChapters.push({
-                                book: oldestChapter.book,
-                                chapter: oldestChapter.chapter,
-                                chapters: [oldestChapter.chapter],
-                                words: oldestChapter.words,
-                                label: `${oldestChapter.book} ${oldestChapter.chapter}`,
+                                book: appBook.name,
+                                chapter: 1,
+                                chapters: [1],
+                                words: appBook.ch[0],
+                                label: `${appBook.name} 1`,
                                 badge: `List ${listIdx+1} ↻${cycleLabel}`,
                                 isComplete: false
                             });
@@ -11053,18 +11041,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
                             if (found) break
                         }
-                        // If all chapters in list are read (cycling), pick oldest
+                        // If all chapters in list are read (cycling), restart from first chapter
                         if (!found) {
-                            let oldest = Infinity, oldestCh = null
-                            for (let bName of listBooks) {
-                                const appBook = bible.find(b => b.name === bName)
-                                if (!appBook) continue
-                                for (let c = 0; c < appBook.ch.length; c++) {
-                                    const ts = currentProg[`${appBook.name}-${c+1}`]
-                                    if (ts && ts < oldest) { oldest = ts; oldestCh = { book: appBook.name, chapter: c+1, words: appBook.ch[c] } }
-                                }
-                            }
-                            if (oldestCh) chapters.push({ ...oldestCh, label: `${oldestCh.book} ${oldestCh.chapter}`, isComplete: false, badge: `L${listIdx+1} ↻${cl}` })
+                            const firstBook = listBooks[0]
+                            const appBook = bible.find(b => b.name === firstBook)
+                            if (appBook) chapters.push({ book: appBook.name, chapter: 1, words: appBook.ch[0], label: `${appBook.name} 1`, isComplete: false, badge: `L${listIdx+1} ↻${cl}` })
                         }
                     }
                 })
