@@ -9449,7 +9449,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     } else {
                         isComplete = !!currentProg[`${ch.book}-${ch.chapter}`]
                     }
-                    return { ...ch, isComplete }
+                    return { ...ch, isComplete, completedToday: isComplete }
                 })
             }
 
@@ -9900,7 +9900,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 Custom plan completed!</div>`
                         return
                     }
-                    footerMsg.innerText = `${escapeHtml(customPlan.name)} • ${nextChapters.length} chapters today`
+                    const customAllDone = nextChapters.every(ch => ch.isComplete)
+                    if (customAllDone) {
+                        footerMsg.innerText = `${escapeHtml(customPlan.name)} • All ${nextChapters.length} chapters done today!`
+                    } else {
+                        const customDoneCount = nextChapters.filter(ch => ch.isComplete).length
+                        footerMsg.innerText = `${escapeHtml(customPlan.name)} • ${customDoneCount}/${nextChapters.length} chapters today`
+                    }
                 }
             }
 
@@ -10728,6 +10734,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const planSelector = document.getElementById('plan-selector')
             if (planSelector) planSelector.value = 'CUSTOM'
 
+            // Invalidate pinned daily chapters so new config takes effect
+            if (appData.dailyPlanProgress && appData.dailyPlanProgress[appData.activeProfileId]) {
+                appData.dailyPlanProgress[appData.activeProfileId] = { date: '', plan: '', chapters: [] }
+            }
+
             window.saveProgress(true)
             window.closePlanBuilder()
             window.showToast(`"${escapeHtml(name)}" plan saved and activated!`, 'success')
@@ -10749,6 +10760,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             appData.profilePlans[appData.activeProfileId] = 'CUSTOM'
             const planSelector = document.getElementById('plan-selector')
             if (planSelector) planSelector.value = 'CUSTOM'
+
+            // Invalidate pinned daily chapters so new plan config takes effect
+            if (appData.dailyPlanProgress && appData.dailyPlanProgress[appData.activeProfileId]) {
+                appData.dailyPlanProgress[appData.activeProfileId] = { date: '', plan: '', chapters: [] }
+            }
 
             window.saveProgress(true)
             cpbRenderSavedPlans()
@@ -11225,13 +11241,34 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             // 4. Continue reading card
-            const nextBook = bible.find(b => b.name === dashboardNextChapter.book)
-            const nextWords = nextBook ? nextBook.ch[dashboardNextChapter.chapter - 1] : 0
-            document.getElementById('dashboard-continue-chapter').textContent = `${dashboardNextChapter.book} ${dashboardNextChapter.chapter}`
-            document.getElementById('dashboard-continue-badge').textContent = getPlanDisplayName(activePlan)
+            const allDailyDone = planChapters.length > 0 && planChapters.every(ch => ch.isComplete)
+            const continueChapterEl = document.getElementById('dashboard-continue-chapter')
+            const continueBadgeEl = document.getElementById('dashboard-continue-badge')
+            const continueMetaEl = document.getElementById('dashboard-continue-meta')
+            const continueBtnEl = document.getElementById('dashboard-continue-btn')
+            const continueCardEl = document.getElementById('dashboard-continue')
             const wpm = appData.wordsPerMinute || 250
-            const readMins = Math.ceil(nextWords / wpm)
-            document.getElementById('dashboard-continue-meta').textContent = `${nextWords.toLocaleString()} words ~ ${readMins} min read`
+
+            if (allDailyDone) {
+                // Today's plan is complete — show celebration state
+                continueCardEl.className = 'bg-gradient-to-br from-emerald-600 to-teal-600 rounded-[2rem] p-6 shadow-xl text-white relative overflow-hidden'
+                continueChapterEl.textContent = "Today's Reading Complete!"
+                continueBadgeEl.textContent = getPlanDisplayName(activePlan)
+                continueMetaEl.textContent = `All ${planChapters.length} chapter${planChapters.length !== 1 ? 's' : ''} finished. Great work!`
+                continueBtnEl.textContent = 'Read Ahead'
+                continueBtnEl.className = 'w-full bg-white/20 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-white/30 transition-colors shadow-md relative z-10'
+            } else {
+                // Normal state — show next chapter to read
+                continueCardEl.className = 'bg-gradient-to-br from-indigo-600 to-purple-600 rounded-[2rem] p-6 shadow-xl text-white relative overflow-hidden'
+                const nextBook = bible.find(b => b.name === dashboardNextChapter.book)
+                const nextWords = nextBook ? nextBook.ch[dashboardNextChapter.chapter - 1] : 0
+                continueChapterEl.textContent = `${dashboardNextChapter.book} ${dashboardNextChapter.chapter}`
+                continueBadgeEl.textContent = getPlanDisplayName(activePlan)
+                const readMins = Math.ceil(nextWords / wpm)
+                continueMetaEl.textContent = `${nextWords.toLocaleString()} words ~ ${readMins} min read`
+                continueBtnEl.textContent = 'Open Reader'
+                continueBtnEl.className = 'w-full bg-white text-indigo-700 px-6 py-3 rounded-xl text-sm font-black hover:bg-indigo-50 transition-colors shadow-md relative z-10'
+            }
 
             // 5. Today's plan items
             const planName = document.getElementById('dashboard-plan-name')
