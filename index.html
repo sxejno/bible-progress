@@ -84,6 +84,16 @@
             to { opacity: 0; }
         }
 
+        /* Verse reference jump highlight */
+        .verse-jump-highlight {
+            animation: verseJumpHighlight 2.2s ease-out forwards;
+        }
+        @keyframes verseJumpHighlight {
+            0%   { background-color: rgb(199, 210, 254); box-shadow: 0 0 0 3px rgb(129,140,248); border-radius: 0.5rem; }
+            70%  { background-color: rgb(238, 242, 255); box-shadow: none; }
+            100% { background-color: transparent; }
+        }
+
         /* Hide scrollbar for the stats/legend bar but allow scrolling */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -957,6 +967,7 @@
                     </button>
                 </div>
                 <div id="search-results-count" class="mt-2 text-sm text-slate-500 hidden"></div>
+                <div id="verse-search-suggestion" class="hidden mt-2"></div>
             </div>
             <div id="subdivision-bar" class="hidden sm:flex flex-wrap gap-3 overflow-y-auto max-h-40 mb-8 pb-2 pr-2"></div>
             <div id="book-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
@@ -7115,6 +7126,97 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             '1Jo': '1 John', Rev: 'Revelation'
         };
 
+        // Comprehensive book name map for verse reference search (keys: lowercase, no spaces)
+        const VERSE_SEARCH_BOOK_MAP = {
+            'genesis':'Genesis','gen':'Genesis','ge':'Genesis','gn':'Genesis',
+            'exodus':'Exodus','exo':'Exodus','ex':'Exodus','exd':'Exodus',
+            'leviticus':'Leviticus','lev':'Leviticus','le':'Leviticus','lv':'Leviticus',
+            'numbers':'Numbers','num':'Numbers','nu':'Numbers','nm':'Numbers',
+            'deuteronomy':'Deuteronomy','deut':'Deuteronomy','deu':'Deuteronomy','dt':'Deuteronomy',
+            'joshua':'Joshua','josh':'Joshua','jos':'Joshua',
+            'judges':'Judges','judg':'Judges','jdg':'Judges','jg':'Judges',
+            'ruth':'Ruth','rth':'Ruth','ru':'Ruth',
+            '1samuel':'1 Samuel','1sam':'1 Samuel','1sa':'1 Samuel',
+            '2samuel':'2 Samuel','2sam':'2 Samuel','2sa':'2 Samuel',
+            '1kings':'1 Kings','1kgs':'1 Kings','1ki':'1 Kings','1k':'1 Kings',
+            '2kings':'2 Kings','2kgs':'2 Kings','2ki':'2 Kings','2k':'2 Kings',
+            '1chronicles':'1 Chronicles','1chron':'1 Chronicles','1chr':'1 Chronicles','1ch':'1 Chronicles',
+            '2chronicles':'2 Chronicles','2chron':'2 Chronicles','2chr':'2 Chronicles','2ch':'2 Chronicles',
+            'ezra':'Ezra','ezr':'Ezra',
+            'nehemiah':'Nehemiah','neh':'Nehemiah',
+            'esther':'Esther','est':'Esther','esth':'Esther',
+            'job':'Job','jb':'Job',
+            'psalms':'Psalms','psalm':'Psalms','psa':'Psalms','ps':'Psalms',
+            'proverbs':'Proverbs','prov':'Proverbs','pro':'Proverbs','prv':'Proverbs','pr':'Proverbs',
+            'ecclesiastes':'Ecclesiastes','eccl':'Ecclesiastes','ecc':'Ecclesiastes',
+            'songofsolomon':'Song of Solomon','songofsongs':'Song of Solomon',
+            'song':'Song of Solomon','sos':'Song of Solomon','ss':'Song of Solomon','sng':'Song of Solomon','sol':'Song of Solomon',
+            'isaiah':'Isaiah','isa':'Isaiah',
+            'jeremiah':'Jeremiah','jer':'Jeremiah',
+            'lamentations':'Lamentations','lam':'Lamentations',
+            'ezekiel':'Ezekiel','ezek':'Ezekiel','eze':'Ezekiel',
+            'daniel':'Daniel','dan':'Daniel',
+            'hosea':'Hosea','hos':'Hosea',
+            'joel':'Joel','jl':'Joel',
+            'amos':'Amos','am':'Amos',
+            'obadiah':'Obadiah','obad':'Obadiah','ob':'Obadiah',
+            'jonah':'Jonah','jon':'Jonah',
+            'micah':'Micah','mic':'Micah',
+            'nahum':'Nahum','nah':'Nahum',
+            'habakkuk':'Habakkuk','hab':'Habakkuk',
+            'zephaniah':'Zephaniah','zeph':'Zephaniah','zep':'Zephaniah',
+            'haggai':'Haggai','hag':'Haggai',
+            'zechariah':'Zechariah','zech':'Zechariah','zec':'Zechariah',
+            'malachi':'Malachi','mal':'Malachi',
+            'matthew':'Matthew','matt':'Matthew','mat':'Matthew','mt':'Matthew',
+            'mark':'Mark','mar':'Mark','mk':'Mark',
+            'luke':'Luke','luk':'Luke','lk':'Luke',
+            'john':'John','joh':'John','jn':'John',
+            'acts':'Acts','act':'Acts',
+            'romans':'Romans','rom':'Romans','ro':'Romans',
+            '1corinthians':'1 Corinthians','1cor':'1 Corinthians','1co':'1 Corinthians','1cr':'1 Corinthians',
+            '2corinthians':'2 Corinthians','2cor':'2 Corinthians','2co':'2 Corinthians','2cr':'2 Corinthians',
+            'galatians':'Galatians','gal':'Galatians',
+            'ephesians':'Ephesians','eph':'Ephesians',
+            'philippians':'Philippians','phil':'Philippians','php':'Philippians',
+            'colossians':'Colossians','col':'Colossians',
+            '1thessalonians':'1 Thessalonians','1thess':'1 Thessalonians','1thes':'1 Thessalonians','1th':'1 Thessalonians',
+            '2thessalonians':'2 Thessalonians','2thess':'2 Thessalonians','2thes':'2 Thessalonians','2th':'2 Thessalonians',
+            '1timothy':'1 Timothy','1tim':'1 Timothy','1ti':'1 Timothy',
+            '2timothy':'2 Timothy','2tim':'2 Timothy','2ti':'2 Timothy',
+            'titus':'Titus','tit':'Titus',
+            'philemon':'Philemon','phlm':'Philemon','phm':'Philemon',
+            'hebrews':'Hebrews','heb':'Hebrews','hbr':'Hebrews',
+            'james':'James','jam':'James','jas':'James',
+            '1peter':'1 Peter','1pet':'1 Peter','1pe':'1 Peter','1pt':'1 Peter',
+            '2peter':'2 Peter','2pet':'2 Peter','2pe':'2 Peter','2pt':'2 Peter',
+            '1john':'1 John','1joh':'1 John','1jn':'1 John','1jo':'1 John',
+            '2john':'2 John','2joh':'2 John','2jn':'2 John','2jo':'2 John',
+            '3john':'3 John','3joh':'3 John','3jn':'3 John','3jo':'3 John',
+            'jude':'Jude','jud':'Jude',
+            'revelation':'Revelation','rev':'Revelation','rv':'Revelation',
+        }
+
+        // Parse a verse reference like "Genesis 1:1", "rev 2:9", "1cor1:1-2"
+        // Returns { bookName, chapter, verseStart, verseEnd } or null if invalid
+        function parseVerseReference(text) {
+            if (!text || !text.includes(':')) return null
+            const norm = text.trim()
+            const match = norm.match(/^(.*?)(\d+)\s*:\s*(\d+)(?:\s*-\s*(\d+))?$/)
+            if (!match) return null
+            const [, bookRaw, chapterStr, verseStartStr, verseEndStr] = match
+            const bookPart = bookRaw.trim()
+            const bookKey = bookPart.toLowerCase().replace(/\s+/g, '')
+            const bookName = VERSE_SEARCH_BOOK_MAP[bookKey]
+            if (!bookName) return null
+            const chapter = parseInt(chapterStr, 10)
+            const verseStart = parseInt(verseStartStr, 10)
+            const verseEnd = verseEndStr ? parseInt(verseEndStr, 10) : verseStart
+            const bookData = bible.find(b => b.name === bookName)
+            if (!bookData || chapter < 1 || chapter > bookData.ch.length) return null
+            return { bookName, chapter, verseStart, verseEnd }
+        }
+
         const ARCHAIC_WORD_REFERENCE_ENTRIES = [
             ['Gen 41:2', 'Kine', 'Heifers'], ['Exd 3:5', 'Shoes', 'Sandals'], ['Exd 3:22', 'Borrow', 'Ask'], ['Exd 4:24', 'Inn', 'Lodging-place'], ['Exd 5:4', 'Let', 'Hinder'], ['Exd 5:8', 'Tale', 'Number'], ['Exd 13:18', 'Harnessed', 'In ranks'], ['Exd 28:40', 'Bonnets', 'Turbans'], ['Exd 34:15', 'Whoring', 'Astray'], ['Exd 34:26', 'Seethe', 'Boil'], ['Exd 34:29', 'Wish', 'Knew'], ['Exd 35:11', 'Taches', 'Clasps'], ['Exd 37:29', 'Apothecary', 'Perfumer'], ['Exd 39:23', 'Habergeon', 'Coat of Mail'], ['Lev 2:1', 'Meat-offerings', 'Wheat-offerings'], ['Num 1:2', 'Polls', 'One by one'], ['Deu 11:30', 'Champaign', 'Plain'], ['Deu 16:1-4', 'Coast', 'Districts'], ['Jos 6:9', 'Rereward', 'Rear'], ['Jos 13:25', 'Children of Ammon', 'Ammonites'], ['Jos 20:3', 'Unwittingly', 'Unintentionally'], ['Jos 23:1', 'Stricken in age', 'Advanced in years'], ['Jdg 3:24', 'Covereth his feet', 'Reposeth'], ['Jdg 7:10', 'Host', 'Camp army'], ['Jdg 7:10', 'Fellow', 'Comrade'], ['Jdg 14:13', 'Shirts', 'Sheets'], ['Jdg 15:4', 'Foxes', 'Jackals'], ['Jdg 18:2', 'Children of Dan', 'Danites'], ['1Sa 1:15', 'Daughter of Belial', 'Worthless woman'], ['1Sa 2:5', 'Seven', 'Many'], ['1Sa 2:12', 'Sons of Belial', 'Worthless men'], ['1Sa 2:29', 'Kick', 'Spurn'], ['1Sa 3:18', 'Every whit', 'Everything'], ['1Sa 5:9', 'Secret Parts', 'Inwardly'], ['1Sa 8:12', 'Ear', 'Till'], ['1Sa 13:17', 'Spoilers', 'Foragers'], ['1Sa 13:20', 'Coultery', 'Spade'], ['1Sa 17:24', 'Carriage', 'Baggage'], ['1Sa 17:24', 'Sore', 'Exceedingly, greatly'], ['1Sa 17:39', 'Assayed', 'Attempted'], ['1Sa 22:17', 'Footman', 'Guard'], ['1Sa 26:5', 'Pitched', 'Encamped'], ['1Sa 26:11', 'Cruse', 'Jug'], ['1Sa 30:13', 'Agone', 'Ago'], ['2Sa 3:12', 'League', 'Covenant'], ['2Sa 17:10', 'Utterly melt', 'Be utterly dismayed'], ['2Sa 22:6', 'Prevented', 'Surrounded'], ['1Ki 2:8', 'Cursed', 'Reviled'], ['1Ki 3:7', 'Go out or come in', 'Conduct affairs'], ['1Ki 4:2', 'Princes', 'Chief officers'], ['1Ki 6:18', 'Knops', 'Knobs'], ['1Ki 7:16', 'Chapiters', 'Capitals'], ['1Ki 9:22', 'Rulers of chariots', 'Charioteers'], ['1Ki 10:26', 'Bestowed', 'Stationed'], ['1Ki 11:22', 'Howbeit', 'Notwithstanding'], ['1Ki 11:28', 'Charge', 'Imposts'], ['1Ki 14:3', 'Cracknels', 'Cakes'], ['1Ki 20:12,16', 'Pavilions', 'Booths'], ['2Ki 4:43', 'Servitor', 'Servant'], ['2Ki 5:24', 'Tower', 'Secret place'], ['2Ki 24:16', 'Craftsmen', 'Carpenters'], ['1Ch 22:5', 'Magnifical', 'Magnificient'], ['2Ch 26:14', 'Habergeons', 'Breastplates'], ['Job 1:1', 'Perfect', 'Sincere'], ['Job 1:1', 'Eschewed', 'Avoided'], ['Job 3:12', 'Prevent', 'Receive'], ['Job 9:33', 'Daysman', 'Umpire'], ['Job 41:26', 'Habergeon', 'Javelin'], ['Psa 4:2', 'Leasing', 'Falsehood, lying'], ['Psa 7:10', 'Plate', 'Crown'], ['Psa 16:10', 'Soul in hell', 'Body in the grave'], ['Psa 44:19', 'Dragons', 'Serpents'], ['Psa 59:10', 'Prevent', 'Come before--i.e., give timely aid'], ['Psa 79:8', 'Prevent', 'Succor'], ['Psa 107:3', 'Minished', 'Diminished'], ['Psa 119:148', 'Prevent', 'Anticipate'], ['Ecc 4:4', 'Travail', 'Labor'], ['Isa 3:22', 'Wimples', 'Shawls'], ['Isa 3:22', 'Crisping-pins', 'Purses'], ['Isa 7:23', 'Silverlings', 'Pieces of silver'], ['Isa 30:24', 'Ear', 'Till'], ['Isa 31:3', 'Holpen', 'Helped'], ['Isa 44:9', 'Delectable', 'Delightful'], ['Jer 4:30', 'Rentest thy face', 'Distend thine eyes'], ['Jer 7:23', 'Fray', 'Scare'], ['Jer 10:22', 'Bruit', 'Rumor'], ['Eze 13:18', 'Sew pillows', 'Apply cushions'], ['Dan 3:21', 'Hosen', 'Turbans'], ['Zec 13:6', 'My fellows', 'United to me'], ['Mat 3:12', 'Fan', 'Winnowing-shovel'], ['Mat 5:46', 'Publicans', 'Tax-gatherers'], ['Mat 6:24', 'Mammon', 'Riches'], ['Mat 12:29', 'Garnished', 'Set in order'], ['Mat 13:20', 'Anon', 'Immediately'], ['Mat 17:12', 'Listed', 'Chose'], ['Mar 11:13', 'Haply', 'Perhaps'], ['Luk 2:49', 'Wish', 'Know'], ['Luk 7:1', 'Audience', 'Hearing'], ['Luk 12:58', 'Hale', 'Drag'], ['Luk 17:9', 'Trow', 'Think'], ['Act 1:2', 'Passion', 'Suffering'], ['Act 7:45', 'Jesus', 'Joshua'], ['Act 9:26', 'Assayed', 'Attempted'], ['Act 9:5', 'Pricks', 'Goads'], ['Act 10:42', 'Quick', 'Living'], ['Rom 1:13', 'Let', 'Hindered'], ['Rom 7:8', 'Concupiscence', 'Evil desires'], ['Rom 8:13', 'Mortify', 'To kill'], ['Rom 15:11', 'Laud', 'Celebrate'], ['1Cr 10:11', 'Ensamples', 'Examples'], ['1Cr 11:29', 'Unworthy', 'Irreverently'], ['1Cr 11:29', 'Damnation', 'Condemnation'], ['1Cr 13:1', 'Charity', 'Love'], ['2Cr 1:12', 'Conversation', 'Behavior'], ['2Cr 5:21', 'Sin', 'Sin-offering'], ['2Cr 8:1', 'Do you to wit', 'Make known to you'], ['1Th 4:15', 'Prevent', 'Go up before'], ['Hbr 1:1', 'Divers', 'Various'], ['Hbr 1:3', 'Person', 'Substance'], ['Hbr 2:11', 'Sanctifieth', 'Expiateth'], ['Hbr 4:8', 'Jesus', 'Joshua'], ['Jam 3:13', 'Good conversation', 'Consistent conduct'], ['Jam 3:4', 'Governor listeth', 'Pilot chooseth'], ['1Pe 2:2', 'Sincere', 'Unadulterated'], ['1Pe 3:11', 'Eschew', 'Avoid'], ['1Pe 3:11', 'Ensue', 'Pursue'], ['2Pe 3:12', 'Hastening unto', 'Earnestly desiring'], ['2Pe 3:9', 'Slack', 'Slow'], ['1Jo 2:17', 'Lust', 'Desire'], ['1Jo 2:20', 'Unction', 'Anointing'], ['1Jo 5:6,8,9', 'Witness', 'Testimony'], ['Rev 1:13', 'Candlestick', 'Lamps'], ['Rev 21:19', 'Garnished', 'Adorned']
         ];
@@ -7396,6 +7498,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             currentReaderBook = null;
             currentReaderChapter = null;
         };
+
+        // Open Bible reader at a specific verse, then scroll to and highlight it
+        window.openBibleReaderAtVerse = async (bookName, chapter, verseNumber) => {
+            await window.openBibleReader(bookName, chapter)
+            const verseId = `${bookName}-${chapter}:${verseNumber}`
+            const verseEl = document.querySelector(`[data-verse-id="${verseId}"]`)
+            if (verseEl) {
+                verseEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                verseEl.classList.add('verse-jump-highlight')
+                setTimeout(() => verseEl.classList.remove('verse-jump-highlight'), 2500)
+            }
+        }
 
         // Navigate to previous/next chapter
         window.navigateBibleChapter = (direction) => {
@@ -7876,7 +7990,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         };
 
         window.handleSearch = () => {
-            searchQuery = document.getElementById('book-search').value.toLowerCase();
+            const rawInput = document.getElementById('book-search').value;
+            searchQuery = rawInput.toLowerCase();
 
             // Show/hide clear button
             const clearBtn = document.getElementById('book-search-clear');
@@ -7885,19 +8000,46 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 else clearBtn.classList.add('hidden');
             }
 
-            // Calculate and display search results count
+            const suggestionEl = document.getElementById('verse-search-suggestion');
             const resultsCountEl = document.getElementById('search-results-count');
-            if (searchQuery) {
-                const matchingBooks = bible.filter(b =>
-                    (activeTab === 'ALL' || b.testament === activeTab) &&
-                    b.name.toLowerCase().includes(searchQuery)
-                );
-                const count = matchingBooks.length;
-                const bookText = count === 1 ? 'book' : 'books';
-                resultsCountEl.textContent = `${count} ${bookText} found`;
-                resultsCountEl.classList.remove('hidden');
-            } else {
+
+            // Check if input looks like a verse reference (must contain ':')
+            const parsedVerse = rawInput.includes(':') ? parseVerseReference(rawInput) : null;
+            if (parsedVerse) {
+                const { bookName, chapter, verseStart, verseEnd } = parsedVerse;
+                const verseRange = verseEnd > verseStart ? `${verseStart}\u2013${verseEnd}` : `${verseStart}`;
+                const label = escapeHtml(`${bookName} ${chapter}:${verseRange}`);
+                suggestionEl.innerHTML = `
+                    <button onclick="window.openBibleReaderAtVerse('${escapeHtml(bookName)}', ${chapter}, ${verseStart})"
+                            class="w-full flex items-center gap-3 px-4 py-3 bg-indigo-50 border-2 border-indigo-200 rounded-2xl text-left hover:bg-indigo-100 active:scale-[0.99] transition-all"
+                            aria-label="Go to ${label}">
+                        <svg class="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <span class="text-sm font-bold text-indigo-700">Go to ${label}</span>
+                        <svg class="w-4 h-4 text-indigo-400 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                `;
+                suggestionEl.classList.remove('hidden');
                 resultsCountEl.classList.add('hidden');
+            } else {
+                if (suggestionEl) { suggestionEl.classList.add('hidden'); suggestionEl.innerHTML = ''; }
+
+                // Normal book search results count
+                if (searchQuery) {
+                    const matchingBooks = bible.filter(b =>
+                        (activeTab === 'ALL' || b.testament === activeTab) &&
+                        b.name.toLowerCase().includes(searchQuery)
+                    );
+                    const count = matchingBooks.length;
+                    const bookText = count === 1 ? 'book' : 'books';
+                    resultsCountEl.textContent = `${count} ${bookText} found`;
+                    resultsCountEl.classList.remove('hidden');
+                } else {
+                    resultsCountEl.classList.add('hidden');
+                }
             }
 
             window.renderBookGrid();
