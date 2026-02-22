@@ -9755,12 +9755,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 descText = "<strong>Canonical:</strong> Genesis to Revelation. Next 3 unread chapters.";
 
                 const computeFn = () => {
+                    const todayStr = getTodaysDate();
                     const chs = [];
                     let found = 0;
                     for (let b = 0; b < bible.length && found < 3; b++) {
                         const book = bible[b];
                         for (let c = 0; c < book.ch.length && found < 3; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
+                            const _ts = currentProg[`${book.name}-${c+1}`];
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
                                 chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}` });
                                 found++;
                             }
@@ -9778,14 +9780,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 descText = "<strong>One Year:</strong> 3 OT + 1 NT chapters daily.";
 
                 const computeFn = () => {
+                    const todayStr = getTodaysDate();
                     const chs = [];
-                    // Find next 3 unread OT chapters
+                    // Find next 3 OT chapters (unread or read today)
                     let otFound = 0;
                     for (let b = 0; b < bible.length; b++) {
                         const book = bible[b];
                         if (book.testament !== 'OT') continue;
                         for (let c = 0; c < book.ch.length; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
+                            const _ts = currentProg[`${book.name}-${c+1}`];
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
                                 chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: "Old Testament" });
                                 otFound++;
                                 if (otFound >= 3) break;
@@ -9793,13 +9797,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         }
                         if (otFound >= 3) break;
                     }
-                    // Find next 1 unread NT chapter
+                    // Find next 1 NT chapter (unread or read today)
                     let ntFound = 0;
                     for (let b = 0; b < bible.length; b++) {
                         const book = bible[b];
                         if (book.testament !== 'NT') continue;
                         for (let c = 0; c < book.ch.length; c++) {
-                            if (!currentProg[`${book.name}-${c+1}`]) {
+                            const _ts = currentProg[`${book.name}-${c+1}`];
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
                                 chs.push({ book: book.name, chapter: c + 1, chapters: [c + 1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: "New Testament" });
                                 ntFound++;
                                 if (ntFound >= 1) break;
@@ -10086,48 +10091,53 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     descText = `<strong>${escapeHtml(customPlan.name)}:</strong> ${cfg.ot} OT + ${cfg.nt} NT + ${cfg.psalms} Psalms + ${cfg.proverbs} Proverbs chapters daily.`
 
                     const computeFn = () => {
+                        const todayStr = getTodaysDate()
                         const chs = []
-                        // Find next unread OT chapters (excluding Psalms & Proverbs)
+                        // Find next OT chapters (excluding Psalms & Proverbs) — unread or read today
                         let otFound = 0
                         for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
                             const book = bible[b]
                             if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
                             for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
-                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                const _ts = currentProg[`${book.name}-${c+1}`]
+                                if (!_ts || getLocalDateString(_ts) === todayStr) {
                                     chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'OT' })
                                     otFound++
                                 }
                             }
                         }
-                        // Find next unread NT chapters
+                        // Find next NT chapters — unread or read today
                         let ntFound = 0
                         for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
                             const book = bible[b]
                             if (book.testament !== 'NT') continue
                             for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
-                                if (!currentProg[`${book.name}-${c+1}`]) {
+                                const _ts = currentProg[`${book.name}-${c+1}`]
+                                if (!_ts || getLocalDateString(_ts) === todayStr) {
                                     chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'NT' })
                                     ntFound++
                                 }
                             }
                         }
-                        // Find next unread Psalms
+                        // Find next Psalms — unread or read today
                         const psalmsBook = bible.find(b => b.name === 'Psalms')
                         if (psalmsBook && cfg.psalms > 0) {
                             let psFound = 0
                             for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
-                                if (!currentProg[`Psalms-${c+1}`]) {
+                                const _psTs = currentProg[`Psalms-${c+1}`]
+                                if (!_psTs || getLocalDateString(_psTs) === todayStr) {
                                     chs.push({ book: 'Psalms', chapter: c+1, chapters: [c+1], words: psalmsBook.ch[c], label: `Psalms ${c+1}`, badge: 'Psalms' })
                                     psFound++
                                 }
                             }
                         }
-                        // Find next unread Proverbs
+                        // Find next Proverbs — unread or read today
                         const proverbsBook = bible.find(b => b.name === 'Proverbs')
                         if (proverbsBook && cfg.proverbs > 0) {
                             let prFound = 0
                             for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
-                                if (!currentProg[`Proverbs-${c+1}`]) {
+                                const _prTs = currentProg[`Proverbs-${c+1}`]
+                                if (!_prTs || getLocalDateString(_prTs) === todayStr) {
                                     chs.push({ book: 'Proverbs', chapter: c+1, chapters: [c+1], words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, badge: 'Proverbs' })
                                     prFound++
                                 }
