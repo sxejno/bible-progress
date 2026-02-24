@@ -39,7 +39,7 @@ Visit [bibleprogress.com](https://bibleprogress.com) — no account required.
 
 ## Contributing
 
-See [CLAUDE.md](CLAUDE.md) for developer docs, [TODO.md](TODO.md) for the roadmap, and [SECURITY.md](SECURITY.md) for security guidelines.
+See [CLAUDE.md](CLAUDE.md) for developer docs, [TODO.md](TODO.md) for the roadmap, [ANDROID_APP_PLAN.md](ANDROID_APP_PLAN.md) for native Android planning, and [SECURITY.md](SECURITY.md) for security guidelines.
 
 ## License
 
