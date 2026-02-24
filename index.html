@@ -2911,7 +2911,7 @@
                         Object.keys(appData.profiles).forEach(profileId => {
                             if(!appData.hornerDailyProgress[profileId]) {
                                 appData.hornerDailyProgress[profileId] = {
-                                    date: new Date().toISOString().split('T')[0],
+                                    date: getTodaysDate(),
                                     completedLists: []
                                 };
                             }
@@ -11184,67 +11184,65 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         let dashboardNextChapter = null
 
         // Helper: Get today's plan chapters for the active plan (compact format for dashboard)
+        // Uses getPinnedDailyChapters() to ensure chapters are pinned for the day and don't
+        // cycle when marked as read (same mechanism as renderDailyPlan)
         function getDashboardPlanChapters() {
             const currentProg = getProgress()
-            const chapters = []
+            const todayStr = getTodaysDate()
 
             if (activePlan === 'SEQUENTIAL') {
-                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
-                const todayStr = getTodaysDate()
-                if (stored && stored.date === todayStr && stored.plan === 'SEQUENTIAL' && stored.chapters.length > 0) {
-                    stored.chapters.forEach(ch => {
-                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
-                    })
-                } else {
+                const computeFn = () => {
+                    const chs = []
                     let found = 0
                     for (let b = 0; b < bible.length && found < 3; b++) {
-                        for (let c = 0; c < bible[b].ch.length && found < 3; c++) {
-                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                        const book = bible[b]
+                        for (let c = 0; c < book.ch.length && found < 3; c++) {
+                            const _ts = currentProg[`${book.name}-${c+1}`]
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
+                                chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}` })
                                 found++
                             }
                         }
                     }
+                    return chs
                 }
+                return getPinnedDailyChapters(appData.activeProfileId, 'SEQUENTIAL', computeFn)
             } else if (activePlan === 'ONE_YEAR') {
-                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
-                const todayStr = getTodaysDate()
-                if (stored && stored.date === todayStr && stored.plan === 'ONE_YEAR' && stored.chapters.length > 0) {
-                    stored.chapters.forEach(ch => {
-                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
-                    })
-                } else {
-                    let otFound = 0, ntFound = 0
-                    for (let b = 0; b < bible.length && otFound < 3; b++) {
-                        if (bible[b].testament !== 'OT') continue
-                        for (let c = 0; c < bible[b].ch.length && otFound < 3; c++) {
-                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                const computeFn = () => {
+                    const chs = []
+                    let otFound = 0
+                    for (let b = 0; b < bible.length; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'OT') continue
+                        for (let c = 0; c < book.ch.length; c++) {
+                            const _ts = currentProg[`${book.name}-${c+1}`]
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
+                                chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'Old Testament' })
                                 otFound++
+                                if (otFound >= 3) break
                             }
                         }
+                        if (otFound >= 3) break
                     }
-                    for (let b = 0; b < bible.length && ntFound < 1; b++) {
-                        if (bible[b].testament !== 'NT') continue
-                        for (let c = 0; c < bible[b].ch.length && ntFound < 1; c++) {
-                            if (!currentProg[`${bible[b].name}-${c+1}`]) {
-                                chapters.push({ book: bible[b].name, chapter: c+1, words: bible[b].ch[c], label: `${bible[b].name} ${c+1}`, isComplete: false })
+                    let ntFound = 0
+                    for (let b = 0; b < bible.length; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'NT') continue
+                        for (let c = 0; c < book.ch.length; c++) {
+                            const _ts = currentProg[`${book.name}-${c+1}`]
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
+                                chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'New Testament' })
                                 ntFound++
+                                if (ntFound >= 1) break
                             }
                         }
+                        if (ntFound >= 1) break
                     }
+                    return chs
                 }
+                return getPinnedDailyChapters(appData.activeProfileId, 'ONE_YEAR', computeFn)
             } else if (activePlan === 'MCHEYNE') {
-                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
-                const todayStr = getTodaysDate()
-                if (stored && stored.date === todayStr && stored.plan === 'MCHEYNE' && stored.chapters.length > 0) {
-                    stored.chapters.forEach(ch => {
-                        const isComplete = ch.chapters
-                            ? ch.chapters.every(c => !!currentProg[`${ch.book}-${c}`])
-                            : !!currentProg[`${ch.book}-${ch.chapter}`]
-                        chapters.push({ ...ch, isComplete })
-                    })
-                } else {
+                const computeFn = () => {
                     for (let i = 0; i < PLAN_MCHEYNE.length; i++) {
                         const day = PLAN_MCHEYNE[i]
                         let allRead = true
@@ -11253,28 +11251,38 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             const appBook = bible.find(b => b.name === bookName)
                             if (!appBook) continue
                             const chs = getChaptersFromStr(chapterStr)
-                            for (let c of chs) { if (!currentProg[`${appBook.name}-${c}`]) { allRead = false; break } }
+                            for (let c of chs) {
+                                if (!currentProg[`${appBook.name}-${c}`]) { allRead = false; break }
+                            }
                             if (!allRead) break
                         }
                         if (!allRead) {
-                            day.r.forEach(refStr => {
+                            const result = []
+                            day.r.forEach((refStr, idx) => {
                                 const { bookName, chapterStr } = normalizeBookName(refStr)
                                 const appBook = bible.find(b => b.name === bookName)
                                 if (appBook) {
                                     const chs = getChaptersFromStr(chapterStr)
-                                    let isRead = true
-                                    chs.forEach(c => { if (!currentProg[`${appBook.name}-${c}`]) isRead = false })
-                                    chapters.push({ book: appBook.name, chapter: chs[0], words: appBook.ch[chs[0]-1] * chs.length, label: refStr, isComplete: isRead })
+                                    const firstCh = chs[0]
+                                    const type = idx < 2 ? 'Family' : 'Secret'
+                                    result.push({
+                                        book: appBook.name, chapter: firstCh, chapters: chs,
+                                        words: appBook.ch[firstCh-1] * chs.length, label: refStr,
+                                        badge: type, mcheyneDay: day.d
+                                    })
                                 }
                             })
-                            break
+                            return result
                         }
                     }
+                    return []
                 }
+                return getPinnedDailyChapters(appData.activeProfileId, 'MCHEYNE', computeFn)
             } else if (activePlan === 'HORNER') {
+                // Horner uses its own completedLists tracking mechanism (not getPinnedDailyChapters)
+                const chapters = []
                 resetHornerDailyProgressIfNeeded()
                 ensureHornerCycleCount()
-                const todayStr = getTodaysDate()
                 const dashCycles = appData.hornerCycleCount[appData.activeProfileId]
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     const isComplete = appData.hornerDailyProgress[appData.activeProfileId]?.completedLists?.includes(listIdx)
@@ -11307,7 +11315,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
                             if (found) break
                         }
-                        // If all chapters in list are read (cycling), restart from first chapter
                         if (!found) {
                             const firstBook = listBooks[0]
                             const appBook = bible.find(b => b.name === firstBook)
@@ -11315,21 +11322,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         }
                     }
                 })
+                return chapters
             } else if (activePlan === 'FIVE_DAY' && typeof PLAN_FIVE_DAY !== 'undefined') {
-                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
-                const todayStr = getTodaysDate()
-                if (stored && stored.date === todayStr && stored.plan === 'FIVE_DAY' && stored.chapters.length > 0) {
-                    stored.chapters.forEach(ch => {
-                        const isComplete = ch.chapters
-                            ? ch.chapters.every(c => !!currentProg[`${ch.book}-${c}`])
-                            : !!currentProg[`${ch.book}-${ch.chapter}`]
-                        chapters.push({ ...ch, isComplete })
-                    })
-                } else {
-                    const now = new Date()
-                    const easternDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
-                    let dayOfWeek = easternDate.getDay()
-                    let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
+                const now = new Date()
+                const easternDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
+                let dayOfWeek = easternDate.getDay()
+                let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
+
+                const computeFn = () => {
+                    let currentWeek = null
                     for (let week of PLAN_FIVE_DAY.schedule) {
                         let allRead = true
                         for (let reading of week.readings) {
@@ -11343,86 +11344,93 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
                             if (!allRead) break
                         }
-                        if (!allRead) {
-                            const dayReading = week.readings.find(r => r.day === planDay)
-                            if (dayReading) {
-                                dayReading.scriptures.forEach(ref => {
-                                    const { bookName, chapterStr } = normalizeBookName(ref)
-                                    const appBook = bible.find(b => b.name === bookName)
-                                    if (appBook) {
-                                        const chs = getChaptersFromStr(chapterStr)
-                                        let isRead = true
-                                        chs.forEach(c => { if (!currentProg[`${appBook.name}-${c}`]) isRead = false })
-                                        chapters.push({ book: appBook.name, chapter: chs[0], words: appBook.ch[chs[0]-1] * chs.length, label: ref, isComplete: isRead })
-                                    }
-                                })
-                            }
-                            break
-                        }
+                        if (!allRead) { currentWeek = week; break }
                     }
-                }
-            } else if (activePlan === 'CUSTOM') {
-                const stored = appData.dailyPlanProgress?.[appData.activeProfileId]
-                const todayStr = getTodaysDate()
-                if (stored && stored.date === todayStr && stored.plan === 'CUSTOM' && stored.chapters.length > 0) {
-                    stored.chapters.forEach(ch => {
-                        chapters.push({ ...ch, isComplete: !!currentProg[`${ch.book}-${ch.chapter}`] })
+                    if (!currentWeek) return []
+                    const currentDayReading = currentWeek.readings.find(r => r.day === planDay)
+                    if (!currentDayReading) return []
+                    const result = []
+                    currentDayReading.scriptures.forEach(scriptureRef => {
+                        const { bookName, chapterStr } = normalizeBookName(scriptureRef)
+                        const appBook = bible.find(b => b.name === bookName)
+                        if (appBook) {
+                            const chs = getChaptersFromStr(chapterStr)
+                            const firstCh = chs[0]
+                            let totalWordsForReading = 0
+                            chs.forEach(c => { if (appBook.ch[c-1]) totalWordsForReading += appBook.ch[c-1] })
+                            result.push({
+                                book: appBook.name, chapter: firstCh, chapters: chs,
+                                words: totalWordsForReading, label: scriptureRef,
+                                badge: 'Today', fiveDayWeek: currentWeek.week_number
+                            })
+                        }
                     })
-                } else {
-                    const customPlan = getActiveCustomPlan()
-                    if (customPlan) {
-                        const cfg = customPlan.config
-                        // OT chapters (excluding Psalms & Proverbs)
-                        let otFound = 0
-                        for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
-                            const book = bible[b]
-                            if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
-                            for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
-                                if (!currentProg[`${book.name}-${c+1}`]) {
-                                    chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
-                                    otFound++
-                                }
-                            }
-                        }
-                        // NT chapters
-                        let ntFound = 0
-                        for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
-                            const book = bible[b]
-                            if (book.testament !== 'NT') continue
-                            for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
-                                if (!currentProg[`${book.name}-${c+1}`]) {
-                                    chapters.push({ book: book.name, chapter: c+1, words: book.ch[c], label: `${book.name} ${c+1}`, isComplete: false })
-                                    ntFound++
-                                }
-                            }
-                        }
-                        // Psalms
-                        const psalmsBook = bible.find(b => b.name === 'Psalms')
-                        if (psalmsBook && cfg.psalms > 0) {
-                            let psFound = 0
-                            for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
-                                if (!currentProg[`Psalms-${c+1}`]) {
-                                    chapters.push({ book: 'Psalms', chapter: c+1, words: psalmsBook.ch[c], label: `Psalms ${c+1}`, isComplete: false })
-                                    psFound++
-                                }
-                            }
-                        }
-                        // Proverbs
-                        const proverbsBook = bible.find(b => b.name === 'Proverbs')
-                        if (proverbsBook && cfg.proverbs > 0) {
-                            let prFound = 0
-                            for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
-                                if (!currentProg[`Proverbs-${c+1}`]) {
-                                    chapters.push({ book: 'Proverbs', chapter: c+1, words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, isComplete: false })
-                                    prFound++
-                                }
+                    return result
+                }
+                return getPinnedDailyChapters(appData.activeProfileId, 'FIVE_DAY', computeFn)
+            } else if (activePlan === 'CUSTOM') {
+                const customPlan = getActiveCustomPlan()
+                if (!customPlan) return []
+                const cfg = customPlan.config
+
+                const computeFn = () => {
+                    const chs = []
+                    // OT chapters (excluding Psalms & Proverbs)
+                    let otFound = 0
+                    for (let b = 0; b < bible.length && otFound < cfg.ot; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'OT' || book.name === 'Psalms' || book.name === 'Proverbs') continue
+                        for (let c = 0; c < book.ch.length && otFound < cfg.ot; c++) {
+                            const _ts = currentProg[`${book.name}-${c+1}`]
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
+                                chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'OT' })
+                                otFound++
                             }
                         }
                     }
+                    // NT chapters
+                    let ntFound = 0
+                    for (let b = 0; b < bible.length && ntFound < cfg.nt; b++) {
+                        const book = bible[b]
+                        if (book.testament !== 'NT') continue
+                        for (let c = 0; c < book.ch.length && ntFound < cfg.nt; c++) {
+                            const _ts = currentProg[`${book.name}-${c+1}`]
+                            if (!_ts || getLocalDateString(_ts) === todayStr) {
+                                chs.push({ book: book.name, chapter: c+1, chapters: [c+1], words: book.ch[c], label: `${book.name} ${c+1}`, badge: 'NT' })
+                                ntFound++
+                            }
+                        }
+                    }
+                    // Psalms
+                    const psalmsBook = bible.find(b => b.name === 'Psalms')
+                    if (psalmsBook && cfg.psalms > 0) {
+                        let psFound = 0
+                        for (let c = 0; c < psalmsBook.ch.length && psFound < cfg.psalms; c++) {
+                            const _psTs = currentProg[`Psalms-${c+1}`]
+                            if (!_psTs || getLocalDateString(_psTs) === todayStr) {
+                                chs.push({ book: 'Psalms', chapter: c+1, chapters: [c+1], words: psalmsBook.ch[c], label: `Psalms ${c+1}`, badge: 'Psalms' })
+                                psFound++
+                            }
+                        }
+                    }
+                    // Proverbs
+                    const proverbsBook = bible.find(b => b.name === 'Proverbs')
+                    if (proverbsBook && cfg.proverbs > 0) {
+                        let prFound = 0
+                        for (let c = 0; c < proverbsBook.ch.length && prFound < cfg.proverbs; c++) {
+                            const _prTs = currentProg[`Proverbs-${c+1}`]
+                            if (!_prTs || getLocalDateString(_prTs) === todayStr) {
+                                chs.push({ book: 'Proverbs', chapter: c+1, chapters: [c+1], words: proverbsBook.ch[c], label: `Proverbs ${c+1}`, badge: 'Proverbs' })
+                                prFound++
+                            }
+                        }
+                    }
+                    return chs
                 }
+                return getPinnedDailyChapters(appData.activeProfileId, 'CUSTOM', computeFn)
             }
 
-            return chapters
+            return []
         }
 
         // Helper: Get plan display name
