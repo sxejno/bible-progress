@@ -1,0 +1,15 @@
+# Android
+android/*.keystore
+android/keystore.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/captures/
+android/.idea/
+*.apk
+*.aab
+
+# OS
+.DS_Store
+Thumbs.db

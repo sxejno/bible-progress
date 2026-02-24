@@ -50,7 +50,13 @@
       "icons": []
     }
   ],
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.bibleprogress.app",
+      "id": "com.bibleprogress.app"
+    }
+  ],
   "share_target": {
     "action": "./",
     "method": "GET",

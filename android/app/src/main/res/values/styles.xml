@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="Theme.BibleProgress" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/navigationBarColor</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+    </style>
+
+    <!-- Splash screen theme shown during TWA launch -->
+    <style name="Theme.BibleProgress.Splash" parent="Theme.BibleProgress">
+        <item name="android:windowBackground">@color/splashScreenBackground</item>
+    </style>
+</resources>
