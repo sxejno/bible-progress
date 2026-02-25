@@ -2528,12 +2528,13 @@
         }
 
         // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+        // Use epoch 1 to indicate "read at unknown historical time" — avoids corrupting
+        // recency calculations (e.g. comeback card) that Date.now() would break.
         Object.keys(appData.profiles).forEach(profileName => {
             const profile = appData.profiles[profileName];
             Object.keys(profile).forEach(chapterKey => {
                 if(profile[chapterKey] === true) {
-                    // Convert true to current timestamp (one-time migration)
-                    profile[chapterKey] = Date.now();
+                    profile[chapterKey] = 1;
                 }
             });
         });
@@ -2926,12 +2927,12 @@
                         }
 
                         // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+                        // Use epoch 1 to indicate "read at unknown historical time"
                         Object.keys(appData.profiles).forEach(profileName => {
                             const profile = appData.profiles[profileName];
                             Object.keys(profile).forEach(chapterKey => {
                                 if(profile[chapterKey] === true) {
-                                    // Convert true to current timestamp (one-time migration)
-                                    profile[chapterKey] = Date.now();
+                                    profile[chapterKey] = 1;
                                 }
                             });
                         });
@@ -8183,6 +8184,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             prog[id] = timestamp;
             setProgress(prog);
 
+            // Reset comeback card flag so dashboard re-evaluates fresh
+            if (typeof comebackCardActive !== 'undefined') comebackCardActive = false;
+
             // Show celebration animation when marking as read
             if (timestamp && event) {
                 window.createConfetti(event);
@@ -8226,6 +8230,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.markChaptersAsRead = (bookName, chapters, event, buttonEl = null) => {
             const prog = getProgress();
             const timestamp = Date.now();
+
+            // Reset comeback card flag so dashboard re-evaluates fresh
+            if (typeof comebackCardActive !== 'undefined') comebackCardActive = false;
 
             // Mark all chapters in the range
             chapters.forEach(chapterNum => {
@@ -9180,12 +9187,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
 
                             // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+                            // Use epoch 1 to indicate "read at unknown historical time"
                             Object.keys(appData.profiles).forEach(profileName => {
                                 const profile = appData.profiles[profileName];
                                 Object.keys(profile).forEach(chapterKey => {
                                     if(profile[chapterKey] === true) {
-                                        // Convert true to current timestamp (one-time migration)
-                                        profile[chapterKey] = Date.now();
+                                        profile[chapterKey] = 1;
                                     }
                                 });
                             });
@@ -11439,6 +11446,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return names[plan] || plan
         }
 
+        // Session flag: once comeback card is shown, keep it visible until user
+        // actually marks a chapter as read, preventing flicker from Firestore sync
+        // re-renders that may recalculate daysSinceLastRead differently.
+        let comebackCardActive = false
+
         window.renderDashboard = () => {
             const currentProg = getProgress()
 
@@ -11482,10 +11494,18 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const comebackCard = document.getElementById('dashboard-comeback')
             const continueCard = document.getElementById('dashboard-continue')
 
+            // Once the comeback card has been shown this session, keep it visible
+            // until the user takes action (reads a chapter). This prevents flicker
+            // caused by Firestore sync re-renders with different timestamp data.
             if (daysSinceLastRead >= 3 && lastReadKey) {
+                comebackCardActive = true
+            }
+
+            if (comebackCardActive) {
                 comebackCard.classList.remove('hidden')
                 continueCard.classList.add('hidden')
-                const lastBook = lastReadKey.replace('-', ' ')
+                const displayKey = lastReadKey || ''
+                const lastBook = displayKey.replace('-', ' ')
                 let msg = `You were on ${escapeHtml(lastBook)}.`
                 if (daysSinceLastRead <= 7) msg += ' Pick up right where you left off.'
                 else msg += ' Every chapter counts. Ready to continue?'
@@ -11803,6 +11823,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         window.dashboardContinueReading = () => {
+            // Dismiss the comeback card when user engages with it
+            if (typeof comebackCardActive !== 'undefined') comebackCardActive = false
             if (dashboardNextChapter) {
                 window.openBibleReader(dashboardNextChapter.book, dashboardNextChapter.chapter)
             } else {
