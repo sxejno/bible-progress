@@ -843,34 +843,39 @@
                 <p id="dashboard-plan-footer" class="text-[10px] font-bold text-slate-400 mt-3 text-center uppercase tracking-wider"></p>
             </div>
 
-            <!-- Progress Snapshot -->
+            <!-- Today's Activity -->
             <div class="grid grid-cols-3 gap-3">
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-total-pct" class="text-2xl font-black text-indigo-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total</div>
+                    <div id="dash-today-words" class="text-2xl font-black text-indigo-600">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Words</div>
                 </div>
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-ot-pct" class="text-2xl font-black text-amber-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">OT</div>
+                    <div id="dash-today-chapters" class="text-2xl font-black text-amber-600">0</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Today's Ch.</div>
                 </div>
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dashboard-nt-pct" class="text-2xl font-black text-emerald-600">0%</div>
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NT</div>
+                    <div class="flex items-center justify-center gap-1">
+                        <span id="dash-today-streak-emoji" class="text-lg">🔥</span>
+                        <span id="dash-today-streak" class="text-2xl font-black text-emerald-600">0</span>
+                    </div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Day Streak</div>
                 </div>
             </div>
 
-            <!-- Streak + Velocity -->
+            <!-- Progress + Velocity -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-5">
                         <div class="text-center">
-                            <span id="dashboard-streak-emoji" class="text-2xl">🔥</span>
-                            <div id="dashboard-streak" class="text-xl font-black text-slate-900">0</div>
-                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Day Streak</div>
+                            <div id="dashboard-total-progress" class="text-xl font-black text-indigo-600">0%</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Complete</div>
                         </div>
                         <div class="w-px h-12 bg-slate-200"></div>
                         <div class="text-center">
-                            <div id="dashboard-velocity" class="text-xl font-black text-slate-900">0</div>
+                            <div class="flex items-center justify-center gap-1">
+                                <span id="dashboard-velocity" class="text-xl font-black text-slate-900">0</span>
+                                <span id="dashboard-velocity-trend"></span>
+                            </div>
                             <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Words/Day (7d)</div>
                         </div>
                     </div>
@@ -878,8 +883,8 @@
                 </div>
             </div>
 
-            <!-- Weekly Recap (shown conditionally) -->
-            <div id="dashboard-weekly-recap" class="hidden bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-200 shadow-sm">
+            <!-- Weekly Recap -->
+            <div id="dashboard-weekly-recap" class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-5 border border-purple-200 shadow-sm">
                 <h4 class="text-xs font-black text-purple-900 mb-3 uppercase tracking-widest">This Week</h4>
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div>
@@ -893,6 +898,17 @@
                     <div>
                         <div id="recap-vs-last" class="text-xl font-black text-slate-500">--</div>
                         <div class="text-[9px] font-bold text-slate-400 uppercase">vs Last Wk</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestone Alert (shown when close to a milestone) -->
+            <div id="dashboard-milestone" class="hidden bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-4 border border-amber-200 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <span id="dash-milestone-emoji" class="text-2xl">&#127942;</span>
+                    <div>
+                        <p id="dash-milestone-text" class="text-sm font-black text-amber-900"></p>
+                        <p id="dash-milestone-sub" class="text-xs text-amber-700 mt-0.5"></p>
                     </div>
                 </div>
             </div>
@@ -943,16 +959,16 @@
                     <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Chapters Read</div>
                 </div>
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dash-chapters-left" class="text-xl font-black text-slate-800">1,189</div>
-                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Chapters Left</div>
+                    <div id="dash-reading-days" class="text-xl font-black text-slate-800">0</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Reading Days</div>
                 </div>
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
                     <div id="dash-longest-streak" class="text-xl font-black text-slate-800">0</div>
                     <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Best Streak</div>
                 </div>
                 <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-center">
-                    <div id="dash-total-words-read" class="text-xl font-black text-slate-800">0</div>
-                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Words</div>
+                    <div id="dash-avg-words" class="text-xl font-black text-slate-800">0</div>
+                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Avg Words/Day</div>
                 </div>
             </div>
         </div>
@@ -11497,7 +11513,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Once the comeback card has been shown this session, keep it visible
             // until the user takes action (reads a chapter). This prevents flicker
             // caused by Firestore sync re-renders with different timestamp data.
-            if (daysSinceLastRead >= 3 && lastReadKey) {
+            if (daysSinceLastRead >= 1 && lastReadKey) {
                 comebackCardActive = true
             }
 
@@ -11507,7 +11523,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const displayKey = lastReadKey || ''
                 const lastBook = displayKey.replace('-', ' ')
                 let msg = `You were on ${escapeHtml(lastBook)}.`
-                if (daysSinceLastRead <= 7) msg += ' Pick up right where you left off.'
+                if (daysSinceLastRead <= 2) msg += ' Pick up right where you left off.'
+                else if (daysSinceLastRead <= 7) msg += " It's been a few days. Jump back in!"
                 else msg += ' Every chapter counts. Ready to continue?'
                 document.getElementById('dashboard-comeback-text').textContent = msg
             } else {
@@ -11590,7 +11607,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 planFooter.textContent = ''
             }
 
-            // 6. Progress snapshot
+            // 6. Compute shared data (needed by multiple sections below)
             let totalRead = 0, otRead = 0, ntRead = 0
             bible.forEach(book => {
                 book.ch.forEach((w, idx) => {
@@ -11602,22 +11619,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 })
             })
             const getPerc = (read, total) => total > 0 ? (read / total * 100).toFixed(1) : '0.0'
-            document.getElementById('dashboard-total-pct').textContent = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%'
-            document.getElementById('dashboard-ot-pct').textContent = getPerc(otRead, WORD_TOTALS.OT) + '%'
-            document.getElementById('dashboard-nt-pct').textContent = getPerc(ntRead, WORD_TOTALS.NT) + '%'
 
-            // 7. Streak + Velocity
             const streaks = calculateStreaks()
-            document.getElementById('dashboard-streak').textContent = streaks.current
-            const streakEmoji = document.getElementById('dashboard-streak-emoji')
-            if (streaks.current >= 365) streakEmoji.textContent = '👑'
-            else if (streaks.current >= 100) streakEmoji.textContent = '💎'
-            else if (streaks.current >= 30) streakEmoji.textContent = '🔥'
-            else if (streaks.current >= 7) streakEmoji.textContent = '⚡'
-            else streakEmoji.textContent = '🔥'
-
             const activityMap = getReadingActivity()
             const today = new Date()
+            const todayStr2 = getLocalDateString(today.getTime())
             let last7days = []
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(today)
@@ -11626,7 +11632,58 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 last7days.push(activityMap[dateStr] || 0)
             }
             const avg7d = Math.round(last7days.reduce((s, v) => s + v, 0) / 7)
+
+            // Previous 7 days (days 7-13 ago) for trend comparison
+            let prev7days = []
+            for (let i = 13; i >= 7; i--) {
+                const d = new Date(today)
+                d.setDate(d.getDate() - i)
+                const dateStr = getLocalDateString(d.getTime())
+                prev7days.push(activityMap[dateStr] || 0)
+            }
+            const avgPrev7d = Math.round(prev7days.reduce((s, v) => s + v, 0) / 7)
+
+            // 7. Today's Activity card
+            const todayWords = activityMap[todayStr2] || 0
+            let todayChapters = 0
+            Object.entries(currentProg).forEach(([key, ts]) => {
+                if (typeof ts === 'number' && ts > 1 && getLocalDateString(ts) === todayStr2) todayChapters++
+            })
+
+            document.getElementById('dash-today-words').textContent = todayWords > 999 ? (todayWords / 1000).toFixed(1) + 'k' : todayWords.toLocaleString()
+            document.getElementById('dash-today-chapters').textContent = todayChapters
+
+            const streakEl = document.getElementById('dash-today-streak')
+            const streakEmojiEl = document.getElementById('dash-today-streak-emoji')
+            if (streakEl) streakEl.textContent = streaks.current
+            if (streakEmojiEl) {
+                if (streaks.current >= 365) streakEmojiEl.textContent = '👑'
+                else if (streaks.current >= 100) streakEmojiEl.textContent = '💎'
+                else if (streaks.current >= 30) streakEmojiEl.textContent = '🔥'
+                else if (streaks.current >= 7) streakEmojiEl.textContent = '⚡'
+                else streakEmojiEl.textContent = '🔥'
+            }
+
+            // 8. Progress + Velocity widget
+            document.getElementById('dashboard-total-progress').textContent = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%'
             document.getElementById('dashboard-velocity').textContent = avg7d.toLocaleString()
+
+            // Velocity trend indicator
+            const trendEl = document.getElementById('dashboard-velocity-trend')
+            if (trendEl) {
+                if (avgPrev7d > 0 && avg7d > avgPrev7d * 1.1) {
+                    trendEl.innerHTML = '<span class="text-emerald-500 text-xs font-black">&#9650;</span>'
+                    trendEl.title = `Up from ${avgPrev7d.toLocaleString()} last week`
+                } else if (avgPrev7d > 0 && avg7d < avgPrev7d * 0.9) {
+                    trendEl.innerHTML = '<span class="text-amber-500 text-xs font-black">&#9660;</span>'
+                    trendEl.title = `Down from ${avgPrev7d.toLocaleString()} last week`
+                } else if (avgPrev7d > 0) {
+                    trendEl.innerHTML = '<span class="text-slate-400 text-xs font-black">&mdash;</span>'
+                    trendEl.title = 'Steady pace'
+                } else {
+                    trendEl.innerHTML = ''
+                }
+            }
 
             // Sparkline SVG
             const sparklineEl = document.getElementById('dashboard-sparkline')
@@ -11635,16 +11692,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const points = last7days.map((v, i) => `${(i / 6) * svgW},${svgH - (v / maxVal) * (svgH - 4) - 2}`).join(' ')
             sparklineEl.innerHTML = `<svg width="${svgW}" height="${svgH}" class="text-indigo-400"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="${points}"/></svg>`
 
-            // 8. Weekly recap (show on Sundays or if it's been a week since last shown)
-            const todayDay = today.getDay()
-            const lastRecapShown = localStorage.getItem('kjv_last_recap_shown')
-            const showRecap = todayDay === 0 || !lastRecapShown || (Date.now() - parseInt(lastRecapShown, 10)) > 7 * 86400000
-
-            if (showRecap && Object.keys(activityMap).length > 0) {
+            // 9. Weekly recap (always visible)
+            {
                 const recapEl = document.getElementById('dashboard-weekly-recap')
-                recapEl.classList.remove('hidden')
-
-                // This week: last 7 days
                 let thisWeekWords = 0, thisWeekChapters = 0
                 let lastWeekWords = 0
                 for (let i = 0; i < 7; i++) {
@@ -11660,11 +11710,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     lastWeekWords += activityMap[dateStr] || 0
                 }
 
-                // Count chapters this week
+                // Count chapters this week (exclude migrated boolean timestamps)
                 Object.entries(currentProg).forEach(([key, ts]) => {
-                    if (typeof ts === 'number') {
-                        const readDate = new Date(ts)
-                        const daysDiff = Math.floor((today - readDate) / 86400000)
+                    if (typeof ts === 'number' && ts > 1) {
+                        const daysDiff = Math.floor((today - new Date(ts)) / 86400000)
                         if (daysDiff < 7) thisWeekChapters++
                     }
                 })
@@ -11690,10 +11739,88 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     vsLastEl.className = 'text-xl font-black text-slate-500'
                 }
 
-                localStorage.setItem('kjv_last_recap_shown', Date.now().toString())
+                if (thisWeekWords === 0 && thisWeekChapters === 0) {
+                    recapEl.classList.add('hidden')
+                } else {
+                    recapEl.classList.remove('hidden')
+                }
             }
 
-            // 9. Testament progress bars
+            // 9a. Milestone alert
+            {
+                const milestoneEl = document.getElementById('dashboard-milestone')
+                const milestoneText = document.getElementById('dash-milestone-text')
+                const milestoneSub = document.getElementById('dash-milestone-sub')
+                const milestoneEmoji = document.getElementById('dash-milestone-emoji')
+                let milestoneFound = false
+
+                if (milestoneEl && totalRead > 0) {
+                    const totalPct = totalRead / WORD_TOTALS.GLOBAL * 100
+
+                    // Check percentage milestones (25%, 50%, 75%, 100%)
+                    const pctMilestones = [25, 50, 75, 100]
+                    for (const m of pctMilestones) {
+                        const diff = m - totalPct
+                        if (diff > 0 && diff <= 5) {
+                            milestoneText.textContent = `${diff.toFixed(1)}% to reach ${m}% of the Bible!`
+                            milestoneSub.textContent = `${Math.round(WORD_TOTALS.GLOBAL * diff / 100).toLocaleString()} words to go`
+                            milestoneEmoji.innerHTML = m === 100 ? '&#127775;' : '&#127942;'
+                            milestoneFound = true
+                            break
+                        }
+                    }
+
+                    // Check testament completion
+                    if (!milestoneFound) {
+                        const ntPctCheck = WORD_TOTALS.NT > 0 ? (ntRead / WORD_TOTALS.NT * 100) : 0
+                        const otPctCheck = WORD_TOTALS.OT > 0 ? (otRead / WORD_TOTALS.OT * 100) : 0
+                        if (ntPctCheck >= 80 && ntPctCheck < 100) {
+                            let ntChLeft = 0
+                            bible.filter(b => b.testament === 'NT').forEach(b => {
+                                b.ch.forEach((w, idx) => { if (!currentProg[`${b.name}-${idx+1}`]) ntChLeft++ })
+                            })
+                            milestoneText.textContent = `${ntChLeft} chapter${ntChLeft !== 1 ? 's' : ''} left in the New Testament!`
+                            milestoneSub.textContent = `${Math.round(WORD_TOTALS.NT - ntRead).toLocaleString()} words remaining`
+                            milestoneEmoji.innerHTML = '&#128214;'
+                            milestoneFound = true
+                        } else if (otPctCheck >= 80 && otPctCheck < 100) {
+                            let otChLeft = 0
+                            bible.filter(b => b.testament === 'OT').forEach(b => {
+                                b.ch.forEach((w, idx) => { if (!currentProg[`${b.name}-${idx+1}`]) otChLeft++ })
+                            })
+                            milestoneText.textContent = `${otChLeft} chapter${otChLeft !== 1 ? 's' : ''} left in the Old Testament!`
+                            milestoneSub.textContent = `${Math.round(WORD_TOTALS.OT - otRead).toLocaleString()} words remaining`
+                            milestoneEmoji.innerHTML = '&#128214;'
+                            milestoneFound = true
+                        }
+                    }
+
+                    // Check nearest book completion
+                    if (!milestoneFound) {
+                        let bestBook = null, bestLeft = Infinity
+                        bible.forEach(book => {
+                            let readCh = 0
+                            book.ch.forEach((w, idx) => { if (currentProg[`${book.name}-${idx+1}`]) readCh++ })
+                            const left = book.ch.length - readCh
+                            if (left > 0 && left <= 5 && left < bestLeft) {
+                                bestLeft = left
+                                bestBook = book.name
+                            }
+                        })
+                        if (bestBook) {
+                            milestoneText.textContent = `${bestLeft} chapter${bestLeft !== 1 ? 's' : ''} from finishing ${bestBook}!`
+                            milestoneSub.textContent = 'Keep going!'
+                            milestoneEmoji.innerHTML = '&#128218;'
+                            milestoneFound = true
+                        }
+                    }
+
+                    if (milestoneFound) milestoneEl.classList.remove('hidden')
+                    else milestoneEl.classList.add('hidden')
+                }
+            }
+
+            // 9b. Testament progress bars
             const otPct = WORD_TOTALS.OT > 0 ? (otRead / WORD_TOTALS.OT * 100) : 0
             const ntPct = WORD_TOTALS.NT > 0 ? (ntRead / WORD_TOTALS.NT * 100) : 0
             const otBar = document.getElementById('dash-ot-bar')
@@ -11813,13 +11940,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 })
             })
             const dashChapRead = document.getElementById('dash-chapters-read')
-            const dashChapLeft = document.getElementById('dash-chapters-left')
+            const dashReadingDays = document.getElementById('dash-reading-days')
             const dashLongest = document.getElementById('dash-longest-streak')
-            const dashTotalWords = document.getElementById('dash-total-words-read')
+            const dashAvgWords = document.getElementById('dash-avg-words')
             if (dashChapRead) dashChapRead.textContent = chaptersRead.toLocaleString()
-            if (dashChapLeft) dashChapLeft.textContent = (totalChapters - chaptersRead).toLocaleString()
+            const totalReadingDays = Object.keys(activityMap).length
+            if (dashReadingDays) dashReadingDays.textContent = totalReadingDays.toLocaleString()
             if (dashLongest) dashLongest.textContent = streaks.longest || 0
-            if (dashTotalWords) dashTotalWords.textContent = totalRead > 999999 ? (totalRead / 1000000).toFixed(1) + 'M' : totalRead > 999 ? (totalRead / 1000).toFixed(1) + 'k' : totalRead
+            const avgWordsPerDay = totalReadingDays > 0 ? Math.round(totalRead / totalReadingDays) : 0
+            if (dashAvgWords) dashAvgWords.textContent = avgWordsPerDay > 999 ? (avgWordsPerDay / 1000).toFixed(1) + 'k' : avgWordsPerDay.toLocaleString()
         }
 
         window.dashboardContinueReading = () => {
