@@ -2898,6 +2898,7 @@
                         // to Firestore, causing the daily plan to lose its pinned chapters
                         // and re-compute fresh (making completed chapters disappear).
                         const localDailyProgress = appData.dailyPlanProgress
+                        const localProfiles = appData.profiles
                         appData = cloudData;
                         // Merge back any local daily plan entries that are current (today's date)
                         // but absent or stale in the cloud snapshot
@@ -2912,6 +2913,24 @@
                                         appData.dailyPlanProgress[pid] = local
                                     }
                                 }
+                            })
+                        }
+                        // Merge local chapter read timestamps into cloud profiles, keeping the
+                        // most recent timestamp per chapter. This prevents a stale cloud snapshot
+                        // (e.g. when Firestore debounce hadn't flushed yet before app close) from
+                        // overwriting locally-saved read progress.
+                        if (localProfiles && appData.profiles) {
+                            Object.keys(localProfiles).forEach(profileId => {
+                                if (!appData.profiles[profileId]) return
+                                const localProg = localProfiles[profileId]
+                                const cloudProg = appData.profiles[profileId]
+                                Object.keys(localProg).forEach(chKey => {
+                                    const localTs = localProg[chKey]
+                                    const cloudTs = cloudProg[chKey]
+                                    if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs)) {
+                                        cloudProg[chKey] = localTs
+                                    }
+                                })
                             })
                         }
 
@@ -12541,6 +12560,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         checkFirstVisit();
         loadVerseOfDay();
         updateReadingTimeToggleUI();
+
+        // Flush any pending debounced saves immediately when the user leaves the page,
+        // preventing read progress from being lost if the app closes before the debounce fires.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                window.saveProgress(true)
+            }
+        });
 
         // --- DARK MODE UI HELPER ---
         // Updates the settings page toggle button to reflect current dark mode state
