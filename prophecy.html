@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eschaton Watch — End-Times Prophecy Tracker</title>
+<meta name="description" content="Track end-times prophecies across Christianity, Judaism, and Islam with fulfillment percentages, cross-tradition links, and news analysis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☩</text></svg>">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #030712; }
+  * { scrollbar-width: thin; scrollbar-color: #374151 transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+
+const PROPHECIES = [
+  {
+    id: "c1", tradition: "Christian", title: "Drying of the Euphrates River", category: "Natural Signs",
+    source: "Revelation 16:12",
+    sourceText: "And the sixth angel poured out his vial upon the great river Euphrates; and the water thereof was dried up, that the way of the kings of the east might be prepared.",
+    description: "The great river Euphrates will dry up, preparing the way for the kings of the east to march westward toward Armageddon.",
+    modernFulfillment: "The Euphrates has lost approximately 40\u201370% of its flow since the 1970s. Turkey\u2019s GAP dam project (22 dams) has drastically reduced downstream flow. Iraq\u2019s marshlands have largely disappeared. NASA GRACE satellite data confirms accelerating depletion of the Tigris-Euphrates basin groundwater \u2014 losing water faster than almost any other place on Earth. Sections in Syria have been reported completely dry.",
+    fulfillmentLevel: 65, linkedProphecies: ["i14"],
+    tags: ["euphrates", "river", "drought", "middle east", "turkey", "iraq"],
+    keyEvents: [
+      { date: "1990s", event: "Turkey\u2019s Atat\u00fcrk Dam begins filling, drastically reducing Euphrates flow" },
+      { date: "2009", event: "NASA GRACE study: Tigris-Euphrates basin lost 144 cubic km of freshwater in 7 years" },
+      { date: "2021", event: "Iraq declares water emergency as Euphrates drops to historic lows" },
+      { date: "2023", event: "Sections of Euphrates in Syria reported completely dry for first time" },
+    ],
+  },
+  {
+    id: "c2", tradition: "Christian", title: "Rebuilding of the Third Temple", category: "Temple & Jerusalem",
+    source: "2 Thessalonians 2:3-4; Revelation 11:1-2",
+    sourceText: "...the man of sin be revealed, the son of perdition; Who opposeth and exalteth himself above all that is called God... so that he as God sitteth in the temple of God...",
+    description: "A Third Temple will be built in Jerusalem where the Antichrist will seat himself and declare himself God. This presupposes the restoration of the Temple and its sacrificial system.",
+    modernFulfillment: "The Temple Institute in Jerusalem has recreated over 60 sacred vessels and priestly garments. Architectural plans are complete. The Sanhedrin was reconvened in 2004. Five red heifers were brought from Texas to Israel in September 2022 for potential use in the purification ceremony (Numbers 19). Political movements increasingly call for Jewish access to the Temple Mount.",
+    fulfillmentLevel: 35, linkedProphecies: ["j1", "i10"],
+    tags: ["temple", "jerusalem", "red heifer", "antichrist", "sacrifice"],
+    keyEvents: [
+      { date: "1967", event: "Israel captures the Temple Mount in the Six-Day War" },
+      { date: "2004", event: "Sanhedrin reconvened for the first time in ~1,600 years" },
+      { date: "2018", event: "Temple Institute completes altar of burnt offering" },
+      { date: "2022", event: "Five red heifers brought from Texas ranch to Israel" },
+    ],
+  },
+  {
+    id: "c3", tradition: "Christian", title: "Gospel Preached to All Nations", category: "Global Signs",
+    source: "Matthew 24:14",
+    sourceText: "And this gospel of the kingdom shall be preached in all the world for a witness unto all nations; and then shall the end come.",
+    description: "The gospel must be proclaimed as a testimony to every nation (ethnos) before the end comes.",
+    modernFulfillment: "Scripture translated into over 3,500 languages covering ~97% of the world\u2019s population. Internet and satellite technology reach previously unreached peoples. However, an estimated 7,000+ people groups are still considered \u2018unreached\u2019 by mission agencies. Radio, television, and digital media have expanded gospel access to virtually every country.",
+    fulfillmentLevel: 75, linkedProphecies: [],
+    tags: ["gospel", "nations", "missions", "translation"],
+    keyEvents: [
+      { date: "1942", event: "Wycliffe Bible Translators founded" },
+      { date: "2020", event: "Full Bible available in 700+ languages; NT in 1,500+" },
+      { date: "2023", event: "Digital Bible access reaches 97% of world\u2019s population" },
+    ],
+  },
+  {
+    id: "c4", tradition: "Christian", title: "Israel Restored as a Nation", category: "Israel & Nations",
+    source: "Ezekiel 37:21-22; Isaiah 66:8",
+    sourceText: "I will take the children of Israel from among the heathen... and will gather them on every side, and bring them into their own land... Shall a nation be born at once?",
+    description: "After a long exile, the nation of Israel would be reconstituted in a single day, gathering Jews from among the nations back to their ancestral land.",
+    modernFulfillment: "On May 14, 1948, the State of Israel was proclaimed \u2014 the first Jewish nation-state in ~1,900 years. Jews returned from over 100 countries. The Hebrew language was revived from liturgical to everyday use. Israel\u2019s population has grown from 806,000 to over 9.8 million.",
+    fulfillmentLevel: 95, linkedProphecies: ["j4"],
+    tags: ["israel", "nation", "1948", "restoration"],
+    keyEvents: [
+      { date: "1897", event: "First Zionist Congress convened by Theodor Herzl" },
+      { date: "1917", event: "Balfour Declaration supports Jewish homeland" },
+      { date: "1948", event: "State of Israel declared" },
+      { date: "1950", event: "Law of Return enacted" },
+    ],
+  },
+  {
+    id: "c5", tradition: "Christian", title: "Wars, Famines, Pestilences, Earthquakes", category: "Natural Signs",
+    source: "Matthew 24:6-8; Luke 21:10-11",
+    sourceText: "And ye shall hear of wars and rumours of wars... nation shall rise against nation... there shall be famines, and pestilences, and earthquakes, in divers places.",
+    description: "An escalating pattern of wars, famines, disease, and seismic activity \u2014 \u2018birth pains\u2019 that intensify over time.",
+    modernFulfillment: "Two World Wars, nuclear proliferation, COVID-19 pandemic, rising food insecurity (345 million people in 2022), and increasing earthquake detection. The convergence and global scale is historically unprecedented.",
+    fulfillmentLevel: 55, linkedProphecies: ["i3", "j6"],
+    tags: ["war", "famine", "earthquake", "pestilence", "pandemic"],
+    keyEvents: [
+      { date: "1914-1945", event: "Two World Wars kill 100+ million people" },
+      { date: "2020", event: "COVID-19 pandemic kills 6+ million" },
+      { date: "2022", event: "UN declares worst global food crisis in modern history" },
+    ],
+  },
+  {
+    id: "c6", tradition: "Christian", title: "Rise of a Global Government / Beast System", category: "Political Signs",
+    source: "Revelation 13:7-8, 16-17",
+    sourceText: "And power was given him over all kindreds, and tongues, and nations... And he causeth all... to receive a mark in their right hand, or in their foreheads.",
+    description: "A global political-economic system requiring universal participation \u2014 often interpreted as involving a \u2018mark\u2019 necessary for buying and selling.",
+    modernFulfillment: "Digital payments, biometric ID, social credit systems, Central Bank Digital Currencies (CBDCs), and global surveillance infrastructure have created technological prerequisites. Over 100 countries exploring CBDCs. EU eIDAS digital identity regulation, India\u2019s Aadhaar (1.3B enrolled), and pandemic-accelerated cashless trends all point toward centralized frameworks.",
+    fulfillmentLevel: 40, linkedProphecies: ["i4"],
+    tags: ["mark of the beast", "global government", "CBDC", "surveillance", "digital ID"],
+    keyEvents: [
+      { date: "2009", event: "India launches Aadhaar biometric ID" },
+      { date: "2020", event: "COVID accelerates digital payment adoption globally" },
+      { date: "2022", event: "Nigeria launches eNaira CBDC; 100+ countries exploring CBDCs" },
+      { date: "2024", event: "EU eIDAS digital identity regulation takes effect" },
+    ],
+  },
+  {
+    id: "c7", tradition: "Christian", title: "Great Apostasy / Falling Away", category: "Spiritual Signs",
+    source: "2 Thessalonians 2:3; 1 Timothy 4:1",
+    sourceText: "That day shall not come, except there come a falling away first... in the latter times some shall depart from the faith, giving heed to seducing spirits.",
+    description: "Widespread departure from the Christian faith will precede Christ\u2019s return, with false teachings and people having a form of godliness but denying the power thereof.",
+    modernFulfillment: "Church membership dropped below 50% in the US for the first time in Gallup\u2019s history (2021). \u2018Religious nones\u2019 now ~30% of US population, up from 16% in 2007. Many denominations have liberalized core doctrines. Seminary enrollment declining across denominations.",
+    fulfillmentLevel: 60, linkedProphecies: [],
+    tags: ["apostasy", "falling away", "church decline", "secularism"],
+    keyEvents: [
+      { date: "2019", event: "Majority of US adults no longer belong to a church \u2014 first time in Gallup history" },
+      { date: "2021", event: "Church membership drops below 50%" },
+      { date: "2024", event: "\u2018Religious nones\u2019 approach 30% of US population" },
+    ],
+  },
+  {
+    id: "c8", tradition: "Christian", title: "Gog and Magog War", category: "Wars & Conflicts",
+    source: "Ezekiel 38-39",
+    sourceText: "Son of man, set thy face against Gog, the land of Magog... Persia, Ethiopia, and Libya with them... thou shalt come from thy place out of the north parts...",
+    description: "A coalition from the north (Russia/Turkey), with Persia (Iran), Ethiopia/Sudan, and Libya, will invade Israel but be supernaturally defeated.",
+    modernFulfillment: "The Russia-Iran-Turkey alliance has strengthened through the Astana process. Russia has military bases in Syria. Iran funds Hezbollah on Israel\u2019s northern border. This exact coalition \u2014 implausible 30 years ago \u2014 now exists as a functional geopolitical axis.",
+    fulfillmentLevel: 45, linkedProphecies: ["j3"],
+    tags: ["gog", "magog", "russia", "iran", "turkey", "israel", "ezekiel"],
+    keyEvents: [
+      { date: "2015", event: "Russia deploys to Syria; permanent bases established" },
+      { date: "2017", event: "Russia-Iran-Turkey Astana alliance formalized" },
+      { date: "2023", event: "Oct 7 attack; Iran-backed groups engage Israel on multiple fronts" },
+    ],
+  },
+  {
+    id: "c9", tradition: "Christian", title: "Knowledge and Travel Shall Increase", category: "Global Signs",
+    source: "Daniel 12:4",
+    sourceText: "...shut up the words, and seal the book, even to the time of the end: many shall run to and fro, and knowledge shall be increased.",
+    description: "An explosion of knowledge and dramatic increase in human travel in the time of the end.",
+    modernFulfillment: "Human knowledge estimated to double every 12 hours (IBM). Over 4 billion flew commercially in 2019. The internet makes virtually all knowledge instantly accessible. AI systems now generate new knowledge autonomously. The contrast with all prior history is staggering.",
+    fulfillmentLevel: 90, linkedProphecies: ["i13"],
+    tags: ["knowledge", "travel", "technology", "internet", "AI", "daniel"],
+    keyEvents: [
+      { date: "1903", event: "Wright brothers\u2019 first flight" },
+      { date: "1991", event: "World Wide Web goes public" },
+      { date: "2023", event: "AI achieves human-level performance on many knowledge tasks" },
+    ],
+  },
+  {
+    id: "c10", tradition: "Christian", title: "Deception and False Prophets", category: "Spiritual Signs",
+    source: "Matthew 24:4-5, 11, 24",
+    sourceText: "Take heed that no man deceive you. For many shall come in my name... there shall arise false Christs, and false prophets, and shall shew great signs and wonders.",
+    description: "Many false messiahs and prophets will arise, performing impressive signs, deceiving even believers if possible.",
+    modernFulfillment: "Numerous individuals have claimed to be Christ (Sun Myung Moon, Jos\u00e9 Luis de Jes\u00fas Miranda, Vissarion). Deepfake technology and AI could enable unprecedented deceptive \u2018signs.\u2019 Social media amplifies false teachers to global audiences instantly.",
+    fulfillmentLevel: 50, linkedProphecies: ["i5", "j2"],
+    tags: ["deception", "false prophet", "false christ", "deepfake"],
+    keyEvents: [
+      { date: "1954", event: "Sun Myung Moon founds Unification Church" },
+      { date: "2020s", event: "AI deepfake technology enables fabrication of convincing audio/video" },
+    ],
+  },
+  {
+    id: "j1", tradition: "Jewish", title: "Rebuilding of the Beit HaMikdash (Third Temple)", category: "Temple & Jerusalem",
+    source: "Ezekiel 40-48; Isaiah 2:2-3; Micah 4:1",
+    sourceText: "In the last days... the mountain of the house of the LORD shall be established in the top of the mountains... and many nations shall come.",
+    description: "The Third Temple will be rebuilt in Jerusalem as the center of world worship, either by the Messiah himself or in preparation for his coming.",
+    modernFulfillment: "Temple Institute has prepared 60+ sacred vessels. Red heifer candidates raised. Reconvened Sanhedrin has performed practice sacrifices. Increasing Israeli support for Temple construction. Geopolitical tensions over Temple Mount / Haram al-Sharif remain the primary obstacle.",
+    fulfillmentLevel: 30, linkedProphecies: ["c2", "i10"],
+    tags: ["temple", "jerusalem", "beit hamikdash", "sacrifice", "red heifer"],
+    keyEvents: [
+      { date: "1967", event: "Israel captures Temple Mount" },
+      { date: "1987", event: "Temple Institute founded" },
+      { date: "2022", event: "Red heifers brought from Texas to Israel" },
+    ],
+  },
+  {
+    id: "j2", tradition: "Jewish", title: "Coming of Mashiach (Messiah)", category: "Messianic",
+    source: "Isaiah 11:1-10; Jeremiah 23:5-6",
+    sourceText: "And there shall come forth a rod out of the stem of Jesse, and a Branch shall grow out of his roots... he shall judge among the nations.",
+    description: "A descendant of David will arise as Mashiach \u2014 rebuild the Temple, gather all Jews to Israel, restore the Davidic monarchy, and bring universal peace.",
+    modernFulfillment: "Messianic expectation remains high in Orthodox Judaism. Chabad-Lubavitch generated intense fervor around Rabbi Schneerson (d. 1994). Ingathering of exiles well underway. No universally recognized candidate has emerged.",
+    fulfillmentLevel: 20, linkedProphecies: ["c10", "i1"],
+    tags: ["messiah", "mashiach", "david", "king", "peace"],
+    keyEvents: [
+      { date: "1948", event: "Israel established \u2014 ingathering begins" },
+      { date: "1994", event: "Death of Lubavitcher Rebbe; some still declare him Mashiach" },
+    ],
+  },
+  {
+    id: "j3", tradition: "Jewish", title: "War of Gog u\u2019Magog", category: "Wars & Conflicts",
+    source: "Ezekiel 38-39; Zechariah 14:2-3",
+    sourceText: "For I will gather all nations against Jerusalem to battle... Then shall the LORD go forth, and fight against those nations.",
+    description: "A great war (Gog and Magog) will precede the Messianic era. A coalition of nations will attack Israel and be destroyed by divine intervention.",
+    modernFulfillment: "The October 7, 2023 attack and multi-front conflict involving Hamas, Hezbollah, Houthis, and Iran has led many rabbis to publicly discuss Gog u\u2019Magog parallels. The Russia-Iran-Turkey axis aligns with traditional Ezekiel 38 identifications.",
+    fulfillmentLevel: 35, linkedProphecies: ["c8", "i6"],
+    tags: ["gog", "magog", "war", "jerusalem", "divine intervention"],
+    keyEvents: [
+      { date: "2023", event: "Oct 7 attack; rabbis discuss Gog u\u2019Magog parallels" },
+      { date: "2024", event: "Iran launches direct missile attack on Israel \u2014 first time in history" },
+    ],
+  },
+  {
+    id: "j4", tradition: "Jewish", title: "Ingathering of the Exiles (Kibbutz Galuyot)", category: "Israel & Nations",
+    source: "Deuteronomy 30:3-5; Isaiah 43:5-6",
+    sourceText: "I will bring thy seed from the east, and gather thee from the west; I will say to the north, Give up; and to the south, Keep not back.",
+    description: "God will gather the Jewish people from every corner of the earth and return them to the Land of Israel.",
+    modernFulfillment: "Since 1948, Jews have returned from over 100 countries. Operation Magic Carpet (Yemen, 49,000), Operations Moses and Solomon (Ethiopia), ~1 million from Russia in the 1990s, ongoing French aliyah. Over 3.3 million have made aliyah since 1948.",
+    fulfillmentLevel: 80, linkedProphecies: ["c4"],
+    tags: ["aliyah", "ingathering", "exiles", "return", "israel"],
+    keyEvents: [
+      { date: "1949", event: "Operation Magic Carpet \u2014 49,000 Yemenite Jews" },
+      { date: "1984-91", event: "Operations Moses and Solomon \u2014 Ethiopian Jews" },
+      { date: "1990s", event: "~1 million Russian Jews immigrate" },
+    ],
+  },
+  {
+    id: "j5", tradition: "Jewish", title: "Revival of the Hebrew Language", category: "Israel & Nations",
+    source: "Zephaniah 3:9",
+    sourceText: "For then will I turn to the people a pure language, that they may all call upon the name of the LORD.",
+    description: "Restoration of Hebrew \u2014 the \u2018holy tongue\u2019 \u2014 as a living spoken language. Historically unprecedented.",
+    modernFulfillment: "Eliezer Ben-Yehuda\u2019s revival of Hebrew is unique in linguistic history. No other language has been revived from purely liturgical use to a full modern vernacular. Today 9+ million people speak Hebrew natively or fluently.",
+    fulfillmentLevel: 95, linkedProphecies: [],
+    tags: ["hebrew", "language", "revival", "ben yehuda"],
+    keyEvents: [
+      { date: "1881", event: "Ben-Yehuda arrives in Palestine; begins Hebrew revival" },
+      { date: "1922", event: "Hebrew becomes official language under British Mandate" },
+      { date: "1948", event: "Hebrew established as official language of Israel" },
+    ],
+  },
+  {
+    id: "j6", tradition: "Jewish", title: "Chevlei Mashiach (Birth Pangs of the Messiah)", category: "Natural Signs",
+    source: "Talmud Sanhedrin 97a-98b; Sotah 49b",
+    sourceText: "In the generation when the son of David comes, the meeting-place will be used for prostitution... wisdom of scribes will become vapid... truth will be absent.",
+    description: "Intense tribulation before the Messiah \u2014 moral decay, disrespect for elders, political corruption, rampant heresy. Birth pangs increasing in frequency.",
+    modernFulfillment: "Striking parallels with modern trends: collapse of institutional trust, polarization, \u2018post-truth\u2019 era, generational conflict, moral relativism. Orthodox rabbis increasingly cite Sotah 49b as describing the present generation.",
+    fulfillmentLevel: 55, linkedProphecies: ["c5", "c7"],
+    tags: ["birth pangs", "moral decay", "talmud", "social collapse"],
+    keyEvents: [
+      { date: "2016-present", event: "Global collapse of institutional trust; \u2018post-truth\u2019 discourse" },
+      { date: "2020s", event: "Cultural shifts align with Talmudic descriptions" },
+    ],
+  },
+  {
+    id: "i1", tradition: "Islamic", title: "Coming of the Mahdi", category: "Messianic",
+    source: "Sunan Abu Dawud 4285; Sahih Muslim 2882",
+    sourceText: "The Mahdi will be among my Ummah. He will fill the earth with justice and equity as it was filled with oppression and tyranny.",
+    description: "A divinely guided leader (al-Mahdi) from Muhammad\u2019s lineage will emerge in the last days, unite the Muslim world, and establish justice for 7-9 years before the return of Isa (Jesus).",
+    modernFulfillment: "Multiple claimants throughout history (Muhammad Ahmad in Sudan 1881; Mecca seizure 1979). No widely accepted figure. Iranian state ideology heavily centered on Mahdi\u2019s return. Geopolitical instability keeps anticipation alive.",
+    fulfillmentLevel: 15, linkedProphecies: ["j2", "c10"],
+    tags: ["mahdi", "messiah", "imam", "justice"],
+    keyEvents: [
+      { date: "1881", event: "Muhammad Ahmad declares himself Mahdi in Sudan" },
+      { date: "1979", event: "Grand Mosque seizure \u2014 group claims Mahdi\u2019s arrival" },
+    ],
+  },
+  {
+    id: "i2", tradition: "Islamic", title: "Return of Isa (Jesus)", category: "Messianic",
+    source: "Sahih Muslim 155; Sahih Bukhari 3448",
+    sourceText: "By Him in Whose hand is my soul, the son of Maryam will shortly descend among you as a just ruler.",
+    description: "Isa will descend at the white minaret east of Damascus to defeat the Dajjal, break the cross, abolish jizya, and establish justice. He will pray behind the Mahdi.",
+    modernFulfillment: "The white minaret of the Umayyad Mosque still stands (damaged in Syrian civil war, restored). Cross-tradition convergence with Christian expectation of Christ\u2019s return is remarkable. Syria\u2019s devastation has heightened eschatological awareness.",
+    fulfillmentLevel: 10, linkedProphecies: ["c2"],
+    tags: ["jesus", "isa", "return", "damascus", "dajjal"],
+    keyEvents: [
+      { date: "2011-present", event: "Syrian civil war; Damascus in headlines; minaret damaged and restored" },
+    ],
+  },
+  {
+    id: "i3", tradition: "Islamic", title: "Widespread Bloodshed (Al-Harj)", category: "Natural Signs",
+    source: "Sahih Bukhari 7061; Sahih Muslim 157",
+    sourceText: "The Hour will not come until there is much al-Harj... What is al-Harj? Killing, killing.",
+    description: "Killing will become so widespread the killer won\u2019t know why he kills and the victim won\u2019t know why he was killed.",
+    modernFulfillment: "Mass shootings, terrorism, cartel violence, and urban crime have made senseless killing routine. Syrian civil war killed 500,000+. Global terrorism post-9/11 and civilian casualties in ongoing wars align closely.",
+    fulfillmentLevel: 60, linkedProphecies: ["c5"],
+    tags: ["killing", "bloodshed", "war", "terrorism"],
+    keyEvents: [
+      { date: "2001", event: "September 11 attacks; Global War on Terror" },
+      { date: "2011-present", event: "Syrian civil war kills 500,000+" },
+      { date: "2023", event: "Oct 7 attack and Gaza conflict" },
+    ],
+  },
+  {
+    id: "i4", tradition: "Islamic", title: "Appearance of the Dajjal (Antichrist)", category: "Spiritual Signs",
+    source: "Sahih Muslim 2937; Sahih Bukhari 7127",
+    sourceText: "There is no fitnah greater between the creation of Adam and the Hour than the Dajjal... a young man with curly hair and a blind eye.",
+    description: "Al-Masih ad-Dajjal will claim divinity, perform apparent miracles, control resources (water/fire), and travel the earth except Mecca and Medina.",
+    modernFulfillment: "Scholars draw parallels between Dajjal\u2019s \u2018one-eyed\u2019 deception and modern media/surveillance, materialistic worldviews, or AI systems mimicking divine knowledge. The hadith description of controlling resources maps onto modern economic and technological control.",
+    fulfillmentLevel: 15, linkedProphecies: ["c6"],
+    tags: ["dajjal", "antichrist", "deception", "fitnah"],
+    keyEvents: [
+      { date: "Ongoing", event: "Parallels drawn with emerging AI and surveillance technology" },
+    ],
+  },
+  {
+    id: "i5", tradition: "Islamic", title: "Prevalence of Deception and Dishonesty", category: "Spiritual Signs",
+    source: "Sahih Bukhari 7121; Ahmad 8459",
+    sourceText: "Before the Hour there will be years of deceit, in which a truthful person will be disbelieved and a liar believed, and the insignificant will speak.",
+    description: "Liars will be believed, truthful people called liars. Unqualified people will be given public platforms while qualified people are marginalized.",
+    modernFulfillment: "Social media has given platforms to conspiracy theorists and bad-faith actors while experts are drowned out. \u2018Post-truth\u2019 era, fake news, deepfakes, and erosion of institutional trust closely mirror this prophecy.",
+    fulfillmentLevel: 70, linkedProphecies: ["c10"],
+    tags: ["deception", "lies", "fake news", "post-truth", "ruwaibidah"],
+    keyEvents: [
+      { date: "2016", event: "\u2018Post-truth\u2019 named word of the year by Oxford" },
+      { date: "2020", event: "WHO declares \u2018infodemic\u2019 alongside pandemic" },
+      { date: "2023", event: "AI deepfakes become indistinguishable from reality" },
+    ],
+  },
+  {
+    id: "i6", tradition: "Islamic", title: "Great Battle (Al-Malhama Al-Kubra)", category: "Wars & Conflicts",
+    source: "Sahih Muslim 2897; Abu Dawud 4294",
+    sourceText: "The Hour will not come until the Romans land at al-A\u2019maq or Dabiq. An army from Madinah will go out to meet them.",
+    description: "A massive apocalyptic battle at Dabiq or al-A\u2019maq in Syria between Muslims and the \u2018Romans\u2019 (Western/NATO powers), preceding the conquest of Constantinople and the Dajjal.",
+    modernFulfillment: "ISIS named its propaganda magazine \u2018Dabiq\u2019 after this prophecy and captured the town in 2014. While ISIS\u2019s claim was rejected, the Syrian conflict made this once-obscure location a focal point. Western military presence in Syria continues.",
+    fulfillmentLevel: 25, linkedProphecies: ["c8", "j3"],
+    tags: ["dabiq", "syria", "battle", "rome", "malhama"],
+    keyEvents: [
+      { date: "2014", event: "ISIS captures Dabiq; names magazine after the prophecy" },
+      { date: "2016", event: "Turkish-backed rebels recapture Dabiq" },
+    ],
+  },
+  {
+    id: "i7", tradition: "Islamic", title: "Barefoot Shepherds Competing in Tall Buildings", category: "Minor Signs",
+    source: "Sahih Muslim 8a; Sahih Bukhari 50 (Hadith of Jibril)",
+    sourceText: "When you see barefoot, naked, destitute shepherds competing in constructing tall buildings.",
+    description: "Bedouin Arabs \u2014 historically among the poorest \u2014 will compete in building the tallest structures. One of the most specific and visually verifiable minor signs.",
+    modernFulfillment: "Considered one of the most strikingly fulfilled Islamic prophecies. Burj Khalifa (828m, world\u2019s tallest since 2010), Jeddah Tower (planned 1,000m+), and intense Gulf States skyscraper competition directly fulfill this. These nations were inhabited by nomadic Bedouins just 60-70 years ago.",
+    fulfillmentLevel: 95, linkedProphecies: [],
+    tags: ["buildings", "arabia", "dubai", "saudi", "burj khalifa", "bedouin"],
+    keyEvents: [
+      { date: "2010", event: "Burj Khalifa completed \u2014 world\u2019s tallest at 828m" },
+      { date: "2017", event: "Jeddah Tower begins construction \u2014 planned 1,000m+" },
+      { date: "2024", event: "NEOM \u2018The Line\u2019 \u2014 170km mirrored skyscraper city" },
+    ],
+  },
+  {
+    id: "i8", tradition: "Islamic", title: "Prevalence of Riba (Usury/Interest)", category: "Minor Signs",
+    source: "Sunan Ibn Majah 2278; Ahmad 15410",
+    sourceText: "There will come a time when no one is left who does not consume riba, and whoever does not consume it will still be affected by its dust.",
+    description: "Interest-based finance will become so pervasive that virtually no one can avoid it, even if they try.",
+    modernFulfillment: "The entire global financial system is built on interest. Mortgages, credit cards, student loans, national debts, savings accounts, and inflation make it nearly impossible to avoid all contact with interest. Even Islamic banking products are debated regarding true compliance.",
+    fulfillmentLevel: 95, linkedProphecies: [],
+    tags: ["usury", "interest", "riba", "banking", "finance"],
+    keyEvents: [
+      { date: "1971", event: "Nixon ends gold standard; fiat currency with built-in inflation becomes universal" },
+      { date: "2023", event: "Global debt exceeds $307 trillion" },
+    ],
+  },
+  {
+    id: "i9", tradition: "Islamic", title: "Widespread Intoxication and Fornication", category: "Minor Signs",
+    source: "Sahih Bukhari 80; Sahih Muslim 2671",
+    sourceText: "Among the signs of the Hour: knowledge taken away, ignorance prevails, drinking of wine common, and fornication prevalent.",
+    description: "Consumption of intoxicants will be normalized and sexual relations outside marriage will become widespread.",
+    modernFulfillment: "Global alcohol consumption rising. Marijuana legalization spreading. Normalization of casual relationships, dating apps, pornography ($100B+ industry) represents a dramatic shift across virtually all cultures.",
+    fulfillmentLevel: 85, linkedProphecies: ["c7"],
+    tags: ["intoxication", "alcohol", "drugs", "fornication"],
+    keyEvents: [
+      { date: "1960s", event: "Sexual revolution shifts Western moral norms" },
+      { date: "2012-present", event: "Wave of marijuana legalization across North America/Europe" },
+    ],
+  },
+  {
+    id: "i10", tradition: "Islamic", title: "Fire from the Hijaz", category: "Natural Signs",
+    source: "Sahih Bukhari 7118; Sahih Muslim 2902",
+    sourceText: "The Hour will not come until a fire comes out from the land of the Hijaz which will illuminate the necks of the camels in Busra.",
+    description: "A great fire will emerge from the Hijaz region (western Saudi Arabia) visible as far as Syria.",
+    modernFulfillment: "Classical scholars considered this fulfilled by the 1256 CE volcanic eruption near Medina. The Harrat Rahat volcanic field remains active with periodic seismic swarms. Some modern interpretations also reference oil/gas fires.",
+    fulfillmentLevel: 70, linkedProphecies: [],
+    tags: ["fire", "hijaz", "medina", "volcano"],
+    keyEvents: [
+      { date: "1256 CE", event: "Massive volcanic eruption near Medina \u2014 visible from great distance" },
+      { date: "Ongoing", event: "Harrat Rahat volcanic field remains active" },
+    ],
+  },
+  {
+    id: "i11", tradition: "Islamic", title: "Time Will Pass Quickly", category: "Minor Signs",
+    source: "Musnad Ahmad 10560",
+    sourceText: "A year will be like a month, a month like a week, a week like a day, a day like an hour, and an hour like the burning of a palm frond.",
+    description: "The subjective and possibly literal experience of time will accelerate dramatically before the Hour.",
+    modernFulfillment: "Nearly universally reported \u2014 the perception that time moves faster than ever. Technology, connectivity, information overload, and cultural acceleration have created unprecedented temporal compression.",
+    fulfillmentLevel: 70, linkedProphecies: ["c9"],
+    tags: ["time", "acceleration", "technology"],
+    keyEvents: [
+      { date: "2000s", event: "Acceleration of news cycles and information overload" },
+    ],
+  },
+  {
+    id: "i12", tradition: "Islamic", title: "Children Dominate Their Parents", category: "Minor Signs",
+    source: "Sahih Muslim 8a; Sahih Bukhari 50",
+    sourceText: "When the slave woman gives birth to her mistress.",
+    description: "Children will treat their parents as servants \u2014 commanding, disrespecting, and dominating them. Also interpreted as relating to surrogacy.",
+    modernFulfillment: "Widespread phenomenon of children dominating parents, elder abuse, cultural decline of parental authority. Also: rise of commercial surrogacy industry where a woman bears a child for another.",
+    fulfillmentLevel: 65, linkedProphecies: ["j6"],
+    tags: ["children", "parents", "disrespect", "surrogacy", "family"],
+    keyEvents: [
+      { date: "1980s-present", event: "Declining parental authority documented globally" },
+      { date: "2000s", event: "Rise of commercial surrogacy" },
+    ],
+  },
+  {
+    id: "i13", tradition: "Islamic", title: "Communication Across Great Distances", category: "Minor Signs",
+    source: "Musnad Ahmad 373; At-Tabarani",
+    sourceText: "The Hour will not come until a man\u2019s thigh informs him of what his family is doing.",
+    description: "People will communicate across great distances through small devices \u2014 often interpreted as describing mobile phones carried at the thigh.",
+    modernFulfillment: "Mobile phones carried in the pocket on the thigh allow instant communication anywhere on Earth. The \u2018whip\u2019 or \u2018rod\u2019 that speaks has been widely noted as strikingly similar to a phone. 6.8 billion smartphone users worldwide.",
+    fulfillmentLevel: 98, linkedProphecies: ["c9"],
+    tags: ["phone", "communication", "smartphone"],
+    keyEvents: [
+      { date: "1973", event: "First mobile phone call" },
+      { date: "2007", event: "iPhone launched; smartphone era begins" },
+      { date: "2023", event: "6.8 billion smartphone users \u2014 85% of global population" },
+    ],
+  },
+  {
+    id: "i14", tradition: "Islamic", title: "Euphrates Reveals a Mountain of Gold", category: "Natural Signs",
+    source: "Sahih Muslim 2894; Sahih Bukhari 7119",
+    sourceText: "The Euphrates uncovers a mountain of gold, over which people will fight. Ninety-nine out of every hundred will be killed.",
+    description: "The Euphrates will recede revealing a treasure (\u2018mountain of gold\u2019) causing catastrophic war. Believers warned not to take from it.",
+    modernFulfillment: "As the Euphrates dries (losing 40-70% flow), it has revealed archaeological sites and exposed vast oil reserves. \u2018Black gold\u2019 (oil) is the common modern interpretation \u2014 Iraqi oil wealth has already caused multiple wars (Gulf War, Iraq War). The prophecy warns of a war where 99% die \u2014 suggesting this is still future.",
+    fulfillmentLevel: 50, linkedProphecies: ["c1"],
+    tags: ["euphrates", "gold", "oil", "war", "river"],
+    keyEvents: [
+      { date: "1990", event: "Gulf War \u2014 Kuwaiti/Iraqi oil" },
+      { date: "2003", event: "Iraq War \u2014 oil resources central" },
+      { date: "2021-present", event: "Euphrates at historic lows; features emerging" },
+    ],
+  },
+];
+
+const TRADITION_COLORS = {
+  Christian: { bg: "bg-blue-900/40", border: "border-blue-500/60", text: "text-blue-300", badge: "bg-blue-600", glow: "shadow-blue-500/20" },
+  Jewish: { bg: "bg-amber-900/40", border: "border-amber-500/60", text: "text-amber-300", badge: "bg-amber-600", glow: "shadow-amber-500/20" },
+  Islamic: { bg: "bg-emerald-900/40", border: "border-emerald-500/60", text: "text-emerald-300", badge: "bg-emerald-600", glow: "shadow-emerald-500/20" },
+};
+
+const CATEGORIES = [...new Set(PROPHECIES.map(p => p.category))].sort();
+
+const RSS_FEEDS = [
+  { name: "Prophecy Fulfillment", url: "https://news.google.com/rss/search?q=biblical+prophecy+fulfillment&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Euphrates River", url: "https://news.google.com/rss/search?q=euphrates+river+drying&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Temple Mount / Red Heifer", url: "https://news.google.com/rss/search?q=temple+mount+jerusalem+OR+red+heifer&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Israel End Times", url: "https://news.google.com/rss/search?q=israel+prophecy+OR+end+times&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Gog & Magog / Armageddon", url: "https://news.google.com/rss/search?q=gog+magog+OR+armageddon+OR+mahdi&hl=en-US&gl=US&ceid=US:en" },
+  { name: "CBDC / Digital ID / Mark", url: "https://news.google.com/rss/search?q=CBDC+digital+currency+OR+mark+beast+OR+digital+ID&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Third Temple", url: "https://news.google.com/rss/search?q=third+temple+israel+OR+temple+institute&hl=en-US&gl=US&ceid=US:en" },
+];
+
+const FulfillmentBar = ({ level, size = "md" }) => {
+  const h = size === "sm" ? "h-1.5" : "h-2.5";
+  const color = level >= 80 ? "bg-red-500" : level >= 50 ? "bg-amber-500" : level >= 25 ? "bg-yellow-600" : "bg-gray-500";
+  return (
+    <div className={`w-full ${h} bg-gray-700/60 rounded-full overflow-hidden`}>
+      <div className={`${h} ${color} rounded-full transition-all duration-700`} style={{ width: `${level}%` }} />
+    </div>
+  );
+};
+
+const Badge = ({ className, children }) => (
+  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${className}`}>{children}</span>
+);
+
+const TBadge = ({ t }) => (
+  <Badge className={`${TRADITION_COLORS[t].badge} text-white`}>{t}</Badge>
+);
+
+const ProphecyDetail = ({ prophecy: p, onClose, onNav }) => {
+  const c = TRADITION_COLORS[p.tradition];
+  const linked = PROPHECIES.filter(x => p.linkedProphecies.includes(x.id));
+  return (
+    <div className="fixed inset-0 bg-black/85 z-50 flex items-start justify-center overflow-y-auto p-4 pt-6 pb-20" onClick={onClose}>
+      <div className={`max-w-3xl w-full bg-gray-900 border ${c.border} rounded-2xl p-5 sm:p-6 shadow-2xl ${c.glow} relative`} onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-4 text-gray-500 hover:text-white text-2xl">&times;</button>
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <TBadge t={p.tradition} />
+          <Badge className="bg-gray-700 text-gray-300">{p.category}</Badge>
+        </div>
+        <h2 className="text-xl sm:text-2xl font-bold text-white mt-2">{p.title}</h2>
+        <p className={`text-sm ${c.text} font-mono mb-3`}>{p.source}</p>
+        <div className="bg-black/40 border border-gray-700 rounded-lg p-4 mb-4 italic text-gray-300 text-sm leading-relaxed">
+          "{p.sourceText}"
+        </div>
+        <p className="text-gray-200 mb-4 leading-relaxed text-sm">{p.description}</p>
+        <div className="mb-4">
+          <div className="flex justify-between mb-1">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Apparent Fulfillment</span>
+            <span className={`text-sm font-black ${p.fulfillmentLevel >= 80 ? 'text-red-400' : p.fulfillmentLevel >= 50 ? 'text-amber-400' : 'text-gray-400'}`}>
+              {p.fulfillmentLevel}%
+            </span>
+          </div>
+          <FulfillmentBar level={p.fulfillmentLevel} />
+        </div>
+        <div className="bg-black/30 rounded-lg p-4 mb-4">
+          <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Modern Context & Possible Fulfillment</h3>
+          <p className="text-gray-300 text-sm leading-relaxed">{p.modernFulfillment}</p>
+        </div>
+        {p.keyEvents?.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Timeline</h3>
+            <div className="border-l-2 border-gray-700 ml-2 pl-4 space-y-2.5">
+              {p.keyEvents.map((ev, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[22px] top-1.5 w-2.5 h-2.5 rounded-full bg-gray-600 border-2 border-gray-900" />
+                  <span className="text-[10px] font-mono text-gray-500">{ev.date}</span>
+                  <span className="text-sm text-gray-300 block">{ev.event}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {linked.length > 0 && (
+          <div>
+            <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Cross-Tradition Links</h3>
+            <div className="space-y-2">
+              {linked.map(lp => {
+                const lc = TRADITION_COLORS[lp.tradition];
+                return (
+                  <button key={lp.id} onClick={() => onNav(lp)}
+                    className={`w-full text-left ${lc.bg} border ${lc.border} rounded-lg p-3 hover:brightness-125 transition`}>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <TBadge t={lp.tradition} />
+                      <span className="text-white text-sm font-semibold">{lp.title}</span>
+                      <span className="text-gray-500 text-xs ml-auto">{lp.fulfillmentLevel}%</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const NewsFeed = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [feed, setFeed] = useState(0);
+
+  const fetchNews = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setArticles([]);
+    try {
+      const res = await fetch(
+        `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FEEDS[feed].url)}&count=12`
+      );
+      const data = await res.json();
+      if (data.status === "ok" && data.items) setArticles(data.items.slice(0, 12));
+      else throw new Error(data.message || "No articles");
+    } catch (e) {
+      setError(e.message);
+    }
+    setLoading(false);
+  }, [feed]);
+
+  const analyze = async () => {
+    if (!articles.length) return;
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const headlines = articles.map(a => `- ${a.title}`).join("\n");
+      const pSummary = PROPHECIES.map(p => `[${p.id}] ${p.tradition}: ${p.title}`).join("\n");
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-5-20250929",
+          max_tokens: 1000,
+          messages: [{
+            role: "user",
+            content: `You are an eschatological analyst. Given these headlines:\n${headlines}\n\nAnd these prophecies:\n${pSummary}\n\nFind connections. Respond ONLY as JSON (no backticks): { "connections": [{ "headline": "...", "prophecyIds": ["..."], "prophecyTitles": ["..."], "explanation": "...", "relevance": "HIGH|MEDIUM|LOW" }], "summary": "2-sentence assessment" }`
+          }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.map(i => i.text || "").join("") || "";
+      setAnalysis(JSON.parse(text.replace(/```json|```/g, "").trim()));
+    } catch (e) {
+      setAnalysis({ error: e.message });
+    }
+    setAnalyzing(false);
+  };
+
+  return (
+    <div>
+      <p className="text-gray-400 text-sm mb-3">
+        Fetch news headlines from prophecy-relevant RSS feeds, then optionally use AI to analyze their connection to tracked prophecies.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+        <select value={feed} onChange={e => setFeed(+e.target.value)}
+          className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg p-2 flex-1">
+          {RSS_FEEDS.map((f, i) => <option key={i} value={i}>{f.name}</option>)}
+        </select>
+        <div className="flex gap-2">
+          <button onClick={fetchNews} disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-bold px-4 py-2 rounded-lg">
+            {loading ? "Loading..." : "Fetch"}
+          </button>
+          {articles.length > 0 && (
+            <button onClick={analyze} disabled={analyzing}
+              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-bold px-4 py-2 rounded-lg">
+              {analyzing ? "..." : "AI Analyze"}
+            </button>
+          )}
+        </div>
+      </div>
+      {error && (
+        <div className="bg-red-900/30 border border-red-500/50 text-red-300 rounded-lg p-3 text-sm mb-4">{error}</div>
+      )}
+      {articles.length > 0 && (
+        <div className="space-y-1.5 mb-4 max-h-80 overflow-y-auto">
+          {articles.map((a, i) => (
+            <a key={i} href={a.link} target="_blank" rel="noopener noreferrer"
+              className="block bg-gray-800/40 hover:bg-gray-700/40 border border-gray-700/50 rounded-lg p-3 transition">
+              <p className="text-white text-sm font-medium leading-snug">{a.title}</p>
+              <p className="text-gray-500 text-xs mt-1">{new Date(a.pubDate).toLocaleDateString()}</p>
+            </a>
+          ))}
+        </div>
+      )}
+      {analysis && !analysis.error && (
+        <div className="bg-purple-900/20 border border-purple-500/40 rounded-xl p-4 mt-4">
+          <h3 className="text-purple-300 font-bold text-xs uppercase tracking-widest mb-2">AI Prophecy Analysis</h3>
+          {analysis.summary && <p className="text-gray-300 text-sm mb-3 italic">{analysis.summary}</p>}
+          <div className="space-y-2">
+            {analysis.connections?.map((c, i) => (
+              <div key={i} className={`rounded-lg p-3 border ${
+                c.relevance === 'HIGH' ? 'bg-red-900/20 border-red-500/30' :
+                c.relevance === 'MEDIUM' ? 'bg-amber-900/20 border-amber-500/30' :
+                'bg-gray-800/40 border-gray-700/40'
+              }`}>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <Badge className={
+                    c.relevance === 'HIGH' ? 'bg-red-600 text-white' :
+                    c.relevance === 'MEDIUM' ? 'bg-amber-600 text-white' :
+                    'bg-gray-600 text-gray-200'
+                  }>{c.relevance}</Badge>
+                  <span className="text-gray-400 text-xs">{c.prophecyTitles?.join(" \u00b7 ")}</span>
+                </div>
+                <p className="text-white text-sm">{c.headline}</p>
+                <p className="text-gray-400 text-xs mt-1">{c.explanation}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {analysis?.error && (
+        <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-red-300 text-sm mt-4">
+          Analysis failed: {analysis.error}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CrossLinks = ({ onSelect }) => {
+  const groups = useMemo(() => {
+    const g = [];
+    const seen = new Set();
+    PROPHECIES.forEach(p => {
+      if (!p.linkedProphecies.length) return;
+      const key = [p.id, ...p.linkedProphecies].sort().join(",");
+      if (seen.has(key)) return;
+      seen.add(key);
+      const items = [p, ...p.linkedProphecies.map(lid => PROPHECIES.find(x => x.id === lid)).filter(Boolean)];
+      const traditions = [...new Set(items.map(i => i.tradition))];
+      if (traditions.length > 1) g.push({ key, items, traditions });
+    });
+    return g.sort((a, b) => b.traditions.length - a.traditions.length);
+  }, []);
+
+  return (
+    <div className="space-y-4">
+      <p className="text-gray-400 text-sm">
+        Prophecies spanning multiple traditions \u2014 remarkable convergence across Christianity, Judaism, and Islam.
+      </p>
+      {groups.map(g => (
+        <div key={g.key} className="bg-gray-800/40 border border-gray-700 rounded-xl p-4">
+          <div className="flex gap-1.5 mb-2">
+            {g.traditions.map(t => <TBadge key={t} t={t} />)}
+          </div>
+          <div className="space-y-1.5">
+            {g.items.map(item => {
+              const c = TRADITION_COLORS[item.tradition];
+              return (
+                <button key={item.id} onClick={() => onSelect(item)}
+                  className={`w-full text-left ${c.bg} border ${c.border} rounded-lg p-3 hover:brightness-125 transition`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="text-white text-sm font-semibold block truncate">{item.title}</span>
+                      <span className="text-gray-500 text-xs">{item.source}</span>
+                    </div>
+                    <span className={`text-sm font-bold shrink-0 ${
+                      item.fulfillmentLevel >= 80 ? 'text-red-400' :
+                      item.fulfillmentLevel >= 50 ? 'text-amber-400' : 'text-gray-500'
+                    }`}>{item.fulfillmentLevel}%</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Dashboard = ({ onSelect }) => {
+  const stats = useMemo(() => {
+    const byT = {};
+    PROPHECIES.forEach(p => {
+      if (!byT[p.tradition]) byT[p.tradition] = { count: 0, total: 0, high: 0 };
+      byT[p.tradition].count++;
+      byT[p.tradition].total += p.fulfillmentLevel;
+      if (p.fulfillmentLevel >= 70) byT[p.tradition].high++;
+    });
+    const avg = Math.round(PROPHECIES.reduce((s, p) => s + p.fulfillmentLevel, 0) / PROPHECIES.length);
+    const top = [...PROPHECIES].sort((a, b) => b.fulfillmentLevel - a.fulfillmentLevel).slice(0, 5);
+    const bottom = [...PROPHECIES].sort((a, b) => a.fulfillmentLevel - b.fulfillmentLevel).slice(0, 5);
+    return { byT, avg, top, bottom };
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center">
+        <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Composite Fulfillment Index</p>
+        <div className="text-5xl font-black text-white mb-2">
+          {stats.avg}<span className="text-2xl text-gray-600">%</span>
+        </div>
+        <FulfillmentBar level={stats.avg} />
+        <p className="text-gray-600 text-xs mt-2">{PROPHECIES.length} prophecies tracked across 3 traditions</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {Object.entries(stats.byT).map(([t, d]) => {
+          const c = TRADITION_COLORS[t];
+          const avg = Math.round(d.total / d.count);
+          return (
+            <div key={t} className={`${c.bg} border ${c.border} rounded-xl p-4`}>
+              <TBadge t={t} />
+              <div className="text-3xl font-black text-white mt-2">{avg}%</div>
+              <FulfillmentBar level={avg} size="sm" />
+              <p className="text-gray-400 text-xs mt-1.5">{d.count} prophecies \u00b7 {d.high} highly fulfilled</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {[
+          { label: "Most Fulfilled", list: stats.top, color: "text-red-400" },
+          { label: "Awaiting Fulfillment", list: stats.bottom, color: "text-gray-400" }
+        ].map(({ label, list, color }) => (
+          <div key={label}>
+            <h3 className={`${color} font-bold text-xs uppercase tracking-widest mb-2`}>{label}</h3>
+            <div className="space-y-1.5">
+              {list.map(p => (
+                <button key={p.id} onClick={() => onSelect(p)}
+                  className="w-full text-left bg-gray-800/40 hover:bg-gray-700/40 border border-gray-700/50 rounded-lg p-3 transition">
+                  <div className="flex items-center gap-2 mb-1">
+                    <TBadge t={p.tradition} />
+                    <span className="text-white text-sm flex-1 truncate">{p.title}</span>
+                    <span className={`font-bold text-sm ${
+                      p.fulfillmentLevel >= 80 ? 'text-red-400' :
+                      p.fulfillmentLevel >= 50 ? 'text-amber-400' : 'text-gray-500'
+                    }`}>{p.fulfillmentLevel}%</span>
+                  </div>
+                  <FulfillmentBar level={p.fulfillmentLevel} size="sm" />
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const [tab, setTab] = useState("dashboard");
+  const [sel, setSel] = useState(null);
+  const [search, setSearch] = useState("");
+  const [fTrad, setFTrad] = useState("All");
+  const [fCat, setFCat] = useState("All");
+  const [sort, setSort] = useState("fulfillment");
+
+  const filtered = useMemo(() => {
+    let l = PROPHECIES;
+    if (fTrad !== "All") l = l.filter(p => p.tradition === fTrad);
+    if (fCat !== "All") l = l.filter(p => p.category === fCat);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      l = l.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.tags.some(t => t.includes(q)) ||
+        p.source.toLowerCase().includes(q)
+      );
+    }
+    if (sort === "fulfillment") l = [...l].sort((a, b) => b.fulfillmentLevel - a.fulfillmentLevel);
+    else if (sort === "alpha") l = [...l].sort((a, b) => a.title.localeCompare(b.title));
+    else l = [...l].sort((a, b) => a.tradition.localeCompare(b.tradition));
+    return l;
+  }, [fTrad, fCat, search, sort]);
+
+  const tabs = [
+    { k: "dashboard", l: "Dashboard" },
+    { k: "prophecies", l: "Prophecies" },
+    { k: "crosslinks", l: "Cross-Tradition" },
+    { k: "news", l: "News Watch" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 border-b border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 py-5">
+          <div className="flex items-center gap-3 mb-0.5">
+            <div className="text-2xl">&#9769;</div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">Eschaton Watch</h1>
+          </div>
+          <p className="text-gray-500 text-xs sm:text-sm ml-9">
+            End-times prophecy tracker &mdash; Christianity &middot; Judaism &middot; Islam
+          </p>
+          <div className="flex gap-1 mt-4 bg-gray-800/50 rounded-lg p-1 overflow-x-auto">
+            {tabs.map(t => (
+              <button key={t.k} onClick={() => setTab(t.k)}
+                className={`px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition whitespace-nowrap ${
+                  tab === t.k
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                    : 'text-gray-400 hover:text-white'
+                }`}>
+                {t.l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-5">
+        {tab === "dashboard" && <Dashboard onSelect={setSel} />}
+
+        {tab === "prophecies" && (
+          <div>
+            <div className="flex flex-col sm:flex-row gap-2 mb-3">
+              <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)}
+                className="bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-3 py-2 flex-1 placeholder-gray-500 focus:border-indigo-500 focus:outline-none" />
+              <select value={fTrad} onChange={e => setFTrad(e.target.value)}
+                className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2">
+                <option value="All">All Traditions</option>
+                <option>Christian</option>
+                <option>Jewish</option>
+                <option>Islamic</option>
+              </select>
+              <select value={fCat} onChange={e => setFCat(e.target.value)}
+                className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2">
+                <option value="All">All Categories</option>
+                {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+              </select>
+              <select value={sort} onChange={e => setSort(e.target.value)}
+                className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-2">
+                <option value="fulfillment">By Fulfillment</option>
+                <option value="alpha">A&ndash;Z</option>
+                <option value="tradition">By Tradition</option>
+              </select>
+            </div>
+            <p className="text-gray-600 text-xs mb-3">{filtered.length} prophecies</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              {filtered.map(p => {
+                const c = TRADITION_COLORS[p.tradition];
+                return (
+                  <button key={p.id} onClick={() => setSel(p)}
+                    className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 hover:brightness-110 transition group`}>
+                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                      <TBadge t={p.tradition} />
+                      <Badge className="bg-gray-700/80 text-gray-300">{p.category}</Badge>
+                      {p.linkedProphecies.length > 0 && (
+                        <span className="text-gray-600 text-xs ml-auto">&#128279; {p.linkedProphecies.length}</span>
+                      )}
+                    </div>
+                    <h3 className="text-white font-bold text-sm mt-1 group-hover:underline">{p.title}</h3>
+                    <p className={`text-xs ${c.text} font-mono mt-0.5 mb-1.5`}>{p.source}</p>
+                    <p className="text-gray-400 text-xs leading-relaxed mb-2"
+                      style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      {p.description}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1"><FulfillmentBar level={p.fulfillmentLevel} size="sm" /></div>
+                      <span className={`text-xs font-bold ${
+                        p.fulfillmentLevel >= 80 ? 'text-red-400' :
+                        p.fulfillmentLevel >= 50 ? 'text-amber-400' : 'text-gray-500'
+                      }`}>{p.fulfillmentLevel}%</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {tab === "crosslinks" && <CrossLinks onSelect={setSel} />}
+        {tab === "news" && <NewsFeed />}
+      </div>
+
+      {sel && <ProphecyDetail prophecy={sel} onClose={() => setSel(null)} onNav={setSel} />}
+
+      <div className="max-w-5xl mx-auto px-4 py-6 border-t border-gray-800 mt-6">
+        <p className="text-gray-700 text-[10px] text-center leading-relaxed">
+          Fulfillment percentages are subjective assessments based on observable trends and should not be taken as doctrinal claims.
+          Sources: KJV, Talmud, Sahih Bukhari, Sahih Muslim, and other canonical texts. For study and discussion purposes only.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
