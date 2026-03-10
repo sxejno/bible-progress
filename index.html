@@ -3296,37 +3296,99 @@
 
                 itemDiv.appendChild(btn);
 
-                // Show rename button for all profiles
-                const renameBtn = document.createElement('button');
-                renameBtn.className = 'text-slate-300 hover:text-indigo-500 p-1 ml-1 opacity-0 group-hover/item:opacity-100 transition-opacity';
-                renameBtn.onclick = () => window.renameProfile(name);
-                renameBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>';
-                renameBtn.title = 'Rename profile';
-                itemDiv.appendChild(renameBtn);
-
-                // Show "Set as Default" button for non-default profiles
-                if(!isDefault) {
-                    const setDefaultBtn = document.createElement('button');
-                    setDefaultBtn.className = 'text-slate-300 hover:text-emerald-500 p-1 ml-1 opacity-0 group-hover/item:opacity-100 transition-opacity';
-                    setDefaultBtn.onclick = () => window.setDefaultProfile(name);
-                    setDefaultBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-                    setDefaultBtn.title = 'Set as default profile';
-                    itemDiv.appendChild(setDefaultBtn);
-                }
-
-                // Show delete button for all non-active profiles
-                if(!isActive) {
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'text-slate-300 hover:text-red-500 p-1 ml-1 opacity-0 group-hover/item:opacity-100 transition-opacity';
-                    deleteBtn.onclick = () => window.deleteProfile(name);
-                    deleteBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>';
-                    deleteBtn.title = 'Delete profile';
-                    itemDiv.appendChild(deleteBtn);
-                }
+                // Single options button (⋮) — always visible, safe touch target
+                const optionsBtn = document.createElement('button');
+                optionsBtn.className = 'text-slate-400 hover:text-indigo-500 p-2 ml-1 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0';
+                optionsBtn.setAttribute('aria-label', `Options for profile ${escapeHtml(name)}`);
+                optionsBtn.title = 'Profile options';
+                optionsBtn.onclick = (e) => { e.stopPropagation(); window.showProfileOptions(name); };
+                optionsBtn.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>';
+                itemDiv.appendChild(optionsBtn);
 
                 list.appendChild(itemDiv);
             });
         }
+
+        window.showProfileOptions = (name) => {
+            const isActive = name === appData.activeProfileId;
+            const isDefault = name === appData.defaultProfileId;
+            const canDelete = !isActive && Object.keys(appData.profiles).length > 1;
+
+            // Close profile menu
+            const menu = document.getElementById('profile-menu');
+            if (menu) {
+                menu.classList.add('hidden');
+                const menuBtn = document.getElementById('profile-menu-btn');
+                if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            // Build and inject a lightweight options panel as a modal overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'profile-options-overlay';
+            overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+            overlay.style.backgroundColor = 'rgba(15,23,42,0.45)';
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
+            overlay.setAttribute('aria-label', `Options for profile ${escapeHtml(name)}`);
+
+            const panel = document.createElement('div');
+            panel.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-xs p-4 animate-in';
+
+            const title = document.createElement('div');
+            title.className = 'text-xs font-black text-slate-400 uppercase tracking-widest mb-3 px-1';
+            title.textContent = `Profile: ${name}`;
+            panel.appendChild(title);
+
+            const close = () => overlay.remove();
+
+            const makeBtn = (label, iconPath, colorClass, handler) => {
+                const b = document.createElement('button');
+                b.className = `w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 ${colorClass} font-bold text-sm transition-colors text-left mb-1`;
+                b.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path></svg>${label}`;
+                b.onclick = () => { close(); handler(); };
+                return b;
+            };
+
+            panel.appendChild(makeBtn(
+                'Rename',
+                'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+                'hover:bg-indigo-50 text-slate-700 hover:text-indigo-700',
+                () => window.renameProfile(name)
+            ));
+
+            if (!isDefault) {
+                panel.appendChild(makeBtn(
+                    'Set as Default',
+                    'M5 13l4 4L19 7',
+                    'hover:bg-emerald-50 text-slate-700 hover:text-emerald-700',
+                    () => window.setDefaultProfile(name)
+                ));
+            }
+
+            if (canDelete) {
+                panel.appendChild(makeBtn(
+                    'Delete Profile',
+                    'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+                    'hover:bg-red-50 text-slate-700 hover:text-red-600',
+                    () => window.deleteProfile(name)
+                ));
+            }
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'w-full mt-2 px-4 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = close;
+            panel.appendChild(cancelBtn);
+
+            overlay.appendChild(panel);
+            // Close on backdrop click
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+            // Close on Escape
+            const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+            document.addEventListener('keydown', onKey);
+
+            document.body.appendChild(overlay);
+        };
 
         window.switchProfile = async (name) => {
             // Validate that the profile exists
@@ -9176,11 +9238,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 window.showAlert('Failed to Read File', 'The file could not be read. Please ensure the file is not corrupted and try again.', 'error');
                 input.value = '';
             };
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
                     if (typeof data === 'object' && data !== null) {
                         if(data.profiles && validateAppData(data)) {
+                            const profileCount = Object.keys(data.profiles).length;
+                            const profileWord = profileCount === 1 ? 'profile' : 'profiles';
+                            const confirmed = await window.showConfirm(
+                                'Replace All Data?',
+                                `This will overwrite all your current reading progress, ${profileCount} ${profileWord}, and settings with the backup file.\n\nThis cannot be undone.`,
+                                'Restore'
+                            );
+                            if (!confirmed) { input.value = ''; return; }
                             appData = data;
 
                             // Ensure profilePlans exists for all profiles
