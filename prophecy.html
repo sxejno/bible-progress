@@ -1102,6 +1102,272 @@ const NewsFeed = () => {
   );
 };
 
+const ESCHATOLOGY = {
+  themes: [
+    {
+      id: "messiah",
+      title: "The Coming Messiah / Redeemer",
+      icon: "\u2720",
+      views: {
+        Christian: {
+          label: "Second Coming of Christ",
+          summary: "Jesus returns bodily to judge the living and dead, establish His kingdom, defeat the Antichrist, and reign forever. He is both suffering Messiah (first coming) and conquering King (second coming).",
+          sources: ["Revelation 19:11-16", "Acts 1:11", "Matthew 24:30", "1 Thessalonians 4:16"],
+          key: "Returns from heaven with armies; every eye sees Him; defeats beast and false prophet."
+        },
+        Jewish: {
+          label: "Coming of Mashiach",
+          summary: "A human descendant of David will arise as king, rebuild the Temple, gather all Jews to Israel, restore the Sanhedrin, and inaugurate an era of universal peace. He has not yet come.",
+          sources: ["Isaiah 11:1-10", "Jeremiah 23:5-6", "Micah 4:1-4", "Ezekiel 37:24-28"],
+          key: "A mortal king, not divine; accomplishes specific tasks (Temple, peace, ingathering)."
+        },
+        Islamic: {
+          label: "Return of Isa + Coming of the Mahdi",
+          summary: "The Mahdi emerges first to unite Muslims and establish justice. Then Isa (Jesus) descends at the white minaret in Damascus, prays behind the Mahdi, defeats the Dajjal, breaks the cross, and abolishes the jizya. Isa dies a natural death after living among the people.",
+          sources: ["Sahih Muslim 155", "Sahih Bukhari 3448", "Sunan Abu Dawud 4285"],
+          key: "Two figures: Mahdi leads, then Isa returns. Isa is a prophet, not God or Son of God."
+        },
+      },
+      agreement: "All three expect a messianic/redeemer figure who brings justice and peace. All place this in Jerusalem.",
+      disagreement: "Christians say Jesus IS the Messiah who already came once. Jews say the Messiah hasn't come yet. Islam says Jesus was a prophet who returns, but the Mahdi comes first. Christianity: divine figure. Judaism: human king. Islam: human prophet + guided leader.",
+    },
+    {
+      id: "temple",
+      title: "The Third Temple",
+      icon: "\u{1F3DB}",
+      views: {
+        Christian: {
+          label: "Temple Rebuilt, Then Desecrated",
+          summary: "The Third Temple will be built, but the Antichrist will seat himself in it and declare himself God (the 'Abomination of Desolation'). This is a sign of the end, not a restoration of true worship.",
+          sources: ["2 Thessalonians 2:3-4", "Daniel 9:27", "Matthew 24:15", "Revelation 11:1-2"],
+          key: "Temple is a negative sign \u2014 site of Antichrist's blasphemy."
+        },
+        Jewish: {
+          label: "Temple Rebuilt by Mashiach",
+          summary: "The Beit HaMikdash will be rebuilt as the center of world worship, either by the Messiah himself or in preparation for his coming. Sacrificial service will be restored. This is the ultimate positive sign.",
+          sources: ["Ezekiel 40-48", "Isaiah 2:2-3", "Micah 4:1", "Zechariah 6:12-13"],
+          key: "Temple is the GOAL \u2014 the crown jewel of the messianic era."
+        },
+        Islamic: {
+          label: "Not a Central Expectation",
+          summary: "Islam does not prophesy a Third Temple. Al-Aqsa Mosque and the Dome of the Rock occupy the Temple Mount. Any attempt to build a Jewish Temple would be seen as an act of aggression against the third holiest site in Islam.",
+          sources: ["Quran 17:1 (Isra and Mi'raj)", "Sahih Muslim 520"],
+          key: "The Temple Mount is sacred to Islam as the site of the Prophet's Night Journey."
+        },
+      },
+      agreement: "All three traditions consider the Temple Mount / Haram al-Sharif the most contested sacred site on earth.",
+      disagreement: "Judaism: rebuilding the Temple is the highest aspiration. Christianity: it will be built but becomes the Antichrist's throne. Islam: the site belongs to al-Aqsa; no Temple should be built.",
+    },
+    {
+      id: "antichrist",
+      title: "The Great Deceiver / Antichrist",
+      icon: "\u{1F441}",
+      views: {
+        Christian: {
+          label: "The Antichrist / Beast",
+          summary: "A world leader empowered by Satan who establishes a global government, demands worship, performs false miracles, and persecutes believers. He is defeated by Christ at His return.",
+          sources: ["Revelation 13:1-18", "2 Thessalonians 2:3-10", "Daniel 7:25", "1 John 2:18"],
+          key: "Political-religious figure; controls economy (mark of the beast); rules 3.5 years."
+        },
+        Jewish: {
+          label: "No Direct Equivalent",
+          summary: "Traditional Judaism does not have a single 'Antichrist' figure. However, Armilus (in some midrashic traditions) is an evil king who persecutes Israel before the Messiah defeats him. Gog of Magog serves a similar adversarial role in Ezekiel 38-39.",
+          sources: ["Ezekiel 38-39", "Sefer Zerubbabel (midrash)", "Targum Pseudo-Jonathan"],
+          key: "Adversaries exist but are national enemies, not a single satanic world ruler."
+        },
+        Islamic: {
+          label: "Al-Masih ad-Dajjal",
+          summary: "The Dajjal ('Deceiver') is a one-eyed figure who claims divinity, performs apparent miracles, controls water and fire, and leads people astray. He travels the entire earth except Mecca and Medina. Isa (Jesus) kills him at the Gate of Ludd.",
+          sources: ["Sahih Muslim 2937", "Sahih Bukhari 7127", "Sahih Muslim 2942"],
+          key: "Physical description given: one-eyed, young, curly hair. Killed specifically by Isa."
+        },
+      },
+      agreement: "Christianity and Islam both expect a specific deceiver figure who claims divinity and is defeated by Jesus/Isa. Both describe false miracles and global deception.",
+      disagreement: "Judaism lacks a single Antichrist figure. Christianity's Antichrist is a political-religious ruler with the 'mark.' Islam's Dajjal has a very specific physical description. Christianity: defeated at Armageddon. Islam: defeated at Gate of Ludd (Lydda).",
+    },
+    {
+      id: "gogmagog",
+      title: "Gog & Magog / The Great War",
+      icon: "\u2694",
+      views: {
+        Christian: {
+          label: "Ezekiel's War + Armageddon",
+          summary: "A northern coalition (often identified as Russia, Iran, Turkey, Libya, Sudan) invades Israel and is supernaturally destroyed (Ezekiel 38-39). Separately, all nations gather at Armageddon for the final battle where Christ returns and defeats them.",
+          sources: ["Ezekiel 38-39", "Revelation 16:14-16", "Revelation 19:11-21", "Zechariah 14:2-4"],
+          key: "Possibly TWO wars: Gog/Magog invasion AND Armageddon. Debate on timing and sequence."
+        },
+        Jewish: {
+          label: "War of Gog u\u2019Magog",
+          summary: "A massive war where nations attack Jerusalem, but God intervenes supernaturally. This war precedes or accompanies the messianic era. After God's victory, the nations recognize God's sovereignty and universal peace begins.",
+          sources: ["Ezekiel 38-39", "Zechariah 14:2-3", "Zechariah 12:9", "Joel 3:2"],
+          key: "Single great war; divine victory leads directly to the messianic age."
+        },
+        Islamic: {
+          label: "Ya\u2019juj and Ma\u2019juj + Al-Malhama",
+          summary: "Two distinct events: Al-Malhama al-Kubra (the Great Battle at Dabiq against 'the Romans'/West), and the release of Ya'juj and Ma'juj after Isa defeats the Dajjal. Ya'juj and Ma'juj are a destructive horde that overwhelms the earth until God destroys them with a plague.",
+          sources: ["Quran 18:94-98", "Quran 21:96", "Sahih Muslim 2897", "Sahih Muslim 2937"],
+          key: "Ya'juj/Ma'juj come AFTER the Dajjal is killed; they are a post-Dajjal threat."
+        },
+      },
+      agreement: "All three traditions expect a cataclysmic war involving an attack on God's people, followed by divine intervention. All use the Gog/Magog motif.",
+      disagreement: "Timing differs drastically. Christianity: Gog/Magog may precede or follow the tribulation. Judaism: precedes the messianic era. Islam: Ya'juj/Ma'juj come AFTER the Dajjal and Isa's return. Islam also has a separate 'Great Battle' at Dabiq.",
+    },
+    {
+      id: "tribulation",
+      title: "Tribulation / Birth Pangs / End-Times Suffering",
+      icon: "\u{1F525}",
+      views: {
+        Christian: {
+          label: "The Great Tribulation (7 Years)",
+          summary: "A 7-year period of unprecedented suffering: seals, trumpets, and bowls of divine wrath (Revelation 6-16). The Antichrist rules for 3.5 years. Believers debate whether the Rapture occurs before, during, or after. Ends with Christ's return.",
+          sources: ["Daniel 9:27", "Matthew 24:21", "Revelation 6-19", "Jeremiah 30:7"],
+          key: "Structured: 7 years, divided into two 3.5-year halves. Specific judgments in sequence."
+        },
+        Jewish: {
+          label: "Chevlei Mashiach (Birth Pangs)",
+          summary: "Intense suffering preceding the Messiah \u2014 moral decay, war, social collapse, persecution of the righteous. The Talmud describes specific signs: youth disrespecting elders, truth absent, the 'face of the generation like the face of a dog.' Not a fixed duration.",
+          sources: ["Sanhedrin 97a-98b", "Sotah 49b", "Zechariah 13:8-9", "Daniel 12:1"],
+          key: "No fixed timeline; intensifying 'birth pangs' rather than a structured tribulation period."
+        },
+        Islamic: {
+          label: "The Fitan (Tribulations)",
+          summary: "Escalating tribulations as minor signs accumulate: moral decay, widespread killing, loss of knowledge, earthquakes, and social collapse. These are 'tests' (fitan) that precede the major signs. When the major signs begin, they cascade rapidly.",
+          sources: ["Sahih Bukhari 7061", "Sahih Muslim 2880", "Ahmad 10560"],
+          key: "Minor signs accumulate gradually; major signs cascade suddenly. No fixed duration."
+        },
+      },
+      agreement: "All three expect escalating suffering before redemption. All describe moral decay, war, and persecution as precursors. The metaphor of 'birth pangs' appears in all three.",
+      disagreement: "Only Christianity has a structured 7-year tribulation with a specific midpoint. Judaism and Islam describe intensifying chaos without fixed timeline. The Rapture debate (pre/mid/post-tribulation) is uniquely Christian.",
+    },
+    {
+      id: "resurrection",
+      title: "Resurrection & Final Judgment",
+      icon: "\u2696",
+      views: {
+        Christian: {
+          label: "Bodily Resurrection + Great White Throne",
+          summary: "All dead are resurrected bodily. Believers are judged at the 'Bema Seat' for rewards; unbelievers at the 'Great White Throne' for condemnation. The righteous enter eternal life; the wicked face the lake of fire. Heaven and earth are remade.",
+          sources: ["Revelation 20:11-15", "1 Corinthians 15:51-55", "John 5:28-29", "2 Peter 3:13"],
+          key: "Two-stage judgment; eternal separation (heaven vs. lake of fire)."
+        },
+        Jewish: {
+          label: "Techiyat HaMetim (Revival of the Dead)",
+          summary: "Bodily resurrection of the dead in the messianic era. The righteous of all nations share in the World to Come (Olam HaBa). Less emphasis on eternal damnation; more focus on the soul's purification (Gehinnom is typically temporary, not eternal).",
+          sources: ["Daniel 12:2", "Ezekiel 37:1-14", "Isaiah 26:19", "Sanhedrin 90a"],
+          key: "Gehinnom is usually seen as purgatorial (max 12 months), not eternal punishment."
+        },
+        Islamic: {
+          label: "Yawm al-Qiyamah (Day of Resurrection)",
+          summary: "All creation is resurrected. Each person's deeds are weighed on a scale (Mizan). Those whose good deeds outweigh bad enter Jannah (Paradise). Those whose bad deeds outweigh enter Jahannam (Hell). Some may eventually leave Hell through intercession or mercy.",
+          sources: ["Quran 99:1-8", "Quran 21:47", "Quran 39:68", "Sahih Bukhari 7510"],
+          key: "Literal weighing of deeds; intercession possible; some may exit Hell."
+        },
+      },
+      agreement: "All three affirm bodily resurrection, divine judgment, and an afterlife with reward and punishment. All three consider this a certainty, not speculation.",
+      disagreement: "Christianity: eternal heaven or eternal hell, no escape. Judaism: Gehinnom is typically temporary; all Israel 'has a share' in Olam HaBa. Islam: some exit Hell through mercy/intercession. The 'mechanics' of judgment differ significantly.",
+    },
+    {
+      id: "sequence",
+      title: "Expected Sequence of Events",
+      icon: "\u{1F4DC}",
+      views: {
+        Christian: {
+          label: "Pre-Tribulation View (Most Common)",
+          summary: "1. Signs increase (birth pangs) \u2192 2. Rapture of the Church \u2192 3. Antichrist rises; confirms 7-year covenant \u2192 4. First 3.5 years (relative peace) \u2192 5. Abomination of Desolation (midpoint) \u2192 6. Great Tribulation (3.5 years of wrath) \u2192 7. Gog/Magog war \u2192 8. Battle of Armageddon \u2192 9. Second Coming of Christ \u2192 10. Millennial Kingdom (1,000 years) \u2192 11. Final judgment \u2192 12. New Heaven & Earth",
+          sources: ["Revelation 4-22", "Daniel 9:24-27", "1 Thessalonians 4:16-17"],
+          key: "Detailed sequence; debate exists on Rapture timing and whether the millennium is literal."
+        },
+        Jewish: {
+          label: "The Messianic Process",
+          summary: "1. Chevlei Mashiach (birth pangs intensify) \u2192 2. War of Gog u'Magog \u2192 3. Elijah returns as herald \u2192 4. Mashiach arrives \u2192 5. Temple rebuilt \u2192 6. Ingathering of all exiles \u2192 7. Resurrection of the dead (Techiyat HaMetim) \u2192 8. Universal peace and knowledge of God \u2192 9. Olam HaBa (World to Come)",
+          sources: ["Rambam, Hilchot Melachim 11-12", "Sanhedrin 97a-99a", "Malachi 4:5"],
+          key: "Less rigid sequence; Rambam says don't speculate on exact order until it happens."
+        },
+        Islamic: {
+          label: "Minor Signs \u2192 Major Signs \u2192 The Hour",
+          summary: "1. Minor signs accumulate (most already fulfilled) \u2192 2. The Mahdi appears \u2192 3. The Dajjal emerges \u2192 4. Isa descends, defeats Dajjal \u2192 5. Ya'juj and Ma'juj released \u2192 6. God destroys Ya'juj/Ma'juj \u2192 7. Period of peace under Isa \u2192 8. Isa dies naturally \u2192 9. Three great earthquakes \u2192 10. Sun rises from the West \u2192 11. The Beast emerges \u2192 12. Fire gathers humanity \u2192 13. The Hour (Resurrection and Judgment)",
+          sources: ["Sahih Muslim 2901", "Sahih Muslim 2937", "Sahih Bukhari 7121"],
+          key: "Major signs cascade rapidly once they begin; sun from the West = point of no return."
+        },
+      },
+      agreement: "All three expect: (1) a period of escalating chaos, (2) a great war, (3) divine intervention, (4) a messianic/redemptive figure, (5) resurrection and judgment. The broad arc is strikingly similar.",
+      disagreement: "Christianity has the most detailed timeline (7-year tribulation with midpoint). Judaism is the least rigid ('don't speculate'). Islam has the most signs and the most specific cascade sequence. Only Christianity has the Rapture. Only Islam has a period of peace BETWEEN Isa's return and the final Hour.",
+    },
+  ],
+};
+
+const Expectations = () => {
+  const [expanded, setExpanded] = useState(null);
+
+  return (
+    <div className="space-y-5">
+      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5">
+        <p className="text-gray-300 text-sm leading-relaxed">
+          Christianity, Judaism, and Islam share Abrahamic roots and strikingly similar end-times frameworks &mdash; yet diverge on critical details.
+          This section maps where the three traditions <span className="text-green-400 font-semibold">agree</span>, where they <span className="text-red-400 font-semibold">disagree</span>, and what each expects to happen.
+        </p>
+      </div>
+
+      {ESCHATOLOGY.themes.map(theme => {
+        const isOpen = expanded === theme.id;
+        return (
+          <div key={theme.id} className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden">
+            <button onClick={() => setExpanded(isOpen ? null : theme.id)}
+              className="w-full text-left p-4 sm:p-5 flex items-center gap-3 hover:bg-gray-800/50 transition">
+              <span className="text-2xl">{theme.icon}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-bold text-sm sm:text-base">{theme.title}</h3>
+                <p className="text-gray-500 text-xs mt-0.5 truncate">{theme.agreement.substring(0, 80)}...</p>
+              </div>
+              <span className={`text-gray-500 text-xl transition-transform ${isOpen ? 'rotate-180' : ''}`}>&#9660;</span>
+            </button>
+
+            {isOpen && (
+              <div className="px-4 sm:px-5 pb-5 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                  {["Christian", "Jewish", "Islamic"].map(t => {
+                    const v = theme.views[t];
+                    const c = TRADITION_COLORS[t];
+                    return (
+                      <div key={t} className={`${c.bg} border ${c.border} rounded-xl p-4`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <TBadge t={t} />
+                        </div>
+                        <h4 className="text-white font-bold text-sm mb-1.5">{v.label}</h4>
+                        <p className="text-gray-300 text-xs leading-relaxed mb-3">{v.summary}</p>
+                        <div className="bg-black/30 rounded-lg p-2.5 mb-2.5">
+                          <p className="text-xs font-semibold text-gray-400 mb-1">KEY DISTINCTION</p>
+                          <p className={`text-xs ${c.text} leading-relaxed`}>{v.key}</p>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {v.sources.map((s, i) => (
+                            <span key={i} className="text-[10px] font-mono bg-black/30 text-gray-500 px-1.5 py-0.5 rounded">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-4">
+                    <h4 className="text-green-400 text-xs font-bold uppercase tracking-widest mb-1.5">&#10003; Where They Agree</h4>
+                    <p className="text-gray-300 text-sm leading-relaxed">{theme.agreement}</p>
+                  </div>
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4">
+                    <h4 className="text-red-400 text-xs font-bold uppercase tracking-widest mb-1.5">&#10007; Where They Differ</h4>
+                    <p className="text-gray-300 text-sm leading-relaxed">{theme.disagreement}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const CrossLinks = ({ onSelect }) => {
   const groups = useMemo(() => {
     const g = [];
@@ -1253,6 +1519,7 @@ function App() {
   const tabs = [
     { k: "dashboard", l: "Dashboard" },
     { k: "prophecies", l: "Prophecies" },
+    { k: "expectations", l: "What Do They Expect?" },
     { k: "crosslinks", l: "Cross-Tradition" },
     { k: "news", l: "News Watch" },
   ];
@@ -1344,6 +1611,7 @@ function App() {
           </div>
         )}
 
+        {tab === "expectations" && <Expectations />}
         {tab === "crosslinks" && <CrossLinks onSelect={setSel} />}
         {tab === "news" && <NewsFeed />}
       </div>
