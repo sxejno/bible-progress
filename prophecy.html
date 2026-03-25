@@ -1139,7 +1139,7 @@ const NewsFeed = () => {
                     c.relevance === 'MEDIUM' ? 'bg-amber-600 text-white' :
                     'bg-gray-600 text-gray-200'
                   }>{c.relevance}</Badge>
-                  <span className="text-gray-400 text-xs">{c.prophecyTitles?.join(" \u00b7 ")}</span>
+                  <span className="text-gray-400 text-xs">{c.prophecyTitles?.join(" · ")}</span>
                 </div>
                 <p className="text-white text-sm">{c.headline}</p>
                 <p className="text-gray-400 text-xs mt-1">{c.explanation}</p>
@@ -1562,7 +1562,7 @@ const Dashboard = ({ onSelect }) => {
               <TBadge t={t} />
               <div className="text-3xl font-black text-white mt-2">{avg}%</div>
               <FulfillmentBar level={avg} size="sm" />
-              <p className="text-gray-400 text-xs mt-1.5">{d.count} prophecies \u00b7 {d.high} highly fulfilled</p>
+              <p className="text-gray-400 text-xs mt-1.5">{d.count} prophecies · {d.high} highly fulfilled</p>
             </div>
           );
         })}
@@ -1602,6 +1602,7 @@ function App() {
   const [sel, setSel] = useState(null);
   const [search, setSearch] = useState("");
   const [fTrad, setFTrad] = useState("All");
+  const [showScripture, setShowScripture] = useState({});
   const [fCat, setFCat] = useState("All");
   const [sort, setSort] = useState("tradition");
 
@@ -1696,22 +1697,35 @@ function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {filtered.map(p => {
                 const c = TRADITION_COLORS[p.tradition];
+                const isScriptureOpen = showScripture[p.id];
                 return (
-                  <button key={p.id} onClick={() => setSel(p)}
-                    className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 hover:brightness-110 transition group`}>
-                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                      <TBadge t={p.tradition} />
-                      <Badge className="bg-gray-700/80 text-gray-300">{p.category}</Badge>
-                      {p.linkedProphecies.length > 0 && (
-                        <span className="text-gray-600 text-xs ml-auto">&#128279; {p.linkedProphecies.length}</span>
-                      )}
+                  <div key={p.id} className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 transition group`}>
+                    <div className="cursor-pointer hover:brightness-110" onClick={() => setSel(p)}>
+                      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                        <TBadge t={p.tradition} />
+                        <Badge className="bg-gray-700/80 text-gray-300">{p.category}</Badge>
+                        {p.linkedProphecies.length > 0 && (
+                          <span className="text-gray-600 text-xs ml-auto">&#128279; {p.linkedProphecies.length}</span>
+                        )}
+                      </div>
+                      <h3 className="text-white font-bold text-sm mt-1 group-hover:underline">{p.title}</h3>
+                      <p className={`text-xs ${c.text} font-mono mt-0.5 mb-1.5`}>{p.source}</p>
+                      <p className="text-gray-400 text-xs leading-relaxed mb-2"
+                        style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {p.description}
+                      </p>
                     </div>
-                    <h3 className="text-white font-bold text-sm mt-1 group-hover:underline">{p.title}</h3>
-                    <p className={`text-xs ${c.text} font-mono mt-0.5 mb-1.5`}>{p.source}</p>
-                    <p className="text-gray-400 text-xs leading-relaxed mb-2"
-                      style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                      {p.description}
-                    </p>
+                    <button onClick={(e) => { e.stopPropagation(); setShowScripture(prev => ({ ...prev, [p.id]: !prev[p.id] })); }}
+                      className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 hover:text-gray-300 mb-1.5 flex items-center gap-1 transition">
+                      <span className={`inline-block transition-transform ${isScriptureOpen ? 'rotate-90' : ''}`}>&#9654;</span>
+                      Scripture
+                    </button>
+                    {isScriptureOpen && (
+                      <div className="bg-black/40 border border-gray-700 rounded-lg p-3 mb-2 italic text-gray-300 text-xs leading-relaxed">
+                        &ldquo;{p.sourceText}&rdquo;
+                        <p className={`not-italic font-mono ${c.text} text-[10px] mt-1.5`}>&mdash; {p.source}</p>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <div className="flex-1"><FulfillmentBar level={p.fulfillmentLevel} size="sm" /></div>
                       <span className={`text-xs font-bold ${
@@ -1719,7 +1733,7 @@ function App() {
                         p.fulfillmentLevel >= 50 ? 'text-amber-400' : 'text-gray-500'
                       }`}>{p.fulfillmentLevel}%</span>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
