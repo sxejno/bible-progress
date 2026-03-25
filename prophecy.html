@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eschaton Watch — End-Times Prophecy Tracker</title>
-<meta name="description" content="Track end-times prophecies across Christianity, Judaism, and Islam with fulfillment percentages, cross-tradition links, and news analysis.">
+<title>Eschaton Watch — Biblical Prophecy Tracker</title>
+<meta name="description" content="Track biblical prophecies and their fulfillment — rooted in Scripture, with Jewish and Islamic eschatological perspectives. Fulfillment percentages, cross-tradition links, and news analysis.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☩</text></svg>">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -218,7 +218,7 @@ const PROPHECIES = [
     sourceText: "When ye therefore shall see the abomination of desolation, spoken of by Daniel the prophet, stand in the holy place, (whoso readeth, let him understand:)",
     description: "A desecrating sacrilege will be set up in the holy place (Temple) \u2014 the Antichrist declaring himself God in the rebuilt Third Temple, halting sacrifices midway through a 7-year covenant.",
     modernFulfillment: "Requires the Third Temple to be built first (see c2/j1). The Temple Institute\u2019s preparations, red heifer candidates, and growing political will make this increasingly plausible. Historical partial fulfillment by Antiochus IV Epiphanes (167 BC) and Titus (70 AD) are seen as typological foreshadowings.",
-    fulfillmentLevel: 20, linkedProphecies: ["c2", "j1", "c15"],
+    fulfillmentLevel: 20, linkedProphecies: ["c2", "j1", "c15", "c27"],
     tags: ["abomination", "desolation", "temple", "antichrist", "daniel", "sacrifice"],
     keyEvents: [
       { date: "167 BC", event: "Antiochus IV desecrates Second Temple \u2014 historical type" },
@@ -359,7 +359,7 @@ const PROPHECIES = [
     sourceText: "And there shall come forth a rod out of the stem of Jesse, and a Branch shall grow out of his roots... he shall judge among the nations.",
     description: "A descendant of David will arise as Mashiach \u2014 rebuild the Temple, gather all Jews to Israel, restore the Davidic monarchy, and bring universal peace.",
     modernFulfillment: "Messianic expectation remains high in Orthodox Judaism. Chabad-Lubavitch generated intense fervor around Rabbi Schneerson (d. 1994). Ingathering of exiles well underway. No universally recognized candidate has emerged.",
-    fulfillmentLevel: 20, linkedProphecies: ["c10", "i1"],
+    fulfillmentLevel: 20, linkedProphecies: ["c10", "i1", "c26", "c27", "c28"],
     tags: ["messiah", "mashiach", "david", "king", "peace"],
     keyEvents: [
       { date: "1948", event: "Israel established \u2014 ingathering begins" },
@@ -800,6 +800,61 @@ const PROPHECIES = [
     ],
   },
   {
+    id: "c26", tradition: "Christian", title: "Messiah Born in Bethlehem", category: "Messianic",
+    source: "Micah 5:2; Matthew 2:1-6",
+    sourceText: "But thou, Bethlehem Ephratah, though thou be little among the thousands of Judah, yet out of thee shall he come forth unto me that is to be ruler in Israel; whose goings forth have been from of old, from everlasting.",
+    description: "The Messiah would be born in Bethlehem \u2014 a small, insignificant town \u2014 despite originating \u2018from everlasting.\u2019 This was written ~700 years before Christ\u2019s birth.",
+    modernFulfillment: "Jesus of Nazareth was born in Bethlehem during the Roman census (Luke 2:1-7), fulfilling Micah\u2019s prophecy written approximately 700 years earlier. Even the Jewish Sanhedrin cited this prophecy when Herod asked where the Messiah would be born (Matthew 2:4-6). The specificity of naming such a minor town centuries in advance is considered one of the strongest messianic prophecy fulfillments.",
+    fulfillmentLevel: 98, linkedProphecies: ["j2"],
+    tags: ["bethlehem", "birth", "messiah", "micah", "fulfilled"],
+    keyEvents: [
+      { date: "~700 BC", event: "Micah prophesies the Messiah\u2019s birthplace" },
+      { date: "~4 BC", event: "Jesus born in Bethlehem during Roman census" },
+    ],
+  },
+  {
+    id: "c27", tradition: "Christian", title: "Daniel\u2019s 70 Weeks \u2014 Messiah\u2019s Arrival Timed", category: "Messianic",
+    source: "Daniel 9:24-27",
+    sourceText: "Seventy weeks are determined upon thy people... from the going forth of the commandment to restore and to build Jerusalem unto the Messiah the Prince shall be seven weeks, and threescore and two weeks.",
+    description: "Daniel received a precise timeline: 69 \u2018weeks\u2019 (483 prophetic years) from the decree to rebuild Jerusalem until \u2018Messiah the Prince.\u2019 After this, the Messiah would be \u2018cut off, but not for himself.\u2019 This is the only prophecy in the Hebrew Bible that provides a specific countdown to the Messiah\u2019s arrival.",
+    modernFulfillment: "Sir Robert Anderson\u2019s calculation (The Coming Prince, 1894) showed that 483 prophetic years (360-day years) from Artaxerxes\u2019 decree in 445 BC leads precisely to April 6, 32 AD \u2014 the date many scholars place Jesus\u2019 triumphal entry into Jerusalem, days before His crucifixion (\u2018cut off\u2019). The mathematical precision has been called \u2018the backbone of biblical prophecy.\u2019 Whether one accepts the exact calculation or not, the prophecy was indisputably written centuries before Christ.",
+    fulfillmentLevel: 90, linkedProphecies: ["c14", "c18"],
+    tags: ["daniel", "70 weeks", "490 years", "messiah", "timeline", "fulfilled"],
+    keyEvents: [
+      { date: "445 BC", event: "Artaxerxes issues decree to rebuild Jerusalem (Nehemiah 2)" },
+      { date: "~32 AD", event: "Jesus enters Jerusalem; crucified (\u2018cut off\u2019) days later" },
+      { date: "70 AD", event: "Temple destroyed \u2014 \u2018the people of the prince that shall come\u2019" },
+    ],
+  },
+  {
+    id: "c28", tradition: "Christian", title: "Crucifixion Details Prophesied", category: "Messianic",
+    source: "Psalm 22:16-18; Isaiah 53:5-7; Zechariah 12:10",
+    sourceText: "They pierced my hands and my feet... they part my garments among them, and cast lots upon my vesture... He was wounded for our transgressions, he was bruised for our iniquities.",
+    description: "Multiple Old Testament passages describe details of the Messiah\u2019s death centuries before crucifixion was invented: pierced hands and feet, garments divided by lot, wounded for others\u2019 sins, silent before accusers, buried with the rich, and \u2018they shall look upon me whom they have pierced.\u2019",
+    modernFulfillment: "Psalm 22 (written ~1000 BC) describes crucifixion details \u2014 but crucifixion was not invented until ~500 BC by the Persians and adopted by Rome centuries later. The psalm describes pierced hands and feet, bones out of joint, surrounded by mockers, garments divided by lots \u2014 all matching the Gospel accounts. Isaiah 53 (written ~700 BC) describes a suffering servant who dies vicariously for others\u2019 sins. The Dead Sea Scrolls (1947) confirmed these texts existed centuries before Christ \u2014 eliminating the possibility of post-hoc editing.",
+    fulfillmentLevel: 95, linkedProphecies: ["c26", "c27"],
+    tags: ["crucifixion", "psalm 22", "isaiah 53", "pierced", "fulfilled", "messiah"],
+    keyEvents: [
+      { date: "~1000 BC", event: "David writes Psalm 22 describing crucifixion-like death" },
+      { date: "~700 BC", event: "Isaiah writes the \u2018Suffering Servant\u2019 passage (Isaiah 53)" },
+      { date: "~30 AD", event: "Jesus crucified \u2014 details match Psalm 22, Isaiah 53, Zechariah 12" },
+    ],
+  },
+  {
+    id: "c29", tradition: "Christian", title: "The Fig Tree Generation", category: "Israel & Nations",
+    source: "Matthew 24:32-34",
+    sourceText: "Now learn a parable of the fig tree; When his branch is yet tender, and putteth forth leaves, ye know that summer is nigh: So likewise ye, when ye shall see all these things, know that it is near, even at the doors.",
+    description: "Jesus taught that the generation that sees the \u2018fig tree\u2019 (often interpreted as Israel) put forth leaves will not pass away before all end-times prophecies are fulfilled. If Israel\u2019s rebirth in 1948 is the fig tree, that generation is now elderly.",
+    modernFulfillment: "Israel was reborn in 1948. If a biblical generation is 70-80 years (Psalm 90:10), the window extends to approximately 2018-2028. Many prophecy scholars consider this the most time-sensitive sign. The convergence of virtually all other signs within this same generation is cited as unprecedented. Debate continues on whether \u2018this generation\u2019 refers to Israel\u2019s rebirth or to those alive when all signs converge.",
+    fulfillmentLevel: 70, linkedProphecies: ["c4", "j4"],
+    tags: ["fig tree", "generation", "israel", "1948", "timeline", "parable"],
+    keyEvents: [
+      { date: "1948", event: "Israel reborn \u2014 \u2018fig tree puts forth leaves\u2019" },
+      { date: "2018", event: "70 years from 1948 \u2014 one interpretation of \u2018generation\u2019" },
+      { date: "2028", event: "80 years from 1948 \u2014 outer bound of Psalm 90:10 generation" },
+    ],
+  },
+  {
     id: "i17", tradition: "Islamic", title: "Conquest of Jerusalem (Bayt al-Maqdis)", category: "Wars & Conflicts",
     source: "Sahih Bukhari 3176; Sahih Muslim 2543",
     sourceText: "Count six signs before the Hour: my death, then the conquest of Bayt al-Maqdis (Jerusalem)...",
@@ -870,7 +925,7 @@ const PROPHECIES = [
 ];
 
 const TRADITION_COLORS = {
-  Christian: { bg: "bg-blue-900/40", border: "border-blue-500/60", text: "text-blue-300", badge: "bg-blue-600", glow: "shadow-blue-500/20" },
+  Christian: { bg: "bg-indigo-900/40", border: "border-indigo-500/60", text: "text-indigo-300", badge: "bg-indigo-600", glow: "shadow-indigo-500/20" },
   Jewish: { bg: "bg-amber-900/40", border: "border-amber-500/60", text: "text-amber-300", badge: "bg-amber-600", glow: "shadow-amber-500/20" },
   Islamic: { bg: "bg-emerald-900/40", border: "border-emerald-500/60", text: "text-emerald-300", badge: "bg-emerald-600", glow: "shadow-emerald-500/20" },
 };
@@ -1303,8 +1358,9 @@ const Expectations = () => {
     <div className="space-y-5">
       <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-5">
         <p className="text-gray-300 text-sm leading-relaxed">
-          Christianity, Judaism, and Islam share Abrahamic roots and strikingly similar end-times frameworks &mdash; yet diverge on critical details.
-          This section maps where the three traditions <span className="text-green-400 font-semibold">agree</span>, where they <span className="text-red-400 font-semibold">disagree</span>, and what each expects to happen.
+          The Bible provides the most detailed prophetic framework for the end times. Judaism shares the Hebrew Bible (Old Testament) as common ground,
+          while Islam&rsquo;s Quran and Hadith literature present a parallel eschatology. This section shows the <span className="text-indigo-400 font-semibold">biblical view first</span>,
+          then maps where Jewish and Islamic traditions <span className="text-green-400 font-semibold">connect</span> and where they <span className="text-red-400 font-semibold">diverge</span>.
         </p>
       </div>
 
@@ -1324,20 +1380,22 @@ const Expectations = () => {
 
             {isOpen && (
               <div className="px-4 sm:px-5 pb-5 space-y-4">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-                  {["Christian", "Jewish", "Islamic"].map(t => {
+                <div className="space-y-3">
+                  {(() => {
+                    const t = "Christian";
                     const v = theme.views[t];
                     const c = TRADITION_COLORS[t];
                     return (
-                      <div key={t} className={`${c.bg} border ${c.border} rounded-xl p-4`}>
+                      <div className={`${c.bg} border ${c.border} rounded-xl p-5`}>
                         <div className="flex items-center gap-2 mb-2">
                           <TBadge t={t} />
+                          <span className="text-indigo-300 text-xs font-semibold">BIBLICAL VIEW</span>
                         </div>
-                        <h4 className="text-white font-bold text-sm mb-1.5">{v.label}</h4>
-                        <p className="text-gray-300 text-xs leading-relaxed mb-3">{v.summary}</p>
-                        <div className="bg-black/30 rounded-lg p-2.5 mb-2.5">
+                        <h4 className="text-white font-bold text-base mb-2">{v.label}</h4>
+                        <p className="text-gray-300 text-sm leading-relaxed mb-3">{v.summary}</p>
+                        <div className="bg-black/30 rounded-lg p-3 mb-3">
                           <p className="text-xs font-semibold text-gray-400 mb-1">KEY DISTINCTION</p>
-                          <p className={`text-xs ${c.text} leading-relaxed`}>{v.key}</p>
+                          <p className={`text-sm ${c.text} leading-relaxed`}>{v.key}</p>
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {v.sources.map((s, i) => (
@@ -1346,7 +1404,31 @@ const Expectations = () => {
                         </div>
                       </div>
                     );
-                  })}
+                  })()}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {["Jewish", "Islamic"].map(t => {
+                      const v = theme.views[t];
+                      const c = TRADITION_COLORS[t];
+                      return (
+                        <div key={t} className={`${c.bg} border ${c.border} rounded-xl p-4`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <TBadge t={t} />
+                          </div>
+                          <h4 className="text-white font-bold text-sm mb-1.5">{v.label}</h4>
+                          <p className="text-gray-300 text-xs leading-relaxed mb-3">{v.summary}</p>
+                          <div className="bg-black/30 rounded-lg p-2.5 mb-2.5">
+                            <p className="text-xs font-semibold text-gray-400 mb-1">KEY DISTINCTION</p>
+                            <p className={`text-xs ${c.text} leading-relaxed`}>{v.key}</p>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {v.sources.map((s, i) => (
+                              <span key={i} className="text-[10px] font-mono bg-black/30 text-gray-500 px-1.5 py-0.5 rounded">{s}</span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1387,7 +1469,7 @@ const CrossLinks = ({ onSelect }) => {
   return (
     <div className="space-y-4">
       <p className="text-gray-400 text-sm">
-        Prophecies spanning multiple traditions \u2014 remarkable convergence across Christianity, Judaism, and Islam.
+        Many Old Testament prophecies have both a Christian (christological) interpretation and a Jewish (messianic-era) interpretation. Islamic traditions sometimes parallel these themes through the Quran and Hadith. The connections below show how these prophetic threads weave together \u2014 with biblical prophecy as the primary thread.
       </p>
       {groups.map(g => (
         <div key={g.key} className="bg-gray-800/40 border border-gray-700 rounded-xl p-4">
@@ -1437,6 +1519,15 @@ const Dashboard = ({ onSelect }) => {
 
   return (
     <div className="space-y-6">
+      <div className="bg-indigo-900/30 border border-indigo-500/40 rounded-2xl p-5">
+        <h2 className="text-indigo-300 font-bold text-sm uppercase tracking-widest mb-2">&#9769; Biblical Foundation</h2>
+        <p className="text-gray-300 text-sm leading-relaxed">
+          This tracker is rooted in <span className="text-indigo-300 font-semibold">biblical prophecy</span> &mdash; the prophetic books of the Old and New Testaments,
+          with Jesus Christ as the interpretive key. Jewish tradition shares the Hebrew Bible (Tanakh) as source material,
+          while Islamic eschatology draws from the Quran and Hadith literature. Where these traditions converge and diverge
+          reveals the depth and specificity of God&rsquo;s prophetic word.
+        </p>
+      </div>
       <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center">
         <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Composite Fulfillment Index</p>
         <div className="text-5xl font-black text-white mb-2">
@@ -1445,8 +1536,25 @@ const Dashboard = ({ onSelect }) => {
         <FulfillmentBar level={stats.avg} />
         <p className="text-gray-600 text-xs mt-2">{PROPHECIES.length} prophecies tracked across 3 traditions</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {Object.entries(stats.byT).map(([t, d]) => {
+      {(() => {
+        const t = "Christian";
+        const d = stats.byT[t];
+        if (!d) return null;
+        const c = TRADITION_COLORS[t];
+        const avg = Math.round(d.total / d.count);
+        return (
+          <div className={`${c.bg} border ${c.border} rounded-xl p-5`}>
+            <TBadge t={t} />
+            <div className="text-4xl font-black text-white mt-2">{avg}%</div>
+            <FulfillmentBar level={avg} />
+            <p className="text-gray-400 text-xs mt-1.5">{d.count} prophecies · {d.high} highly fulfilled</p>
+          </div>
+        );
+      })()}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {["Jewish", "Islamic"].map(t => {
+          const d = stats.byT[t];
+          if (!d) return null;
           const c = TRADITION_COLORS[t];
           const avg = Math.round(d.total / d.count);
           return (
@@ -1495,7 +1603,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [fTrad, setFTrad] = useState("All");
   const [fCat, setFCat] = useState("All");
-  const [sort, setSort] = useState("fulfillment");
+  const [sort, setSort] = useState("tradition");
 
   const filtered = useMemo(() => {
     let l = PROPHECIES;
@@ -1512,7 +1620,14 @@ function App() {
     }
     if (sort === "fulfillment") l = [...l].sort((a, b) => b.fulfillmentLevel - a.fulfillmentLevel);
     else if (sort === "alpha") l = [...l].sort((a, b) => a.title.localeCompare(b.title));
-    else l = [...l].sort((a, b) => a.tradition.localeCompare(b.tradition));
+    else {
+      const order = { Christian: 0, Jewish: 1, Islamic: 2 };
+      l = [...l].sort((a, b) => {
+        const tDiff = (order[a.tradition] ?? 9) - (order[b.tradition] ?? 9);
+        if (tDiff !== 0) return tDiff;
+        return b.fulfillmentLevel - a.fulfillmentLevel;
+      });
+    }
     return l;
   }, [fTrad, fCat, search, sort]);
 
@@ -1533,7 +1648,7 @@ function App() {
             <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">Eschaton Watch</h1>
           </div>
           <p className="text-gray-500 text-xs sm:text-sm ml-9">
-            End-times prophecy tracker &mdash; Christianity &middot; Judaism &middot; Islam
+            Biblical prophecy tracker &mdash; rooted in Scripture, with Jewish &amp; Islamic perspectives
           </p>
           <div className="flex gap-1 mt-4 bg-gray-800/50 rounded-lg p-1 overflow-x-auto">
             {tabs.map(t => (
@@ -1620,8 +1735,9 @@ function App() {
 
       <div className="max-w-5xl mx-auto px-4 py-6 border-t border-gray-800 mt-6">
         <p className="text-gray-700 text-[10px] text-center leading-relaxed">
+          Eschaton Watch is a Bible-centered prophecy tracker that also examines how Jewish and Islamic traditions understand these same prophetic themes.
           Fulfillment percentages are subjective assessments based on observable trends and should not be taken as doctrinal claims.
-          Sources: KJV, Talmud, Sahih Bukhari, Sahih Muslim, and other canonical texts. For study and discussion purposes only.
+          Sources: KJV Bible, Talmud, Sahih Bukhari, Sahih Muslim, and other canonical texts. For study and discussion purposes only.
         </p>
       </div>
     </div>
