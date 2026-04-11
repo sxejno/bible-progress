@@ -2703,6 +2703,7 @@
         let localSaveTimeout = null;
         let cloudSaveTimeout = null;
         let userIsEditing = false; // Prevent cloud sync during edits
+        let pendingSnapshot = null; // Queued snapshot received while userIsEditing
 
         // --- UI ELEMENTS ---
         const logoutBtn = document.getElementById('logout-btn');
@@ -2886,121 +2887,231 @@
             }
         });
 
+        function processCloudSnapshot(docSnap) {
+            if (!docSnap.exists()) {
+                if (currentUser) {
+                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
+                }
+                return;
+            }
+            const cloudData = docSnap.data().appData || {};
+            if (!(Object.keys(cloudData).length > 0 && validateAppData(cloudData))) {
+                if (currentUser) {
+                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
+                }
+                return;
+            }
+
+            // Preserve today's local daily plan chapters before overwriting appData.
+            // The onSnapshot can fire before saveProgress() has synced the cache
+            // to Firestore, causing the daily plan to lose its pinned chapters
+            // and re-compute fresh (making completed chapters disappear).
+            const localDailyProgress = appData.dailyPlanProgress
+            const localProfiles = appData.profiles
+            const localProfilePlans = appData.profilePlans
+            const localHornerDaily = appData.hornerDailyProgress
+            const localHornerCycles = appData.hornerCycleCount
+            const localMemorizedVerses = appData.memorizedVerses
+            const localGoals = appData.goals
+            const localCustomPlans = appData.customPlans
+            const localProfileSyncRules = appData.profileSyncRules
+            const localProfileColors = appData.profileColors
+            appData = cloudData;
+            // Merge back any local daily plan entries that are current (today's date)
+            // but absent or stale in the cloud snapshot
+            if (localDailyProgress) {
+                if (!appData.dailyPlanProgress) appData.dailyPlanProgress = {}
+                const todayLocal = getTodaysDate()
+                Object.keys(localDailyProgress).forEach(pid => {
+                    const local = localDailyProgress[pid]
+                    if (local && local.date === todayLocal && local.chapters && local.chapters.length > 0) {
+                        const cloud = appData.dailyPlanProgress[pid]
+                        if (!cloud || cloud.date !== todayLocal || cloud.chapters.length === 0) {
+                            appData.dailyPlanProgress[pid] = local
+                        }
+                    }
+                })
+            }
+            // Merge local chapter read timestamps into cloud profiles, keeping the
+            // most recent timestamp per chapter. This prevents a stale cloud snapshot
+            // (e.g. when Firestore debounce hadn't flushed yet before app close) from
+            // overwriting locally-saved read progress.
+            if (localProfiles && appData.profiles) {
+                Object.keys(localProfiles).forEach(profileId => {
+                    const localProg = localProfiles[profileId]
+                    if (!appData.profiles[profileId]) {
+                        // Profile exists locally but not in cloud — restore it
+                        // so chapter progress isn't silently dropped
+                        appData.profiles[profileId] = localProg
+                        return
+                    }
+                    const cloudProg = appData.profiles[profileId]
+                    Object.keys(localProg).forEach(chKey => {
+                        const localTs = localProg[chKey]
+                        const cloudTs = cloudProg[chKey]
+                        if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs)) {
+                            cloudProg[chKey] = localTs
+                        }
+                    })
+                })
+            }
+
+            // Merge per-profile metadata: restore local entries missing from cloud
+            if (localProfilePlans) {
+                if (!appData.profilePlans) appData.profilePlans = {}
+                Object.keys(localProfilePlans).forEach(pid => {
+                    if (!appData.profilePlans[pid]) {
+                        appData.profilePlans[pid] = localProfilePlans[pid]
+                    }
+                })
+            }
+            if (localHornerDaily) {
+                if (!appData.hornerDailyProgress) appData.hornerDailyProgress = {}
+                Object.keys(localHornerDaily).forEach(pid => {
+                    const local = localHornerDaily[pid]
+                    const cloud = appData.hornerDailyProgress[pid]
+                    if (local && (!cloud || local.date > cloud.date)) {
+                        appData.hornerDailyProgress[pid] = local
+                    }
+                })
+            }
+            if (localHornerCycles) {
+                if (!appData.hornerCycleCount) appData.hornerCycleCount = {}
+                Object.keys(localHornerCycles).forEach(pid => {
+                    const local = localHornerCycles[pid]
+                    const cloud = appData.hornerCycleCount?.[pid]
+                    if (local && Array.isArray(local)) {
+                        if (!cloud || !Array.isArray(cloud)) {
+                            appData.hornerCycleCount[pid] = local
+                        } else {
+                            appData.hornerCycleCount[pid] = local.map((v, i) => Math.max(v || 0, cloud[i] || 0))
+                        }
+                    }
+                })
+            }
+            if (localMemorizedVerses) {
+                if (!appData.memorizedVerses) appData.memorizedVerses = {}
+                Object.keys(localMemorizedVerses).forEach(pid => {
+                    const localVerses = localMemorizedVerses[pid] || []
+                    const cloudVerses = appData.memorizedVerses[pid] || []
+                    if (localVerses.length > 0 && cloudVerses.length === 0) {
+                        appData.memorizedVerses[pid] = localVerses
+                    } else if (localVerses.length > 0) {
+                        const cloudIds = new Set(cloudVerses.map(v => v.id))
+                        localVerses.forEach(v => {
+                            if (!cloudIds.has(v.id)) cloudVerses.push(v)
+                        })
+                    }
+                })
+            }
+            if (localGoals) {
+                if (!appData.goals) appData.goals = {}
+                Object.keys(localGoals).forEach(pid => {
+                    const localG = localGoals[pid] || []
+                    const cloudG = appData.goals[pid] || []
+                    if (localG.length > 0 && cloudG.length === 0) {
+                        appData.goals[pid] = localG
+                    } else if (localG.length > 0) {
+                        const cloudKeys = new Set(cloudG.map(g => `${g.name}|${g.type}`))
+                        localG.forEach(g => {
+                            if (!cloudKeys.has(`${g.name}|${g.type}`)) cloudG.push(g)
+                        })
+                    }
+                })
+            }
+            if (localCustomPlans) {
+                if (!appData.customPlans) appData.customPlans = {}
+                Object.keys(localCustomPlans).forEach(pid => {
+                    if (!appData.customPlans[pid]) {
+                        appData.customPlans[pid] = localCustomPlans[pid]
+                    }
+                })
+            }
+            if (localProfileSyncRules) {
+                if (!appData.profileSyncRules) appData.profileSyncRules = {}
+                Object.keys(localProfileSyncRules).forEach(pid => {
+                    if (!appData.profileSyncRules[pid]) {
+                        appData.profileSyncRules[pid] = localProfileSyncRules[pid]
+                    }
+                })
+            }
+            if (localProfileColors) {
+                if (!appData.profileColors) appData.profileColors = {}
+                Object.keys(localProfileColors).forEach(pid => {
+                    if (!appData.profileColors[pid]) {
+                        appData.profileColors[pid] = localProfileColors[pid]
+                    }
+                })
+            }
+
+            // Ensure data integrity
+            if(!appData.profilePlans) {
+                appData.profilePlans = {};
+                Object.keys(appData.profiles).forEach(name => {
+                    appData.profilePlans[name] = 'MCHEYNE';
+                });
+            }
+
+            // Ensure profileSyncRules exists (migration for existing users)
+            if(!appData.profileSyncRules) {
+                appData.profileSyncRules = {};
+            }
+
+            // Ensure hornerDailyProgress exists (migration for existing users)
+            if(!appData.hornerDailyProgress) {
+                appData.hornerDailyProgress = {};
+            }
+            // Ensure each profile has hornerDailyProgress initialized
+            Object.keys(appData.profiles).forEach(profileId => {
+                if(!appData.hornerDailyProgress[profileId]) {
+                    appData.hornerDailyProgress[profileId] = {
+                        date: getTodaysDate(),
+                        completedLists: []
+                    };
+                }
+            });
+
+            // Ensure reading time settings exist (migration for existing users)
+            if(appData.showReadingTime === undefined) {
+                appData.showReadingTime = true;
+            }
+            if(!appData.wordsPerMinute) {
+                appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
+            }
+
+            // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
+            // Use epoch 1 to indicate "read at unknown historical time"
+            Object.keys(appData.profiles).forEach(profileName => {
+                const profile = appData.profiles[profileName];
+                Object.keys(profile).forEach(chapterKey => {
+                    if(profile[chapterKey] === true) {
+                        profile[chapterKey] = 1;
+                    }
+                });
+            });
+
+            // Ensure active profile exists
+            if(!appData.profiles[appData.activeProfileId]) {
+                appData.activeProfileId = Object.keys(appData.profiles)[0];
+            }
+
+            // Reset daily progress if needed after loading from cloud
+            resetHornerDailyProgressIfNeeded();
+
+            localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+            refreshUI();
+        }
+
         async function initCloudSync(uid) {
             const userDocRef = doc(db, "users", uid);
             unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-                // Skip sync if user is actively editing
+                // Queue sync if user is actively editing — process after cooldown
                 if(userIsEditing) {
-                    log('⏸️ Skipping sync - user editing');
+                    log('⏸️ Queuing sync - user editing');
+                    pendingSnapshot = docSnap;
                     return;
                 }
-                
-                if (docSnap.exists()) {
-                    const cloudData = docSnap.data().appData || {};
-                    if (Object.keys(cloudData).length > 0 && validateAppData(cloudData)) {
-                        // Preserve today's local daily plan chapters before overwriting appData.
-                        // The onSnapshot can fire before saveProgress() has synced the cache
-                        // to Firestore, causing the daily plan to lose its pinned chapters
-                        // and re-compute fresh (making completed chapters disappear).
-                        const localDailyProgress = appData.dailyPlanProgress
-                        const localProfiles = appData.profiles
-                        appData = cloudData;
-                        // Merge back any local daily plan entries that are current (today's date)
-                        // but absent or stale in the cloud snapshot
-                        if (localDailyProgress) {
-                            if (!appData.dailyPlanProgress) appData.dailyPlanProgress = {}
-                            const todayLocal = getTodaysDate()
-                            Object.keys(localDailyProgress).forEach(pid => {
-                                const local = localDailyProgress[pid]
-                                if (local && local.date === todayLocal && local.chapters && local.chapters.length > 0) {
-                                    const cloud = appData.dailyPlanProgress[pid]
-                                    if (!cloud || cloud.date !== todayLocal || cloud.chapters.length === 0) {
-                                        appData.dailyPlanProgress[pid] = local
-                                    }
-                                }
-                            })
-                        }
-                        // Merge local chapter read timestamps into cloud profiles, keeping the
-                        // most recent timestamp per chapter. This prevents a stale cloud snapshot
-                        // (e.g. when Firestore debounce hadn't flushed yet before app close) from
-                        // overwriting locally-saved read progress.
-                        if (localProfiles && appData.profiles) {
-                            Object.keys(localProfiles).forEach(profileId => {
-                                if (!appData.profiles[profileId]) return
-                                const localProg = localProfiles[profileId]
-                                const cloudProg = appData.profiles[profileId]
-                                Object.keys(localProg).forEach(chKey => {
-                                    const localTs = localProg[chKey]
-                                    const cloudTs = cloudProg[chKey]
-                                    if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs)) {
-                                        cloudProg[chKey] = localTs
-                                    }
-                                })
-                            })
-                        }
-
-                        // Ensure data integrity
-                        if(!appData.profilePlans) {
-                            appData.profilePlans = {};
-                            Object.keys(appData.profiles).forEach(name => {
-                                appData.profilePlans[name] = 'MCHEYNE';
-                            });
-                        }
-
-                        // Ensure profileSyncRules exists (migration for existing users)
-                        if(!appData.profileSyncRules) {
-                            appData.profileSyncRules = {};
-                        }
-
-                        // Ensure hornerDailyProgress exists (migration for existing users)
-                        if(!appData.hornerDailyProgress) {
-                            appData.hornerDailyProgress = {};
-                        }
-                        // Ensure each profile has hornerDailyProgress initialized
-                        Object.keys(appData.profiles).forEach(profileId => {
-                            if(!appData.hornerDailyProgress[profileId]) {
-                                appData.hornerDailyProgress[profileId] = {
-                                    date: getTodaysDate(),
-                                    completedLists: []
-                                };
-                            }
-                        });
-
-                        // Ensure reading time settings exist (migration for existing users)
-                        if(appData.showReadingTime === undefined) {
-                            appData.showReadingTime = true;
-                        }
-                        if(!appData.wordsPerMinute) {
-                            appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
-                        }
-
-                        // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
-                        // Use epoch 1 to indicate "read at unknown historical time"
-                        Object.keys(appData.profiles).forEach(profileName => {
-                            const profile = appData.profiles[profileName];
-                            Object.keys(profile).forEach(chapterKey => {
-                                if(profile[chapterKey] === true) {
-                                    profile[chapterKey] = 1;
-                                }
-                            });
-                        });
-
-                        // Ensure active profile exists
-                        if(!appData.profiles[appData.activeProfileId]) {
-                            appData.activeProfileId = Object.keys(appData.profiles)[0];
-                        }
-
-                        // Reset daily progress if needed after loading from cloud
-                        resetHornerDailyProgressIfNeeded();
-
-                        localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
-                        refreshUI();
-                    } else {
-                        setDoc(userDocRef, { appData: appData }, { merge: true });
-                    }
-                } else {
-                    setDoc(userDocRef, { appData: appData }, { merge: true });
-                }
+                processCloudSnapshot(docSnap);
             });
         }
 
@@ -3374,7 +3485,14 @@
                 window.renderDailyPlan();
             }
 
-            setTimeout(() => { userIsEditing = false; }, CONFIG.EDIT_COOLDOWN_MS);
+            setTimeout(() => {
+                userIsEditing = false;
+                if (pendingSnapshot) {
+                    const snap = pendingSnapshot;
+                    pendingSnapshot = null;
+                    processCloudSnapshot(snap);
+                }
+            }, CONFIG.EDIT_COOLDOWN_MS);
         };
 
         window.createNewProfile = async () => {
@@ -3785,6 +3903,11 @@
 			setTimeout(() => {
 				userIsEditing = false;
 				console.log('✅ Edit complete');
+				if (pendingSnapshot) {
+					const snap = pendingSnapshot;
+					pendingSnapshot = null;
+					processCloudSnapshot(snap);
+				}
 			}, 2000);
 		};
 
@@ -7975,7 +8098,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 });
             }
 
-            window.saveProgress();
+            window.saveProgress(true);
             // Re-render the chapter to update the UI
             if(currentReaderBook && currentReaderChapter) {
                 renderBibleChapter(currentReaderBook, currentReaderChapter);
@@ -8323,7 +8446,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            window.saveProgress();
+            window.saveProgress(true);
             window.renderChapterGrid();
             if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
             if (typeof window.renderDashboard === 'function') window.renderDashboard();
@@ -8371,7 +8494,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 window.createConfetti(event);
             }
 
-            window.saveProgress();
+            window.saveProgress(true);
             window.renderChapterGrid();
 
             if (buttonEl) {
@@ -8421,7 +8544,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             });
             setProgress(prog);
-            window.saveProgress();
+            window.saveProgress(true);
             window.renderChapterGrid();
         };
 
@@ -12626,6 +12749,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (document.visibilityState === 'hidden') {
                 window.saveProgress(true)
             }
+        });
+
+        // Last-resort save: flush to localStorage synchronously when the tab/window is closing.
+        // visibilitychange doesn't always fire on force-close or mobile app kill.
+        window.addEventListener('beforeunload', () => {
+            try {
+                localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData))
+                localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getProgress()))
+            } catch(e) { /* quota errors are non-fatal here */ }
         });
 
         // --- DARK MODE UI HELPER ---
