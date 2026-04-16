@@ -42,4 +42,11 @@
         <priority>0.7</priority>
     </url>
 
+    <url>
+        <loc>https://bibleprogress.com/biblical-number-meanings.html</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
 </urlset>
