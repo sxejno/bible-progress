@@ -57,6 +57,13 @@
             border-radius: 999px;
             padding: 0.35rem 0.72rem;
         }
+
+        mark {
+            background-color: #fef08a;
+            color: inherit;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -90,7 +97,7 @@
             </article>
         </section>
 
-        <section class="glass hot-miss rounded-3xl p-6 md:p-8">
+        <section class="glass hot-miss rounded-3xl p-6 md:p-8" role="region" aria-label="High-impact language insights">
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-11 h-11 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl">🔥</div>
                 <div>
@@ -120,13 +127,13 @@
                 </article>
                 <article class="rounded-2xl bg-violet-50 border border-violet-100 p-4">
                     <div class="text-xs font-black uppercase tracking-wider text-violet-600">Insight Types</div>
-                    <p class="text-3xl font-black text-violet-900 mt-2">7</p>
+                    <p class="text-3xl font-black text-violet-900 mt-2" id="stat-types">--</p>
                     <p class="text-sm text-violet-800 mt-1">Puns, irony, idioms, sound-play, and narrative echoes.</p>
                 </article>
             </div>
         </section>
 
-        <section class="glass rounded-3xl p-6 md:p-8">
+        <section class="glass rounded-3xl p-6 md:p-8" role="region" aria-label="Language Insight Library">
             <div class="flex flex-wrap items-end gap-4 justify-between mb-5">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Language Insight Library</h2>
@@ -139,33 +146,60 @@
                     <span class="sr-only">Search language insights</span>
                     <input id="search-input" type="text" placeholder="Search by passage, term, or effect (e.g., adamah, born again, play on sound)..." class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
                 </label>
-                <select id="language-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
-                    <option value="all">All Languages</option>
-                    <option value="hebrew">Hebrew / Aramaic (OT)</option>
-                    <option value="greek">Greek (NT)</option>
-                </select>
-                <select id="type-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
-                    <option value="all">All Insight Types</option>
-                    <option value="pun">Pun / Wordplay</option>
-                    <option value="sound">Sound Echo</option>
-                    <option value="irony">Irony</option>
-                    <option value="double-meaning">Double Meaning</option>
-                    <option value="idiom">Idiom</option>
-                    <option value="name-wordplay">Name Wordplay</option>
-                    <option value="narrative-echo">Narrative Echo</option>
-                </select>
+                <label>
+                    <span class="sr-only">Filter by language</span>
+                    <select id="language-filter" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                        <option value="all">All Languages</option>
+                        <option value="hebrew">Hebrew / Aramaic (OT)</option>
+                        <option value="greek">Greek (NT)</option>
+                    </select>
+                </label>
+                <label>
+                    <span class="sr-only">Filter by insight type</span>
+                    <select id="type-filter" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                        <option value="all">All Insight Types</option>
+                        <option value="pun">Pun / Wordplay</option>
+                        <option value="sound">Sound Echo</option>
+                        <option value="irony">Irony</option>
+                        <option value="double-meaning">Double Meaning</option>
+                        <option value="idiom">Idiom</option>
+                        <option value="name-wordplay">Name Wordplay</option>
+                        <option value="narrative-echo">Narrative Echo</option>
+                    </select>
+                </label>
             </div>
 
-            <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 inline-flex mb-5" id="results-count"></div>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2" id="results-count" aria-live="polite"></div>
+                <div class="flex items-center gap-2">
+                    <label for="sort-filter" class="text-sm font-semibold text-slate-600">Sort:</label>
+                    <select id="sort-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                        <option value="canonical">Canonical order</option>
+                        <option value="az">A → Z (passage)</option>
+                        <option value="za">Z → A (passage)</option>
+                        <option value="featured">Featured first</option>
+                    </select>
+                </div>
+            </div>
             <div id="insights-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
             <p id="empty-state" class="hidden text-center text-slate-500 py-10 font-medium">No matches for that query yet. Try a broader search term.</p>
         </section>
     </div>
 
     <footer class="border-t border-slate-200 bg-white mt-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
-            <p>"Open thou mine eyes, that I may behold wondrous things out of thy law." — Psalm 119:18</p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 text-sm text-slate-600 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+                <p class="italic">"Open thou mine eyes, that I may behold wondrous things out of thy law." — Psalm 119:18</p>
+            </div>
+            <div class="border-t border-slate-100 pt-4">
+                <p class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">More Study Tools</p>
+                <div class="flex flex-wrap gap-x-5 gap-y-2">
+                    <a href="biblical-name-meanings.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Biblical Name Meanings →</a>
+                    <a href="biblical-number-meanings.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Biblical Number Meanings →</a>
+                    <a href="millennial-day-theory.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Millennial Day Theory →</a>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -173,7 +207,9 @@
         const insights = [
             {
                 passage: 'Genesis 2:7',
+                book: 'Genesis',
                 original: 'adam / adamah',
+                transliteration: 'ah-DAHM / ah-dah-MAH',
                 language: 'hebrew',
                 type: 'name-wordplay',
                 translationLayer: 'Human (adam) formed from ground (adamah).',
@@ -183,7 +219,9 @@
             },
             {
                 passage: 'Genesis 3:20',
+                book: 'Genesis',
                 original: 'Havvah (Eve)',
+                transliteration: 'khav-VAH',
                 language: 'hebrew',
                 type: 'irony',
                 translationLayer: 'Eve sounds like life/living.',
@@ -193,7 +231,9 @@
             },
             {
                 passage: 'Genesis 11:9',
+                book: 'Genesis',
                 original: 'Babel / balal',
+                transliteration: 'bah-VEL / bah-LAHL',
                 language: 'hebrew',
                 type: 'pun',
                 translationLayer: 'Babel is tied narratively to "confuse" (balal).',
@@ -203,7 +243,9 @@
             },
             {
                 passage: '1 Samuel 25:25',
+                book: '1 Samuel',
                 original: 'Nabal',
+                transliteration: 'nah-VAHL',
                 language: 'hebrew',
                 type: 'name-wordplay',
                 translationLayer: 'Nabal means foolish/senseless.',
@@ -213,6 +255,7 @@
             },
             {
                 passage: 'Micah 1:10–15',
+                book: 'Micah',
                 original: 'Town-name chain',
                 language: 'hebrew',
                 type: 'pun',
@@ -223,7 +266,9 @@
             },
             {
                 passage: 'Jeremiah 1:11–12',
+                book: 'Jeremiah',
                 original: 'shaqed / shoqed',
+                transliteration: 'shah-KED / sho-KED',
                 language: 'hebrew',
                 type: 'sound',
                 translationLayer: 'Almond branch (shaqed) sounds like "watching" (shoqed).',
@@ -233,7 +278,9 @@
             },
             {
                 passage: 'Amos 8:1–2',
+                book: 'Amos',
                 original: 'qayits / qets',
+                transliteration: 'KAH-yits / KETS',
                 language: 'hebrew',
                 type: 'sound',
                 translationLayer: 'Summer fruit (qayits) sounds like end (qets).',
@@ -243,7 +290,9 @@
             },
             {
                 passage: 'Matthew 16:18',
+                book: 'Matthew',
                 original: 'Petros / petra',
+                transliteration: 'PEH-tros / PEH-trah',
                 language: 'greek',
                 type: 'pun',
                 translationLayer: 'Peter (Petros) and rock (petra) are intentionally linked.',
@@ -253,7 +302,9 @@
             },
             {
                 passage: 'John 3:3–8',
+                book: 'John',
                 original: 'anothen',
+                transliteration: 'AH-no-then',
                 language: 'greek',
                 type: 'double-meaning',
                 translationLayer: 'Anothen can mean "again" and "from above."',
@@ -263,7 +314,9 @@
             },
             {
                 passage: 'John 1:38–39',
+                book: 'John',
                 original: 'meno (abide/stay)',
+                transliteration: 'MEH-no',
                 language: 'greek',
                 type: 'narrative-echo',
                 translationLayer: '"Where are you staying?" starts a recurring abide motif.',
@@ -273,7 +326,9 @@
             },
             {
                 passage: 'Philemon 10–11',
+                book: 'Philemon',
                 original: 'Onesimus',
+                transliteration: 'oh-NAY-si-mos',
                 language: 'greek',
                 type: 'name-wordplay',
                 translationLayer: 'Onesimus means useful/beneficial.',
@@ -283,6 +338,7 @@
             },
             {
                 passage: 'Romans 12:20',
+                book: 'Romans',
                 original: 'Heap coals on his head',
                 language: 'greek',
                 type: 'idiom',
@@ -293,6 +349,19 @@
             }
         ];
 
+        const canonicalBooks = [
+            'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth',
+            '1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther',
+            'Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon',
+            'Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel',
+            'Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi',
+            'Matthew','Mark','Luke','John','Acts',
+            'Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians',
+            '1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon',
+            'Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'
+        ];
+        const bookIndex = Object.fromEntries(canonicalBooks.map((b, i) => [b, i]));
+
         const featuredGrid = document.getElementById('featured-grid');
         const insightsGrid = document.getElementById('insights-grid');
         const resultsCount = document.getElementById('results-count');
@@ -301,12 +370,30 @@
         const searchInput = document.getElementById('search-input');
         const languageFilter = document.getElementById('language-filter');
         const typeFilter = document.getElementById('type-filter');
+        const sortFilter = document.getElementById('sort-filter');
 
         const totalStat = document.getElementById('stat-total');
         const featuredStat = document.getElementById('stat-featured');
+        const typesStat = document.getElementById('stat-types');
 
         totalStat.textContent = insights.length;
         featuredStat.textContent = insights.filter(i => i.featured).length;
+        typesStat.textContent = new Set(insights.map(i => i.type)).size;
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function highlight(text, term) {
+            if (!term) return escapeHtml(text);
+            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escapedTerm})`, 'ig');
+            return escapeHtml(text).replace(regex, '<mark>$1</mark>');
+        }
 
         function badgeTone(type) {
             const tones = {
@@ -334,18 +421,34 @@
             return names[type] || type;
         }
 
+        function testamentLabel(language) {
+            return language === 'hebrew' ? 'OT' : 'NT';
+        }
+
+        function testamentTone(language) {
+            return language === 'hebrew'
+                ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                : 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+        }
+
+        function canonicalRank(item) {
+            const idx = bookIndex[item.book];
+            return idx === undefined ? canonicalBooks.length : idx;
+        }
+
         function renderFeatured() {
             const featured = insights.filter(item => item.featured);
             featuredGrid.innerHTML = featured.map(item => `
                 <article class="rounded-2xl bg-white border border-rose-200 p-5 shadow-sm">
                     <div class="flex items-start justify-between gap-3">
-                        <p class="text-lg font-black text-slate-900">${item.passage}</p>
-                        <span class="pill ${badgeTone(item.type)}">${humanType(item.type)}</span>
+                        <p class="text-lg font-black text-slate-900">${escapeHtml(item.passage)}</p>
+                        <span class="pill ${badgeTone(item.type)}">${escapeHtml(humanType(item.type))}</span>
                     </div>
-                    <p class="mt-3 text-sm font-bold text-rose-700">Original-language trigger: ${item.original}</p>
-                    <p class="mt-3 text-slate-700"><span class="font-bold text-slate-900">Ancient ear hears:</span> ${item.translationLayer}</p>
-                    <p class="mt-2 text-slate-700"><span class="font-bold text-slate-900">Why this changes the passage:</span> ${item.whyItMatters}</p>
-                    <p class="mt-2 text-rose-800 bg-rose-50 border border-rose-100 rounded-xl p-3"><span class="font-black">What modern readers miss:</span> ${item.modernMiss}</p>
+                    <p class="mt-3 text-sm font-bold text-rose-700">Original-language trigger: ${escapeHtml(item.original)}</p>
+                    ${item.transliteration ? `<p class="text-xs italic text-slate-500 mt-1">Say it: ${escapeHtml(item.transliteration)}</p>` : ''}
+                    <p class="mt-3 text-slate-700"><span class="font-bold text-slate-900">Ancient ear hears:</span> ${escapeHtml(item.translationLayer)}</p>
+                    <p class="mt-2 text-slate-700"><span class="font-bold text-slate-900">Why this changes the passage:</span> ${escapeHtml(item.whyItMatters)}</p>
+                    <p class="mt-2 text-rose-800 bg-rose-50 border border-rose-100 rounded-xl p-3"><span class="font-black">What modern readers miss:</span> ${escapeHtml(item.modernMiss)}</p>
                 </article>
             `).join('');
         }
@@ -354,11 +457,13 @@
             const query = searchInput.value.trim().toLowerCase();
             const language = languageFilter.value;
             const type = typeFilter.value;
+            const sort = sortFilter.value;
 
             const filtered = insights.filter(item => {
                 const matchesQuery = !query || [
                     item.passage,
                     item.original,
+                    item.transliteration || '',
                     item.translationLayer,
                     item.whyItMatters,
                     item.modernMiss,
@@ -371,20 +476,35 @@
                 return matchesQuery && matchesLanguage && matchesType;
             });
 
-            resultsCount.textContent = `${filtered.length} insight${filtered.length === 1 ? '' : 's'} shown`;
-            emptyState.classList.toggle('hidden', filtered.length !== 0);
+            const sorted = filtered.slice();
+            if (sort === 'canonical') {
+                sorted.sort((a, b) => canonicalRank(a) - canonicalRank(b) || a.passage.localeCompare(b.passage));
+            } else if (sort === 'az') {
+                sorted.sort((a, b) => a.passage.localeCompare(b.passage));
+            } else if (sort === 'za') {
+                sorted.sort((a, b) => b.passage.localeCompare(a.passage));
+            } else if (sort === 'featured') {
+                sorted.sort((a, b) => Number(b.featured) - Number(a.featured) || canonicalRank(a) - canonicalRank(b));
+            }
 
-            insightsGrid.innerHTML = filtered.map(item => `
+            resultsCount.textContent = `${sorted.length} insight${sorted.length === 1 ? '' : 's'} shown`;
+            emptyState.classList.toggle('hidden', sorted.length !== 0);
+
+            insightsGrid.innerHTML = sorted.map(item => `
                 <article class="insight-card rounded-2xl bg-white border border-slate-200 p-5">
                     <div class="flex items-start justify-between gap-3">
-                        <h3 class="text-lg font-black text-slate-900 leading-tight">${item.passage}</h3>
-                        <span class="pill ${badgeTone(item.type)}">${humanType(item.type)}</span>
+                        <h3 class="text-lg font-black text-slate-900 leading-tight">${highlight(item.passage, query)}</h3>
+                        <div class="flex items-center gap-2 flex-wrap justify-end">
+                            <span class="pill ${testamentTone(item.language)}">${testamentLabel(item.language)}</span>
+                            <span class="pill ${badgeTone(item.type)}">${escapeHtml(humanType(item.type))}</span>
+                        </div>
                     </div>
                     <div class="mt-3 text-xs font-black uppercase tracking-widest ${item.language === 'hebrew' ? 'text-indigo-600' : 'text-cyan-600'}">${item.language === 'hebrew' ? 'Hebrew / Aramaic context' : 'Greek context'}</div>
-                    <p class="mt-2 text-sm font-semibold text-slate-800">${item.original}</p>
-                    <p class="mt-3 text-slate-700"><span class="font-bold text-slate-900">Meaning layer:</span> ${item.translationLayer}</p>
-                    <p class="mt-2 text-slate-700"><span class="font-bold text-slate-900">Why it matters:</span> ${item.whyItMatters}</p>
-                    <p class="mt-3 text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3"><span class="font-black text-slate-900">Modern-reader gap:</span> ${item.modernMiss}</p>
+                    <p class="mt-2 text-sm font-semibold text-slate-800">${highlight(item.original, query)}</p>
+                    ${item.transliteration ? `<p class="text-xs italic text-slate-500 mt-1">Say it: ${highlight(item.transliteration, query)}</p>` : ''}
+                    <p class="mt-3 text-slate-700"><span class="font-bold text-slate-900">Meaning layer:</span> ${highlight(item.translationLayer, query)}</p>
+                    <p class="mt-2 text-slate-700"><span class="font-bold text-slate-900">Why it matters:</span> ${highlight(item.whyItMatters, query)}</p>
+                    <p class="mt-3 text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3"><span class="font-black text-slate-900">Modern-reader gap:</span> ${highlight(item.modernMiss, query)}</p>
                 </article>
             `).join('');
         }
@@ -392,6 +512,7 @@
         searchInput.addEventListener('input', renderLibrary);
         languageFilter.addEventListener('change', renderLibrary);
         typeFilter.addEventListener('change', renderLibrary);
+        sortFilter.addEventListener('change', renderLibrary);
 
         renderFeatured();
         renderLibrary();
