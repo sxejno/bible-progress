@@ -34,4 +34,12 @@
         <priority>0.6</priority>
     </url>
 
+    <!-- Study Tools -->
+    <url>
+        <loc>https://bibleprogress.com/biblical-name-meanings.html</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
 </urlset>
