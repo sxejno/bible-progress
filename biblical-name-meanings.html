@@ -4,22 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Biblical Name Meanings - Bible Progress</title>
-    <meta name="description" content="Discover the meaning behind major biblical names. Learn how ancient Hebrew and Greek names carry theological significance that modern readers often miss.">
+    <meta name="description" content="Discover 100+ biblical name meanings with context notes, category filters, and OT/NT links that modern readers often miss.">
     <meta property="og:title" content="Biblical Name Meanings - Bible Progress">
-    <meta property="og:description" content="Ancient readers heard theology inside a person's name. Recover that layer for 45+ major biblical names with context notes and references.">
+    <meta property="og:description" content="Explore 100+ biblical names across OT and NT with meaning, references, categories, and story context.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bibleprogress.com/biblical-name-meanings.html">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Biblical Name Meanings - Bible Progress">
-    <meta name="twitter:description" content="Discover the meaning behind major biblical names and where modern readers miss crucial story context.">
+    <meta name="twitter:description" content="A study page on 100+ biblical names, meanings, references, and theological context notes.">
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-        :root {
-            color-scheme: light;
-        }
+        :root { color-scheme: light; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -35,23 +33,28 @@
             box-shadow: 0 10px 35px rgba(79, 70, 229, 0.08);
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.45s ease;
-        }
+        .animate-fade-in { animation: fadeIn 0.45s ease; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .name-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
+        .name-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
 
         .name-card:hover {
             transform: translateY(-2px);
             border-color: rgba(99, 102, 241, 0.35);
             box-shadow: 0 12px 30px rgba(79, 70, 229, 0.14);
+        }
+
+        .pill {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
         }
 
         mark {
@@ -85,7 +88,7 @@
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-emerald-500">How to use this page</div>
-                <p class="mt-2 text-slate-700">Search by name, then scan the context note. Use the highlighted section first for biggest “aha” moments.</p>
+                <p class="mt-2 text-slate-700">Search by name, then scan the context note. Filter by testament and category before sorting A→Z for focused study.</p>
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-amber-500">Study tip</div>
@@ -105,15 +108,39 @@
         </section>
 
         <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="grid md:grid-cols-4 gap-4">
+                <article class="rounded-2xl bg-indigo-50 border border-indigo-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-indigo-600">Total Names</div>
+                    <p class="text-3xl font-black text-indigo-900 mt-2">100+</p>
+                    <p class="text-sm text-indigo-800 mt-1">Expanded library with canonical sweep coverage.</p>
+                </article>
+                <article class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-emerald-600">Testament Spread</div>
+                    <p class="text-3xl font-black text-emerald-900 mt-2">OT + NT</p>
+                    <p class="text-sm text-emerald-800 mt-1">Includes cross-testament meaning continuity.</p>
+                </article>
+                <article class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-amber-600">Featured</div>
+                    <p class="text-3xl font-black text-amber-900 mt-2">8</p>
+                    <p class="text-sm text-amber-800 mt-1">High-impact names where meaning is narrative-critical.</p>
+                </article>
+                <article class="rounded-2xl bg-violet-50 border border-violet-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-violet-600">Categories</div>
+                    <p class="text-3xl font-black text-violet-900 mt-2">9</p>
+                    <p class="text-sm text-violet-800 mt-1">Patriarchs, prophets, places, titles, and more.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="glass rounded-3xl p-6 md:p-8">
             <div class="flex flex-wrap items-end gap-4 justify-between mb-5">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Name Meaning Library</h2>
                     <p class="text-slate-600 mt-1">Curated meanings and quick context notes.</p>
                 </div>
-                <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2" id="results-count"></div>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-3 mb-5">
+            <div class="grid md:grid-cols-4 gap-3 mb-4">
                 <label class="md:col-span-2">
                     <span class="sr-only">Search names</span>
                     <input id="search-input" type="text" placeholder="Search by name, meaning, story context (e.g., Jacob, grace, wrestle)..." class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
@@ -122,7 +149,32 @@
                     <option value="all">All Testaments</option>
                     <option value="old">Old Testament</option>
                     <option value="new">New Testament</option>
+                    <option value="both">Both Testaments</option>
                 </select>
+                <select id="category-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                    <option value="all">All Categories</option>
+                    <option value="patriarch">Patriarch</option>
+                    <option value="prophet">Prophet</option>
+                    <option value="king">King</option>
+                    <option value="judge">Judge</option>
+                    <option value="priest">Priest</option>
+                    <option value="apostle">Apostle</option>
+                    <option value="place">Place</option>
+                    <option value="title">Title</option>
+                    <option value="woman-of-faith">Woman of faith</option>
+                </select>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2" id="results-count"></div>
+                <div class="flex items-center gap-2">
+                    <label for="sort-filter" class="text-sm font-semibold text-slate-600">Sort:</label>
+                    <select id="sort-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                        <option value="canonical">Canonical Order</option>
+                        <option value="az">A→Z</option>
+                        <option value="za">Z→A</option>
+                    </select>
+                </div>
             </div>
 
             <div id="names-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
@@ -130,56 +182,119 @@
         </section>
     </div>
 
+    <footer class="border-t border-slate-200 bg-white mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+            <p>"The name of the LORD is a strong tower: the righteous runneth into it, and is safe." — Proverbs 18:10</p>
+        </div>
+    </footer>
+
     <script>
         const names = [
-            { name: 'Adam', meaning: 'Man / mankind (from ground)', testament: 'old', refs: 'Genesis 2–3', note: 'Humanity’s representative; tied to dust and creaturely dependence.' },
-            { name: 'Eve', meaning: 'Life / living one', testament: 'old', refs: 'Genesis 3:20', note: 'Named as “mother of all living” in the middle of judgment and promise.' },
-            { name: 'Noah', meaning: 'Rest / comfort', testament: 'old', refs: 'Genesis 5:29', note: 'His father expects relief from the cursed ground; story explores true rest.' },
-            { name: 'Abram / Abraham', meaning: 'Exalted father / father of multitudes', testament: 'old', refs: 'Genesis 17', note: 'Name change marks covenant expansion from family to nations.' },
-            { name: 'Sarai / Sarah', meaning: 'Princess', testament: 'old', refs: 'Genesis 17', note: 'Her royal motherhood is central to the promise line.' },
-            { name: 'Isaac', meaning: 'He laughs', testament: 'old', refs: 'Genesis 17–21', note: 'The child of promise carries the memory of doubtful and joyful laughter.' },
-            { name: 'Jacob', meaning: 'Heel-grabber / supplanter', testament: 'old', refs: 'Genesis 25–32', note: 'His early manipulative life embodies his name until transformation.' },
-            { name: 'Israel', meaning: 'He strives with God / God strives', testament: 'old', refs: 'Genesis 32:28', note: 'New name after wrestling signals a new identity by grace and struggle.' },
-            { name: 'Esau / Edom', meaning: 'Hairy / red', testament: 'old', refs: 'Genesis 25', note: 'Earthy descriptors foreshadow his story and descendants (Edom).' },
-            { name: 'Joseph', meaning: 'May he add', testament: 'old', refs: 'Genesis 30:24', note: 'Rachel’s naming hope aligns with Joseph becoming source of future increase.' },
-            { name: 'Moses', meaning: 'Drawn out', testament: 'old', refs: 'Exodus 2:10', note: 'Drawn from water; later draws Israel through waters of deliverance.' },
-            { name: 'Aaron', meaning: 'Exalted / lofty', testament: 'old', refs: 'Exodus–Leviticus', note: 'His office elevates him as high priest before God.' },
-            { name: 'Miriam', meaning: 'Bitterness / beloved (debated)', testament: 'old', refs: 'Exodus 15', note: 'Her song frames redemption despite wilderness tensions.' },
-            { name: 'Joshua', meaning: 'Yahweh is salvation', testament: 'old', refs: 'Numbers–Joshua', note: 'His name anticipates conquest as God’s saving work, not Israel’s genius.' },
-            { name: 'Samuel', meaning: 'Heard by God', testament: 'old', refs: '1 Samuel 1', note: 'Hannah’s prayed-for son becomes prophetic voice who hears and speaks God’s word.' },
-            { name: 'Saul', meaning: 'Asked for', testament: 'old', refs: '1 Samuel 9', note: 'Israel asks for a king and receives “asked-for” Saul.' },
-            { name: 'David', meaning: 'Beloved', testament: 'old', refs: '1 Samuel 16 onward', note: 'Beloved king language deepens covenant and messianic expectation.' },
-            { name: 'Solomon', meaning: 'Peace', testament: 'old', refs: '2 Samuel 12; 1 Kings', note: 'His reign begins with shalom imagery, though later fractured by sin.' },
-            { name: 'Jedidiah', meaning: 'Beloved of Yahweh', testament: 'old', refs: '2 Samuel 12:25', note: 'A grace-name given in Solomon’s early story.' },
-            { name: 'Ichabod', meaning: 'No glory', testament: 'old', refs: '1 Samuel 4:21', note: 'A devastating theological headline after ark loss.' },
-            { name: 'Isaiah', meaning: 'Yahweh saves', testament: 'old', refs: 'Isaiah', note: 'His own name summarizes his book’s message.' },
-            { name: 'Hezekiah', meaning: 'Yahweh strengthens', testament: 'old', refs: '2 Kings 18–20', note: 'Name matches deliverance themes against Assyria.' },
-            { name: 'Josiah', meaning: 'Yahweh supports / heals', testament: 'old', refs: '2 Kings 22–23', note: 'Reform king tied to covenant renewal.' },
-            { name: 'Daniel', meaning: 'God is my judge', testament: 'old', refs: 'Daniel', note: 'Exilic faithfulness under pagan courts fits the confession.' },
-            { name: 'Elijah', meaning: 'My God is Yahweh', testament: 'old', refs: '1 Kings 17–2 Kings 2', note: 'His name is a polemic against Baal worship.' },
-            { name: 'Elisha', meaning: 'My God is salvation', testament: 'old', refs: '2 Kings', note: 'Miracle ministry reinforces God as rescuer.' },
-            { name: 'Hosea', meaning: 'Salvation', testament: 'old', refs: 'Hosea', note: 'Prophet of covenant love carries a salvation-name.' },
-            { name: 'Joel', meaning: 'Yahweh is God', testament: 'old', refs: 'Joel', note: 'Short prophecy, direct theological confession in the name.' },
-            { name: 'Jonah', meaning: 'Dove', testament: 'old', refs: 'Jonah', note: 'A “dove” prophet of mercy wrestles with mercy for enemies.' },
-            { name: 'Bethlehem', meaning: 'House of bread', testament: 'old', refs: 'Ruth; Micah 5; Matthew 2', note: 'Davidic town where Messiah is born; rich symbolic resonance.' },
-            { name: 'Immanuel', meaning: 'God with us', testament: 'old', refs: 'Isaiah 7:14; Matthew 1:23', note: 'From prophetic sign to christological fulfillment.' },
-            { name: 'Malachi', meaning: 'My messenger', testament: 'old', refs: 'Malachi 1:1', note: 'Book title itself frames messenger themes.' },
+            { name: 'Adam', meaning: 'Man / mankind (from ground)', testament: 'old', category: 'patriarch', refs: 'Genesis 2–3', note: 'Humanity’s representative; tied to dust and creaturely dependence.' },
+            { name: 'Eve', meaning: 'Life / living one', testament: 'old', category: 'woman-of-faith', refs: 'Genesis 3:20', note: 'Named as “mother of all living” in the middle of judgment and promise.' },
+            { name: 'Cain', meaning: 'Acquired / gotten', testament: 'old', category: 'patriarch', refs: 'Genesis 4:1', note: 'Eve names him with acquisition-language that turns tragic.' },
+            { name: 'Abel', meaning: 'Breath / vapor', testament: 'old', category: 'patriarch', refs: 'Genesis 4:2', note: 'His brief life mirrors the fragility embedded in his name.' },
+            { name: 'Seth', meaning: 'Appointed', testament: 'old', category: 'patriarch', refs: 'Genesis 4:25', note: 'A replacement line appointed after Abel’s death.' },
+            { name: 'Noah', meaning: 'Rest / comfort', testament: 'old', category: 'patriarch', refs: 'Genesis 5:29', note: 'His father expects relief from the cursed ground; story explores true rest.' },
+            { name: 'Abram / Abraham', meaning: 'Exalted father / father of multitudes', testament: 'old', category: 'patriarch', refs: 'Genesis 17', note: 'Name change marks covenant expansion from family to nations.' },
+            { name: 'Sarai / Sarah', meaning: 'Princess', testament: 'old', category: 'woman-of-faith', refs: 'Genesis 17', note: 'Her royal motherhood is central to the promise line.' },
+            { name: 'Lot', meaning: 'Veil / covering (debated)', testament: 'old', category: 'patriarch', refs: 'Genesis 11–19', note: 'Lives near covenant blessing but repeatedly chooses compromised proximity.' },
+            { name: 'Isaac', meaning: 'He laughs', testament: 'old', category: 'patriarch', refs: 'Genesis 17–21', note: 'The child of promise carries the memory of doubtful and joyful laughter.' },
+            { name: 'Jacob', meaning: 'Heel-grabber / supplanter', testament: 'old', category: 'patriarch', refs: 'Genesis 25–32', note: 'His early manipulative life embodies his name until transformation.' },
+            { name: 'Israel', meaning: 'He strives with God / God strives', testament: 'old', category: 'patriarch', refs: 'Genesis 32:28', note: 'New name after wrestling signals a new identity by grace and struggle.' },
+            { name: 'Esau / Edom', meaning: 'Hairy / red', testament: 'old', category: 'patriarch', refs: 'Genesis 25', note: 'Earthy descriptors foreshadow his story and descendants (Edom).' },
+            { name: 'Leah', meaning: 'Weary / wild cow (debated)', testament: 'old', category: 'woman-of-faith', refs: 'Genesis 29–30', note: 'From unloved wife to mother in Israel’s royal and priestly lines.' },
+            { name: 'Rachel', meaning: 'Ewe', testament: 'old', category: 'woman-of-faith', refs: 'Genesis 29–35', note: 'Beloved matriarch whose naming moments shape tribal futures.' },
+            { name: 'Reuben', meaning: 'See, a son', testament: 'old', category: 'patriarch', refs: 'Genesis 29:32', note: 'Leah’s cry for recognition is encoded in his name.' },
+            { name: 'Judah', meaning: 'Praise', testament: 'old', category: 'patriarch', refs: 'Genesis 29:35', note: 'Praise-language becomes the messianic tribal line.' },
+            { name: 'Benjamin', meaning: 'Son of the right hand', testament: 'old', category: 'patriarch', refs: 'Genesis 35:18', note: 'Jacob transforms sorrow-name Ben-oni into honor-name Benjamin.' },
+            { name: 'Joseph', meaning: 'May he add', testament: 'old', category: 'patriarch', refs: 'Genesis 30:24', note: 'Rachel’s naming hope aligns with Joseph becoming source of future increase.' },
+            { name: 'Moses', meaning: 'Drawn out', testament: 'old', category: 'prophet', refs: 'Exodus 2:10', note: 'Drawn from water; later draws Israel through waters of deliverance.' },
+            { name: 'Aaron', meaning: 'Exalted / lofty', testament: 'old', category: 'priest', refs: 'Exodus–Leviticus', note: 'His office elevates him as high priest before God.' },
+            { name: 'Miriam', meaning: 'Bitterness / beloved (debated)', testament: 'old', category: 'woman-of-faith', refs: 'Exodus 15', note: 'Her song frames redemption despite wilderness tensions.' },
+            { name: 'Joshua', meaning: 'Yahweh is salvation', testament: 'old', category: 'judge', refs: 'Numbers–Joshua', note: 'His name anticipates conquest as God’s saving work, not Israel’s genius.' },
+            { name: 'Deborah', meaning: 'Bee', testament: 'old', category: 'judge', refs: 'Judges 4–5', note: 'A prophet-judge whose leadership awakens covenant courage.' },
+            { name: 'Gideon', meaning: 'Hewer / one who cuts down', testament: 'old', category: 'judge', refs: 'Judges 6–8', note: 'His name fits Baal-altar destruction and military deliverance.' },
+            { name: 'Samson', meaning: 'Sun-like', testament: 'old', category: 'judge', refs: 'Judges 13–16', note: 'A bright calling clouded by compromised desires.' },
+            { name: 'Ruth', meaning: 'Friendship / companion', testament: 'old', category: 'woman-of-faith', refs: 'Ruth', note: 'Her covenant loyalty bridges exile pain and Davidic hope.' },
+            { name: 'Naomi', meaning: 'Pleasant', testament: 'old', category: 'woman-of-faith', refs: 'Ruth 1', note: 'She renames herself Mara, dramatizing bitterness and restoration.' },
+            { name: 'Boaz', meaning: 'In him is strength', testament: 'old', category: 'patriarch', refs: 'Ruth 2–4', note: 'A kinsman-redeemer whose strength protects the vulnerable.' },
+            { name: 'Samuel', meaning: 'Heard by God', testament: 'old', category: 'prophet', refs: '1 Samuel 1', note: 'Hannah’s prayed-for son becomes prophetic voice who hears and speaks God’s word.' },
+            { name: 'Saul', meaning: 'Asked for', testament: 'old', category: 'king', refs: '1 Samuel 9', note: 'Israel asks for a king and receives “asked-for” Saul.' },
+            { name: 'David', meaning: 'Beloved', testament: 'old', category: 'king', refs: '1 Samuel 16 onward', note: 'Beloved king language deepens covenant and messianic expectation.' },
+            { name: 'Nathan', meaning: 'He gave', testament: 'old', category: 'prophet', refs: '2 Samuel 7; 12', note: 'Court prophet through whom covenant promise and rebuke are given.' },
+            { name: 'Solomon', meaning: 'Peace', testament: 'old', category: 'king', refs: '2 Samuel 12; 1 Kings', note: 'His reign begins with shalom imagery, though later fractured by sin.' },
+            { name: 'Jedidiah', meaning: 'Beloved of Yahweh', testament: 'old', category: 'title', refs: '2 Samuel 12:25', note: 'A grace-name given in Solomon’s early story.' },
+            { name: 'Absalom', meaning: 'Father of peace', testament: 'old', category: 'king', refs: '2 Samuel 13–18', note: 'A tragic irony: peace-name attached to civil revolt.' },
+            { name: 'Rehoboam', meaning: 'The people are enlarged', testament: 'old', category: 'king', refs: '1 Kings 12', note: 'His reign instead fractures the united kingdom.' },
+            { name: 'Jeroboam', meaning: 'The people contend / increase', testament: 'old', category: 'king', refs: '1 Kings 11–14', note: 'Associated with durable idolatry formulas in Kings.' },
+            { name: 'Ahab', meaning: 'Father’s brother (debated)', testament: 'old', category: 'king', refs: '1 Kings 16–22', note: 'Royal power fused with covenant unfaithfulness.' },
+            { name: 'Jezebel', meaning: 'Where is the prince? (debated)', testament: 'old', category: 'woman-of-faith', refs: '1 Kings 16–2 Kings 9', note: 'Her name becomes shorthand for militant idolatry.' },
+            { name: 'Elijah', meaning: 'My God is Yahweh', testament: 'both', category: 'prophet', refs: '1 Kings 17–2 Kings 2; Matthew 17', note: 'His name is a polemic against Baal and echoes into NT expectation.' },
+            { name: 'Elisha', meaning: 'My God is salvation', testament: 'old', category: 'prophet', refs: '2 Kings', note: 'Miracle ministry reinforces God as rescuer.' },
+            { name: 'Ichabod', meaning: 'No glory', testament: 'old', category: 'title', refs: '1 Samuel 4:21', note: 'A devastating theological headline after ark loss.' },
+            { name: 'Caleb', meaning: 'Dog / wholehearted', testament: 'old', category: 'judge', refs: 'Numbers 13–14; Joshua 14', note: 'Remembered for whole-hearted faith against fearful majority.' },
+            { name: 'Eli', meaning: 'My God / ascent', testament: 'old', category: 'priest', refs: '1 Samuel 1–4', note: 'Priesthood decline sets stage for prophetic reform.' },
+            { name: 'Hezekiah', meaning: 'Yahweh strengthens', testament: 'old', category: 'king', refs: '2 Kings 18–20', note: 'Name matches deliverance themes against Assyria.' },
+            { name: 'Josiah', meaning: 'Yahweh supports / heals', testament: 'old', category: 'king', refs: '2 Kings 22–23', note: 'Reform king tied to covenant renewal.' },
+            { name: 'Naaman', meaning: 'Pleasantness', testament: 'old', category: 'title', refs: '2 Kings 5', note: 'A foreign commander humbled into healing obedience.' },
+            { name: 'Ezra', meaning: 'Help', testament: 'old', category: 'priest', refs: 'Ezra 7', note: 'Scribe-priest who restores Torah-centered worship.' },
+            { name: 'Nehemiah', meaning: 'Yahweh comforts', testament: 'old', category: 'title', refs: 'Nehemiah', note: 'Wall-rebuilder whose prayerful leadership restores communal courage.' },
+            { name: 'Esther', meaning: 'Star', testament: 'old', category: 'woman-of-faith', refs: 'Esther', note: 'A hidden-yet-strategic witness preserving covenant people.' },
+            { name: 'Mordecai', meaning: 'Warrior / servant of Marduk (debated)', testament: 'old', category: 'title', refs: 'Esther', note: 'His courage at the gate triggers providential reversal.' },
+            { name: 'Job', meaning: 'Persecuted / where is the father?', testament: 'old', category: 'title', refs: 'Job', note: 'Name attaches to questions of suffering, justice, and trust.' },
+            { name: 'Isaiah', meaning: 'Yahweh saves', testament: 'old', category: 'prophet', refs: 'Isaiah', note: 'His own name summarizes his book’s message.' },
+            { name: 'Jeremiah', meaning: 'Yahweh appoints / lifts up', testament: 'old', category: 'prophet', refs: 'Jeremiah', note: 'Tears and truth cohere in a call to covenant return.' },
+            { name: 'Ezekiel', meaning: 'God strengthens', testament: 'old', category: 'prophet', refs: 'Ezekiel', note: 'Strength-language fits a prophet ministering in exile collapse.' },
+            { name: 'Daniel', meaning: 'God is my judge', testament: 'old', category: 'prophet', refs: 'Daniel', note: 'Exilic faithfulness under pagan courts fits the confession.' },
+            { name: 'Hosea', meaning: 'Salvation', testament: 'old', category: 'prophet', refs: 'Hosea', note: 'Prophet of covenant love carries a salvation-name.' },
+            { name: 'Joel', meaning: 'Yahweh is God', testament: 'old', category: 'prophet', refs: 'Joel', note: 'Short prophecy, direct theological confession in the name.' },
+            { name: 'Amos', meaning: 'Burden-bearer', testament: 'old', category: 'prophet', refs: 'Amos', note: 'Justice-heavy oracles carried as a prophetic burden.' },
+            { name: 'Obadiah', meaning: 'Servant of Yahweh', testament: 'old', category: 'prophet', refs: 'Obadiah', note: 'Shortest OT book, sharp covenant verdict on Edom.' },
+            { name: 'Jonah', meaning: 'Dove', testament: 'old', category: 'prophet', refs: 'Jonah', note: 'A “dove” prophet of mercy wrestles with mercy for enemies.' },
+            { name: 'Micah', meaning: 'Who is like Yahweh?', testament: 'old', category: 'prophet', refs: 'Micah', note: 'Name itself is a doxological challenge to idols.' },
+            { name: 'Nahum', meaning: 'Comfort', testament: 'old', category: 'prophet', refs: 'Nahum', note: 'Judgment on Nineveh as comfort for oppressed Judah.' },
+            { name: 'Habakkuk', meaning: 'Embrace', testament: 'old', category: 'prophet', refs: 'Habakkuk', note: 'Faith clings to God amid perplexing injustice.' },
+            { name: 'Zephaniah', meaning: 'Yahweh has hidden', testament: 'old', category: 'prophet', refs: 'Zephaniah', note: 'Judgment and remnant-protection motifs intertwine.' },
+            { name: 'Haggai', meaning: 'Festive', testament: 'old', category: 'prophet', refs: 'Haggai', note: 'Temple rebuilding restores worshipal priority.' },
+            { name: 'Zechariah', meaning: 'Yahweh remembers', testament: 'old', category: 'prophet', refs: 'Zechariah', note: 'Post-exilic visions anchor covenant remembrance.' },
+            { name: 'Malachi', meaning: 'My messenger', testament: 'old', category: 'prophet', refs: 'Malachi 1:1', note: 'Book title itself frames messenger themes.' },
+            { name: 'Cyrus', meaning: 'Sun / throne (debated)', testament: 'old', category: 'king', refs: 'Isaiah 44–45; Ezra 1', note: 'A foreign king called God’s shepherd for return from exile.' },
+            { name: 'Bethlehem', meaning: 'House of bread', testament: 'both', category: 'place', refs: 'Ruth; Micah 5; Matthew 2', note: 'Davidic town where Messiah is born; rich symbolic resonance.' },
+            { name: 'Immanuel', meaning: 'God with us', testament: 'both', category: 'title', refs: 'Isaiah 7:14; Matthew 1:23', note: 'From prophetic sign to christological fulfillment.' },
 
-            { name: 'Jesus (Yeshua)', meaning: 'Yahweh saves', testament: 'new', refs: 'Matthew 1:21', note: 'Angel explicitly ties His name to His mission: saving from sins.' },
-            { name: 'Christ / Messiah', meaning: 'Anointed one', testament: 'new', refs: 'Gospels', note: 'Title-name links Jesus to kingship, priesthood, and promised deliverer.' },
-            { name: 'John', meaning: 'Yahweh is gracious', testament: 'new', refs: 'Luke 1', note: 'Given by divine instruction before birth, framing grace in forerunner ministry.' },
-            { name: 'Peter (Cephas)', meaning: 'Rock / stone', testament: 'new', refs: 'Matthew 16; John 1', note: 'Jesus renames Simon toward future role and stability.' },
-            { name: 'Paul', meaning: 'Small / humble', testament: 'new', refs: 'Acts onward', note: 'Apostolic paradox: weakness and humility magnify divine power.' },
-            { name: 'Barnabas', meaning: 'Son of encouragement', testament: 'new', refs: 'Acts 4:36', note: 'Nickname perfectly captures his ministry function in Acts.' },
-            { name: 'Thomas (Didymus)', meaning: 'Twin', testament: 'new', refs: 'John 11; 20', note: 'Often remembered for doubt, but also for courageous loyalty.' },
-            { name: 'Mary (Miriam)', meaning: 'Bitterness / beloved (debated)', testament: 'new', refs: 'Gospels', note: 'Common name with deep Hebrew roots across multiple key women.' },
-            { name: 'Martha', meaning: 'Lady / mistress', testament: 'new', refs: 'Luke 10; John 11', note: 'Hospitality role resonates with the name’s household sense.' },
-            { name: 'Lazarus (Eleazar)', meaning: 'God has helped', testament: 'new', refs: 'John 11', note: 'Powerful irony: the one “helped by God” is raised from death.' },
-            { name: 'Emmanuel', meaning: 'God with us', testament: 'new', refs: 'Matthew 1:23', note: 'Matthew explicitly reads Jesus through Isaiah’s name-sign.' },
-            { name: 'Gabriel', meaning: 'God is my strength', testament: 'new', refs: 'Luke 1', note: 'Messenger of incarnation announcements carries a strength-name.' },
-            { name: 'Nazareth', meaning: 'Branch / watchtower (debated)', testament: 'new', refs: 'Matthew 2', note: 'Often linked to prophetic “branch” motifs in Christian interpretation.' },
-            { name: 'Boanerges', meaning: 'Sons of thunder', testament: 'new', refs: 'Mark 3:17', note: 'Jesus’ nickname for James and John hints at zeal and temperament.' },
-            { name: 'Tabitha (Dorcas)', meaning: 'Gazelle', testament: 'new', refs: 'Acts 9', note: 'Graceful imagery accompanies a life full of mercy works.' }
+            { name: 'Jesus (Yeshua)', meaning: 'Yahweh saves', testament: 'new', category: 'title', refs: 'Matthew 1:21', note: 'Angel explicitly ties His name to His mission: saving from sins.' },
+            { name: 'Christ / Messiah', meaning: 'Anointed one', testament: 'new', category: 'title', refs: 'Gospels', note: 'Title-name links Jesus to kingship, priesthood, and promised deliverer.' },
+            { name: 'John', meaning: 'Yahweh is gracious', testament: 'new', category: 'title', refs: 'Luke 1', note: 'Given by divine instruction before birth, framing grace in forerunner ministry.' },
+            { name: 'Peter (Cephas)', meaning: 'Rock / stone', testament: 'new', category: 'apostle', refs: 'Matthew 16; John 1', note: 'Jesus renames Simon toward future role and stability.' },
+            { name: 'Andrew', meaning: 'Manly / courageous', testament: 'new', category: 'apostle', refs: 'John 1:40-42', note: 'Often the first inviter in disciple networks.' },
+            { name: 'James', meaning: 'Supplanter (from Jacob)', testament: 'new', category: 'apostle', refs: 'Gospels; Acts 12', note: 'A Jacob-name in apostolic mission context.' },
+            { name: 'Philip', meaning: 'Lover of horses', testament: 'new', category: 'apostle', refs: 'John 1; Acts 8', note: 'Bridges Jewish and Gentile mission moments.' },
+            { name: 'Matthew', meaning: 'Gift of Yahweh', testament: 'new', category: 'apostle', refs: 'Matthew 9:9', note: 'Tax collector turned Gospel witness.' },
+            { name: 'Nathanael', meaning: 'God has given', testament: 'new', category: 'apostle', refs: 'John 1:45-49', note: 'Confesses Jesus rapidly after being seen and known.' },
+            { name: 'Thomas (Didymus)', meaning: 'Twin', testament: 'new', category: 'apostle', refs: 'John 11; 20', note: 'Often remembered for doubt, but also for courageous loyalty.' },
+            { name: 'Paul', meaning: 'Small / humble', testament: 'new', category: 'apostle', refs: 'Acts onward', note: 'Apostolic paradox: weakness and humility magnify divine power.' },
+            { name: 'Barnabas', meaning: 'Son of encouragement', testament: 'new', category: 'apostle', refs: 'Acts 4:36', note: 'Nickname perfectly captures his ministry function in Acts.' },
+            { name: 'Silas', meaning: 'Of the forest / asked for (debated)', testament: 'new', category: 'apostle', refs: 'Acts 15–18', note: 'Missionary companion in persecution and praise.' },
+            { name: 'Timothy', meaning: 'Honoring God', testament: 'new', category: 'apostle', refs: 'Acts 16; 1-2 Timothy', note: 'Pastoral delegate trained for faithful continuity.' },
+            { name: 'Stephen', meaning: 'Crown', testament: 'new', category: 'title', refs: 'Acts 6–7', note: 'First martyr crowned through witness and forgiveness.' },
+            { name: 'Luke', meaning: 'Light-giving', testament: 'new', category: 'title', refs: 'Colossians 4:14; Luke-Acts', note: 'Physician-historian illuminating Gospel continuity.' },
+            { name: 'Mark', meaning: 'Hammer / consecrated to Mars (Latin)', testament: 'new', category: 'title', refs: 'Acts 12; Mark', note: 'From early conflict to fruitful service partnership.' },
+            { name: 'Apollos', meaning: 'Belonging to Apollo', testament: 'new', category: 'title', refs: 'Acts 18', note: 'Powerful teacher whose gifts needed fuller doctrinal framing.' },
+            { name: 'Aquila', meaning: 'Eagle', testament: 'new', category: 'title', refs: 'Acts 18', note: 'Tentmaker teammate in mission infrastructure.' },
+            { name: 'Priscilla', meaning: 'Ancient / venerable', testament: 'new', category: 'woman-of-faith', refs: 'Acts 18; Romans 16', note: 'A teacher-host whose ministry repeatedly appears first in the pair.' },
+            { name: 'Lydia', meaning: 'Woman from Lydia', testament: 'new', category: 'woman-of-faith', refs: 'Acts 16', note: 'Her household becomes an early Philippian church base.' },
+            { name: 'Mary (Miriam)', meaning: 'Bitterness / beloved (debated)', testament: 'new', category: 'woman-of-faith', refs: 'Gospels', note: 'Common name with deep Hebrew roots across multiple key women.' },
+            { name: 'Martha', meaning: 'Lady / mistress', testament: 'new', category: 'woman-of-faith', refs: 'Luke 10; John 11', note: 'Hospitality role resonates with the name’s household sense.' },
+            { name: 'Lazarus (Eleazar)', meaning: 'God has helped', testament: 'new', category: 'title', refs: 'John 11', note: 'Powerful irony: the one “helped by God” is raised from death.' },
+            { name: 'Gabriel', meaning: 'God is my strength', testament: 'new', category: 'title', refs: 'Luke 1', note: 'Messenger of incarnation announcements carries a strength-name.' },
+            { name: 'Nazareth', meaning: 'Branch / watchtower (debated)', testament: 'new', category: 'place', refs: 'Matthew 2', note: 'Often linked to prophetic “branch” motifs in Christian interpretation.' },
+            { name: 'Nicodemus', meaning: 'Victory of the people', testament: 'new', category: 'title', refs: 'John 3; 19', note: 'Moves from nighttime seeker to public allegiance.' },
+            { name: 'Zacchaeus', meaning: 'Pure / innocent', testament: 'new', category: 'title', refs: 'Luke 19:1-10', note: 'Grace remakes a compromised public reputation.' },
+            { name: 'Cornelius', meaning: 'Horn-like / of a horn', testament: 'new', category: 'title', refs: 'Acts 10', note: 'Gentile turning point in Spirit-led mission expansion.' },
+            { name: 'Boanerges', meaning: 'Sons of thunder', testament: 'new', category: 'title', refs: 'Mark 3:17', note: 'Jesus’ nickname for James and John hints at zeal and temperament.' },
+            { name: 'Tabitha (Dorcas)', meaning: 'Gazelle', testament: 'new', category: 'woman-of-faith', refs: 'Acts 9', note: 'Graceful imagery accompanies a life full of mercy works.' }
         ];
 
         const featured = [
@@ -187,7 +302,7 @@
                 name: 'Jesus',
                 meaning: 'Yahweh saves',
                 refs: 'Matthew 1:21',
-                impact: 'The angel says this name because He will save His people from their sins. If we miss the meaning, we miss the mission statement of the Gospel at the naming moment.'
+                impact: 'The angel says this name because He will save His people from their sins. If we miss the meaning, we miss the mission statement of the Gospel.'
             },
             {
                 name: 'Isaac',
@@ -218,18 +333,60 @@
                 meaning: 'God with us',
                 refs: 'Isaiah 7:14; Matthew 1:23',
                 impact: 'A name that bridges prophecy and fulfillment. Missing it blunts one of Scripture’s most sweeping continuity lines.'
+            },
+            {
+                name: 'Jacob → Israel',
+                meaning: 'Heel-grabber → God-striver',
+                refs: 'Genesis 32:24-30',
+                impact: 'A name-change through physical struggle signals transformed identity through encounter and dependence.'
+            },
+            {
+                name: 'Jesus / Joshua (Yeshua)',
+                meaning: 'Yahweh saves',
+                refs: 'Numbers 13:16; Matthew 1:21',
+                impact: 'The OT deliverer and NT deliverer share the same name form, highlighting one salvation storyline.'
             }
         ];
 
+        const categoryTone = {
+            patriarch: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
+            prophet: 'bg-violet-100 text-violet-700 border border-violet-200',
+            king: 'bg-amber-100 text-amber-700 border border-amber-200',
+            judge: 'bg-sky-100 text-sky-700 border border-sky-200',
+            priest: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+            apostle: 'bg-rose-100 text-rose-700 border border-rose-200',
+            place: 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+            title: 'bg-slate-100 text-slate-700 border border-slate-200',
+            'woman-of-faith': 'bg-pink-100 text-pink-700 border border-pink-200'
+        };
+
+        const categoryLabel = {
+            patriarch: 'Patriarch',
+            prophet: 'Prophet',
+            king: 'King',
+            judge: 'Judge',
+            priest: 'Priest',
+            apostle: 'Apostle',
+            place: 'Place',
+            title: 'Title',
+            'woman-of-faith': 'Woman of faith'
+        };
+
         const searchInput = document.getElementById('search-input');
         const testamentFilter = document.getElementById('testament-filter');
+        const categoryFilter = document.getElementById('category-filter');
+        const sortFilter = document.getElementById('sort-filter');
         const namesGrid = document.getElementById('names-grid');
         const featuredGrid = document.getElementById('featured-grid');
         const resultsCount = document.getElementById('results-count');
         const emptyState = document.getElementById('empty-state');
 
         function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
 
         function highlight(text, term) {
@@ -237,6 +394,13 @@
             const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`(${escaped})`, 'ig');
             return escapeHtml(text).replace(regex, '<mark>$1</mark>');
+        }
+
+        function matchesTestamentFilter(item, testament) {
+            if (testament === 'all') return true;
+            if (testament === 'both') return item.testament === 'both';
+            if (item.testament === 'both') return true;
+            return item.testament === testament;
         }
 
         function renderFeatured() {
@@ -255,12 +419,19 @@
         function renderNames() {
             const query = searchInput.value.trim().toLowerCase();
             const testament = testamentFilter.value;
+            const category = categoryFilter.value;
+            const sort = sortFilter.value;
 
             const filtered = names.filter(item => {
-                const matchesTestament = testament === 'all' || item.testament === testament;
                 const searchable = `${item.name} ${item.meaning} ${item.refs} ${item.note}`.toLowerCase();
-                return matchesTestament && searchable.includes(query);
+                const matchesSearch = searchable.includes(query);
+                const matchesTestament = matchesTestamentFilter(item, testament);
+                const matchesCategory = category === 'all' || item.category === category;
+                return matchesSearch && matchesTestament && matchesCategory;
             });
+
+            if (sort === 'az') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            if (sort === 'za') filtered.sort((a, b) => b.name.localeCompare(a.name));
 
             resultsCount.textContent = `${filtered.length} name${filtered.length === 1 ? '' : 's'} shown`;
             emptyState.classList.toggle('hidden', filtered.length > 0);
@@ -269,7 +440,10 @@
                 <article class="name-card animate-fade-in rounded-2xl border border-slate-200 bg-white p-5">
                     <div class="flex items-start justify-between gap-3 mb-2">
                         <h3 class="text-xl font-black text-slate-900">${highlight(item.name, query)}</h3>
-                        <span class="text-[10px] font-black uppercase tracking-wider rounded-full px-2 py-1 ${item.testament === 'old' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'}">${item.testament === 'old' ? 'OT' : 'NT'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="pill ${categoryTone[item.category]}">${categoryLabel[item.category]}</span>
+                            <span class="pill ${item.testament === 'old' ? 'bg-amber-100 text-amber-700 border border-amber-200' : item.testament === 'new' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}">${item.testament === 'old' ? 'OT' : item.testament === 'new' ? 'NT' : 'OT + NT'}</span>
+                        </div>
                     </div>
                     <p class="text-indigo-700 font-bold mb-2">${highlight(item.meaning, query)}</p>
                     <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">${highlight(item.refs, query)}</p>
@@ -280,6 +454,8 @@
 
         searchInput.addEventListener('input', renderNames);
         testamentFilter.addEventListener('change', renderNames);
+        categoryFilter.addEventListener('change', renderNames);
+        sortFilter.addEventListener('change', renderNames);
 
         renderFeatured();
         renderNames();
