@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Biblical Name Meanings - Bible Progress</title>
+    <meta name="description" content="Discover the meaning behind major biblical names. Learn how ancient Hebrew and Greek names carry theological significance that modern readers often miss.">
+    <meta property="og:title" content="Biblical Name Meanings - Bible Progress">
+    <meta property="og:description" content="Ancient readers heard theology inside a person's name. Recover that layer for 45+ major biblical names with context notes and references.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bibleprogress.com/biblical-name-meanings.html">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Biblical Name Meanings - Bible Progress">
+    <meta name="twitter:description" content="Discover the meaning behind major biblical names and where modern readers miss crucial story context.">
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -220,22 +228,26 @@
         const resultsCount = document.getElementById('results-count');
         const emptyState = document.getElementById('empty-state');
 
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         function highlight(text, term) {
-            if (!term) return text;
+            if (!term) return escapeHtml(text);
             const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`(${escaped})`, 'ig');
-            return text.replace(regex, '<mark>$1</mark>');
+            return escapeHtml(text).replace(regex, '<mark>$1</mark>');
         }
 
         function renderFeatured() {
             featuredGrid.innerHTML = featured.map(item => `
                 <article class="name-card rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-pink-50 p-5">
                     <div class="flex items-start justify-between gap-3">
-                        <h3 class="text-lg font-black text-rose-900">${item.name}</h3>
-                        <span class="text-[11px] font-bold uppercase tracking-wide text-rose-700 bg-white border border-rose-200 rounded-full px-2 py-1">${item.refs}</span>
+                        <h3 class="text-lg font-black text-rose-900">${escapeHtml(item.name)}</h3>
+                        <span class="text-[11px] font-bold uppercase tracking-wide text-rose-700 bg-white border border-rose-200 rounded-full px-2 py-1">${escapeHtml(item.refs)}</span>
                     </div>
-                    <p class="text-sm font-bold text-rose-700 mt-1">${item.meaning}</p>
-                    <p class="text-slate-700 mt-3 leading-relaxed">${item.impact}</p>
+                    <p class="text-sm font-bold text-rose-700 mt-1">${escapeHtml(item.meaning)}</p>
+                    <p class="text-slate-700 mt-3 leading-relaxed">${escapeHtml(item.impact)}</p>
                 </article>
             `).join('');
         }
