@@ -93,7 +93,7 @@
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-emerald-500">How to use this page</div>
-                <p class="mt-2 text-slate-700">Start with the “REALLY miss out” panel, then explore the full library by category, testament, and search.</p>
+                <p class="mt-2 text-slate-700">Search, filter by testament or category, then sort numerically or alphabetically for focused study.</p>
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-amber-500">Interpretation guardrail</div>
@@ -132,18 +132,15 @@
                 <article class="rounded-2xl bg-violet-50 border border-violet-100 p-4">
                     <div class="text-xs font-black uppercase tracking-wider text-violet-600">Symbolic Duration</div>
                     <p class="text-3xl font-black text-violet-900 mt-2">1,260</p>
-                    <p class="text-sm text-violet-800 mt-1">3.5 years: constrained tribulation period.</p>
+                    <p class="text-sm text-violet-800 mt-1">3.5 years / 42 months — constrained tribulation window.</p>
                 </article>
             </div>
         </section>
 
         <section class="glass rounded-3xl p-6 md:p-8">
-            <div class="flex flex-wrap items-end gap-4 justify-between mb-5">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-black">Number Meaning Library</h2>
-                    <p class="text-slate-600 mt-1">Obvious and less-obvious number connections in one searchable reference.</p>
-                </div>
-                <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2" id="results-count"></div>
+            <div class="mb-5">
+                <h2 class="text-2xl md:text-3xl font-black">Number Meaning Library</h2>
+                <p class="text-slate-600 mt-1">Obvious and less-obvious number connections in one searchable reference.</p>
             </div>
 
             <div class="grid md:grid-cols-4 gap-3 mb-5">
@@ -151,18 +148,31 @@
                     <span class="sr-only">Search numbers</span>
                     <input id="search-input" type="text" placeholder="Search number, meaning, reference, insight (e.g., 490, jubilee, Revelation, forgiveness)..." class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
                 </label>
-                <select id="testament-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                <select id="testament-filter" aria-label="Filter by testament" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
                     <option value="all">All Testaments</option>
                     <option value="old">Old Testament</option>
                     <option value="new">New Testament</option>
                     <option value="both">Both Testaments</option>
                 </select>
-                <select id="category-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                <select id="category-filter" aria-label="Filter by category" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
                     <option value="all">All Categories</option>
                     <option value="core">Core symbol</option>
                     <option value="pattern">Narrative pattern</option>
                     <option value="prophetic">Prophetic/apocalyptic</option>
+                    <option value="count">Historical count</option>
                 </select>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2" id="results-count"></div>
+                <div class="flex items-center gap-2">
+                    <label for="sort-filter" class="text-sm font-semibold text-slate-600">Sort:</label>
+                    <select id="sort-filter" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                        <option value="numerical">Numerical</option>
+                        <option value="az">A→Z</option>
+                        <option value="za">Z→A</option>
+                    </select>
+                </div>
             </div>
 
             <div id="numbers-grid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
@@ -170,31 +180,55 @@
         </section>
     </div>
 
+    <footer class="border-t border-slate-200 bg-white mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+            <p>"So teach us to number our days, that we may apply our hearts unto wisdom." — Psalm 90:12</p>
+        </div>
+    </footer>
+
     <script>
         const numbers = [
-            { number: '1', meaning: 'Unity, singularity, one true God', testament: 'both', category: 'core', refs: 'Deuteronomy 6:4; Ephesians 4:4-6', insight: 'Biblical monotheism and covenant unity often anchor themselves in "one" language.' },
-            { number: '2', meaning: 'Witness, confirmation, legal testimony', testament: 'both', category: 'pattern', refs: 'Deuteronomy 19:15; Matthew 18:16', insight: 'Truth is established by two or three witnesses; this legal pattern shapes narrative credibility.' },
-            { number: '3', meaning: 'Divine completeness, emphasis, resurrection pattern', testament: 'both', category: 'core', refs: 'Jonah 1:17; Matthew 12:40; Luke 24:7', insight: 'Third-day motifs frequently mark turning points from peril to deliverance.' },
-            { number: '4', meaning: 'Earthly scope, universality (four corners/winds)', testament: 'both', category: 'pattern', refs: 'Isaiah 11:12; Revelation 7:1', insight: 'Four frequently symbolizes creation-wide extent rather than merely arithmetic count.' },
-            { number: '5', meaning: 'Grace, favor, provision (often associated)', testament: 'both', category: 'pattern', refs: 'Leviticus offerings pattern; Matthew 14:17-21', insight: 'Not as explicit as 7/40, but many readers track 5 with divine provision themes.' },
-            { number: '6', meaning: 'Human limitation, incompletion short of 7', testament: 'both', category: 'core', refs: 'Genesis 1:26-31; Revelation 13:18', insight: 'Six can mark humanity in strength and weakness; triple-six intensifies counterfeit fullness.' },
-            { number: '7', meaning: 'Completion, covenant fullness, sacred rhythm', testament: 'both', category: 'core', refs: 'Genesis 2:2-3; Revelation cycles', insight: 'Creation week and sabbath establish 7 as one of Scripture\'s strongest symbolic anchors.' },
-            { number: '8', meaning: 'New beginning after completion', testament: 'both', category: 'pattern', refs: 'Genesis 17:12; 1 Peter 3:20', insight: 'Circumcision on day 8 and Noah\'s 8 survivors often point to renewal after judgment.' },
-            { number: '10', meaning: 'Ordered totality, moral completeness', testament: 'both', category: 'core', refs: 'Exodus 20; Matthew 25:1-13', insight: 'Ten commandments/plagues/virgins reveal a full set or complete testing frame.' },
-            { number: '12', meaning: 'People of God in governmental fullness', testament: 'both', category: 'core', refs: 'Genesis 49; Matthew 10:1-4; Revelation 21', insight: '12 tribes and 12 apostles tie covenant people across both Testaments.' },
-            { number: '24', meaning: 'Priestly/governing worship fullness (12x2)', testament: 'both', category: 'prophetic', refs: '1 Chronicles 24; Revelation 4:4', insight: 'Heavenly elders echo temple order and total representative worship.' },
-            { number: '30', meaning: 'Mature readiness for public service', testament: 'both', category: 'pattern', refs: 'Numbers 4:3; Luke 3:23', insight: 'Priests and Jesus begin formal ministry around age 30, signaling readiness.' },
-            { number: '40', meaning: 'Testing, trial, purification, transition', testament: 'both', category: 'core', refs: 'Genesis 7:12; Exodus 24:18; Matthew 4:2', insight: 'Rain, Sinai, wilderness, and Jesus\' fasting all use 40 as formation duration.' },
-            { number: '50', meaning: 'Jubilee, liberty, release, restoration', testament: 'both', category: 'core', refs: 'Leviticus 25; Acts 2 (Pentecost)', insight: 'The fiftieth year resets economy and inheritance; Pentecost unfolds liberation themes.' },
-            { number: '70', meaning: 'Nations/fullness of peoples; elders/council fullness', testament: 'both', category: 'pattern', refs: 'Genesis 10; Exodus 24:1; Luke 10:1', insight: '70 often signals representative completeness at national or mission scale.' },
-            { number: '70x7 = 490', meaning: 'Exhaustive forgiveness and covenant completion', testament: 'both', category: 'prophetic', refs: 'Matthew 18:22; Daniel 9:24', insight: 'Jesus\' 70x7 likely echoes Daniel\'s 70 weeks: forgiveness tied to redemptive climax, not a 490-count limit.' },
-            { number: '120', meaning: 'Epoch marker / transition horizon', testament: 'old', category: 'pattern', refs: 'Genesis 6:3; Deuteronomy 34:7', insight: 'Sometimes read as lifespan horizon or countdown marker before judgment transition.' },
-            { number: '1260 (42 months / time, times, half a time)', meaning: 'Limited tribulation period under divine boundaries', testament: 'both', category: 'prophetic', refs: 'Daniel 7:25; Revelation 11:2-3; 12:6', insight: 'Apocalyptic literature repeats this value to depict intense but constrained oppression.' },
-            { number: '144', meaning: 'Squared covenant fullness (12x12)', testament: 'both', category: 'prophetic', refs: 'Revelation 7:4; 14:1', insight: 'Symbolic intensification of covenant people imagery in apocalyptic scenes.' },
-            { number: '153', meaning: 'Memorable abundance after obedience', testament: 'new', category: 'pattern', refs: 'John 21:11', insight: 'The precise fish count underscores miraculous abundance and witness authenticity.' },
-            { number: '666', meaning: 'Counterfeit perfection; human empire deified', testament: 'new', category: 'prophetic', refs: 'Revelation 13:18', insight: 'Falls short of 777; many interpret it as climactic symbol of rebellious human power.' },
-            { number: '1000', meaning: 'Vast fullness / complete grand scale', testament: 'both', category: 'prophetic', refs: 'Psalm 50:10; Revelation 20', insight: 'Can function as symbolically large completeness, especially in poetic/apocalyptic genres.' },
-            { number: '12000', meaning: 'Military-tribal ordering in symbolic census', testament: 'old', category: 'pattern', refs: 'Numbers 31:5', insight: 'A structured multiple conveying organized covenant warfare representation.' }
+            { number: '1', value: 1, meaning: 'Unity, singularity, one true God', testament: 'both', category: 'core', refs: 'Deuteronomy 6:4; Ephesians 4:4-6', insight: 'Biblical monotheism and covenant unity often anchor themselves in "one" language.' },
+            { number: '2', value: 2, meaning: 'Witness, confirmation, legal testimony', testament: 'both', category: 'pattern', refs: 'Deuteronomy 19:15; Matthew 18:16', insight: 'Truth is established by two or three witnesses; this legal pattern shapes narrative credibility.' },
+            { number: '3', value: 3, meaning: 'Divine completeness, emphasis, resurrection pattern', testament: 'both', category: 'core', refs: 'Jonah 1:17; Matthew 12:40; Luke 24:7', insight: 'Third-day motifs frequently mark turning points from peril to deliverance.' },
+            { number: '4', value: 4, meaning: 'Earthly scope, universality (four corners/winds)', testament: 'both', category: 'pattern', refs: 'Isaiah 11:12; Revelation 7:1', insight: 'Four frequently symbolizes creation-wide extent rather than merely arithmetic count.' },
+            { number: '5', value: 5, meaning: 'Grace, favor, provision (often associated)', testament: 'both', category: 'pattern', refs: 'Leviticus offerings pattern; Matthew 14:17-21', insight: 'Not as explicit as 7/40, but many readers track 5 with divine provision themes.' },
+            { number: '6', value: 6, meaning: 'Human limitation, incompletion short of 7', testament: 'both', category: 'core', refs: 'Genesis 1:26-31; Revelation 13:18', insight: 'Six can mark humanity in strength and weakness; triple-six intensifies counterfeit fullness.' },
+            { number: '7', value: 7, meaning: 'Completion, covenant fullness, sacred rhythm', testament: 'both', category: 'core', refs: 'Genesis 2:2-3; Revelation cycles', insight: 'Creation week and sabbath establish 7 as one of Scripture\'s strongest symbolic anchors.' },
+            { number: '8', value: 8, meaning: 'New beginning after completion', testament: 'both', category: 'pattern', refs: 'Genesis 17:12; 1 Peter 3:20', insight: 'Circumcision on day 8 and Noah\'s 8 survivors often point to renewal after judgment.' },
+            { number: '9', value: 9, meaning: 'Judgment and Spirit-formed character', testament: 'both', category: 'core', refs: 'Matthew 27:45-46; Galatians 5:22-23', insight: 'Christ dies around the ninth hour, and Paul lists nine fruits of the Spirit — often held together as judgment yielding renewed character.' },
+            { number: '10', value: 10, meaning: 'Ordered totality, moral completeness', testament: 'both', category: 'core', refs: 'Exodus 20; Matthew 25:1-13', insight: 'Ten commandments/plagues/virgins reveal a full set or complete testing frame.' },
+            { number: '12', value: 12, meaning: 'People of God in governmental fullness', testament: 'both', category: 'core', refs: 'Genesis 49; Matthew 10:1-4; Revelation 21', insight: '12 tribes and 12 apostles tie covenant people across both Testaments.' },
+            { number: '13', value: 13, meaning: 'Rebellion / covenant breakdown (debated)', testament: 'old', category: 'pattern', refs: 'Genesis 14:4; Esther 3:13', insight: 'The kings serve Chedorlaomer 12 years and in the 13th rebel; some readers track a rebellion motif, though the symbolism is less rigid than 7 or 40.' },
+            { number: '14', value: 14, meaning: 'Deliverance, Passover, Davidic structure', testament: 'both', category: 'pattern', refs: 'Exodus 12:6; Matthew 1:17', insight: 'Passover lamb selected on the 14th; Matthew arranges Jesus\' genealogy into 3×14 generations, encoding Davidic deliverance.' },
+            { number: '22', value: 22, meaning: 'Full-spectrum completeness (Hebrew alphabet)', testament: 'old', category: 'pattern', refs: 'Psalm 119; Lamentations 1-4', insight: '22 Hebrew letters shape acrostic poems — a literary A-to-Z signaling exhaustive coverage of grief, praise, or torah devotion.' },
+            { number: '24', value: 24, meaning: 'Priestly/governing worship fullness (12×2)', testament: 'both', category: 'prophetic', refs: '1 Chronicles 24; Revelation 4:4', insight: 'Heavenly elders echo temple order and total representative worship.' },
+            { number: '30', value: 30, meaning: 'Mature readiness for public service', testament: 'both', category: 'pattern', refs: 'Numbers 4:3; Luke 3:23', insight: 'Priests and Jesus begin formal ministry around age 30, signaling readiness.' },
+            { number: '40', value: 40, meaning: 'Testing, trial, purification, transition', testament: 'both', category: 'core', refs: 'Genesis 7:12; Exodus 24:18; Matthew 4:2', insight: 'Rain, Sinai, wilderness, and Jesus\' fasting all use 40 as formation duration.' },
+            { number: '42', value: 42, meaning: 'Generations of waiting; apocalyptic tribulation months', testament: 'both', category: 'prophetic', refs: 'Matthew 1:17; Revelation 11:2; 13:5', insight: '42 generations from Abraham to Christ mirrors 42 months of constrained oppression — a waiting-then-deliverance frame.' },
+            { number: '50', value: 50, meaning: 'Jubilee, liberty, release, restoration', testament: 'both', category: 'core', refs: 'Leviticus 25; Acts 2 (Pentecost)', insight: 'The fiftieth year resets economy and inheritance; Pentecost unfolds liberation themes.' },
+            { number: '70', value: 70, meaning: 'Nations/fullness of peoples; elders/council fullness', testament: 'both', category: 'pattern', refs: 'Genesis 10; Exodus 24:1; Luke 10:1', insight: '70 often signals representative completeness at national or mission scale.' },
+            { number: '99', value: 99, meaning: 'Covenant confirmation on the edge of promise', testament: 'old', category: 'count', refs: 'Genesis 17:1, 24', insight: 'Abraham is 99 when God seals the covenant with circumcision — the number marks readiness just before Isaac\'s birth.' },
+            { number: '100', value: 100, meaning: 'Fullness of promised reward', testament: 'both', category: 'count', refs: 'Genesis 21:5; Matthew 19:29', insight: 'Abraham is 100 at Isaac\'s birth; Jesus promises a hundredfold return — 100 often signals complete, even superabundant, reward.' },
+            { number: '120', value: 120, meaning: 'Epoch marker / transition horizon', testament: 'old', category: 'pattern', refs: 'Genesis 6:3; Deuteronomy 34:7', insight: 'Sometimes read as lifespan horizon or countdown marker before judgment transition.' },
+            { number: '144', value: 144, meaning: 'Squared covenant fullness (12×12)', testament: 'both', category: 'prophetic', refs: 'Revelation 7:4; 14:1', insight: 'Symbolic intensification of covenant people imagery in apocalyptic scenes.' },
+            { number: '153', value: 153, meaning: 'Memorable abundance after obedience', testament: 'new', category: 'pattern', refs: 'John 21:11', insight: 'The precise fish count underscores miraculous abundance and witness authenticity.' },
+            { number: '300', value: 300, meaning: 'Reduced remnant; measured instrument', testament: 'old', category: 'count', refs: 'Genesis 6:15; Judges 7:7', insight: 'The ark is 300 cubits long; Gideon\'s reduced 300 defeat Midian — a small, precisely measured company becomes God\'s vehicle of deliverance.' },
+            { number: '318', value: 318, meaning: 'Abraham\'s trained household warriors', testament: 'old', category: 'count', refs: 'Genesis 14:14', insight: 'The oddly specific 318 men who rescue Lot have long drawn symbolic attention; minimally, the precision testifies that God uses unlikely small numbers.' },
+            { number: '400', value: 400, meaning: 'Years of affliction before deliverance', testament: 'both', category: 'count', refs: 'Genesis 15:13; Acts 7:6', insight: 'God foretells Abraham\'s descendants will be afflicted 400 years — a fixed span that frames the exodus as kept promise, not accident.' },
+            { number: '430', value: 430, meaning: 'Sojourn in Egypt; promise endures', testament: 'both', category: 'count', refs: 'Exodus 12:40-41; Galatians 3:17', insight: 'Paul uses the 430 years to argue the law, arriving later, cannot annul the earlier Abrahamic promise.' },
+            { number: '450', value: 450, meaning: 'Era of the judges', testament: 'new', category: 'count', refs: 'Acts 13:20', insight: 'Paul summarizes the judges period as roughly 450 years — a frame for Israel\'s cycle of sin, oppression, cry, and deliverance.' },
+            { number: '480', value: 480, meaning: 'Exodus-to-temple span', testament: 'old', category: 'count', refs: '1 Kings 6:1', insight: 'Solomon begins the temple in the 480th year after the exodus — the chronology anchors temple worship to the deliverance story.' },
+            { number: '70x7 = 490', value: 490, meaning: 'Exhaustive forgiveness and covenant completion', testament: 'both', category: 'prophetic', refs: 'Matthew 18:22; Daniel 9:24', insight: 'Jesus\' 70x7 likely echoes Daniel\'s 70 weeks: forgiveness tied to redemptive climax, not a 490-count limit.' },
+            { number: '666', value: 666, meaning: 'Counterfeit perfection; human empire deified', testament: 'new', category: 'prophetic', refs: 'Revelation 13:18', insight: 'Falls short of 777; many interpret it as climactic symbol of rebellious human power.' },
+            { number: '1000', value: 1000, meaning: 'Vast fullness / complete grand scale', testament: 'both', category: 'prophetic', refs: 'Psalm 50:10; Revelation 20', insight: 'Can function as symbolically large completeness, especially in poetic/apocalyptic genres.' },
+            { number: '1260 (42 months / time, times, half a time)', value: 1260, meaning: 'Limited tribulation period under divine boundaries', testament: 'both', category: 'prophetic', refs: 'Daniel 7:25; Revelation 11:2-3; 12:6', insight: 'Apocalyptic literature repeats this value to depict intense but constrained oppression.' },
+            { number: '4000', value: 4000, meaning: 'Feeding of the four thousand', testament: 'new', category: 'pattern', refs: 'Matthew 15:32-38; Mark 8:1-9', insight: 'Set in largely Gentile territory with 7 loaves and 7 baskets left over; many readers see a deliberate Gentile counterpart to the earlier 5,000.' },
+            { number: '5000', value: 5000, meaning: 'Feeding of the five thousand', testament: 'new', category: 'pattern', refs: 'Matthew 14:13-21; John 6', insight: 'Five loaves, two fish, 12 baskets left over — the numerics echo Israel\'s twelve tribes and Moses-typology in a Jewish setting.' },
+            { number: '6000', value: 6000, meaning: 'Six millennial days before sabbath rest', testament: 'both', category: 'prophetic', refs: '2 Peter 3:8; Psalm 90:4', insight: 'The millennial-day reading sees six 1,000-year "days" of human history before a 1,000-year sabbath — see the dedicated Millennial Day Theory page.' },
+            { number: '12000', value: 12000, meaning: 'Tribal contingent; ordered covenant representation', testament: 'both', category: 'count', refs: 'Numbers 31:5; Revelation 7:5-8', insight: '1,000 per tribe (12×1,000) yields an organized covenant-army pattern that Revelation later intensifies.' },
+            { number: '144000', value: 144000, meaning: 'Sealed servants of all tribes', testament: 'new', category: 'prophetic', refs: 'Revelation 7:4-8; 14:1-5', insight: '12 tribes × 12,000 — squared covenant fullness multiplied by symbolic thousands, depicting God\'s preserved people rather than a literal headcount.' }
         ];
 
         const featured = [
@@ -227,24 +261,37 @@
                 number: '50 (Jubilee)',
                 refs: 'Leviticus 25; Pentecost timing',
                 impact: 'Jubilee language reframes liberation, debt release, and Spirit-era hope. Without it, major restoration themes appear weaker.'
+            },
+            {
+                number: '3 (third day)',
+                refs: 'Jonah 1:17; Hosea 6:2; Luke 24:7',
+                impact: 'The third-day pattern is not just about the resurrection — it repeatedly marks the moment God turns peril into deliverance. Spotting it earlier makes the Gospels\' climax feel inevitable.'
+            },
+            {
+                number: '8 (new beginning)',
+                refs: 'Genesis 17:12; 1 Peter 3:20; Mark 16:9 (first day of the week)',
+                impact: 'Circumcision on day 8, eight saved through the flood, resurrection on the day after the sabbath — the eighth-day motif signals new creation breaking in after old-order completion.'
             }
         ];
 
         const categoryTone = {
             core: 'bg-indigo-100 text-indigo-700 border border-indigo-200',
             pattern: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-            prophetic: 'bg-violet-100 text-violet-700 border border-violet-200'
+            prophetic: 'bg-violet-100 text-violet-700 border border-violet-200',
+            count: 'bg-sky-100 text-sky-700 border border-sky-200'
         };
 
         const categoryLabel = {
             core: 'Core symbol',
             pattern: 'Narrative pattern',
-            prophetic: 'Prophetic/apocalyptic'
+            prophetic: 'Prophetic/apocalyptic',
+            count: 'Historical count'
         };
 
         const searchInput = document.getElementById('search-input');
         const testamentFilter = document.getElementById('testament-filter');
         const categoryFilter = document.getElementById('category-filter');
+        const sortFilter = document.getElementById('sort-filter');
         const numbersGrid = document.getElementById('numbers-grid');
         const featuredGrid = document.getElementById('featured-grid');
         const resultsCount = document.getElementById('results-count');
@@ -289,6 +336,7 @@
             const query = searchInput.value.trim().toLowerCase();
             const testament = testamentFilter.value;
             const category = categoryFilter.value;
+            const sort = sortFilter.value;
 
             const filtered = numbers.filter(item => {
                 const searchable = `${item.number} ${item.meaning} ${item.refs} ${item.insight}`.toLowerCase();
@@ -297,6 +345,10 @@
                 const matchesCategory = category === 'all' || item.category === category;
                 return matchesSearch && matchesTestament && matchesCategory;
             });
+
+            if (sort === 'numerical') filtered.sort((a, b) => a.value - b.value);
+            if (sort === 'az') filtered.sort((a, b) => a.number.localeCompare(b.number));
+            if (sort === 'za') filtered.sort((a, b) => b.number.localeCompare(a.number));
 
             resultsCount.textContent = `${filtered.length} entr${filtered.length === 1 ? 'y' : 'ies'} shown`;
             emptyState.classList.toggle('hidden', filtered.length > 0);
@@ -320,6 +372,7 @@
         searchInput.addEventListener('input', renderNumbers);
         testamentFilter.addEventListener('change', renderNumbers);
         categoryFilter.addEventListener('change', renderNumbers);
+        sortFilter.addEventListener('change', renderNumbers);
 
         renderFeatured();
         renderNumbers();
