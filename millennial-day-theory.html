@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="theme-color" content="#4f46e5">
 
-    <meta name="description" content="A thorough scriptural, patristic, and rabbinic defense of the Millennial Day Theory — six thousand years of human labor crowned by the thousand-year Sabbath reign of Jesus Christ.">
+    <meta name="description" content="A thorough scriptural, patristic, and rabbinic defense of the Millennial Day Theory: six thousand years of human labor crowned by the thousand-year Sabbath reign of Jesus Christ.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bibleprogress.com/millennial-day-theory.html">
 
@@ -16,7 +16,7 @@
     <meta property="og:site_name" content="Bible Progress">
     <meta property="og:url" content="https://bibleprogress.com/millennial-day-theory.html">
     <meta property="og:title" content="The Millennial Day Theory | Bible Progress">
-    <meta property="og:description" content="A scholarly, Scripture-saturated case that human history unfolds across a divine week — six thousand years of toil, then the thousand-year reign of Messiah.">
+    <meta property="og:description" content="A scholarly, Scripture-saturated case that human history unfolds across a divine week: six thousand years of toil, then the thousand-year reign of Messiah.">
     <meta property="og:image" content="https://bibleprogress.com/icon-512.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -44,17 +44,80 @@
             transform: translateY(-2px);
             box-shadow: 0 14px 30px rgba(79, 70, 229, 0.12);
         }
-        .timeline-grid {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 0.8rem;
+        .timeline-list {
+            position: relative;
+            margin-top: 1.75rem;
         }
-        .day-block {
+        .timeline-list::before {
+            content: '';
+            position: absolute;
+            left: 1.375rem;
+            top: 0.75rem;
+            bottom: 0.75rem;
+            width: 2px;
+            background: linear-gradient(to bottom, #c7d2fe 0%, #818cf8 50%, #4f46e5 100%);
+            border-radius: 2px;
+        }
+        .timeline-row {
+            position: relative;
+            padding: 1.25rem 1.5rem 1.25rem 4rem;
+            margin-bottom: 0.9rem;
+            background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
             border: 1px solid #c7d2fe;
             border-radius: 1rem;
-            padding: 1rem;
-            background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
-            min-height: 165px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .timeline-row:hover {
+            transform: translateX(2px);
+            box-shadow: 0 8px 22px rgba(79, 70, 229, 0.10);
+        }
+        .timeline-marker {
+            position: absolute;
+            left: 0.375rem;
+            top: 1.125rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            background: #4f46e5;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            box-shadow: 0 0 0 4px #ffffff, 0 4px 10px rgba(79, 70, 229, 0.28);
+        }
+        .timeline-row--sabbath {
+            background: linear-gradient(180deg, #e0e7ff 0%, #ffffff 100%);
+            border-color: #a5b4fc;
+        }
+        .timeline-row--sabbath .timeline-marker {
+            background: #312e81;
+            box-shadow: 0 0 0 4px #ffffff, 0 0 0 8px rgba(129, 140, 248, 0.35);
+        }
+        .timeline-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.5rem 0.85rem;
+        }
+        .timeline-range {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #4338ca;
+            font-weight: 700;
+        }
+        .timeline-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .timeline-body {
+            margin-top: 0.4rem;
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: #334155;
         }
         .collapsible-content {
             overflow: hidden;
@@ -65,14 +128,19 @@
         .collapsible-content.expanded {
             opacity: 1;
         }
-        @media (max-width: 1024px) {
-            .timeline-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
         @media (max-width: 640px) {
-            .timeline-grid {
-                grid-template-columns: 1fr;
+            .timeline-row {
+                padding: 1.1rem 1rem 1.1rem 3.25rem;
+            }
+            .timeline-marker {
+                left: 0.25rem;
+                top: 0.95rem;
+                width: 1.75rem;
+                height: 1.75rem;
+                font-size: 0.75rem;
+            }
+            .timeline-list::before {
+                left: 1.125rem;
             }
         }
     </style>
@@ -95,16 +163,16 @@
                     <p class="inline-flex items-center rounded-full bg-indigo-100 text-indigo-800 px-3 py-1 text-xs sm:text-sm font-semibold tracking-wide uppercase">Prophetic Study · Chiliasm · Sabbath Theology</p>
                     <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-slate-900">The Millennial Day Theory</h1>
                     <p class="mt-6 text-lg sm:text-xl text-slate-700 leading-relaxed">
-                        Scripture opens with a seven-day architecture and closes with a thousand-year reign. Between those bookends lies a pattern so consistent — creation, Sabbath, jubilee, transfiguration, resurrection, consummation — that the earliest Christians, the rabbis of the Talmud, and the martyrs of the ante-Nicene church all read history as a divine week: <span class="font-bold text-indigo-700">six thousand years</span> of human labor under the curse, crowned by <span class="font-bold text-indigo-700">one thousand years</span> of Messianic Sabbath rest.
+                        Scripture opens with a seven-day architecture and closes with a thousand-year reign. Between those bookends lies a pattern so consistent (creation, Sabbath, jubilee, transfiguration, resurrection, consummation) that the earliest Christians, the rabbis of the Talmud, and the martyrs of the ante-Nicene church all read history as a divine week: <span class="font-bold text-indigo-700">six thousand years</span> of human labor under the curse, crowned by <span class="font-bold text-indigo-700">one thousand years</span> of Messianic Sabbath rest.
                     </p>
                     <p class="mt-4 text-base sm:text-lg text-slate-700 leading-relaxed">
-                        This is not speculation bolted onto a single verse. It is the <em>organizing rhythm of the whole canon</em> — testified by the Torah, the Psalms, the Prophets, the apostles, and a remarkable chorus of ancient witnesses who preceded every denominational line drawn today.
+                        This is not speculation bolted onto a single verse. It is the <em>organizing rhythm of the whole canon</em>, testified by the Torah, the Psalms, the Prophets, the apostles, and a remarkable chorus of ancient witnesses who preceded every denominational line drawn today.
                     </p>
                     <div class="mt-8 grid sm:grid-cols-3 gap-4">
                         <div class="rounded-2xl bg-white/85 border border-indigo-100 p-5 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">The Pattern</p>
                             <p class="mt-2 text-3xl font-black text-slate-900">6 + 1</p>
-                            <p class="mt-2 text-sm text-slate-600">Six days of toil, one day of holy rest — embedded in creation before any law was given (Gen. 2:2-3).</p>
+                            <p class="mt-2 text-sm text-slate-600">Six days of toil, one day of holy rest, embedded in creation before any law was given (Gen. 2:2-3).</p>
                         </div>
                         <div class="rounded-2xl bg-white/85 border border-indigo-100 p-5 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">The Prophetic Scale</p>
@@ -114,10 +182,10 @@
                         <div class="rounded-2xl bg-white/85 border border-indigo-100 p-5 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">The Fulfillment</p>
                             <p class="mt-2 text-3xl font-black text-slate-900">The Seventh Day</p>
-                            <p class="mt-2 text-sm text-slate-600">Revelation 20 names a literal thousand-year reign of Christ — the cosmic Sabbath of earth.</p>
+                            <p class="mt-2 text-sm text-slate-600">Revelation 20 names a literal thousand-year reign of Christ, the cosmic Sabbath of earth.</p>
                         </div>
                     </div>
-                    <p class="mt-8 text-sm text-slate-600 italic border-l-4 border-indigo-300 pl-4">"The seventh day is the Sabbath of the Lord thy God" (Exodus 20:10). If that seventh day prefigures anything at all, it prefigures <em>this</em>.</p>
+                    <p class="mt-8 text-sm text-slate-600 italic border-l-4 border-indigo-300 pl-4">"The seventh day is the sabbath of the LORD thy God" (Exodus 20:10). If that seventh day prefigures anything at all, it prefigures <em>this</em>.</p>
                 </div>
             </div>
         </section>
@@ -127,31 +195,31 @@
                 <div class="space-y-8">
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">The Core Biblical Case</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">The Millennial Day Theory is not built on a single proof-text. It stands on a convergence of at least six independent scriptural pillars — each strong on its own, overwhelming when stacked together.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">The Millennial Day Theory is not built on a single proof-text. It stands on a convergence of at least six independent scriptural pillars, each strong on its own, overwhelming when stacked together.</p>
                         <div class="mt-6 space-y-5">
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">1) The Creation Template</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Genesis 2:2-3</span> records God resting on the seventh day and <em>sanctifying</em> it (Hebrew <em>qadash</em> — "to set apart as holy"). Of the seven days of creation, only the seventh is blessed and hallowed. The rest-day is not incidental; it is the telos — the crown — toward which the first six labor. Scripture constantly treats creation as prophetic pattern (compare Rom. 5:14; 1 Cor. 15:45-47; Col. 2:16-17).</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Genesis 2:2-3</span> records God resting on the seventh day and <em>sanctifying</em> it (Hebrew <em>qadash</em>, "to set apart as holy"). Of the seven days of creation, only the seventh is blessed and hallowed. The rest-day is not incidental; it is the telos, the crown, toward which the first six labor. Scripture constantly treats creation as prophetic pattern (compare Rom. 5:14; 1 Cor. 15:45-47; Col. 2:16-17).</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">2) The Prophetic Time Key</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Psalm 90:4</span> — "For a thousand years in thy sight are but as yesterday when it is past, and as a watch in the night." <span class="font-bold">2 Peter 3:8</span> — "one day is with the Lord as a thousand years, and a thousand years as one day." Peter's context is emphatically <em>eschatological</em>: he is answering scoffers about the delayed Day of the Lord. He is not merely saying God is timeless; he is handing the church a prophetic conversion formula.</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Psalm 90:4</span> declares, "For a thousand years in thy sight are but as yesterday when it is past, and as a watch in the night." <span class="font-bold">2 Peter 3:8</span> echoes, "one day is with the Lord as a thousand years, and a thousand years as one day." Peter's context is emphatically <em>eschatological</em>: he is answering scoffers about the delayed Day of the Lord. He is not merely saying God is timeless; he is handing the church a prophetic conversion formula.</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">3) The Sabbath-Rest Doctrine</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Hebrews 4:9</span> — "There remaineth therefore a <em>sabbatismos</em> (σαββατισμός) to the people of God." This unique Greek word — coined by the author — means "a keeping of Sabbath," a future, corporate, still-outstanding Sabbath observance. The writer insists (4:8) that Joshua's conquest did not exhaust this promise, so a greater Sabbath still lies ahead.</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Hebrews 4:9</span> reads, "There remaineth therefore a <em>sabbatismos</em> (σαββατισμός) to the people of God." This unique Greek word, coined by the author, means "a keeping of Sabbath," a future, corporate, still-outstanding Sabbath observance. The writer insists (4:8) that Joshua's conquest did not exhaust this promise, so a greater Sabbath still lies ahead.</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">4) The Third-Day Resurrection Pattern</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Hosea 6:2</span> — "After two days will he revive us: in the third day he will raise us up, and we shall live in his sight." Read prophetically on a thousand-year scale, this places national Israel's revival at the dawn of the third millennium from Messiah's first advent — the very threshold at which we now stand.</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Hosea 6:2</span> promises, "After two days will he revive us: in the third day he will raise us up, and we shall live in his sight." Read prophetically on a thousand-year scale, this places national Israel's revival at the dawn of the third millennium from Messiah's first advent, the very threshold at which we now stand.</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">5) The Explicit Millennium</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Revelation 20:1-7</span> names "a thousand years" <em>six times</em> in seven verses. The Holy Spirit's emphatic repetition forbids a merely symbolic reading. Satan is bound for a thousand years; the saints reign with Christ for a thousand years; the rest of the dead do not live again until the thousand years are finished.</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Revelation 20:1-7</span> names "a thousand years" <em>six times</em> in seven verses. The Holy Spirit's emphatic repetition resists a merely symbolic reading. Satan is bound for a thousand years; the saints reign with Christ for a thousand years; the rest of the dead do not live again until the thousand years are finished.</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">6) The Kingdom Restoration Promise</p>
-                                <p class="mt-2 text-slate-800"><span class="font-bold">Isaiah 2:2-4; 11:6-9; 65:17-25; Zechariah 14:9, 16-21; Micah 4:1-4</span> all describe a literal, global, earthly kingdom under Messiah — a reign of peace, justice, and prolonged life too concrete for allegory yet not yet fulfilled in any age of church history. This can only be the Sabbath-age of the divine week.</p>
+                                <p class="mt-2 text-slate-800"><span class="font-bold">Isaiah 2:2-4; 11:6-9; 65:17-25; Zechariah 14:9, 16-21; Micah 4:1-4</span> all describe a literal, global, earthly kingdom under Messiah: a reign of peace, justice, and prolonged life too concrete for allegory, yet unfulfilled in any age of church history. This can only be the Sabbath-age of the divine week.</p>
                             </div>
                         </div>
                         <p class="mt-6 text-slate-700 leading-relaxed italic border-l-4 border-indigo-400 pl-4">Any one of these threads could be dismissed; all six of them, woven together, form a cord that "is not quickly broken" (Eccl. 4:12).</p>
@@ -159,7 +227,7 @@
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">The Ancient Witness of the Church</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">This is not a modern doctrine. It is the <em>oldest</em> Christian reading of prophetic history — held, written, and defended by disciples of the apostles themselves. The chiliastic (thousand-year) Sabbath framework was so universal in the ante-Nicene church that Justin Martyr could call it the conviction of "all who are in every way orthodox" (<em>Dialogue with Trypho</em> 80).</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">This is not a modern doctrine. It is the <em>oldest</em> Christian reading of prophetic history, held, written, and defended by disciples of the apostles themselves. The chiliastic (thousand-year) Sabbath framework was so universal in the ante-Nicene church that Justin Martyr could call it the conviction of "all who are in every way orthodox" (<em>Dialogue with Trypho</em> 80).</p>
                         <div class="mt-5 space-y-3">
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="witness-barnabas">
@@ -167,7 +235,7 @@
                                 </button>
                                 <div id="witness-barnabas" class="collapsible-content px-5 pb-4">
                                     <p class="text-slate-700 text-sm leading-relaxed">"Attend, my children, to the meaning of this expression, 'He finished in six days.' This implieth that the Lord will finish all things in six thousand years, for a day is with Him a thousand years... Therefore, children, in six days, that is, in six thousand years, all things will be finished. 'And He rested on the seventh day.' This meaneth: when His Son, coming again, shall destroy the time of the wicked man, and judge the ungodly, and change the sun and the moon and the stars, then shall He truly rest on the seventh day."</p>
-                                    <p class="mt-2 text-xs text-slate-500 italic">One of the earliest Christian writings outside the canon — quoted as Scripture by several ante-Nicene fathers.</p>
+                                    <p class="mt-2 text-xs text-slate-500 italic">One of the earliest Christian writings outside the canon, quoted as Scripture by several ante-Nicene fathers.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -175,7 +243,7 @@
                                     <span>Papias of Hierapolis (c. 60–130 AD)</span><span>＋</span>
                                 </button>
                                 <div id="witness-papias" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">A direct hearer of the apostle John, Papias taught that "there will be a certain thousand years after the resurrection from the dead, when the personal reign of Christ will be established on this earth" (preserved in Eusebius, <em>Ecclesiastical History</em> 3.39 and Irenaeus, <em>Against Heresies</em> 5.33). His witness carries the weight of apostolic memory — he learned prophecy at the feet of men who learned it at the feet of Jesus.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">A direct hearer of the apostle John, Papias taught that "there will be a certain thousand years after the resurrection from the dead, when the personal reign of Christ will be established on this earth" (preserved in Eusebius, <em>Ecclesiastical History</em> 3.39 and Irenaeus, <em>Against Heresies</em> 5.33). His witness carries the weight of apostolic memory: he learned prophecy at the feet of men who learned it at the feet of Jesus.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -201,7 +269,7 @@
                                     <span>Hippolytus of Rome, <em>Commentary on Daniel</em> 2.4–6 (c. 200 AD)</span><span>＋</span>
                                 </button>
                                 <div id="witness-hippolytus" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">"For 6,000 years must needs be accomplished, in order that the Sabbath may come, the rest, the holy day on which God rested from all His works. For the Sabbath is the type and emblem of the future kingdom of the saints, when they shall reign with Christ, when He comes from heaven, as John says in his Apocalypse: for 'a day with the Lord is as a thousand years.'"</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">"For 6,000 years must needs be accomplished, in order that the Sabbath may come, the rest, the holy day on which God rested from all His works. For the Sabbath is the type and emblem of the future kingdom of the saints, when they shall reign with Christ, when He comes from heaven, as John says in his Apocalypse. For 'a day with the Lord is as a thousand years.'"</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -209,7 +277,7 @@
                                     <span>Methodius of Olympus, <em>Symposium</em> 9.1 (c. 290 AD)</span><span>＋</span>
                                 </button>
                                 <div id="witness-methodius" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">"For since in six days God made the heaven and the earth, and finished the whole world, and rested on the seventh day from all His works which He had made, and blessed the seventh day and sanctified it, so by a figure in the seventh month, when the fruits of the earth have been gathered in, we are commanded to keep the feast to the Lord... For it is necessary that when the thousand years of the seven-thousand are fulfilled, we shall celebrate the great day of the Lord."</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">"For since in six days God made the heaven and the earth, and finished the whole world, and rested on the seventh day from all His works which He had made, and blessed the seventh day and sanctified it, so by a figure in the seventh month, when the fruits of the earth have been gathered in, we are commanded to keep the feast to the Lord... It is necessary that when the thousand years of the seven-thousand are fulfilled, we shall celebrate the great day of the Lord."</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -226,7 +294,7 @@
                                 </button>
                                 <div id="witness-lactantius" class="collapsible-content px-5 pb-4">
                                     <p class="text-slate-700 text-sm leading-relaxed">"Therefore, since all the works of God were completed in six days, the world must continue in its present state through six ages, that is, six thousand years. For the great day of God is limited by a circle of a thousand years, as the prophet shows, who says, 'In Thy sight, O Lord, a thousand years are as one day.' And as God laboured during those six days in creating such great works, so His religion and truth must labour during these six thousand years, while wickedness prevails and bears rule. And again, since having finished His works He rested on the seventh day and blessed it, at the end of the six thousandth year all wickedness must be abolished from the earth, and righteousness reign for a thousand years."</p>
-                                    <p class="mt-2 text-xs text-slate-500 italic">Tutor to Constantine's son Crispus — the doctrine carried into the imperial household.</p>
+                                    <p class="mt-2 text-xs text-slate-500 italic">Tutor to Constantine's son Crispus; the doctrine carried into the imperial household.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -238,12 +306,12 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="mt-6 text-sm text-slate-600 italic">The shift away from chiliasm came chiefly through Origen's allegorical hermeneutic and Augustine's later amillennial revision (<em>City of God</em> 20.7 — where Augustine concedes he once held the millennial view). The doctrine did not fall because Scripture overturned it; it fell because the hermeneutic changed.</p>
+                        <p class="mt-6 text-sm text-slate-600 italic">The shift away from chiliasm came chiefly through Origen's allegorical hermeneutic and Augustine's later amillennial revision (<em>City of God</em> 20.7, where Augustine concedes he once held the millennial view). The doctrine did not fall because Scripture overturned it; it fell because the hermeneutic changed.</p>
                     </article>
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">The Jewish & Rabbinic Testimony</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">Remarkably, the same seven-thousand-year framework appears in Jewish tradition — independent of Christian sources, rooted in the same Torah, and preserved in the Babylonian Talmud and Midrashic literature. This convergence across two religious traditions is itself a powerful evidential witness.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">Remarkably, the same seven-thousand-year framework appears in Jewish tradition, independent of Christian sources, rooted in the same Torah, and preserved in the Babylonian Talmud and Midrashic literature. This convergence across two religious traditions is itself a powerful evidential witness.</p>
                         <div class="mt-5 space-y-3">
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="jewish-sanhedrin">
@@ -259,7 +327,7 @@
                                     <span>Talmud, Rosh Hashanah 31a · Sanhedrin 97a</span><span>＋</span>
                                 </button>
                                 <div id="jewish-rosh" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">"Rabbi Kattina said: 'Six thousand years shall the world exist, and one thousand [years] shall it be desolate (<em>chareiv</em>) — as it is written: "And the Lord alone shall be exalted in that day" (Isa. 2:11).'" The seventh-day Sabbath rest, the rabbi reasons, must correspond to a seventh millennium of cosmic Sabbath.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">"Rabbi Kattina said: 'Six thousand years shall the world exist, and one thousand [years] shall it be desolate (<em>chareiv</em>), as it is written: "And the Lord alone shall be exalted in that day" (Isa. 2:11).'" The seventh-day Sabbath rest, the rabbi reasons, must correspond to a seventh millennium of cosmic Sabbath.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -267,7 +335,7 @@
                                     <span>Midrash Tehillim on Psalm 92 ("A Song for the Sabbath Day")</span><span>＋</span>
                                 </button>
                                 <div id="jewish-psalm92" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">The sole psalm titled "for the Sabbath day" (Psalm 92) was understood by the rabbis to refer to "the day that is all Sabbath and rest in life everlasting" (cf. Mishnah Tamid 7:4). The liturgical Sabbath psalm looks forward to the eschatological Sabbath — the thousand-year day.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">The sole psalm titled "for the Sabbath day" (Psalm 92) was understood by the rabbis to refer to "the day that is all Sabbath and rest in life everlasting" (cf. Mishnah Tamid 7:4). The liturgical Sabbath psalm looks forward to the eschatological Sabbath: the thousand-year day.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -275,7 +343,7 @@
                                     <span>Pirke de-Rabbi Eliezer 18 · Pesikta Rabbati 1</span><span>＋</span>
                                 </button>
                                 <div id="jewish-pirke" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">"The Holy One, blessed be He, created seven ages (<em>olamot</em>), and of all of them He chose the seventh alone... six ages for going in and coming out, for war and peace. The seventh age is entirely Sabbath and rest for life everlasting." The language prefigures Hebrews 4 with startling precision.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">"The Holy One, blessed be He, created seven ages (<em>olamot</em>), and of all of them He chose the seventh alone... six ages for going in and coming out, for war and peace. The seventh age is entirely Sabbath and rest for life everlasting." The language anticipates Hebrews 4 with startling precision.</p>
                                 </div>
                             </div>
                         </div>
@@ -287,7 +355,7 @@
                         <div class="mt-6 grid md:grid-cols-2 gap-4">
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"For a thousand years in thy sight are but as yesterday when it is past, and as a watch in the night."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Psalm 90:4 — Moses</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Psalm 90:4 · Moses</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"But, beloved, be not ignorant of this one thing, that one day is with the Lord as a thousand years, and a thousand years as one day."</p>
@@ -302,7 +370,7 @@
                                 <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Hebrews 4:9-10</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
-                                <p class="text-sm text-slate-700 leading-relaxed">"In the day that thou eatest thereof thou shalt surely die." — Adam lived 930 years and died, within the thousand-year "day."</p>
+                                <p class="text-sm text-slate-700 leading-relaxed">"In the day that thou eatest thereof thou shalt surely die." Adam lived 930 years and died, within the thousand-year "day."</p>
                                 <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Genesis 2:17 · 5:5</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
@@ -311,23 +379,23 @@
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5 md:col-span-2">
                                 <p class="text-sm text-slate-700 leading-relaxed">"Come, and let us return unto the LORD: for he hath torn, and he will heal us; he hath smitten, and he will bind us up. After two days will he revive us: in the third day he will raise us up, and we shall live in his sight."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Hosea 6:1-2 — the two-millennia exile and third-millennium revival of Israel</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Hosea 6:1-2 · the two-millennia exile and third-millennium revival of Israel</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"Behold, I cast out devils, and I do cures to day and to morrow, and the third day I shall be perfected."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Luke 13:32 — Jesus' three-day prophetic signature</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Luke 13:32 · Jesus' three-day prophetic signature</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"And after six days Jesus taketh Peter, James, and John his brother, and bringeth them up into an high mountain apart, and was transfigured before them."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Matthew 17:1-2 — kingdom glory on the seventh</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Matthew 17:1-2 · kingdom glory on the seventh</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"And the third day there was a marriage in Cana of Galilee... This beginning of miracles did Jesus."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">John 2:1, 11 — wine of the Messianic age on the third day</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">John 2:1, 11 · wine of the Messianic age on the third day</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"It shall come to pass in the last days, that the mountain of the LORD's house shall be established in the top of the mountains... and he shall judge among the nations."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Isaiah 2:2-4 — the Messianic kingdom on earth</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Isaiah 2:2-4 · the Messianic kingdom on earth</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"The wolf also shall dwell with the lamb... and the earth shall be full of the knowledge of the LORD, as the waters cover the sea."</p>
@@ -335,7 +403,7 @@
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"There shall be no more thence an infant of days, nor an old man that hath not filled his days: for the child shall die an hundred years old."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Isaiah 65:20 — lifespans of the seventh-day kingdom</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Isaiah 65:20 · lifespans of the seventh-day kingdom</footer>
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5">
                                 <p class="text-sm text-slate-700 leading-relaxed">"And the LORD shall be king over all the earth: in that day shall there be one LORD, and his name one."</p>
@@ -343,68 +411,89 @@
                             </blockquote>
                             <blockquote class="rounded-2xl border border-indigo-100 bg-slate-50 p-5 md:col-span-2">
                                 <p class="text-sm text-slate-700 leading-relaxed">"And I saw thrones, and they sat upon them, and judgment was given unto them... and they lived and reigned with Christ a thousand years. But the rest of the dead lived not again until the thousand years were finished. This is the first resurrection."</p>
-                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Revelation 20:4-5 — the thousand years named six times in seven verses</footer>
+                                <footer class="mt-3 text-xs font-semibold uppercase tracking-wide text-indigo-700">Revelation 20:4-5 · the thousand years named six times in seven verses</footer>
                             </blockquote>
                         </div>
                     </article>
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">The Seven Millennial Days</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">Chronologies vary — Ussher's genealogy places creation at roughly 4004 BC; the Septuagint timeline runs 1,400+ years longer; the Hebrew Masoretic text yields dates between. Exact year-setting is neither possible nor wise. But the <em>pattern</em> — the seven-day shape — is unmistakable, and the rabbis, patristics, and Reformation chronologists converged remarkably on the "six days = six thousand years" frame.</p>
-                        <div class="mt-6 timeline-grid">
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 1</p>
-                                <h3 class="mt-1 font-bold text-slate-900">0–1000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">Adam to Noah.</span> The "days of the generations" — from Eden to the Flood. Methuselah dies the year of the deluge (Gen. 5:27).</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">Chronologies vary. Ussher's genealogy places creation at roughly 4004 BC; the Septuagint timeline runs 1,400+ years longer; the Hebrew Masoretic text yields dates between. Exact year-setting is neither possible nor wise. But the <em>pattern</em>, the seven-day shape, is unmistakable, and the rabbis, patristics, and Reformation chronologists converged remarkably on the "six days = six thousand years" frame.</p>
+                        <div class="timeline-list" role="list" aria-label="Seven millennial days of biblical history">
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">1</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">0 to 1,000 AM</span>
+                                    <h3 class="timeline-title">Adam to Noah</h3>
+                                </div>
+                                <p class="timeline-body">The "days of the generations," from Eden to the Flood. Methuselah, longest-lived of men, dies the very year of the deluge (Gen. 5:27).</p>
                             </div>
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 2</p>
-                                <h3 class="mt-1 font-bold text-slate-900">1000–2000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">Flood to Abraham.</span> Nations scattered at Babel; the call of Abram (Gen. 12) opens covenant history.</p>
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">2</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">1,000 to 2,000 AM</span>
+                                    <h3 class="timeline-title">Flood to Abraham</h3>
+                                </div>
+                                <p class="timeline-body">The nations are scattered at Babel. God calls Abram out of Ur (Gen. 12), opening the era of patriarchal covenant history.</p>
                             </div>
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 3</p>
-                                <h3 class="mt-1 font-bold text-slate-900">2000–3000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">Abraham to David.</span> Exodus, Sinai, conquest, judges, united monarchy — the age of covenant and kingdom.</p>
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">3</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">2,000 to 3,000 AM</span>
+                                    <h3 class="timeline-title">Abraham to David</h3>
+                                </div>
+                                <p class="timeline-body">Exodus, Sinai, conquest, the judges, and the united monarchy. The age of covenant formation and kingdom foundation.</p>
                             </div>
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 4</p>
-                                <h3 class="mt-1 font-bold text-slate-900">3000–4000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">David to Messiah.</span> Prophets, exile, return, silent years — closing with "the fulness of the time" (Gal. 4:4).</p>
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">4</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">3,000 to 4,000 AM</span>
+                                    <h3 class="timeline-title">David to Messiah</h3>
+                                </div>
+                                <p class="timeline-body">Prophets, exile, return, and the silent years, closing at "the fulness of the time" when God sent forth His Son (Gal. 4:4).</p>
                             </div>
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 5</p>
-                                <h3 class="mt-1 font-bold text-slate-900">4000–5000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">Christ's advent onward.</span> Incarnation, cross, Pentecost; gospel spreads to the nations. "Day" of the Church begins.</p>
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">5</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">4,000 to 5,000 AM</span>
+                                    <h3 class="timeline-title">Christ's Advent Onward</h3>
+                                </div>
+                                <p class="timeline-body">Incarnation, cross, resurrection, and Pentecost. The gospel crosses every cultural boundary. The "day" of the Church begins.</p>
                             </div>
-                            <div class="day-block">
-                                <p class="text-xs uppercase font-semibold text-indigo-700">Day 6</p>
-                                <h3 class="mt-1 font-bold text-slate-900">5000–6000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">The present "sixth day."</span> Man was made on the sixth day — the age of man's empires, technology, and final apostasy (2 Tim. 3:1).</p>
+                            <div class="timeline-row" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">6</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">5,000 to 6,000 AM</span>
+                                    <h3 class="timeline-title">The Present Sixth Day</h3>
+                                </div>
+                                <p class="timeline-body">Man was created on the sixth day. Now the age of man's empires, technology, and final apostasy runs its appointed course (2 Tim. 3:1).</p>
                             </div>
-                            <div class="day-block border-indigo-300 bg-gradient-to-br from-indigo-100 to-white">
-                                <p class="text-xs uppercase font-semibold text-indigo-800">Day 7</p>
-                                <h3 class="mt-1 font-bold text-slate-900">6000–7000 AM</h3>
-                                <p class="mt-2 text-sm text-slate-700"><span class="font-semibold">The Sabbath-millennium.</span> Christ reigns from Jerusalem (Zech. 14:9); Satan bound (Rev. 20:2); creation groans no more (Rom. 8:21).</p>
+                            <div class="timeline-row timeline-row--sabbath" role="listitem">
+                                <span class="timeline-marker" aria-hidden="true">7</span>
+                                <div class="timeline-head">
+                                    <span class="timeline-range">6,000 to 7,000 AM</span>
+                                    <h3 class="timeline-title">The Sabbath Millennium</h3>
+                                </div>
+                                <p class="timeline-body">Christ reigns from Jerusalem (Zech. 14:9). Satan is bound (Rev. 20:2). Creation groans no more (Rom. 8:21). The cosmic Sabbath at last.</p>
                             </div>
                         </div>
                         <div class="mt-6 rounded-2xl bg-slate-50 border border-slate-200 p-5">
                             <p class="text-xs uppercase font-semibold text-slate-600 tracking-wide">Chronological note</p>
-                            <p class="mt-2 text-sm text-slate-700 leading-relaxed">Anno Mundi ("year of the world") dating traces from Adam forward. Bishop Ussher (<em>Annals of the World</em>, 1650) dated creation to 4004 BC, placing Christ's birth near 4000 AM and the present day near 6000 AM. Dr. Floyd Nolen Jones' <em>Chronology of the Old Testament</em> and Martin Anstey's <em>Romance of Bible Chronology</em> reach similar conclusions using the Masoretic Text. We are not setting dates — we are noticing <em>where we are in the pattern</em>.</p>
+                            <p class="mt-2 text-sm text-slate-700 leading-relaxed">Anno Mundi ("year of the world") dating traces from Adam forward. Bishop Ussher (<em>Annals of the World</em>, 1650) dated creation to 4004 BC, placing Christ's birth near 4000 AM and the present day near 6000 AM. Dr. Floyd Nolen Jones' <em>Chronology of the Old Testament</em> and Martin Anstey's <em>Romance of Bible Chronology</em> reach similar conclusions using the Masoretic Text. We are not setting dates; we are noticing <em>where we are in the pattern</em>.</p>
                         </div>
                         <p class="mt-4 text-sm text-slate-600 italic">"Of that day and hour knoweth no man" (Matt. 24:36) forbids us to name a date. It does not forbid us to read the clock Scripture itself has set running.</p>
                     </article>
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Typological Shadows Across the Canon</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">Scripture does not teach the seven-millennial-day pattern only once; it whispers it through hundreds of types and shadows. The Old Testament is saturated with the rhythm of "six then seven" — labor followed by rest, toil followed by inheritance, testing followed by glory. These are not arbitrary numbers; they are the fingerprints of a God who has been composing one story from Genesis to Revelation.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">Scripture does not teach the seven-millennial-day pattern only once; it whispers it through hundreds of types and shadows. The Old Testament is saturated with the rhythm of "six then seven": labor followed by rest, toil followed by inheritance, testing followed by glory. These are not arbitrary numbers; they are the fingerprints of a God who has been composing one story from Genesis to Revelation.</p>
                         <div class="mt-5 space-y-3">
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="type-creation">
                                     <span>The Creation Week (Genesis 1–2)</span><span>＋</span>
                                 </button>
                                 <div id="type-creation" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">Man was created on the sixth day — the day of toil. The seventh is set apart, blessed, sanctified. Hebrews 4:4 explicitly treats the seventh-day Sabbath as prophetic of a future, still-awaited rest. If the six days are a template, the seventh must be too.</p>
+                                    <p class="text-slate-700 text-sm">Man was created on the sixth day, the day of toil. The seventh is set apart, blessed, sanctified. Hebrews 4:4 explicitly treats the seventh-day Sabbath as prophetic of a future, still-awaited rest. If the six days are a template, the seventh must be too.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -420,7 +509,7 @@
                                     <span>Jericho's seventh-day fall (Joshua 6)</span><span>＋</span>
                                 </button>
                                 <div id="type-jericho" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">Israel marches six days around a city they cannot take by strength. On the seventh day — and the seventh circuit — the walls fall at the sound of the trumpet. Paul writes, "the trumpet shall sound, and the dead shall be raised" (1 Cor. 15:52). The seventh-day trumpet topples the kingdoms of this world.</p>
+                                    <p class="text-slate-700 text-sm">Israel marches six days around a city they cannot take by strength. On the seventh day, at the seventh circuit, the walls fall at the sound of the trumpet. Paul writes, "the trumpet shall sound, and the dead shall be raised" (1 Cor. 15:52). The seventh-day trumpet topples the kingdoms of this world.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -428,7 +517,7 @@
                                     <span>The Transfiguration "after six days" (Matthew 17:1; Mark 9:2)</span><span>＋</span>
                                 </button>
                                 <div id="type-transfiguration" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">Two Gospels mark this event with pointed precision — "after six days." Only Luke's parallel says "about an eighth day" (9:28), gathering up the symbolism. Peter, present for the miniature Kingdom preview, later writes his famous "one day is with the Lord as a thousand years" (2 Peter 3:8) — no accident. He is telling us what he saw on that mountain.</p>
+                                    <p class="text-slate-700 text-sm">Two Gospels mark this event with pointed precision: "after six days." Only Luke's parallel says "about an eighth day" (9:28), gathering up the symbolism. Peter, present for the miniature Kingdom preview, later writes his famous "one day is with the Lord as a thousand years" (2 Peter 3:8). No accident. He is telling us what he saw on that mountain.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -436,7 +525,7 @@
                                     <span>Wedding at Cana "the third day" (John 2:1)</span><span>＋</span>
                                 </button>
                                 <div id="type-cana" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">Christ's first public sign — water to wine at a wedding feast — occurs "the third day." The Jewish wedding, the abundance of wine, the third-day timing together form a prophetic miniature: Messiah returns on the third day from His first advent to inaugurate the Marriage Supper and restore the joy of the nations (Rev. 19:7-9).</p>
+                                    <p class="text-slate-700 text-sm">Christ's first public sign, water to wine at a wedding feast, occurs "the third day." The Jewish wedding, the abundance of wine, and the third-day timing together form a prophetic miniature: Messiah returns on the third day from His first advent to inaugurate the Marriage Supper and restore the joy of the nations (Rev. 19:7-9).</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -444,7 +533,7 @@
                                     <span>The Jubilee (Leviticus 25:8-13)</span><span>＋</span>
                                 </button>
                                 <div id="type-jubilee" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">Seven Sabbath-years, 49 total, followed by a fiftieth year of universal release — slaves freed, debts cancelled, land returned to its original owner. Isaiah 61:1-2 and Luke 4:18-19 mark Jubilee as a Messianic prophecy. The great Jubilee arrives after seven thousand-year "days," liberating creation itself.</p>
+                                    <p class="text-slate-700 text-sm">Seven Sabbath-years, 49 total, followed by a fiftieth year of universal release: slaves freed, debts cancelled, land returned to its original owner. Isaiah 61:1-2 and Luke 4:18-19 mark Jubilee as a Messianic prophecy. The great Jubilee arrives after seven thousand-year "days," liberating creation itself.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -452,7 +541,7 @@
                                     <span>Israel's Seven Feasts (Leviticus 23)</span><span>＋</span>
                                 </button>
                                 <div id="type-feasts" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">The <em>seven</em> appointed feasts fall in two clusters — the spring feasts (Passover, Unleavened Bread, Firstfruits, Weeks) all fulfilled in Christ's first advent, and the autumn feasts (Trumpets, Atonement, Tabernacles) awaiting His return. Tabernacles, the climactic seventh feast, is an <em>eight-day</em> celebration pointing to both the thousand-year kingdom and the new creation beyond it.</p>
+                                    <p class="text-slate-700 text-sm">The <em>seven</em> appointed feasts fall in two clusters: the spring feasts (Passover, Unleavened Bread, Firstfruits, Weeks) all fulfilled in Christ's first advent, and the autumn feasts (Trumpets, Atonement, Tabernacles) awaiting His return. Tabernacles, the climactic seventh feast, is an <em>eight-day</em> celebration pointing to both the thousand-year kingdom and the new creation beyond it.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -460,7 +549,7 @@
                                     <span>Noah's Flood: "Yet seven days" (Genesis 7:4)</span><span>＋</span>
                                 </button>
                                 <div id="type-noah" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">"For yet seven days, and I will cause it to rain." Christ compared His return directly to the days of Noah (Matt. 24:37-39). The seven-day warning before a world-ending judgment prefigures the seven-thousand-year span before the final reckoning — and the ark's rest is said to come on the seventeenth of the seventh month, the same date later marking Christ's resurrection on Firstfruits.</p>
+                                    <p class="text-slate-700 text-sm">"For yet seven days, and I will cause it to rain." Christ compared His return directly to the days of Noah (Matt. 24:37-39). The seven-day warning before a world-ending judgment prefigures the seven-thousand-year span before the final reckoning, and the ark's rest is said to come on the seventeenth of the seventh month, the same date later marking Christ's resurrection on Firstfruits.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -468,7 +557,7 @@
                                     <span>Adam's death "in the day" (Genesis 2:17; 5:5)</span><span>＋</span>
                                 </button>
                                 <div id="type-adam" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm">God warned Adam, "in the day thou eatest thereof thou shalt surely die." Adam ate — and lived 930 years. He died <em>inside</em> a thousand-year day. Justin Martyr, Irenaeus, and other early fathers pointed to this as the earliest biblical evidence that "day" can mean a thousand years in God's reckoning.</p>
+                                    <p class="text-slate-700 text-sm">God warned Adam, "in the day thou eatest thereof thou shalt surely die." Adam ate, and lived 930 years. He died <em>inside</em> a thousand-year day. Justin Martyr, Irenaeus, and other early fathers pointed to this as the earliest biblical evidence that "day" can mean a thousand years in God's reckoning.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -484,56 +573,56 @@
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">The "Third Day" Doctrine</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">One particular strand deserves its own treatment, because it locks the doctrine onto the very generation in which we live. The biblical "third day" is not merely a chronological marker — it is a <em>theological signature</em> of resurrection and restoration.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">One particular strand deserves its own treatment, because it locks the doctrine onto the very generation in which we live. The biblical "third day" is not merely a chronological marker; it is a <em>theological signature</em> of resurrection and restoration.</p>
                         <div class="mt-6 space-y-5">
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
-                                <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">Hosea 6:1-3 — the master text</p>
-                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">"Come, and let us return unto the LORD... <em>After two days will he revive us: in the third day he will raise us up</em>, and we shall live in his sight. Then shall we know, if we follow on to know the LORD: his going forth is prepared as the morning; and he shall come unto us as the rain, as the latter and former rain unto the earth." Read on a millennial scale, Israel's national death and exile spans "two days" (c. 30 AD–2030 AD range), with the "third day" revival ushering in Messiah's kingdom and His coming "as the rain."</p>
+                                <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">Hosea 6:1-3 · the master text</p>
+                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">"Come, and let us return unto the LORD... <em>After two days will he revive us: in the third day he will raise us up</em>, and we shall live in his sight. Then shall we know, if we follow on to know the LORD: his going forth is prepared as the morning; and he shall come unto us as the rain, as the latter and former rain unto the earth." Read on a millennial scale, Israel's national death and exile spans "two days" (roughly 30 AD to 2030 AD), with the "third day" revival ushering in Messiah's kingdom and His coming "as the rain."</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">Jesus' Own Signature</p>
-                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">The New Testament records the phrase "the third day" more than 25 times in connection with Christ's work — His resurrection, His completion ("and the third day I shall be perfected," Luke 13:32), His first sign ("the third day there was a marriage," John 2:1). Paul reports that Christ rose "the third day according to the Scriptures" (1 Cor. 15:4) — and Hosea 6:2 is arguably the primary Scripture he had in mind.</p>
+                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">The New Testament records the phrase "the third day" more than 25 times in connection with Christ's work: His resurrection, His completion ("and the third day I shall be perfected," Luke 13:32), His first sign ("the third day there was a marriage," John 2:1). Paul reports that Christ rose "the third day according to the Scriptures" (1 Cor. 15:4), and Hosea 6:2 is arguably the primary Scripture he had in mind.</p>
                             </div>
                             <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-5">
                                 <p class="text-xs uppercase tracking-wide font-semibold text-indigo-700">The Fig Tree Parable (Matthew 24:32-34)</p>
-                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">Israel, the fig tree, was replanted as a nation on May 14, 1948 — the most improbable geopolitical event of the modern era, directly fulfilling Isaiah 66:8, Ezekiel 37, and the implicit deadline of Hosea's "two days." Jesus said "<em>this</em> generation shall not pass, till all these things be fulfilled." The third-millennial day is not a distant abstraction — it is the threshold beneath our feet.</p>
+                                <p class="mt-2 text-slate-800 text-sm leading-relaxed">Israel, the fig tree, was replanted as a nation on May 14, 1948, the most improbable geopolitical event of the modern era, directly fulfilling Isaiah 66:8, Ezekiel 37, and the implicit deadline of Hosea's "two days." Jesus said "<em>this</em> generation shall not pass, till all these things be fulfilled." The third-millennial day is not a distant abstraction; it is the threshold beneath our feet.</p>
                             </div>
                         </div>
                     </article>
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Hebrew & Greek Word Studies</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">A few key words unlock the entire framework. The doctrine is not translation-dependent, but it glows more brightly in the original languages.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">A few key words unlock the entire framework. The doctrine is not translation-dependent, yet it glows more brightly in the original languages.</p>
                         <div class="mt-5 space-y-3">
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="word-yom">
-                                    <span><em>yôm</em> (יוֹם) — "day"</span><span>＋</span>
+                                    <span><em>yôm</em> (יוֹם) · "day"</span><span>＋</span>
                                 </button>
                                 <div id="word-yom" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">The Hebrew <em>yôm</em> has a flexible semantic range: a 24-hour day (Gen. 1:5), a daylight period (Gen. 1:16), an age or era ("the day of the Lord"), and even an unspecified long period (Gen. 2:4 — "in the day that the Lord God made"). Scripture itself therefore authorizes the wider prophetic usage. When God said to Adam, "in the day thou eatest thereof thou shalt surely die," and Adam then lived 930 years and died, God's word did not fail — because in His reckoning, one day is as a thousand years.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">The Hebrew <em>yôm</em> has a flexible semantic range: a 24-hour day (Gen. 1:5), a daylight period (Gen. 1:16), an age or era ("the day of the Lord"), and even an unspecified long period (Gen. 2:4, "in the day that the Lord God made"). Scripture itself therefore authorizes the wider prophetic usage. When God said to Adam, "in the day thou eatest thereof thou shalt surely die," and Adam then lived 930 years and died, God's word did not fail, because in His reckoning, one day is as a thousand years.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="word-shabbat">
-                                    <span><em>shabbāt</em> (שַׁבָּת) — "Sabbath, cessation"</span><span>＋</span>
+                                    <span><em>shabbāt</em> (שַׁבָּת) · "Sabbath, cessation"</span><span>＋</span>
                                 </button>
                                 <div id="word-shabbat" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Sabbath means "to cease, to desist." It is not mere rest from fatigue — God is not tired. It is covenantal cessation from <em>this-age labor</em>, marking a boundary between toil and inheritance. When Hebrews 4:9 coins the word <em>sabbatismos</em> (σαββατισμός — "a Sabbath-keeping"), it transfers this very concept into the future kingdom. The thousand-year reign is not metaphorical rest; it is the cosmic <em>shabbat</em>.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Sabbath means "to cease, to desist." It is not mere rest from fatigue; God is not tired. It is covenantal cessation from <em>this-age labor</em>, marking a boundary between toil and inheritance. When Hebrews 4:9 coins the word <em>sabbatismos</em> (σαββατισμός, "a Sabbath-keeping"), it transfers this very concept into the future kingdom. The thousand-year reign is not metaphorical rest; it is the cosmic <em>shabbat</em>.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="word-menuchah">
-                                    <span><em>menûchâh</em> (מְנוּחָה) — "settled rest"</span><span>＋</span>
+                                    <span><em>menûchâh</em> (מְנוּחָה) · "settled rest"</span><span>＋</span>
                                 </button>
                                 <div id="word-menuchah" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Psalm 95:11 — "I sware in my wrath that they should not enter into my <em>rest</em>." This is <em>menuchah</em>: settled, inheritance rest — the kind of rest a bride enters in her husband's home (Ruth 3:1). Hebrews 3–4 builds an entire argument on this: Israel forfeited <em>menuchah</em> in the wilderness; Joshua could not give it; David anticipated it; therefore the true Sabbath-rest <em>remains</em>. It is still ahead of us.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Psalm 95:11 reads, "I sware in my wrath that they should not enter into my <em>rest</em>." This is <em>menuchah</em>: settled, inheritance rest, the kind of rest a bride enters in her husband's home (Ruth 3:1). Hebrews 3–4 builds an entire argument on this: Israel forfeited <em>menuchah</em> in the wilderness; Joshua could not give it; David anticipated it; therefore the true Sabbath-rest <em>remains</em>. It is still ahead of us.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="word-chilia">
-                                    <span><em>chilia etē</em> (χίλια ἔτη) — "a thousand years"</span><span>＋</span>
+                                    <span><em>chilia etē</em> (χίλια ἔτη) · "a thousand years"</span><span>＋</span>
                                 </button>
                                 <div id="word-chilia" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">In Revelation 20 the exact phrase <em>chilia etē</em> appears six times. Greek had many options for a vague "long time" — <em>aiōn</em>, <em>chronos polys</em>, <em>makran</em> — but John chose the most precise numerical construction the language offered. When an inspired writer chooses a specific number and then repeats it six times, allegorizing it into nothing requires more faith than reading it plainly.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">In Revelation 20 the exact phrase <em>chilia etē</em> appears six times. Greek had many options for a vague "long time" (<em>aiōn</em>, <em>chronos polys</em>, <em>makran</em>), but John chose the most precise numerical construction the language offered. When an inspired writer picks a specific number and then repeats it six times, allegorizing it into nothing requires more faith than reading it plainly.</p>
                                 </div>
                             </div>
                         </div>
@@ -541,14 +630,14 @@
 
                     <article role="article" class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm scripture-card">
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Answering the Common Objections</h2>
-                        <p class="mt-3 text-slate-700 leading-relaxed">A doctrine this ancient and this widely held has, of course, critics. Each objection deserves a careful, honest answer.</p>
+                        <p class="mt-3 text-slate-700 leading-relaxed">A doctrine this ancient and this widely held has its critics, of course. Each objection deserves a careful, honest answer.</p>
                         <div class="mt-5 space-y-3">
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
                                 <button type="button" class="w-full flex items-center justify-between text-left px-5 py-4 font-bold text-slate-900 toggle-btn" aria-expanded="false" aria-controls="obj-no-man">
                                     <span>"No man knows the day or the hour" (Matthew 24:36)</span><span>＋</span>
                                 </button>
                                 <div id="obj-no-man" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Absolutely true — and the Millennial Day Theory agrees. It is not a date-setting system. It does not claim to know the day, the hour, or even the year. It simply observes a pattern the Scriptures themselves lay down. Jesus also said, "When ye shall see all these things, know that it is near, even at the doors" (Matt. 24:33). Knowing the season is commanded; knowing the hour is forbidden. The two are not the same.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Absolutely true, and the Millennial Day Theory agrees. It is not a date-setting system. It does not claim to know the day, the hour, or even the year. It simply observes a pattern the Scriptures themselves lay down. Jesus also said, "When ye shall see all these things, know that it is near, even at the doors" (Matt. 24:33). Knowing the season is commanded; knowing the hour is forbidden. The two are not the same.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -556,7 +645,7 @@
                                     <span>"2 Peter 3:8 just means God is timeless."</span><span>＋</span>
                                 </button>
                                 <div id="obj-2peter" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">This reduction misses the context badly. Peter is rebuking scoffers who ask, "Where is the promise of his coming?" (v. 4). His response is <em>chronological</em>, not merely theological: God is not slow, and what looks long to us is short to Him. The ratio Peter gives is numerically specific — one day equals a thousand years — not a general statement about divine timelessness. He even echoes Psalm 90:4, a psalm that immediately proceeds to talk about our earthly lifespan being "threescore years and ten" (90:10). Peter is handing the church a prophetic conversion key.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">This reduction misses the context badly. Peter is rebuking scoffers who ask, "Where is the promise of his coming?" (v. 4). His response is <em>chronological</em>, not merely theological: God is not slow, and what looks long to us is short to Him. The ratio Peter gives is numerically specific (one day equals a thousand years), not a general statement about divine timelessness. He even echoes Psalm 90:4, a psalm that immediately proceeds to talk about our earthly lifespan being "threescore years and ten" (90:10). Peter is handing the church a prophetic conversion key.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -564,7 +653,7 @@
                                     <span>"Revelation 20's 'thousand years' is symbolic."</span><span>＋</span>
                                 </button>
                                 <div id="obj-rev20" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Allegorizing Revelation 20 creates more problems than it solves. The passage distinguishes two resurrections separated by the thousand years, names two specific groups of reigning saints, describes Satan's binding and release, and is echoed by Paul's "every man in his own order" (1 Cor. 15:23-24). The early church, including men who learned from the apostles, read this literally. The allegorizing move traces to Origen and was formalized by Augustine — it is a later hermeneutic, not the apostolic reading.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Allegorizing Revelation 20 creates more problems than it solves. The passage distinguishes two resurrections separated by the thousand years, names two specific groups of reigning saints, describes Satan's binding and release, and is echoed by Paul's "every man in his own order" (1 Cor. 15:23-24). The early church, including men who learned from the apostles, read this literally. The allegorizing move traces to Origen and was formalized by Augustine. It is a later hermeneutic, not the apostolic reading.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -572,7 +661,7 @@
                                     <span>"Biblical chronology isn't precise enough."</span><span>＋</span>
                                 </button>
                                 <div id="obj-chronology" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Granted, and that is why the Millennial Day Theory is a <em>pattern</em>, not a stopwatch. Ussher, the Seder Olam, the Septuagint, the Samaritan Pentateuch, and modern scholars all diverge by a few hundred years at most. Whether creation was 4004 BC or 4115 BC or 5500 BC, we are plainly near — or just past — the 6,000-year mark. A chronological uncertainty of 1% doesn't undo a pattern drawn in 1,000-year intervals.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Granted, and that is why the Millennial Day Theory is a <em>pattern</em>, not a stopwatch. Ussher, the Seder Olam, the Septuagint, the Samaritan Pentateuch, and modern scholars all diverge by a few hundred years at most. Whether creation was 4004 BC or 4115 BC or 5500 BC, we are plainly near (or just past) the 6,000-year mark. A chronological uncertainty of 1% doesn't undo a pattern drawn in 1,000-year intervals.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -580,7 +669,7 @@
                                     <span>"Augustine rejected the millennium."</span><span>＋</span>
                                 </button>
                                 <div id="obj-augustine" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">Augustine himself acknowledges in <em>City of God</em> 20.7 that he had once held the millennial view and found it "not objectionable" until certain excesses pushed him toward allegory. His shift was partly a reaction against fleshly Jewish-style expectations, partly born of Platonic influence. Weigh Augustine's testimony honestly — and then weigh the unified witness of Papias (a hearer of John), Irenaeus (disciple of Polycarp, disciple of John), Justin, Hippolytus, Methodius, Victorinus, Lactantius, and Commodianus, who precede him by centuries.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">Augustine himself acknowledges in <em>City of God</em> 20.7 that he had once held the millennial view and found it "not objectionable" until certain excesses pushed him toward allegory. His shift was partly a reaction against fleshly Jewish-style expectations, partly born of Platonic influence. Weigh Augustine's testimony honestly, then weigh the unified witness of Papias (a hearer of John), Irenaeus (disciple of Polycarp, disciple of John), Justin, Hippolytus, Methodius, Victorinus, Lactantius, and Commodianus, who precede him by centuries.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -588,7 +677,7 @@
                                     <span>"The kingdom is spiritual and already here."</span><span>＋</span>
                                 </button>
                                 <div id="obj-spiritual" class="collapsible-content px-5 pb-4">
-                                    <p class="text-slate-700 text-sm leading-relaxed">There is an "already" dimension of the kingdom — Christ has been given all authority (Matt. 28:18), and He reigns now over His Church. But Isaiah 11's wolf does not yet lie down with the lamb. Zechariah 14's feast of Tabernacles is not yet kept by all the nations. Creation still groans (Rom. 8:22). The "not yet" is real, concrete, future, and earthly. A purely spiritualized kingdom cannot account for the bodily resurrection, the restored Israel, the renewed earth, or the defeated death Paul promises (1 Cor. 15:26). These things require a seventh-day reality.</p>
+                                    <p class="text-slate-700 text-sm leading-relaxed">There is an "already" dimension of the kingdom: Christ has been given all authority (Matt. 28:18), and He reigns now over His Church. But Isaiah 11's wolf does not yet lie down with the lamb. Zechariah 14's feast of Tabernacles is not yet kept by all the nations. Creation still groans (Rom. 8:22). The "not yet" is real, concrete, future, and earthly. A purely spiritualized kingdom cannot account for the bodily resurrection, the restored Israel, the renewed earth, or the defeated death Paul promises (1 Cor. 15:26). These things require a seventh-day reality.</p>
                                 </div>
                             </div>
                             <div class="rounded-2xl border border-indigo-100 bg-slate-50">
@@ -606,15 +695,15 @@
                         <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">A Final, Sobering Observation</h2>
                         <p class="mt-4 text-slate-700 leading-relaxed">Consider what must be true for all of this to be coincidence:</p>
                         <ul class="mt-4 space-y-3 text-slate-700 leading-relaxed list-disc pl-6">
-                            <li>Moses, writing Genesis, happened to record a seven-day creation pattern that — by accident — would match the full scope of human history.</li>
+                            <li>Moses, writing Genesis, happened to record a seven-day creation pattern that, by accident, would match the full scope of human history.</li>
                             <li>Moses, writing Psalm 90, happened to equate a thousand years with a day, without meaning anything eschatological by it.</li>
                             <li>Peter, writing about the delay of the Day of the Lord, happened to quote Moses' ratio, also without prophetic intent.</li>
                             <li>Hosea happened to speak of a "two-day death and third-day revival" that, read on a millennial scale, lands precisely at Israel's 1948 restoration and the present hour.</li>
                             <li>John, on Patmos, happened to repeat "a thousand years" six times in seven verses while meaning no such concrete period.</li>
-                            <li>The earliest Christians, the Jewish rabbis, and the ante-Nicene martyrs all happened to read these texts the same way — independently — and all happened to be wrong together.</li>
+                            <li>The earliest Christians, the Jewish rabbis, and the ante-Nicene martyrs all happened to read these texts the same way, independently, and all happened to be wrong together.</li>
                         </ul>
-                        <p class="mt-5 text-slate-800 font-semibold leading-relaxed">That is a great deal of coincidence. The simpler reading is that God has been telling one story from Genesis 1 onward — a story in which we are living very near the close of the sixth day, with the great Sabbath almost at hand.</p>
-                        <p class="mt-4 text-sm text-slate-600 italic border-l-4 border-indigo-400 pl-4">"Watch ye therefore: for ye know not when the master of the house cometh, at even, or at midnight, or at the cockcrowing, or in the morning: lest coming suddenly he find you sleeping. And what I say unto you I say unto all, Watch." — Mark 13:35-37</p>
+                        <p class="mt-5 text-slate-800 font-semibold leading-relaxed">That is a great deal of coincidence. The simpler reading is that God has been telling one story from Genesis 1 onward: a story in which we are living very near the close of the sixth day, with the great Sabbath almost at hand.</p>
+                        <p class="mt-4 text-sm text-slate-600 italic border-l-4 border-indigo-400 pl-4">"Watch ye therefore: for ye know not when the master of the house cometh, at even, or at midnight, or at the cockcrowing, or in the morning: lest coming suddenly he find you sleeping. And what I say unto you I say unto all, Watch." <span class="not-italic font-semibold">— Mark 13:35-37</span></p>
                     </article>
                 </div>
 
@@ -634,9 +723,9 @@
                     <section class="rounded-3xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
                         <h2 class="text-xl font-extrabold text-slate-900">Why this matters now</h2>
                         <ul class="mt-4 space-y-3 text-sm text-slate-700 list-disc pl-5">
-                            <li><span class="font-semibold">It frames history as purposeful</span> — not random accident, but divine composition.</li>
+                            <li><span class="font-semibold">It frames history as purposeful,</span> not random accident, but divine composition.</li>
                             <li><span class="font-semibold">It magnifies Jesus</span> as Lord of time, history, and fulfillment.</li>
-                            <li><span class="font-semibold">It urges holiness and endurance</span> — we labor toward a real, imminent Sabbath.</li>
+                            <li><span class="font-semibold">It urges holiness and endurance,</span> labor toward a real, imminent Sabbath.</li>
                             <li><span class="font-semibold">It restores the Sabbath command</span> as prophecy, not just regulation.</li>
                             <li><span class="font-semibold">It re-roots the Church</span> in the earliest apostolic eschatology.</li>
                         </ul>
@@ -644,8 +733,8 @@
 
                     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
                         <h2 class="text-xl font-extrabold text-slate-900">Study carefully</h2>
-                        <p class="mt-3 text-sm text-slate-700 leading-relaxed">Faithful believers differ on chronology and interpretive details. Use this page as a catalyst to search the Scriptures deeply (Acts 17:11) — a map, not a substitute. If something here challenges you, good: let it drive you back to the text.</p>
-                        <p class="mt-3 text-sm text-slate-700 leading-relaxed italic">"These were more noble than those in Thessalonica, in that they received the word with all readiness of mind, and searched the scriptures daily, whether those things were so." — Acts 17:11</p>
+                        <p class="mt-3 text-sm text-slate-700 leading-relaxed">Faithful believers differ on chronology and interpretive details. Use this page as a catalyst to search the Scriptures deeply (Acts 17:11): a map, not a substitute. If something here challenges you, good. Let it drive you back to the text.</p>
+                        <p class="mt-3 text-sm text-slate-700 leading-relaxed italic">"These were more noble than those in Thessalonica, in that they received the word with all readiness of mind, and searched the scriptures daily, whether those things were so." <span class="not-italic font-semibold">— Acts 17:11</span></p>
                     </section>
 
                     <section class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -687,7 +776,7 @@
 
                     <section class="rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 shadow-lg">
                         <h2 class="text-xl font-extrabold">Be found watching</h2>
-                        <p class="mt-3 text-indigo-100 text-sm leading-relaxed">Use Bible Progress daily to stay rooted in Scripture and ready for Christ's return. The Master may come at any watch of the night — blessed is the servant He finds in the Word (Luke 12:37).</p>
+                        <p class="mt-3 text-indigo-100 text-sm leading-relaxed">Use Bible Progress daily to stay rooted in Scripture and ready for Christ's return. The Master may come at any watch of the night. Blessed is the servant He finds in the Word (Luke 12:37).</p>
                         <a href="index.html" class="mt-5 inline-flex items-center justify-center rounded-xl bg-white text-indigo-700 px-4 py-2 text-sm font-bold hover:bg-indigo-50 transition-colors">Open Bible Progress</a>
                     </section>
                 </aside>
