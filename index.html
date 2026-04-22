@@ -2630,14 +2630,17 @@
             appData.defaultProfileId = appData.activeProfileId;
         }
 
-        // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
-        // Use epoch 1 to indicate "read at unknown historical time" — avoids corrupting
-        // recency calculations (e.g. comeback card) that Date.now() would break.
+        // Migrate boolean progress values to timestamps (for heatmap/streak tracking).
+        // Use epoch 1 for legacy `true`; strip legacy falsy values (`false`/`0`/`null`)
+        // so `undefined` is the single "unread" sentinel.
         Object.keys(appData.profiles).forEach(profileName => {
             const profile = appData.profiles[profileName];
             Object.keys(profile).forEach(chapterKey => {
-                if(profile[chapterKey] === true) {
+                const val = profile[chapterKey];
+                if(val === true) {
                     profile[chapterKey] = 1;
+                } else if(val === false || val === 0 || val === null) {
+                    delete profile[chapterKey];
                 }
             });
         });
@@ -3156,13 +3159,17 @@
                 appData.wordsPerMinute = CONFIG.DEFAULT_WPM;
             }
 
-            // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
-            // Use epoch 1 to indicate "read at unknown historical time"
+            // Migrate boolean progress values to timestamps (for heatmap/streak tracking).
+            // Use epoch 1 for legacy `true`; strip legacy falsy values so `undefined`
+            // is the single "unread" sentinel.
             Object.keys(appData.profiles).forEach(profileName => {
                 const profile = appData.profiles[profileName];
                 Object.keys(profile).forEach(chapterKey => {
-                    if(profile[chapterKey] === true) {
+                    const val = profile[chapterKey];
+                    if(val === true) {
                         profile[chapterKey] = 1;
+                    } else if(val === false || val === 0 || val === null) {
+                        delete profile[chapterKey];
                     }
                 });
             });
@@ -8482,9 +8489,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.toggleChapter = (id, event) => {
             const prog = getProgress();
-            // Store timestamp when marking as read, false when unmarking
-            const timestamp = prog[id] ? false : Date.now();
-            prog[id] = timestamp;
+            // Unmark by deleting so "unread" is always `undefined` — `false` slipped
+            // past Firestore merge (numbers-only) and confused read-ahead detection.
+            const wasRead = !!prog[id];
+            const timestamp = wasRead ? null : Date.now();
+            if (wasRead) {
+                delete prog[id];
+            } else {
+                prog[id] = timestamp;
+            }
             setProgress(prog);
 
             // Reset comeback card flag so dashboard re-evaluates fresh
@@ -8495,12 +8508,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 window.createConfetti(event);
             }
 
-            // Apply cross-profile sync if rule exists and chapter is being marked as read
-            if(timestamp && appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
+            // Apply cross-profile sync if rule exists — propagate both marks and unmarks
+            if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
                 const targetProfile = appData.profileSyncRules[appData.activeProfileId];
                 if(appData.profiles[targetProfile]) {
-                    // Mark the same chapter in the target profile with the same timestamp
-                    appData.profiles[targetProfile][id] = timestamp;
+                    if (timestamp) {
+                        appData.profiles[targetProfile][id] = timestamp;
+                    } else {
+                        delete appData.profiles[targetProfile][id];
+                    }
                 }
             }
 
@@ -8605,19 +8621,25 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             const prog = getProgress();
-            // Store timestamp when marking as read (val=true), false when clearing (val=false)
-            const timestamp = val ? Date.now() : false;
-            // Cache sync target outside loop (constant for entire book operation)
-            const syncTarget = timestamp && appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]
+            const timestamp = val ? Date.now() : null;
+            const syncTarget = appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]
                 ? appData.profileSyncRules[appData.activeProfileId]
                 : null;
             book.ch.forEach((_, i) => {
                 const chapterId = `${book.name}-${i+1}`;
-                prog[chapterId] = timestamp;
+                if (val) {
+                    prog[chapterId] = timestamp;
+                } else {
+                    delete prog[chapterId];
+                }
 
                 // Apply cross-profile sync if rule exists
                 if(syncTarget && appData.profiles[syncTarget]) {
-                    appData.profiles[syncTarget][chapterId] = timestamp;
+                    if (val) {
+                        appData.profiles[syncTarget][chapterId] = timestamp;
+                    } else {
+                        delete appData.profiles[syncTarget][chapterId];
+                    }
                 }
             });
             setProgress(prog);
@@ -9490,13 +9512,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 appData.hornerCycleCount = {};
                             }
 
-                            // Migrate boolean progress values to timestamps (for heatmap/streak tracking)
-                            // Use epoch 1 to indicate "read at unknown historical time"
+                            // Migrate boolean progress values to timestamps (for heatmap/streak tracking).
+                            // Use epoch 1 for legacy `true`; strip legacy falsy values so `undefined`
+                            // is the single "unread" sentinel.
                             Object.keys(appData.profiles).forEach(profileName => {
                                 const profile = appData.profiles[profileName];
                                 Object.keys(profile).forEach(chapterKey => {
-                                    if(profile[chapterKey] === true) {
+                                    const val = profile[chapterKey];
+                                    if(val === true) {
                                         profile[chapterKey] = 1;
+                                    } else if(val === false || val === 0 || val === null) {
+                                        delete profile[chapterKey];
                                     }
                                 });
                             });
