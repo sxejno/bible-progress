@@ -296,6 +296,105 @@
 
         /* Smooth scroll */
         html { scroll-behavior: smooth; }
+
+        /* ---------- Print sheet ---------- */
+        #print-area { display: none; }
+
+        @media print {
+            html, body {
+                background: #ffffff !important;
+                color: #000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body > *:not(#print-area) { display: none !important; }
+            #print-area {
+                display: block !important;
+                margin: 0;
+                padding: 0;
+                color: #000;
+                font-family: 'Inter', -apple-system, sans-serif;
+            }
+            .print-header {
+                border-bottom: 2px solid #000;
+                padding-bottom: 10pt;
+                margin-bottom: 16pt;
+            }
+            .print-header h1 {
+                font-size: 22pt;
+                font-weight: 800;
+                margin: 0;
+                letter-spacing: -0.01em;
+            }
+            .print-sub {
+                font-size: 9pt;
+                color: #555;
+                margin-top: 4pt;
+                letter-spacing: 0.04em;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .print-section { margin-bottom: 18pt; }
+            .print-section.page-break { page-break-before: always; }
+            .print-section h2 {
+                font-size: 10pt;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                color: #444;
+                border-bottom: 1px solid #999;
+                padding-bottom: 4pt;
+                margin: 0 0 10pt;
+            }
+            .print-para { margin: 0 0 8pt; orphans: 3; widows: 3; }
+            .print-hints .print-para {
+                font-family: 'JetBrains Mono', 'Courier New', monospace;
+                letter-spacing: 0.04em;
+            }
+            .print-vn {
+                font-size: 7pt;
+                font-weight: 800;
+                vertical-align: super;
+                margin-right: 2pt;
+                color: #333;
+            }
+            .print-ch {
+                font-size: 10pt;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.14em;
+                color: #555;
+                margin: 14pt 0 6pt;
+                page-break-after: avoid;
+            }
+            /* Sizes */
+            .print-size-sm .print-hints .print-para { font-size: 11pt; line-height: 1.7; }
+            .print-size-sm .print-full  .print-para { font-size: 9.5pt; line-height: 1.55; }
+            .print-size-md .print-hints .print-para { font-size: 14pt; line-height: 1.85; }
+            .print-size-md .print-full  .print-para { font-size: 11pt; line-height: 1.65; }
+            .print-size-lg .print-hints .print-para { font-size: 17pt; line-height: 2.05; }
+            .print-size-lg .print-full  .print-para { font-size: 13pt; line-height: 1.75; }
+            /* Compact two-column layout */
+            .print-compact .print-section .print-para,
+            .print-compact .print-section {
+                column-count: 2;
+                column-gap: 0.4in;
+            }
+            .print-compact .print-section h2,
+            .print-compact .print-ch { column-span: all; }
+            .print-footer {
+                margin-top: 18pt;
+                padding-top: 8pt;
+                border-top: 1px solid #aaa;
+                font-size: 8pt;
+                color: #666;
+                text-align: center;
+                letter-spacing: 0.04em;
+            }
+            @page { margin: 0.6in 0.65in; }
+        }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -433,6 +532,57 @@
                     <button onclick="prevChunk()" id="prev-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Previous chapter / verse">←</button>
                     <button onclick="nextChunk()" id="next-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Next chapter / verse">→</button>
                     <button onclick="resetPractice()" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Reset reveals">↻ Reset</button>
+                    <button onclick="togglePrintPanel()" id="print-toggle-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Print a study sheet">🖨 Print</button>
+                </div>
+            </div>
+
+            <!-- Print options panel (collapsed by default) -->
+            <div id="print-panel" class="hidden mb-4 rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-lg">🖨</span>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-indigo-800">Print a study sheet</h3>
+                    <button onclick="togglePrintPanel()" class="ml-auto text-xs font-semibold text-slate-500 hover:text-rose-600">Close ✕</button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-3 text-sm">
+                    <div class="space-y-2">
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500">Include</p>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-hints" checked class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">First letters (memorization side)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-full" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Full text (answer key)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-page-break" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Each section on its own page</span>
+                        </label>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500">Layout</p>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="print-layout" value="single" checked class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Single column (large)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="print-layout" value="compact" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Two columns (compact)</span>
+                        </label>
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500 pt-2">Font size</p>
+                        <select id="print-size" class="w-full px-3 py-2 rounded-lg text-sm">
+                            <option value="sm">Small (more per page)</option>
+                            <option value="md" selected>Medium</option>
+                            <option value="lg">Large (easier to read)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4 pt-3 border-t border-indigo-200">
+                    <button onclick="doPrint()" class="btn-primary px-5 py-2.5 rounded-lg text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Print or save as PDF
+                    </button>
+                    <span class="text-xs text-slate-600 italic">Use your browser's print dialog → "Save as PDF" for a digital copy.</span>
                 </div>
             </div>
 
@@ -511,6 +661,9 @@
             </p>
         </footer>
     </div>
+
+    <!-- Print sheet container - hidden on screen, visible only when printing -->
+    <div id="print-area" aria-hidden="true"></div>
 
     <script>
         // ---------- Utilities ----------
@@ -1227,6 +1380,87 @@
             else if (e.key === 'ArrowRight') nextChunk();
             else if (e.key === 'ArrowLeft') prevChunk();
         });
+
+        // ---------- Print ----------
+        function togglePrintPanel() {
+            if (!current) { flashStatus('Load a passage first.', true); return; }
+            const panel = $('print-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function buildPrintMarkup(mode) {
+            // Walks `words` and emits clean HTML for printing.
+            const parts = [];
+            let lastChapter = null;
+            let openPara = false;
+            const closePara = () => { if (openPara) { parts.push('</p>'); openPara = false; } };
+            const openParaIfNeeded = () => { if (!openPara) { parts.push('<p class="print-para">'); openPara = true; } };
+
+            words.forEach((w) => {
+                if (current.scope === 'book' && w.chapter !== lastChapter) {
+                    closePara();
+                    parts.push(`<h3 class="print-ch">Chapter ${w.chapter}</h3>`);
+                    lastChapter = w.chapter;
+                }
+                openParaIfNeeded();
+                if (w.isVerseStart) {
+                    parts.push(`<sup class="print-vn">${w.verseNum}</sup>`);
+                }
+                const out = mode === 'full' ? w.text : firstLetterToken(w.text);
+                parts.push(escapeHtml(out) + ' ');
+            });
+            closePara();
+            return parts.join('');
+        }
+
+        function buildPrintArea() {
+            const showHints = $('print-hints').checked;
+            const showFull = $('print-full').checked;
+            const pageBreak = $('print-page-break').checked;
+            const compact = (document.querySelector('input[name="print-layout"]:checked') || {}).value === 'compact';
+            const size = $('print-size').value || 'md';
+
+            const area = $('print-area');
+            const classes = [`print-size-${size}`];
+            if (compact) classes.push('print-compact');
+            area.className = classes.join(' ');
+
+            // Default to hints if nothing chosen
+            const sections = [];
+            if (showHints || (!showHints && !showFull)) {
+                sections.push({ key: 'hints', heading: 'First Letters', cls: 'print-hints' });
+            }
+            if (showFull) {
+                sections.push({ key: 'full', heading: 'Full Text (KJV)', cls: 'print-full' });
+            }
+
+            const today = new Date().toISOString().slice(0, 10);
+            let html = `<header class="print-header">
+                <h1>${escapeHtml(passageLabel(current))}</h1>
+                <p class="print-sub">First Letter Method · KJV · bibleprogress.com · ${today}</p>
+            </header>`;
+
+            sections.forEach((s, i) => {
+                const breakCls = (pageBreak && i > 0) ? ' page-break' : '';
+                html += `<section class="print-section ${s.cls}${breakCls}">
+                    <h2>${s.heading}</h2>
+                    ${buildPrintMarkup(s.key)}
+                </section>`;
+            });
+
+            html += `<footer class="print-footer">Generated from bibleprogress.com — practice sheet for ${escapeHtml(passageLabel(current))}</footer>`;
+            area.innerHTML = html;
+        }
+
+        function doPrint() {
+            if (!current) { flashStatus('Load a passage first.', true); return; }
+            buildPrintArea();
+            // Give layout a tick to settle, then trigger print
+            setTimeout(() => window.print(), 60);
+        }
 
         // ---------- Test input live ----------
         document.addEventListener('DOMContentLoaded', () => {
