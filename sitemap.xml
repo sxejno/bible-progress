@@ -63,4 +63,11 @@
         <priority>0.8</priority>
     </url>
 
+    <url>
+        <loc>https://bibleprogress.com/first-letter-method.html</loc>
+        <lastmod>2026-05-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
 </urlset>

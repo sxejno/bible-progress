@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>First Letter Method - Memorize Scripture | Bible Progress</title>
+    <meta name="description" content="Memorize Bible verses, chapters, or whole books using the first letter method. A focused, slick study tool for Scripture memorization.">
+    <meta property="og:title" content="First Letter Method - Bible Progress">
+    <meta property="og:description" content="Memorize verses, chapters, or whole books with the first letter method.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bibleprogress.com/first-letter-method.html">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+
+        :root { color-scheme: light; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 42%, #f1f5f9 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.08);
+        }
+
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 16px 48px rgba(79, 70, 229, 0.12);
+        }
+
+        .mono { font-family: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace; }
+
+        /* Mode tab buttons */
+        .mode-tab {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            color: #475569;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+        .mode-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.95);
+            color: #4338ca;
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+        .mode-tab.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: #ffffff;
+            border-color: #4f46e5;
+            box-shadow: 0 8px 22px rgba(79, 70, 229, 0.35);
+        }
+
+        /* Display mode pills */
+        .display-pill {
+            transition: all 0.2s ease;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+        }
+        .display-pill.active {
+            background: #4f46e5;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+        .display-pill:not(.active):hover {
+            border-color: rgba(99, 102, 241, 0.45);
+            color: #4338ca;
+        }
+
+        /* Practice canvas - hint typography */
+        .hint-canvas {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            min-height: 240px;
+            line-height: 2.4;
+            transition: background 0.3s ease;
+        }
+
+        .hint-word {
+            display: inline-block;
+            padding: 0.18rem 0.45rem;
+            margin: 0.18rem 0.18rem;
+            border-radius: 0.45rem;
+            font-weight: 700;
+            font-size: 1.55rem;
+            color: #0f172a;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.18);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.04em;
+        }
+        .hint-word:hover {
+            background: rgba(99, 102, 241, 0.18);
+            transform: translateY(-1px);
+        }
+        .hint-word.revealed {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #064e3b;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: normal;
+            font-size: 1.25rem;
+        }
+        .hint-word.full {
+            background: transparent;
+            border-color: transparent;
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: normal;
+            font-size: 1.25rem;
+            font-weight: 500;
+            padding: 0.18rem 0.18rem;
+        }
+        .hint-word.hidden {
+            background: rgba(148, 163, 184, 0.18);
+            border-color: rgba(148, 163, 184, 0.3);
+            color: transparent;
+            text-shadow: 0 0 12px rgba(148, 163, 184, 0.5);
+        }
+        .hint-word.hidden:hover { color: rgba(15, 23, 42, 0.4); text-shadow: none; }
+
+        .verse-num {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.12);
+            padding: 0.12rem 0.45rem;
+            border-radius: 0.4rem;
+            margin: 0 0.35rem 0 0.1rem;
+            vertical-align: super;
+            letter-spacing: 0.02em;
+        }
+
+        .chapter-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1.5rem 0 1rem;
+            font-weight: 800;
+            color: #4338ca;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+        }
+        .chapter-divider::before,
+        .chapter-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.35) 50%, transparent 100%);
+        }
+
+        /* Inputs */
+        input, select, textarea {
+            background: #ffffff;
+            border: 2px solid rgba(226, 232, 240, 0.9);
+            transition: all 0.2s ease;
+            color: #0f172a;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+        input::placeholder, textarea::placeholder { color: rgba(100, 116, 139, 0.6); font-weight: 500; }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231e293b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.4em 1.4em;
+            padding-right: 2.5rem;
+            appearance: none;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.4);
+        }
+        .btn-secondary {
+            background: #ffffff;
+            color: #1e293b;
+            font-weight: 700;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            transition: all 0.18s ease;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            border-color: rgba(99, 102, 241, 0.45);
+            color: #4338ca;
+            transform: translateY(-1px);
+        }
+        button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* Test mode highlights */
+        .test-word { padding: 0 0.18rem; border-radius: 0.3rem; transition: background 0.15s ease; }
+        .test-word.correct { background: rgba(16, 185, 129, 0.18); color: #065f46; font-weight: 700; }
+        .test-word.wrong { background: rgba(239, 68, 68, 0.18); color: #991b1b; font-weight: 700; text-decoration: line-through; }
+        .test-word.partial { background: rgba(245, 158, 11, 0.15); color: #92400e; font-weight: 700; }
+        .test-word.pending { color: #94a3b8; }
+
+        /* Progress bar */
+        .progress-track {
+            background: rgba(226, 232, 240, 0.7);
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
+        }
+        .pulse-glow { animation: pulseGlow 1.6s ease-in-out infinite; }
+
+        /* Recent chips */
+        .recent-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #4338ca;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .recent-chip:hover {
+            background: rgba(99, 102, 241, 0.18);
+            transform: translateY(-1px);
+        }
+
+        /* Stat tile */
+        .stat-tile {
+            border-radius: 1rem;
+            padding: 1rem 1.1rem;
+            border: 1px solid;
+        }
+
+        kbd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.18rem 0.45rem;
+            border-radius: 0.35rem;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            box-shadow: 0 1px 0 #cbd5e1;
+        }
+
+        @media (max-width: 640px) {
+            .hint-word { font-size: 1.2rem; padding: 0.12rem 0.32rem; margin: 0.1rem; }
+            .hint-word.revealed, .hint-word.full { font-size: 1.05rem; }
+            .hint-canvas { padding: 1.2rem; line-height: 2.1; }
+        }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+    <div class="max-w-5xl mx-auto space-y-6 fade-up">
+
+        <!-- Header -->
+        <header class="glass-strong rounded-3xl p-6 md:p-8">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="max-w-3xl">
+                    <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-indigo-100 text-indigo-700 mb-3">Memorization tool</p>
+                    <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">First Letter Method</h1>
+                    <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">
+                        Memorize Bible verses, full chapters, or even whole books — one initial at a time.
+                        Each word is replaced with its first letter, giving you just enough of a nudge to recall the rest.
+                    </p>
+                </div>
+                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-800 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Back to Bible Progress
+                </a>
+            </div>
+        </header>
+
+        <!-- How it works (collapsible) -->
+        <details class="glass rounded-2xl p-5 md:p-6 group">
+            <summary class="cursor-pointer font-bold text-slate-900 flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                    <span class="text-xl">🧠</span>
+                    <span>How the first letter method works</span>
+                </span>
+                <span class="text-xs text-slate-500 group-open:hidden">click to expand</span>
+                <span class="text-xs text-slate-500 hidden group-open:inline">click to collapse</span>
+            </summary>
+            <div class="mt-4 grid md:grid-cols-3 gap-3 text-sm">
+                <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-indigo-700">Step 1</div>
+                    <p class="mt-1 text-indigo-900 font-medium">Pick a verse, a chapter, or even a whole book and read it through a few times.</p>
+                </div>
+                <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-emerald-700">Step 2</div>
+                    <p class="mt-1 text-emerald-900 font-medium">Switch to <em>First Letters</em> mode. Try to recite the passage using just each word's initial as a hint.</p>
+                </div>
+                <div class="rounded-xl bg-amber-50 border border-amber-100 p-4">
+                    <div class="text-xs font-black uppercase tracking-wider text-amber-700">Step 3</div>
+                    <p class="mt-1 text-amber-900 font-medium">Tap any word to reveal it when you're stuck — or use <em>Test mode</em> to type the passage from memory.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- Selection panel -->
+        <section class="glass-strong rounded-3xl p-6 md:p-7" aria-label="Choose what to memorize">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-xl">📖</span>
+                <h2 class="text-xl font-black text-slate-900">Choose what to memorize</h2>
+            </div>
+
+            <!-- Mode tabs -->
+            <div class="grid grid-cols-3 gap-2 mb-5">
+                <button class="mode-tab active rounded-xl py-3 px-3 text-sm md:text-base" data-scope="verse" onclick="setScope('verse')">
+                    <span class="block text-xl md:text-2xl mb-0.5">✨</span>
+                    Single Verse
+                </button>
+                <button class="mode-tab rounded-xl py-3 px-3 text-sm md:text-base" data-scope="chapter" onclick="setScope('chapter')">
+                    <span class="block text-xl md:text-2xl mb-0.5">📜</span>
+                    Whole Chapter
+                </button>
+                <button class="mode-tab rounded-xl py-3 px-3 text-sm md:text-base" data-scope="book" onclick="setScope('book')">
+                    <span class="block text-xl md:text-2xl mb-0.5">📚</span>
+                    Whole Book
+                </button>
+            </div>
+
+            <!-- Smart input -->
+            <div class="grid md:grid-cols-[1fr_auto] gap-3 mb-3">
+                <div>
+                    <label for="ref-input" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Quick reference</label>
+                    <input
+                        id="ref-input"
+                        type="text"
+                        class="w-full px-4 py-3 rounded-xl text-base font-semibold"
+                        placeholder='e.g. "John 3:16", "Psalm 23", "Philippians", "Rom 8:28-39"'
+                        onkeydown="if(event.key === 'Enter') loadFromInput()"
+                    >
+                    <p class="text-xs text-slate-500 mt-1.5" id="ref-hint">Type a reference and press <kbd>Enter</kbd>.</p>
+                </div>
+                <div class="flex md:items-end">
+                    <button onclick="loadFromInput()" class="btn-primary w-full md:w-auto px-6 py-3 rounded-xl flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/></svg>
+                        Load passage
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropdown fallback -->
+            <details class="mt-2">
+                <summary class="cursor-pointer text-sm font-semibold text-slate-600 hover:text-indigo-700 transition-colors">
+                    Or pick from dropdowns ▾
+                </summary>
+                <div class="mt-3 grid md:grid-cols-3 gap-3" id="dropdown-controls">
+                    <select id="sel-book" class="px-4 py-3 rounded-xl" onchange="onBookSelect()">
+                        <option value="">Select book…</option>
+                    </select>
+                    <select id="sel-chapter" class="px-4 py-3 rounded-xl" onchange="onChapterSelect()" disabled>
+                        <option value="">Select chapter…</option>
+                    </select>
+                    <select id="sel-verse" class="px-4 py-3 rounded-xl" disabled>
+                        <option value="">Select verse…</option>
+                    </select>
+                </div>
+                <button onclick="loadFromDropdowns()" class="btn-secondary mt-3 px-5 py-2.5 rounded-xl text-sm">Load from dropdowns</button>
+            </details>
+
+            <!-- Recent / suggestions -->
+            <div class="mt-5 pt-4 border-t border-slate-200">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                    <span class="text-xs font-black uppercase tracking-wider text-slate-500">Quick picks</span>
+                    <button id="clear-recent-btn" onclick="clearRecent()" class="text-xs font-semibold text-slate-500 hover:text-rose-600 transition-colors hidden">Clear recent</button>
+                </div>
+                <div id="recent-list" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div id="loader-status" class="mt-3 text-xs text-slate-500 italic"></div>
+        </section>
+
+        <!-- Practice card -->
+        <section class="glass-strong rounded-3xl p-6 md:p-7" id="practice-card" style="display: none;" aria-label="Practice area">
+            <!-- Reference + action row -->
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-wider text-indigo-600">Now practicing</p>
+                    <h2 id="practice-ref" class="text-2xl md:text-3xl font-black text-slate-900 mt-0.5">—</h2>
+                    <p id="practice-meta" class="text-sm text-slate-600 mt-1"></p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="prevChunk()" id="prev-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Previous chapter / verse">←</button>
+                    <button onclick="nextChunk()" id="next-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Next chapter / verse">→</button>
+                    <button onclick="resetPractice()" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Reset reveals">↻ Reset</button>
+                </div>
+            </div>
+
+            <!-- Display mode pills -->
+            <div class="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="Display mode">
+                <button class="display-pill active glass px-4 py-2 rounded-full text-sm" data-mode="hints" onclick="setDisplayMode('hints')">💡 First letters</button>
+                <button class="display-pill glass px-4 py-2 rounded-full text-sm" data-mode="full" onclick="setDisplayMode('full')">📄 Full text</button>
+                <button class="display-pill glass px-4 py-2 rounded-full text-sm" data-mode="hidden" onclick="setDisplayMode('hidden')">🙈 Hidden</button>
+                <button class="display-pill glass px-4 py-2 rounded-full text-sm" data-mode="test" onclick="setDisplayMode('test')">⌨️ Test me</button>
+            </div>
+
+            <!-- Chapter pager (book/chapter scope) -->
+            <div id="chapter-pager" class="flex flex-wrap items-center gap-2 mb-3" style="display:none;">
+                <span class="text-xs font-black uppercase tracking-wider text-slate-500 mr-1">Chapter</span>
+                <div id="chapter-pills" class="flex flex-wrap gap-1.5"></div>
+            </div>
+
+            <!-- Hint canvas -->
+            <div class="hint-canvas mono" id="hint-canvas" aria-live="polite"></div>
+
+            <!-- Test mode area -->
+            <div id="test-area" class="mt-4 hidden">
+                <label for="test-input" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5">Type from memory</label>
+                <textarea id="test-input" rows="4" class="w-full px-4 py-3 rounded-xl text-base" placeholder="Start typing the passage… spelling and punctuation are forgiven."></textarea>
+                <div class="flex items-center justify-between gap-3 mt-2 flex-wrap">
+                    <p class="text-sm text-slate-600">
+                        <span class="font-bold text-emerald-700" id="test-correct">0</span>
+                        <span class="text-slate-500"> / </span>
+                        <span class="font-bold text-slate-700" id="test-total">0</span>
+                        <span class="text-slate-500"> words</span>
+                        <span class="ml-3" id="test-accuracy"></span>
+                    </p>
+                    <button onclick="clearTest()" class="btn-secondary px-3 py-1.5 rounded-lg text-xs">Clear</button>
+                </div>
+                <div class="progress-track mt-2"><div class="progress-fill" id="test-progress" style="width:0%"></div></div>
+            </div>
+
+            <!-- Quick controls -->
+            <div class="mt-5 flex flex-wrap items-center gap-2" id="quick-controls">
+                <button onclick="revealNext()" class="btn-secondary px-4 py-2 rounded-lg text-sm" id="reveal-next-btn">▸ Reveal next word</button>
+                <button onclick="revealAll()" class="btn-secondary px-4 py-2 rounded-lg text-sm">👁 Reveal all</button>
+                <button onclick="hideAll()" class="btn-secondary px-4 py-2 rounded-lg text-sm">↩ Hide all</button>
+                <span class="text-xs text-slate-500 ml-auto hidden md:inline">
+                    <kbd>Space</kbd> reveal next · <kbd>R</kbd> reset · <kbd>F</kbd> full · <kbd>H</kbd> hints · <kbd>T</kbd> test
+                </span>
+            </div>
+
+            <!-- Stats -->
+            <div class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                <div class="stat-tile bg-indigo-50 border-indigo-100">
+                    <div class="text-xs font-black uppercase tracking-wider text-indigo-700">Words</div>
+                    <div class="text-2xl font-black text-indigo-900 mt-0.5" id="stat-words">0</div>
+                </div>
+                <div class="stat-tile bg-emerald-50 border-emerald-100">
+                    <div class="text-xs font-black uppercase tracking-wider text-emerald-700">Revealed</div>
+                    <div class="text-2xl font-black text-emerald-900 mt-0.5" id="stat-revealed">0</div>
+                </div>
+                <div class="stat-tile bg-amber-50 border-amber-100">
+                    <div class="text-xs font-black uppercase tracking-wider text-amber-700">Verses</div>
+                    <div class="text-2xl font-black text-amber-900 mt-0.5" id="stat-verses">0</div>
+                </div>
+                <div class="stat-tile bg-violet-50 border-violet-100">
+                    <div class="text-xs font-black uppercase tracking-wider text-violet-700">Sessions</div>
+                    <div class="text-2xl font-black text-violet-900 mt-0.5" id="stat-sessions">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-sm text-slate-600 pt-2 pb-6 space-y-1">
+            <p class="italic">"Thy word have I hid in mine heart, that I might not sin against thee." — Psalm 119:11</p>
+            <p>
+                <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+                <span class="mx-2 text-slate-300">·</span>
+                <a href="memorize.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Verse Memorization Helper</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ---------- Utilities ----------
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
+        function $(id) { return document.getElementById(id); }
+
+        // ---------- Bible book abbreviations ----------
+        const BOOK_ABBREVIATIONS = {
+            'genesis': ['gen','ge','gn'],
+            'exodus': ['exo','ex','exod'],
+            'leviticus': ['lev','le','lv'],
+            'numbers': ['num','nu','nm','nb'],
+            'deuteronomy': ['deut','dt','de'],
+            'joshua': ['josh','jos','jsh'],
+            'judges': ['judg','jdg','jg','jdgs'],
+            'ruth': ['rth','ru'],
+            '1 samuel': ['1 sam','1sam','1 sa','1sa','1 s','1s','i samuel','i sam'],
+            '2 samuel': ['2 sam','2sam','2 sa','2sa','2 s','2s','ii samuel','ii sam'],
+            '1 kings': ['1 kgs','1kgs','1 ki','1ki','1 k','1k','i kings','i kgs'],
+            '2 kings': ['2 kgs','2kgs','2 ki','2ki','2 k','2k','ii kings','ii kgs'],
+            '1 chronicles': ['1 chr','1chr','1 ch','1ch','i chronicles','i chr'],
+            '2 chronicles': ['2 chr','2chr','2 ch','2ch','ii chronicles','ii chr'],
+            'ezra': ['ezr','ez'],
+            'nehemiah': ['neh','ne'],
+            'esther': ['est','es'],
+            'job': ['jb'],
+            'psalms': ['psalm','ps','psa','psm','pss'],
+            'proverbs': ['prov','pro','pr','prv'],
+            'ecclesiastes': ['eccl','ecc','ec','eccles'],
+            'song of solomon': ['song','sos','ss','so','canticles'],
+            'isaiah': ['isa','is'],
+            'jeremiah': ['jer','je','jr'],
+            'lamentations': ['lam','la'],
+            'ezekiel': ['ezek','eze','ezk'],
+            'daniel': ['dan','da','dn'],
+            'hosea': ['hos','ho'],
+            'joel': ['joe','jl'],
+            'amos': ['amo','am'],
+            'obadiah': ['obad','ob'],
+            'jonah': ['jnh','jon'],
+            'micah': ['mic','mc'],
+            'nahum': ['nah','na'],
+            'habakkuk': ['hab','hb'],
+            'zephaniah': ['zeph','zep','zp'],
+            'haggai': ['hag','hg'],
+            'zechariah': ['zech','zec','zc'],
+            'malachi': ['mal','ml'],
+            'matthew': ['matt','mat','mt'],
+            'mark': ['mar','mrk','mk','mr'],
+            'luke': ['luk','lk'],
+            'john': ['joh','jhn','jn'],
+            'acts': ['act','ac'],
+            'romans': ['rom','ro','rm'],
+            '1 corinthians': ['1 cor','1cor','1 co','1co','i corinthians','i cor'],
+            '2 corinthians': ['2 cor','2cor','2 co','2co','ii corinthians','ii cor'],
+            'galatians': ['gal','ga'],
+            'ephesians': ['eph','ephes'],
+            'philippians': ['phil','php','pp'],
+            'colossians': ['col','co'],
+            '1 thessalonians': ['1 thess','1thess','1 thes','1thes','1 th','1th','i thessalonians','i thess'],
+            '2 thessalonians': ['2 thess','2thess','2 thes','2thes','2 th','2th','ii thessalonians','ii thess'],
+            '1 timothy': ['1 tim','1tim','1 ti','1ti','i timothy','i tim'],
+            '2 timothy': ['2 tim','2tim','2 ti','2ti','ii timothy','ii tim'],
+            'titus': ['tit','ti'],
+            'philemon': ['philem','phm','pm'],
+            'hebrews': ['heb','he'],
+            'james': ['jas','jm'],
+            '1 peter': ['1 pet','1pet','1 pe','1pe','1 pt','1pt','1 p','1p','i peter','i pet'],
+            '2 peter': ['2 pet','2pet','2 pe','2pe','2 pt','2pt','2 p','2p','ii peter','ii pet'],
+            '1 john': ['1 joh','1joh','1 jhn','1jhn','1 jn','1jn','1 j','1j','i john','i joh'],
+            '2 john': ['2 joh','2joh','2 jhn','2jhn','2 jn','2jn','2 j','2j','ii john','ii joh'],
+            '3 john': ['3 joh','3joh','3 jhn','3jhn','3 jn','3jn','3 j','3j','iii john','iii joh'],
+            'jude': ['jud','jd'],
+            'revelation': ['rev','re','rv','revelations']
+        };
+        const ABBREV_TO_BOOK = {};
+        Object.keys(BOOK_ABBREVIATIONS).forEach(full => {
+            ABBREV_TO_BOOK[full.toLowerCase()] = full;
+            BOOK_ABBREVIATIONS[full].forEach(a => ABBREV_TO_BOOK[a.toLowerCase()] = full);
+        });
+
+        // ---------- Default suggestions (used until user has recents) ----------
+        const DEFAULT_SUGGESTIONS = [
+            { label: 'John 3:16', ref: 'John 3:16', scope: 'verse' },
+            { label: 'Psalm 23', ref: 'Psalms 23', scope: 'chapter' },
+            { label: 'Romans 8', ref: 'Romans 8', scope: 'chapter' },
+            { label: 'Philippians 4:6-7', ref: 'Philippians 4:6-7', scope: 'verse' },
+            { label: 'Genesis 1', ref: 'Genesis 1', scope: 'chapter' },
+            { label: 'Matthew 5', ref: 'Matthew 5', scope: 'chapter' },
+            { label: '1 Corinthians 13', ref: '1 Corinthians 13', scope: 'chapter' },
+            { label: 'Philemon (whole book)', ref: 'Philemon', scope: 'book' },
+            { label: 'Jude (whole book)', ref: 'Jude', scope: 'book' }
+        ];
+
+        // ---------- State ----------
+        let bibleData = null;       // loaded JSON
+        let bibleByName = {};       // book name -> book object
+        let scope = 'verse';        // verse | chapter | book
+        let displayMode = 'hints';  // hints | full | hidden | test
+        let current = null;         // { book, bookIndex, chapter, chapterIdx, verseStart, verseEnd, scope, label }
+        let chapterIdxInBook = 0;   // for book scope, currently visible chapter
+        let revealedSet = new Set();
+        let words = [];             // { text, idx, verseRef, isStart, chapter }
+        let dividers = [];          // { afterIdx, label }
+        const STORAGE_KEY = 'bible_first_letter_method_v1';
+        let store = loadStore();
+
+        // ---------- Storage ----------
+        function loadStore() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return { recent: [], sessions: 0 };
+                const parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') return { recent: [], sessions: 0 };
+                return {
+                    recent: Array.isArray(parsed.recent) ? parsed.recent.slice(0, 12) : [],
+                    sessions: typeof parsed.sessions === 'number' ? parsed.sessions : 0
+                };
+            } catch (e) {
+                return { recent: [], sessions: 0 };
+            }
+        }
+        function saveStore() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (e) {}
+        }
+        function pushRecent(item) {
+            if (!item || !item.label) return;
+            store.recent = (store.recent || []).filter(r => r.label !== item.label);
+            store.recent.unshift(item);
+            store.recent = store.recent.slice(0, 8);
+            store.sessions = (store.sessions || 0) + 1;
+            saveStore();
+            renderRecent();
+            $('stat-sessions').textContent = store.sessions;
+        }
+        function clearRecent() {
+            store.recent = [];
+            saveStore();
+            renderRecent();
+        }
+        function renderRecent() {
+            const host = $('recent-list');
+            const clearBtn = $('clear-recent-btn');
+            const items = store.recent && store.recent.length ? store.recent : DEFAULT_SUGGESTIONS;
+            const isRecent = store.recent && store.recent.length > 0;
+            clearBtn.classList.toggle('hidden', !isRecent);
+            host.innerHTML = '';
+            items.forEach(item => {
+                const chip = document.createElement('button');
+                chip.className = 'recent-chip';
+                const icon = item.scope === 'book' ? '📚' : item.scope === 'chapter' ? '📜' : '✨';
+                chip.innerHTML = `<span>${icon}</span><span>${escapeHtml(item.label)}</span>`;
+                chip.onclick = () => {
+                    setScope(item.scope || 'verse');
+                    $('ref-input').value = item.ref;
+                    loadFromInput();
+                };
+                host.appendChild(chip);
+            });
+        }
+
+        // ---------- Bible loading ----------
+        async function loadBible() {
+            $('loader-status').textContent = 'Loading KJV Bible…';
+            try {
+                const res = await fetch('kjv_bible.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                bibleData = await res.json();
+                bibleByName = {};
+                bibleData.forEach(b => { bibleByName[b.book.toLowerCase()] = b; });
+                populateBookSelect();
+                $('loader-status').textContent = `📚 ${bibleData.length} books loaded (KJV)`;
+            } catch (e) {
+                console.error(e);
+                $('loader-status').innerHTML = `<span class="text-rose-600">⚠️ Could not load Bible data (${escapeHtml(e.message)}).</span>`;
+            }
+        }
+
+        function populateBookSelect() {
+            const sel = $('sel-book');
+            sel.innerHTML = '<option value="">Select book…</option>';
+            bibleData.forEach((b, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = b.book;
+                sel.appendChild(opt);
+            });
+        }
+
+        function onBookSelect() {
+            const bookIdx = parseInt($('sel-book').value);
+            const chSel = $('sel-chapter');
+            const vSel = $('sel-verse');
+            chSel.innerHTML = '<option value="">Select chapter…</option>';
+            vSel.innerHTML = '<option value="">Select verse…</option>';
+            vSel.disabled = true;
+            if (Number.isNaN(bookIdx)) { chSel.disabled = true; return; }
+            const book = bibleData[bookIdx];
+            book.chapters.forEach((ch, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Chapter ${i + 1}`;
+                chSel.appendChild(opt);
+            });
+            chSel.disabled = false;
+        }
+        function onChapterSelect() {
+            const bookIdx = parseInt($('sel-book').value);
+            const chIdx = parseInt($('sel-chapter').value);
+            const vSel = $('sel-verse');
+            vSel.innerHTML = '<option value="">All verses (whole chapter)</option>';
+            if (Number.isNaN(bookIdx) || Number.isNaN(chIdx)) { vSel.disabled = true; return; }
+            const ch = bibleData[bookIdx].chapters[chIdx];
+            ch.verses.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.verse;
+                opt.textContent = `Verse ${v.verse}`;
+                vSel.appendChild(opt);
+            });
+            vSel.disabled = false;
+        }
+
+        function loadFromDropdowns() {
+            const bookIdx = parseInt($('sel-book').value);
+            if (Number.isNaN(bookIdx)) { flashStatus('Pick a book first.'); return; }
+            const book = bibleData[bookIdx];
+            const chIdx = parseInt($('sel-chapter').value);
+            const verseNum = parseInt($('sel-verse').value);
+
+            if (scope === 'book') {
+                openPassage({ book: book.book, bookIndex: bookIdx, scope: 'book' });
+                return;
+            }
+            if (Number.isNaN(chIdx)) { flashStatus('Pick a chapter.'); return; }
+            if (scope === 'chapter' || Number.isNaN(verseNum)) {
+                openPassage({ book: book.book, bookIndex: bookIdx, chapterIdx: chIdx, chapter: chIdx + 1, scope: 'chapter' });
+                return;
+            }
+            openPassage({
+                book: book.book, bookIndex: bookIdx,
+                chapterIdx: chIdx, chapter: chIdx + 1,
+                verseStart: verseNum, verseEnd: verseNum, scope: 'verse'
+            });
+        }
+
+        // ---------- Reference parsing ----------
+        function parseReference(input) {
+            if (!input || !input.trim()) return { error: 'Type a reference, like "John 3:16".' };
+            const lower = input.trim().toLowerCase();
+
+            // Try with verse (range): "book ch:v" or "book ch:v-v"
+            const patterns = [
+                { re: /^(.+?)\s+(\d+):(\d+)\s*[-–]\s*(\d+)$/, kind: 'range' },
+                { re: /^(.+?)\s+(\d+):(\d+)$/, kind: 'verse' },
+                { re: /^(.+?)\s+(\d+)$/, kind: 'chapter' },
+                { re: /^(.+?)$/, kind: 'book' }
+            ];
+            let bookInput = null, chapter = null, vStart = null, vEnd = null, kind = null;
+            for (const p of patterns) {
+                const m = lower.match(p.re);
+                if (m) {
+                    bookInput = m[1].trim();
+                    if (p.kind === 'range') { chapter = +m[2]; vStart = +m[3]; vEnd = +m[4]; }
+                    else if (p.kind === 'verse') { chapter = +m[2]; vStart = +m[3]; vEnd = +m[3]; }
+                    else if (p.kind === 'chapter') { chapter = +m[2]; }
+                    kind = p.kind;
+                    break;
+                }
+            }
+
+            const fullName = ABBREV_TO_BOOK[bookInput];
+            if (!fullName) return { error: `Couldn't recognize "${bookInput}". Try a full book name or common abbreviation.` };
+            const book = bibleByName[fullName.toLowerCase()];
+            if (!book) return { error: `Book "${fullName}" not in database.` };
+
+            if (kind === 'book') {
+                return { book: book.book, bookIndex: bibleData.indexOf(book), scope: 'book' };
+            }
+            if (chapter < 1 || chapter > book.chapters.length) {
+                return { error: `${book.book} only has ${book.chapters.length} chapter${book.chapters.length===1?'':'s'}.` };
+            }
+            const chData = book.chapters[chapter - 1];
+            if (kind === 'chapter') {
+                return {
+                    book: book.book, bookIndex: bibleData.indexOf(book),
+                    chapter, chapterIdx: chapter - 1, scope: 'chapter'
+                };
+            }
+            // verse / range
+            if (vStart < 1 || vStart > chData.verses.length) {
+                return { error: `${book.book} ${chapter} only has ${chData.verses.length} verses.` };
+            }
+            if (vEnd < vStart || vEnd > chData.verses.length) {
+                return { error: `Verse range out of bounds for ${book.book} ${chapter} (1–${chData.verses.length}).` };
+            }
+            return {
+                book: book.book, bookIndex: bibleData.indexOf(book),
+                chapter, chapterIdx: chapter - 1,
+                verseStart: vStart, verseEnd: vEnd, scope: 'verse'
+            };
+        }
+
+        function loadFromInput() {
+            const value = $('ref-input').value;
+            if (!bibleData) { flashStatus('Bible data still loading…'); return; }
+            const parsed = parseReference(value);
+            if (parsed.error) { flashStatus(parsed.error, true); return; }
+            // Auto-correct scope if user typed something different
+            if (parsed.scope) {
+                setScope(parsed.scope, true);
+            }
+            openPassage(parsed);
+        }
+
+        function flashStatus(msg, isError) {
+            const el = $('loader-status');
+            el.innerHTML = isError
+                ? `<span class="text-rose-600 font-semibold">${escapeHtml(msg)}</span>`
+                : escapeHtml(msg);
+            clearTimeout(flashStatus._t);
+            flashStatus._t = setTimeout(() => {
+                if (bibleData) el.textContent = `📚 ${bibleData.length} books loaded (KJV)`;
+            }, 4500);
+        }
+
+        // ---------- Scope tabs ----------
+        function setScope(s, silent) {
+            scope = s;
+            document.querySelectorAll('.mode-tab').forEach(b => {
+                b.classList.toggle('active', b.dataset.scope === s);
+            });
+            const hint = $('ref-hint');
+            const placeholder = $('ref-input');
+            if (s === 'verse') {
+                hint.innerHTML = 'Try a verse like <em>John 3:16</em> or a range like <em>Romans 8:28-39</em>.';
+                placeholder.placeholder = 'e.g. "John 3:16" or "Rom 8:28-39"';
+            } else if (s === 'chapter') {
+                hint.innerHTML = 'Try a chapter like <em>Psalm 23</em> or <em>Matthew 5</em>.';
+                placeholder.placeholder = 'e.g. "Psalms 23" or "Matthew 5"';
+            } else {
+                hint.innerHTML = 'Try a whole book — short ones work best: <em>Jude</em>, <em>Philemon</em>, <em>3 John</em>.';
+                placeholder.placeholder = 'e.g. "Philemon" or "Jude"';
+            }
+        }
+
+        // ---------- Open passage / build words ----------
+        function openPassage(p) {
+            current = Object.assign({}, p);
+            current.scope = p.scope || scope;
+            chapterIdxInBook = (current.scope === 'book') ? 0 : (current.chapterIdx || 0);
+            buildWords();
+            renderHintCanvas();
+            updatePracticeHeader();
+            $('practice-card').style.display = 'block';
+            $('practice-card').classList.remove('fade-up'); void $('practice-card').offsetWidth; $('practice-card').classList.add('fade-up');
+            $('practice-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // pulse mode buttons briefly
+            document.querySelectorAll('.display-pill').forEach(p => p.classList.remove('pulse-glow'));
+            const active = document.querySelector('.display-pill.active');
+            if (active) {
+                active.classList.add('pulse-glow');
+                setTimeout(() => active.classList.remove('pulse-glow'), 1800);
+            }
+
+            const recentItem = {
+                label: passageLabel(current),
+                ref: passageRef(current),
+                scope: current.scope
+            };
+            pushRecent(recentItem);
+            renderChapterPager();
+        }
+
+        function passageLabel(p) {
+            if (p.scope === 'book') return p.book;
+            if (p.scope === 'chapter') return `${p.book} ${p.chapter}`;
+            return p.verseStart === p.verseEnd
+                ? `${p.book} ${p.chapter}:${p.verseStart}`
+                : `${p.book} ${p.chapter}:${p.verseStart}-${p.verseEnd}`;
+        }
+        function passageRef(p) {
+            if (p.scope === 'book') return p.book;
+            if (p.scope === 'chapter') return `${p.book} ${p.chapter}`;
+            return p.verseStart === p.verseEnd
+                ? `${p.book} ${p.chapter}:${p.verseStart}`
+                : `${p.book} ${p.chapter}:${p.verseStart}-${p.verseEnd}`;
+        }
+
+        function buildWords() {
+            words = [];
+            dividers = [];
+            const book = bibleData[current.bookIndex];
+
+            const pushVerseWords = (verse, ch) => {
+                const startIdx = words.length;
+                const tokens = verse.text.split(/\s+/).filter(Boolean);
+                tokens.forEach((tok, i) => {
+                    words.push({
+                        text: tok,
+                        idx: words.length,
+                        verseRef: `${book.book} ${ch}:${verse.verse}`,
+                        verseNum: verse.verse,
+                        chapter: ch,
+                        isVerseStart: i === 0
+                    });
+                });
+                return startIdx;
+            };
+
+            if (current.scope === 'book') {
+                // Render all chapters but mark dividers between them
+                book.chapters.forEach((ch, ci) => {
+                    if (ci > 0) dividers.push({ afterIdx: words.length - 1, label: `Chapter ${ci + 1}` });
+                    ch.verses.forEach(v => pushVerseWords(v, ci + 1));
+                });
+            } else if (current.scope === 'chapter') {
+                const ch = book.chapters[current.chapterIdx];
+                ch.verses.forEach(v => pushVerseWords(v, current.chapter));
+            } else {
+                const ch = book.chapters[current.chapterIdx];
+                ch.verses
+                    .filter(v => v.verse >= current.verseStart && v.verse <= current.verseEnd)
+                    .forEach(v => pushVerseWords(v, current.chapter));
+            }
+
+            revealedSet = new Set();
+            $('stat-words').textContent = words.length;
+            $('stat-revealed').textContent = '0';
+            const verseCount = new Set(words.map(w => w.verseRef)).size;
+            $('stat-verses').textContent = verseCount;
+            $('stat-sessions').textContent = store.sessions || 0;
+        }
+
+        function updatePracticeHeader() {
+            $('practice-ref').textContent = passageLabel(current);
+            const wc = words.length;
+            const verseCount = new Set(words.map(w => w.verseRef)).size;
+            const book = bibleData[current.bookIndex];
+            let meta = `${wc} words · ${verseCount} verse${verseCount===1?'':'s'}`;
+            if (current.scope === 'book') meta += ` · ${book.chapters.length} chapters`;
+            $('practice-meta').textContent = meta;
+        }
+
+        // ---------- First-letter rendering ----------
+        // Convert "world." -> "w." ; preserve trailing punctuation; numbers stay as-is.
+        function firstLetterToken(token) {
+            // separate trailing punctuation (.,;:!?)
+            const m = token.match(/^([^\w]*)(.*?)([\.,;:!\?\)\]\}\"\'“”‘’]*)$/);
+            const lead = (m && m[1]) || '';
+            const core = (m && m[2]) || token;
+            const trail = (m && m[3]) || '';
+            // Find first alphabetic char in core
+            const firstAlpha = core.match(/[A-Za-z]/);
+            if (!firstAlpha) return lead + core + trail; // e.g. numerals
+            return lead + firstAlpha[0] + trail;
+        }
+
+        function renderHintCanvas() {
+            const host = $('hint-canvas');
+            host.classList.toggle('mono', displayMode === 'hints' || displayMode === 'hidden');
+            host.innerHTML = '';
+
+            if (displayMode === 'test') {
+                renderTestCanvas();
+                return;
+            }
+
+            // Build into chapter chunks for book scope, otherwise all in one
+            let lastChapter = null;
+            words.forEach((w, i) => {
+                // chapter divider for book scope
+                if (current.scope === 'book' && w.chapter !== lastChapter) {
+                    if (lastChapter !== null) {
+                        const div = document.createElement('div');
+                        div.className = 'chapter-divider';
+                        div.textContent = `Chapter ${w.chapter}`;
+                        host.appendChild(div);
+                    } else {
+                        const div = document.createElement('div');
+                        div.className = 'chapter-divider';
+                        div.textContent = `Chapter ${w.chapter}`;
+                        host.appendChild(div);
+                    }
+                    lastChapter = w.chapter;
+                }
+                // verse number badge at the start of each verse
+                if (w.isVerseStart) {
+                    const vn = document.createElement('span');
+                    vn.className = 'verse-num';
+                    vn.textContent = w.verseNum;
+                    host.appendChild(vn);
+                }
+                const span = document.createElement('span');
+                const isRevealed = revealedSet.has(i);
+                let cls = 'hint-word';
+                let display;
+                if (displayMode === 'full') {
+                    cls += ' full';
+                    display = w.text;
+                } else if (displayMode === 'hidden' && !isRevealed) {
+                    cls += ' hidden';
+                    display = firstLetterToken(w.text); // hidden visually but still meaningful on reveal
+                } else if (isRevealed) {
+                    cls += ' revealed';
+                    display = w.text;
+                } else {
+                    display = firstLetterToken(w.text);
+                }
+                span.className = cls;
+                span.textContent = display;
+                span.title = isRevealed ? w.text : 'Click to reveal';
+                span.dataset.idx = i;
+                span.addEventListener('click', () => toggleWord(i));
+                host.appendChild(span);
+            });
+            $('stat-revealed').textContent = revealedSet.size;
+        }
+
+        function toggleWord(i) {
+            if (displayMode === 'full') return; // nothing to toggle
+            if (revealedSet.has(i)) revealedSet.delete(i); else revealedSet.add(i);
+            renderHintCanvas();
+        }
+
+        // ---------- Display mode ----------
+        function setDisplayMode(mode) {
+            displayMode = mode;
+            document.querySelectorAll('.display-pill').forEach(p => p.classList.toggle('active', p.dataset.mode === mode));
+            $('test-area').classList.toggle('hidden', mode !== 'test');
+            $('quick-controls').style.display = (mode === 'test' || mode === 'full') ? 'none' : 'flex';
+            if (mode === 'test') {
+                clearTest();
+                renderTestCanvas();
+                setTimeout(() => { try { $('test-input').focus(); } catch(e){} }, 50);
+            } else {
+                renderHintCanvas();
+            }
+        }
+
+        function revealNext() {
+            for (let i = 0; i < words.length; i++) {
+                if (!revealedSet.has(i)) { revealedSet.add(i); break; }
+            }
+            renderHintCanvas();
+        }
+        function revealAll() {
+            words.forEach((_, i) => revealedSet.add(i));
+            renderHintCanvas();
+        }
+        function hideAll() {
+            revealedSet.clear();
+            renderHintCanvas();
+        }
+        function resetPractice() {
+            revealedSet.clear();
+            clearTest();
+            renderHintCanvas();
+        }
+
+        // ---------- Test mode ----------
+        // Normalize a word: lowercase letters/digits only
+        function norm(w) { return (w || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+        function renderTestCanvas() {
+            const host = $('hint-canvas');
+            host.innerHTML = '';
+            host.classList.remove('mono');
+            const typed = ($('test-input').value || '').trim().split(/\s+/).filter(Boolean);
+            let correctCount = 0;
+            let lastChapter = null;
+            words.forEach((w, i) => {
+                if (current.scope === 'book' && w.chapter !== lastChapter) {
+                    const div = document.createElement('div');
+                    div.className = 'chapter-divider';
+                    div.textContent = `Chapter ${w.chapter}`;
+                    host.appendChild(div);
+                    lastChapter = w.chapter;
+                }
+                if (w.isVerseStart) {
+                    const vn = document.createElement('span');
+                    vn.className = 'verse-num';
+                    vn.textContent = w.verseNum;
+                    host.appendChild(vn);
+                }
+                const span = document.createElement('span');
+                span.className = 'test-word';
+                let display = firstLetterToken(w.text);
+                const expected = norm(w.text);
+                const got = typed[i] != null ? norm(typed[i]) : null;
+                if (got == null) {
+                    span.classList.add('pending');
+                } else if (got === expected) {
+                    span.classList.add('correct');
+                    display = w.text;
+                    correctCount++;
+                } else if (i === typed.length - 1 && expected.startsWith(got) && got.length > 0) {
+                    span.classList.add('partial');
+                    display = firstLetterToken(w.text);
+                } else {
+                    span.classList.add('wrong');
+                    display = w.text; // show the right answer
+                }
+                span.textContent = display;
+                span.title = w.text;
+                host.appendChild(span);
+                host.appendChild(document.createTextNode(' '));
+            });
+            $('test-correct').textContent = correctCount;
+            $('test-total').textContent = words.length;
+            const pct = words.length ? Math.round((correctCount / words.length) * 100) : 0;
+            $('test-progress').style.width = pct + '%';
+            $('test-accuracy').innerHTML = words.length
+                ? ` <span class="text-slate-500">·</span> <span class="font-bold ${pct === 100 ? 'text-emerald-700' : 'text-indigo-700'}">${pct}%</span>`
+                : '';
+        }
+
+        function clearTest() {
+            $('test-input').value = '';
+            $('test-correct').textContent = '0';
+            $('test-progress').style.width = '0%';
+            $('test-accuracy').innerHTML = '';
+            if (displayMode === 'test') renderTestCanvas();
+        }
+
+        // ---------- Chapter pager (book scope) ----------
+        function renderChapterPager() {
+            const host = $('chapter-pills');
+            const wrap = $('chapter-pager');
+            if (!current || current.scope !== 'book') {
+                wrap.style.display = 'none';
+                return;
+            }
+            const book = bibleData[current.bookIndex];
+            wrap.style.display = book.chapters.length > 1 ? 'flex' : 'none';
+            host.innerHTML = '';
+            book.chapters.forEach((_, i) => {
+                const pill = document.createElement('button');
+                pill.className = 'mode-tab rounded-lg px-3 py-1 text-xs font-bold';
+                pill.textContent = i + 1;
+                pill.addEventListener('click', () => {
+                    const target = words.findIndex(w => w.chapter === i + 1);
+                    if (target >= 0) {
+                        const el = $('hint-canvas').querySelectorAll('.hint-word, .test-word')[target];
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+                host.appendChild(pill);
+            });
+        }
+
+        // ---------- Prev / next ----------
+        function prevChunk() {
+            if (!current) return;
+            if (current.scope === 'verse') {
+                // prev verse
+                if (current.verseStart > 1) {
+                    current.verseStart -= 1; current.verseEnd = current.verseStart;
+                } else if (current.chapterIdx > 0) {
+                    current.chapterIdx -= 1; current.chapter = current.chapterIdx + 1;
+                    const lastV = bibleData[current.bookIndex].chapters[current.chapterIdx].verses.length;
+                    current.verseStart = lastV; current.verseEnd = lastV;
+                } else return;
+            } else if (current.scope === 'chapter') {
+                if (current.chapterIdx > 0) { current.chapterIdx -= 1; current.chapter = current.chapterIdx + 1; }
+                else return;
+            } else {
+                // book - go to previous book
+                if (current.bookIndex > 0) {
+                    current.bookIndex -= 1;
+                    current.book = bibleData[current.bookIndex].book;
+                } else return;
+            }
+            buildWords(); renderHintCanvas(); updatePracticeHeader(); renderChapterPager();
+        }
+        function nextChunk() {
+            if (!current) return;
+            const book = bibleData[current.bookIndex];
+            if (current.scope === 'verse') {
+                const ch = book.chapters[current.chapterIdx];
+                if (current.verseEnd < ch.verses.length) {
+                    current.verseStart = current.verseEnd + 1; current.verseEnd = current.verseStart;
+                } else if (current.chapterIdx < book.chapters.length - 1) {
+                    current.chapterIdx += 1; current.chapter = current.chapterIdx + 1;
+                    current.verseStart = 1; current.verseEnd = 1;
+                } else return;
+            } else if (current.scope === 'chapter') {
+                if (current.chapterIdx < book.chapters.length - 1) { current.chapterIdx += 1; current.chapter = current.chapterIdx + 1; }
+                else return;
+            } else {
+                if (current.bookIndex < bibleData.length - 1) {
+                    current.bookIndex += 1;
+                    current.book = bibleData[current.bookIndex].book;
+                } else return;
+            }
+            buildWords(); renderHintCanvas(); updatePracticeHeader(); renderChapterPager();
+        }
+
+        // ---------- Keyboard shortcuts ----------
+        document.addEventListener('keydown', (e) => {
+            if (!current) return;
+            const tag = (e.target && e.target.tagName) || '';
+            const inField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+            if (inField) return;
+            if (e.key === ' ') { e.preventDefault(); revealNext(); }
+            else if (e.key === 'r' || e.key === 'R') resetPractice();
+            else if (e.key === 'f' || e.key === 'F') setDisplayMode('full');
+            else if (e.key === 'h' || e.key === 'H') setDisplayMode('hints');
+            else if (e.key === 't' || e.key === 'T') setDisplayMode('test');
+            else if (e.key === 'ArrowRight') nextChunk();
+            else if (e.key === 'ArrowLeft') prevChunk();
+        });
+
+        // ---------- Test input live ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRecent();
+            loadBible();
+            $('test-input').addEventListener('input', renderTestCanvas);
+
+            // Pre-fill stats
+            $('stat-sessions').textContent = store.sessions || 0;
+        });
+    </script>
+</body>
+</html>
