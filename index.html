@@ -8317,8 +8317,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 btn.classList.remove('text-indigo-600');
                 btn.classList.add('text-slate-400');
             });
-            // Map tab names to bottom nav IDs (TOOLS and ABOUT don't have bottom nav entries)
-            const bnavMap = { 'DASHBOARD': 'bnav-dashboard', 'ALL': 'bnav-all', 'PLAN': 'bnav-plan', 'STATS': 'bnav-stats', 'SETTINGS': 'bnav-settings' };
+            // Map tab names to bottom nav IDs (ABOUT doesn't have a bottom nav entry)
+            const bnavMap = { 'DASHBOARD': 'bnav-dashboard', 'ALL': 'bnav-all', 'PLAN': 'bnav-plan', 'STATS': 'bnav-stats', 'TOOLS': 'bnav-tools', 'SETTINGS': 'bnav-settings' };
             const activeBnav = document.getElementById(bnavMap[t]);
             if(activeBnav) {
                 activeBnav.classList.remove('text-slate-400');
@@ -13961,23 +13961,27 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
     <!-- Mobile Bottom Navigation -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 sm:hidden" aria-label="Mobile navigation">
         <div class="flex justify-around py-1.5 px-1 max-w-lg mx-auto">
-            <button onclick="window.setTab('DASHBOARD')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-indigo-600" id="bnav-dashboard" aria-label="Home">
+            <button onclick="window.setTab('DASHBOARD')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-indigo-600" id="bnav-dashboard" aria-label="Home">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 <span class="text-[10px] font-bold">Home</span>
             </button>
-            <button onclick="window.setTab('ALL')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-all" aria-label="Bible">
+            <button onclick="window.setTab('ALL')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-all" aria-label="Bible">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                 <span class="text-[10px] font-bold">Bible</span>
             </button>
-            <button onclick="window.setTab('PLAN')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-plan" aria-label="Daily Plan">
+            <button onclick="window.setTab('PLAN')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-plan" aria-label="Daily Plan">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                 <span class="text-[10px] font-bold">Plan</span>
             </button>
-            <button onclick="window.setTab('STATS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-stats" aria-label="Statistics">
+            <button onclick="window.setTab('STATS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-stats" aria-label="Statistics">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 <span class="text-[10px] font-bold">Stats</span>
             </button>
-            <button onclick="window.setTab('SETTINGS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-settings" aria-label="Settings">
+            <button onclick="window.setTab('TOOLS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-tools" aria-label="Tools">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437"></path></svg>
+                <span class="text-[10px] font-bold">Tools</span>
+            </button>
+            <button onclick="window.setTab('SETTINGS')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-slate-400" id="bnav-settings" aria-label="Settings">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span class="text-[10px] font-bold">Settings</span>
             </button>
