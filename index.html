@@ -1785,6 +1785,17 @@
                         </select>
                     </div>
 
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+                        <div class="flex-1">
+                            <div class="font-bold text-slate-700 text-sm mb-1">Bible Version</div>
+                            <div class="text-xs text-slate-500">Choose your default Bible reader translation (KJV or BSB)</div>
+                        </div>
+                        <select id="bible-version-selector" onchange="window.setBibleVersion(this.value)" class="bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 py-2 px-3 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer" aria-label="Select Bible version">
+                            <option value="KJV">KJV</option>
+                            <option value="BSB">BSB</option>
+                        </select>
+                    </div>
+
                     <a href="./index-classic.html" class="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors group" style="text-decoration:none" aria-label="Switch to classic version of Bible Progress">
                         <div>
                             <div class="font-bold text-slate-700 text-sm mb-1">Site Version</div>
@@ -2606,8 +2617,12 @@
         if(appData.showReadingTime === undefined) {
             appData.showReadingTime = true;
         }
-        if(!appData.wordsPerMinute) {
+                if(!appData.wordsPerMinute) {
             appData.wordsPerMinute = CONFIG.DEFAULT_WPM; // Average adult reading speed
+        }
+
+        if(!appData.bibleVersion || !['KJV', 'BSB'].includes(appData.bibleVersion)) {
+            appData.bibleVersion = 'KJV';
         }
 
         // Migrate existing users to have reading goals (per-profile)
@@ -4044,9 +4059,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         let miniCharts = [];
 
         // --- BIBLE READER ---
-        let kjvBibleData = null;  // Will hold the full Bible text
+        let bibleTextData = { KJV: null, BSB: null };  // Holds full Bible text by version
         let currentReaderBook = null;
         let currentReaderChapter = null;
+        let activeReaderVersion = null;
+        let quickCompareTimeout = null;
+        let quickCompareRevertTimeout = null;
         let _verseSuggestionToken = 0;  // Guard against stale async verse lookups
 
         // --- PRONUNCIATION GUIDE ---
@@ -7823,27 +7841,57 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return result;
         }
 
-        // Load KJV Bible text from JSON file
-        async function loadBibleText() {
-            if (kjvBibleData) return kjvBibleData;  // Already loaded
+                // Load Bible text by version
+        async function loadBibleText(version = activeReaderVersion || appData.bibleVersion || 'KJV') {
+            if (bibleTextData[version]) return bibleTextData[version];
 
             try {
-                const response = await fetch('kjv_bible.json');
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch Bible text: ${response.status} ${response.statusText}`);
+                if (version === 'KJV') {
+                    const response = await fetch('kjv_bible.json');
+                    if (!response.ok) throw new Error(`Failed to fetch KJV Bible text: ${response.status} ${response.statusText}`);
+                    bibleTextData.KJV = await response.json();
+                } else {
+                    const response = await fetch('bsb.txt');
+                    if (!response.ok) throw new Error(`Failed to fetch BSB Bible text: ${response.status} ${response.statusText}`);
+                    const text = await response.text();
+                    const map = new Map();
+                    text.split(/\r?\n/).forEach(line => {
+                        const i = line.indexOf('\t');
+                        if (i < 0) return;
+                        const ref = line.slice(0, i).trim();
+                        const verseText = line.slice(i + 1).trim();
+                        if (!/^\d?\s?[A-Za-z].*\s\d+:\d+$/.test(ref) || !verseText) return;
+                        map.set(ref, verseText);
+                    });
+                    const converted = [];
+                    bible.forEach(book => {
+                        const chapters = [];
+                        book.ch.forEach((_, idx) => {
+                            const chapter = idx + 1;
+                            const verses = [];
+                            for (let v = 1; v <= 200; v++) {
+                                const ref = `${book.name} ${chapter}:${v}`;
+                                const verse = map.get(ref);
+                                if (!verse) {
+                                    if (v > 1) break;
+                                    continue;
+                                }
+                                verses.push({ verse: v, text: verse });
+                            }
+                            chapters.push({ chapter, verses });
+                        });
+                        converted.push({ book: book.name, chapters });
+                    });
+                    bibleTextData.BSB = converted;
                 }
-
-                kjvBibleData = await response.json();
-                console.log('✅ KJV Bible text loaded');
-                return kjvBibleData;
+                return bibleTextData[version];
             } catch (error) {
-                console.error('❌ Failed to load Bible text:', error);
+                console.error(`❌ Failed to load ${version} Bible text:`, error);
                 return null;
             }
         }
 
-        // Open Bible reader modal with specific book and chapter
+// Open Bible reader modal with specific book and chapter
         window.openBibleReader = async (bookName, chapterNumber) => {
             const modal = document.getElementById('bible-reader-modal');
             modal.classList.remove('hidden');
@@ -7851,6 +7899,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             currentReaderBook = bookName;
             currentReaderChapter = chapterNumber;
+            activeReaderVersion = appData.bibleVersion || 'KJV';
 
             // Show loading state
             document.getElementById('bible-reader-verses').innerHTML = `
@@ -7860,7 +7909,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             `;
 
             // Load Bible data if not already loaded
-            if (!kjvBibleData) {
+            if (!bibleTextData[activeReaderVersion || appData.bibleVersion || 'KJV']) {
                 const result = await loadBibleText();
 
                 // If loading failed, show error message
@@ -7896,6 +7945,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.body.style.overflow = '';  // Restore scrolling
             currentReaderBook = null;
             currentReaderChapter = null;
+            activeReaderVersion = null;
+            if (quickCompareTimeout) clearTimeout(quickCompareTimeout);
+            if (quickCompareRevertTimeout) clearTimeout(quickCompareRevertTimeout);
         };
 
         // Open Bible reader at a specific verse, then scroll to and highlight it
@@ -7969,7 +8021,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // Render a Bible chapter in the reader
         function renderBibleChapter(bookName, chapterNumber) {
-            if (!kjvBibleData) {
+            const readerVersion = activeReaderVersion || appData.bibleVersion || 'KJV';
+            const activeBibleData = bibleTextData[readerVersion];
+            if (!activeBibleData) {
                 console.error('Bible data not loaded');
                 document.getElementById('bible-reader-verses').innerHTML = `
                     <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
@@ -7990,7 +8044,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             currentReaderChapter = chapterNumber;
 
             // Find the book and chapter in the JSON
-            const bookData = kjvBibleData.find(b => b.book === bookName);
+            const bookData = activeBibleData.find(b => b.book === bookName);
             if (!bookData) {
                 console.error(`Book not found: ${bookName}`);
                 document.getElementById('bible-reader-verses').innerHTML = `
@@ -8031,7 +8085,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const bookIndex = bible.findIndex(b => b.name === bookName);
             const wordCount = bible[bookIndex].ch[chapterNumber - 1];
             const readingTime = calculateReadingTime(wordCount);
-            document.getElementById('bible-reader-subtitle').textContent = `King James Version • ${wordCount} words • ${readingTime}`;
+            const versionLabel = readerVersion === 'BSB' ? 'Berean Standard Bible' : 'King James Version';
+            const compareHint = activeReaderVersion && activeReaderVersion !== (appData.bibleVersion || 'KJV') ? ' • quick compare' : '';
+            document.getElementById('bible-reader-subtitle').textContent = `${versionLabel}${compareHint} • ${wordCount} words • ${readingTime}`;
 
             // Render verses
             let html = '<div class="space-y-3">';
@@ -8061,6 +8117,29 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 `;
             });
             html += '</div>';
+
+            const versesContainer = document.getElementById('bible-reader-verses');
+            versesContainer.onpointerdown = (event) => {
+                const verseEl = event.target.closest('[data-verse-ref]');
+                if (!verseEl) return;
+                if (quickCompareTimeout) clearTimeout(quickCompareTimeout);
+                quickCompareTimeout = setTimeout(async () => {
+                    const original = appData.bibleVersion || 'KJV';
+                    const alternate = original === 'KJV' ? 'BSB' : 'KJV';
+                    activeReaderVersion = alternate;
+                    await loadBibleText(alternate);
+                    renderBibleChapter(currentReaderBook, currentReaderChapter);
+                    window.showToast(`Quick compare: ${alternate}`, 'info');
+                    if (quickCompareRevertTimeout) clearTimeout(quickCompareRevertTimeout);
+                    quickCompareRevertTimeout = setTimeout(async () => {
+                        activeReaderVersion = original;
+                        renderBibleChapter(currentReaderBook, currentReaderChapter);
+                        window.showToast(`Back to ${original}`, 'success');
+                    }, 4500);
+                }, 550);
+            };
+            versesContainer.onpointerup = () => { if (quickCompareTimeout) clearTimeout(quickCompareTimeout); };
+            versesContainer.onpointerleave = () => { if (quickCompareTimeout) clearTimeout(quickCompareTimeout); };
 
             document.getElementById('bible-reader-verses').innerHTML = html;
 
@@ -8370,6 +8449,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 setTimeout(() => view.classList.add('slide-in-right'), 10);
                 window.renderProfileSyncSettings();
                 updateDefaultTabSelector();
+            updateBibleVersionSelector();
             }
             else {
                 const view = document.getElementById('view-books');
@@ -13403,7 +13483,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		};
 
 		// Update default tab selector in settings
-		function updateDefaultTabSelector() {
+		window.setBibleVersion = (version) => {
+            if (!['KJV', 'BSB'].includes(version)) return;
+            appData.bibleVersion = version;
+            activeReaderVersion = version;
+            window.saveProgress();
+            if (currentReaderBook && currentReaderChapter) renderBibleChapter(currentReaderBook, currentReaderChapter);
+        };
+
+        function updateBibleVersionSelector() {
+            const selector = document.getElementById('bible-version-selector');
+            if (selector) selector.value = appData.bibleVersion || 'KJV';
+        }
+
+        function updateDefaultTabSelector() {
 			const selector = document.getElementById('default-tab-selector');
 			if(selector && appData.defaultTab) {
 				selector.value = appData.defaultTab;
@@ -13990,5 +14083,3 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 </body>
 
 </html>
-
-
