@@ -2723,15 +2723,21 @@
             });
 
         // --- UTILITY FUNCTIONS ---
-        // Helper function to get Eastern Time date string (YYYY-MM-DD) from timestamp
+        // Helper function to get Eastern Time date string (YYYY-MM-DD) from timestamp.
+        // Uses Intl with an explicit timeZone so the result is the Eastern calendar
+        // date of the instant regardless of the device's local timezone. The previous
+        // implementation round-tripped through new Date(date.toLocaleString(...)), which
+        // re-parsed a timezone-less locale string in the device's LOCAL zone (a double
+        // offset, and implementation-defined parsing that can yield Invalid Date). That
+        // made the derived day unstable, so chapters read on an earlier day could be
+        // bucketed as "today" (and vice versa). 'en-CA' yields a YYYY-MM-DD format.
         function getLocalDateString(timestamp) {
-            // Convert to Eastern Time (handles both EST and EDT automatically)
-            const date = new Date(timestamp);
-            const easternDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-            const year = easternDate.getFullYear();
-            const month = String(easternDate.getMonth() + 1).padStart(2, '0');
-            const day = String(easternDate.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/New_York',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(new Date(timestamp))
         }
 
         // --- HORNER DAILY PROGRESS HELPERS ---
