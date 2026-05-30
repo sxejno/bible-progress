@@ -536,8 +536,12 @@ These are the highest-impact improvements identified from a Feb 2026 audit.
 - [x] **User scaling on mobile** ✅
   - Removed viewport restrictions for accessibility
 
-- [x] **Verse memory helper** ✅
-  - Separate memorize.html page with spaced repetition
+- [x] **Scripture memorization workspace** ✅
+  - memorize.html: memorize verses, whole chapters, or entire books
+  - Guided verse-by-verse cumulative "Learn" flow + freeform Practice canvas
+  - First-letter hints, hidden recall, type-to-test, read-aloud
+  - Per-verse mastery progress + Leitner spaced-repetition review scheduling
+  - Imports starred verses from the app; migrates legacy custom-verse data
 
 - [x] **Security improvements** ✅
   - XSS prevention, HTTPS validation, file upload security
