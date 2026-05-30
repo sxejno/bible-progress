@@ -1558,10 +1558,32 @@
             setTimeout(() => window.print(), 60);
         }
 
+        // ---------- Deep-link support (?ref=...&scope=...&print=1) ----------
+        // Lets other pages (e.g. the Memorization workspace) hand off a passage,
+        // optionally opening straight to the printable study sheet.
+        function applyUrlParams() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const ref = params.get('ref');
+                if (!ref) return;
+                const scp = params.get('scope');
+                if (scp === 'verse' || scp === 'chapter' || scp === 'book') setScope(scp, true);
+                $('ref-input').value = ref;
+                loadFromInput();
+                if (params.get('print') === '1' && current) {
+                    setTimeout(() => {
+                        const panel = $('print-panel');
+                        if (panel.classList.contains('hidden')) togglePrintPanel();
+                        doPrint();
+                    }, 400);
+                }
+            } catch (e) { console.error('applyUrlParams', e); }
+        }
+
         // ---------- Test input live ----------
         document.addEventListener('DOMContentLoaded', () => {
             renderRecent();
-            loadBible();
+            loadBible().then(applyUrlParams);
             $('test-input').addEventListener('input', renderTestCanvas);
 
             // Pre-fill stats
