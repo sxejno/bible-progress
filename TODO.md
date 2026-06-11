@@ -100,7 +100,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 **Status**: 🟡 Requires planning
 
 - [ ] **Cloud sync conflict resolution**
-  - [ ] Implement timestamp-based merging
+  - [x] Implement timestamp-based merging ✅ **COMPLETED 2026-06-11** — `appData.lastModified` stamped on every save; stale cloud snapshots are skipped and local state re-pushed
   - [ ] Add manual conflict resolution UI
   - [ ] Test simultaneous edits across devices
   - **Deliverable**: Robust multi-device sync
@@ -127,7 +127,7 @@ These issues significantly impact user experience and should be addressed ASAP.
   - [ ] Export heatmap as image
 
 - [ ] **Reading estimates and projections**
-  - [ ] Calculate "finish date" based on current pace
+  - [x] Calculate "finish date" based on current pace ✅ **COMPLETED 2026-06-11** — "Projected Finish" card on Stats page (last-30-day pace with all-time fallback)
   - [ ] Show average chapters/day
   - [ ] Project completion date for each reading plan
   - [ ] Weekly/monthly progress reports
@@ -453,15 +453,13 @@ These are the highest-impact improvements identified from a Feb 2026 audit.
   - Login shows "Logging in..." (good), but cloud sync has no visual feedback
   - Fix: Show spinner/toast during sync writes and reads
 
-- [ ] **6. Add scroll-to-top floating button for Books view**
-  - Mobile users scrolling 66 books have no quick way back to top
-  - Fix: Floating button that appears after scrolling past threshold
+- [x] **6. Add scroll-to-top floating button** ✅ **COMPLETED 2026-06-11**
+  - Floating button appears after scrolling past 600px, smooth-scrolls to top
 
 ### Tier 3: Nice-to-Have
 
-- [ ] **7. Add skip-to-main-content link**
-  - Standard accessibility feature for keyboard/screen reader users
-  - Fix: Hidden link at top of page that becomes visible on focus
+- [x] **7. Add skip-to-main-content link** ✅ **COMPLETED 2026-06-11**
+  - Hidden link at top of page, visible on keyboard focus
 
 - [ ] **8. Empty state for dashboard when no chapters read**
   - Dashboard shows 0% but no helpful onboarding prompt

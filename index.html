@@ -47,7 +47,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
@@ -412,6 +412,7 @@
     </style>
 </head>
 <body class="pb-24">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-xl focus:font-bold focus:shadow-lg">Skip to main content</a>
     <!-- Version Toggle moved to Settings -->
 
     <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -791,7 +792,7 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
+    <main id="main-content" class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
 
         <div class="tab-scroll-wrapper hidden sm:block">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex sm:justify-center">
@@ -1223,6 +1224,13 @@
                                 <div id="pace-nt" class="text-lg font-black text-emerald-800">--</div>
                                 <div class="text-[9px] text-slate-400 font-bold uppercase">NT words/day</div>
                             </div>
+                        </div>
+                    </div>
+                    <!-- Projected finish date -->
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Projected Finish</div>
+                        <div id="finish-projection" class="text-center p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <div class="text-sm text-slate-400 font-bold">Start reading to see your projected finish date</div>
                         </div>
                     </div>
                 </div>
@@ -3072,6 +3080,18 @@
                 return;
             }
 
+            // Conflict guard: if the snapshot is older than local state (e.g. a stale
+            // queued snapshot arriving after newer local edits), don't apply it —
+            // push the newer local state back to the cloud instead.
+            if (typeof cloudData.lastModified === 'number' && typeof appData.lastModified === 'number' &&
+                cloudData.lastModified < appData.lastModified) {
+                log('⏭️ Skipping stale cloud snapshot (older than local state)');
+                if (currentUser) {
+                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
+                }
+                return;
+            }
+            const localLastModified = appData.lastModified;
             // Preserve today's local daily plan chapters before overwriting appData.
             // The onSnapshot can fire before saveProgress() has synced the cache
             // to Firestore, causing the daily plan to lose its pinned chapters
@@ -3272,6 +3292,9 @@
             // Reset daily progress if needed after loading from cloud
             resetHornerDailyProgressIfNeeded();
 
+            // Keep the newest modification timestamp after merging local data back in
+            appData.lastModified = Math.max(appData.lastModified || 0, localLastModified || 0);
+
             localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData));
             refreshUI();
         }
@@ -3437,6 +3460,8 @@
 
         // --- GLOBAL FUNCTIONS ---
         window.saveProgress = (immediate = false) => {
+			// Stamp the edit time so cloud sync can detect and skip stale snapshots
+			appData.lastModified = Date.now();
 			// Helper function to perform localStorage save
 			const saveToLocalStorage = () => {
 				try {
@@ -8553,6 +8578,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             });
         })();
 
+        // Floating scroll-to-top button, shown after scrolling down a screen or two
+        (() => {
+            const btn = document.getElementById('scroll-top-btn');
+            if (!btn) return;
+            let visible = false;
+            window.addEventListener('scroll', () => {
+                const shouldShow = window.scrollY > 600;
+                if (shouldShow !== visible) {
+                    visible = shouldShow;
+                    btn.classList.toggle('hidden', !shouldShow);
+                }
+            }, { passive: true });
+        })();
+
         // Debounce utility function
         const debounce = (func, delay) => {
             let timeoutId;
@@ -11680,6 +11719,45 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const paceNtEl = document.getElementById('pace-nt')
             if (paceOtEl) paceOtEl.textContent = Math.round(otWords / totalDays).toLocaleString()
             if (paceNtEl) paceNtEl.textContent = Math.round(ntWords / totalDays).toLocaleString()
+
+            renderFinishProjection(activityMap, otWords + ntWords)
+        }
+
+        // Project a whole-Bible finish date from recent reading pace
+        function renderFinishProjection(activityMap, wordsRead) {
+            const el = document.getElementById('finish-projection')
+            if (!el) return
+
+            const remaining = WORD_TOTALS.GLOBAL - wordsRead
+            if (remaining <= 0) {
+                el.innerHTML = `<div class="text-lg font-black text-emerald-700">Complete! 🎉</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">You've read the whole Bible</div>`
+                return
+            }
+
+            // Prefer pace over the last 30 days; fall back to all-time average
+            const todayStr = getTodaysDate()
+            const cutoff = new Date(Date.now() - 30 * 86400000)
+            const cutoffStr = getLocalDateString(cutoff.getTime())
+            let recentWords = 0
+            Object.keys(activityMap).forEach(dateStr => {
+                if (dateStr >= cutoffStr && dateStr <= todayStr) recentWords += activityMap[dateStr]
+            })
+            const allTimeDays = Object.keys(activityMap).length
+            const wordsPerDay = recentWords > 0 ? recentWords / 30 : (allTimeDays > 0 ? wordsRead / allTimeDays : 0)
+
+            if (wordsPerDay <= 0) {
+                el.innerHTML = '<div class="text-sm text-slate-400 font-bold">Start reading to see your projected finish date</div>'
+                return
+            }
+
+            const daysLeft = Math.ceil(remaining / wordsPerDay)
+            const finishDate = new Date(Date.now() + daysLeft * 86400000)
+            const dateLabel = finishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            const paceLabel = Math.round(wordsPerDay).toLocaleString()
+            const basis = recentWords > 0 ? 'last 30 days' : 'all-time average'
+            el.innerHTML = `<div class="text-lg font-black text-indigo-700">${dateLabel}</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">At ${paceLabel} words/day (${basis}) • ${daysLeft.toLocaleString()} days to go</div>`
         }
 
         // --- CROSS-PLAN HISTORY RENDERING ---
@@ -14155,6 +14233,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
     </div>
 
     <!-- Mobile Bottom Navigation -->
+    <button id="scroll-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="hidden fixed bottom-20 sm:bottom-6 right-4 z-40 p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all" aria-label="Scroll to top">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 sm:hidden" aria-label="Mobile navigation">
         <div class="flex justify-around py-1.5 px-1 max-w-lg mx-auto">
             <button onclick="window.setTab('DASHBOARD')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-indigo-600" id="bnav-dashboard" aria-label="Home">
