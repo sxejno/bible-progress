@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v6';
+const CACHE_NAME = 'bible-progress-v7';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -23,7 +23,8 @@ const ASSETS_TO_CACHE = [
 // (too heavy for install, and cache.addAll fails atomically if any request fails)
 const LARGE_DATA_ASSETS = [
     '/kjv_bible.json',
-    '/bsb.txt'
+    '/bsb.txt',
+    '/biblical-languages-trainer.html'
 ];
 
 // CDN resources to cache for offline use
