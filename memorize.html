@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Scripture Memorization - Verses, Chapters &amp; Whole Books | Bible Progress</title>
-    <meta name="description" content="Memorize Bible verses, full chapters, or whole books. A guided, verse-by-verse memory workspace with first-letter hints, self-testing, progress tracking and spaced-repetition review.">
+    <meta name="description" content="Memorize Bible verses, full chapters, or whole books using the first letter method. A guided, verse-by-verse memory workspace with first-letter hints, self-testing, printable study sheets, progress tracking and spaced-repetition review.">
     <meta property="og:title" content="Scripture Memorization - Bible Progress">
-    <meta property="og:description" content="Memorize verses, chapters, or whole books with a guided cumulative method, first-letter hints, and spaced-repetition review.">
+    <meta property="og:description" content="Memorize verses, chapters, or whole books with a guided cumulative method, first-letter hints, printable study sheets, and spaced-repetition review.">
+    <link rel="canonical" href="https://bibleprogress.com/memorize.html">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://bibleprogress.com/memorize.html">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -336,6 +337,185 @@
             .focal-hints { font-size: 1.2rem; }
         }
         html { scroll-behavior: smooth; }
+
+        /* ---------- Print study sheet ---------- */
+        #print-area { display: none; }
+
+        @media print {
+            @page {
+                size: letter;
+                margin: 0.55in 0.6in 0.55in 0.6in;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #111 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            body > *:not(#print-area) { display: none !important; }
+
+            /* Reset any Tailwind/glass styles that could leak in */
+            #print-area, #print-area * {
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                background: transparent !important;
+                color: #111;
+                border-radius: 0 !important;
+                text-shadow: none !important;
+            }
+
+            #print-area {
+                display: block !important;
+                color: #111;
+                font-family: Georgia, 'Times New Roman', serif;
+                line-height: 1.55;
+            }
+
+            .print-header {
+                text-align: center;
+                padding-bottom: 14pt;
+                margin-bottom: 22pt;
+                border-bottom: 0.75pt solid #111;
+                page-break-after: avoid;
+                break-after: avoid-page;
+            }
+            .print-header h1 {
+                font-family: 'Inter', -apple-system, sans-serif;
+                font-size: 24pt;
+                font-weight: 800;
+                margin: 0;
+                letter-spacing: -0.015em;
+                color: #000;
+                line-height: 1.15;
+            }
+            .print-header .print-eyebrow {
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                color: #444;
+                margin: 0 0 8pt;
+                letter-spacing: 0.32em;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .print-header .print-sub {
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                color: #666;
+                margin: 8pt 0 0;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+
+            .print-section {
+                margin: 0 0 22pt;
+                page-break-inside: auto;
+            }
+            .print-section.page-break { page-break-before: always; break-before: page; }
+            .print-section > h2 {
+                font-family: 'Inter', sans-serif;
+                font-size: 8.5pt;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.22em;
+                color: #555;
+                margin: 0 0 12pt;
+                padding: 0 0 5pt;
+                border-bottom: 0.5pt solid #aaa;
+                page-break-after: avoid;
+                break-after: avoid-page;
+            }
+
+            /* Verse-per-line layout (used for hints and full text) */
+            .print-verse {
+                margin: 0 0 7pt;
+                padding-left: 22pt;
+                text-indent: -22pt;
+                orphans: 3;
+                widows: 3;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                overflow-wrap: break-word;
+                word-wrap: break-word;
+                hyphens: none;
+            }
+            .print-verse .print-vn {
+                display: inline-block;
+                width: 18pt;
+                margin-right: 4pt;
+                font-family: 'Inter', sans-serif;
+                font-size: 8pt;
+                font-weight: 800;
+                color: #888;
+                text-align: right;
+                vertical-align: baseline;
+                letter-spacing: 0;
+            }
+
+            .print-hints .print-verse {
+                font-family: 'JetBrains Mono', 'Courier New', monospace;
+                letter-spacing: 0.06em;
+                word-spacing: 0.18em;
+                text-align: left;
+            }
+            .print-full .print-verse {
+                font-family: Georgia, 'Times New Roman', serif;
+                text-align: left;
+            }
+
+            /* Chapter dividers (book scope) */
+            .print-ch {
+                font-family: 'Inter', sans-serif;
+                font-size: 9pt;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.22em;
+                color: #555;
+                margin: 18pt 0 10pt;
+                padding-top: 10pt;
+                border-top: 0.5pt dashed #bbb;
+                page-break-after: avoid;
+                break-after: avoid-page;
+                page-break-before: avoid;
+            }
+            .print-ch.first { border-top: none; padding-top: 0; margin-top: 0; }
+
+            /* Sizes */
+            .print-size-sm .print-hints .print-verse { font-size: 10.5pt; line-height: 1.85; }
+            .print-size-sm .print-full  .print-verse { font-size: 9.5pt;  line-height: 1.55; }
+            .print-size-md .print-hints .print-verse { font-size: 13pt;   line-height: 2; }
+            .print-size-md .print-full  .print-verse { font-size: 11pt;   line-height: 1.65; }
+            .print-size-lg .print-hints .print-verse { font-size: 15.5pt; line-height: 2.15; }
+            .print-size-lg .print-full  .print-verse { font-size: 12.5pt; line-height: 1.8; }
+
+            /* Compact two-column layout */
+            .print-compact .print-section {
+                column-count: 2;
+                column-gap: 0.32in;
+                column-fill: auto;
+            }
+            .print-compact .print-section > h2 { column-span: all; }
+            .print-compact .print-ch { column-span: all; }
+            .print-compact.print-size-md .print-hints .print-verse { font-size: 11pt; line-height: 1.85; }
+            .print-compact.print-size-md .print-full  .print-verse { font-size: 9.5pt; line-height: 1.55; }
+            .print-compact.print-size-lg .print-hints .print-verse { font-size: 13pt; line-height: 2; }
+            .print-compact.print-size-lg .print-full  .print-verse { font-size: 11pt; line-height: 1.7; }
+
+            .print-footer {
+                margin-top: 26pt;
+                padding-top: 10pt;
+                border-top: 0.5pt solid #bbb;
+                font-family: 'Inter', sans-serif;
+                font-size: 7.5pt;
+                color: #777;
+                text-align: center;
+                letter-spacing: 0.08em;
+                font-style: italic;
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -456,8 +636,58 @@
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button onclick="toggleReadAloud()" id="aloud-btn" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Read the passage aloud">🔊 Read aloud</button>
-                    <button onclick="printCurrent()" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Open a printable study sheet">🖨 Print</button>
+                    <button onclick="togglePrintPanel()" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Print a study sheet">🖨 Print</button>
                     <button onclick="closeStudy()" class="btn-secondary px-3 py-2 rounded-lg text-sm" title="Close">✕</button>
+                </div>
+            </div>
+
+            <!-- Print options panel (collapsed by default) -->
+            <div id="print-panel" class="hidden mb-4 rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-lg">🖨</span>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-indigo-800">Print a study sheet</h3>
+                    <button onclick="togglePrintPanel()" class="ml-auto text-xs font-semibold text-slate-500 hover:text-rose-600">Close ✕</button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-3 text-sm">
+                    <div class="space-y-2">
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500">Include</p>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-hints" checked class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">First letters (memorization side)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-full" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Full text (answer key)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="print-page-break" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Each section on its own page</span>
+                        </label>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500">Layout</p>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="print-layout" value="single" checked class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Single column (large)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="print-layout" value="compact" class="w-4 h-4 accent-indigo-600">
+                            <span class="font-semibold text-slate-700">Two columns (compact)</span>
+                        </label>
+                        <p class="text-xs font-black uppercase tracking-wider text-slate-500 pt-2">Font size</p>
+                        <select id="print-size" class="w-full px-3 py-2 rounded-lg text-sm">
+                            <option value="sm">Small (more per page)</option>
+                            <option value="md" selected>Medium</option>
+                            <option value="lg">Large (easier to read)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mt-4 pt-3 border-t border-indigo-200 flex-wrap">
+                    <button onclick="doPrint()" class="btn-primary px-5 py-2.5 rounded-lg text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        Print or save as PDF
+                    </button>
+                    <span class="text-xs text-slate-600 italic">Covers the whole passage. Use your browser's print dialog → "Save as PDF" for a digital copy.</span>
                 </div>
             </div>
 
@@ -615,11 +845,12 @@
             <p class="italic">"Thy word have I hid in mine heart, that I might not sin against thee." — Psalm 119:11</p>
             <p>
                 <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
-                <span class="mx-2 text-slate-300">·</span>
-                <a href="first-letter-method.html" class="font-semibold text-indigo-700 hover:text-indigo-800">First Letter Method (drill &amp; print)</a>
             </p>
         </footer>
     </div>
+
+    <!-- Print sheet container - hidden on screen, visible only when printing -->
+    <div id="print-area" aria-hidden="true"></div>
 
     <div id="toast" role="status" aria-live="polite"></div>
 
@@ -1027,6 +1258,7 @@
         // ===================== Open / close study =====================
         function openStudy(item) {
             stopReadAloud();
+            $('print-panel').classList.add('hidden');
             currentItem = item;
             hydrateItem(currentItem);
             activeChapterIdx = (item.scope === 'book') ? firstUnfinishedChapter(item) : (item.chapterIdx || 0);
@@ -1044,6 +1276,7 @@
         }
         function closeStudy() {
             stopReadAloud();
+            $('print-panel').classList.add('hidden');
             currentItem = null;
             $('study-card').style.display = 'none';
             renderMemoryList();
@@ -1061,22 +1294,12 @@
 
         // chunk = the set of verses currently shown (a chapter for book scope, else the whole item)
         function buildChunk() {
-            chunkVerses = [];
             const it = currentItem;
-            if (it.snapshot) {
-                chunkVerses = it.snapshot.map(s => ({ chapter: s.chapter, verse: s.verse, text: s.text }));
-            } else if (bibleData && it.bookIndex != null) {
-                const book = bibleData[it.bookIndex];
-                if (it.scope === 'book') {
-                    const ch = book.chapters[activeChapterIdx];
-                    ch.verses.forEach(v => chunkVerses.push({ chapter: activeChapterIdx + 1, verse: v.verse, text: v.text }));
-                } else if (it.scope === 'chapter') {
-                    book.chapters[it.chapterIdx].verses.forEach(v => chunkVerses.push({ chapter: it.chapter, verse: v.verse, text: v.text }));
-                } else {
-                    book.chapters[it.chapterIdx].verses
-                        .filter(v => v.verse >= it.verseStart && v.verse <= it.verseEnd)
-                        .forEach(v => chunkVerses.push({ chapter: it.chapter, verse: v.verse, text: v.text }));
-                }
+            if (!it.snapshot && it.scope === 'book' && bibleData && it.bookIndex != null) {
+                const ch = bibleData[it.bookIndex].chapters[activeChapterIdx];
+                chunkVerses = ch.verses.map(v => ({ chapter: activeChapterIdx + 1, verse: v.verse, text: v.text }));
+            } else {
+                chunkVerses = allPassageVerses(it);
             }
             buildWords();
         }
@@ -1276,6 +1499,7 @@
             const it = currentItem;
             const total = countVerses(it), mastered = countMastered(it);
             if (mastered >= total) {
+                scheduleFirstReviewIfNeeded(it);
                 celebrate(`🎉 You've learned all of ${it.reference}!`);
             }
             if (learnIdx < chunkVerses.length - 1) { learnIdx++; learnStage = 'read'; renderLearn(); }
@@ -1366,8 +1590,10 @@
             renderChapterPager();
             refreshStats();
             const it = currentItem;
-            if (countMastered(it) >= countVerses(it)) celebrate(`🎉 You've learned all of ${it.reference}!`);
-            else toast('Marked these verses as learned');
+            if (countMastered(it) >= countVerses(it)) {
+                scheduleFirstReviewIfNeeded(it);
+                celebrate(`🎉 You've learned all of ${it.reference}!`);
+            } else toast('Marked these verses as learned');
         }
 
         // ---------- Test mode ----------
@@ -1399,12 +1625,20 @@
             const pct = words.length ? Math.round((correctCount / words.length) * 100) : 0;
             $('test-progress').style.width = pct + '%';
             $('test-accuracy').innerHTML = words.length ? ` <span class="text-slate-500">·</span> <span class="font-bold ${pct === 100 ? 'text-emerald-700' : 'text-indigo-700'}">${pct}%</span>` : '';
-            if (pct === 100 && words.length) { markChapterLearnedSilently(); }
+            if (pct === 100 && words.length) {
+                markChapterLearnedSilently();
+                if (!renderTestCanvas._celebrated) { renderTestCanvas._celebrated = true; celebrate('💯 Perfect recall — every word right!'); }
+            } else {
+                renderTestCanvas._celebrated = false;
+            }
         }
         function markChapterLearnedSilently() {
             let changed = false;
             chunkVerses.forEach(cv => { const k = masteryKey(cv); if (!currentItem.mastered[k]) { currentItem.mastered[k] = Date.now(); changed = true; } });
-            if (changed) { persistCurrentItem(); updateProgressBar(); renderChapterPager(); refreshStats(); }
+            if (changed) {
+                if (countMastered(currentItem) >= countVerses(currentItem)) scheduleFirstReviewIfNeeded(currentItem);
+                persistCurrentItem(); updateProgressBar(); renderChapterPager(); refreshStats();
+            }
         }
         function clearTest() {
             $('test-input').value = '';
@@ -1417,8 +1651,18 @@
         // ===================== Spaced repetition =====================
         function isDue(it) {
             if (it.transient) return false;
-            if (!it.lastReviewed) return false; // never reviewed yet -> not "overdue", just new
-            return !it.nextReview || it.nextReview <= Date.now();
+            if (it.nextReview) return it.nextReview <= Date.now();
+            return !!it.lastReviewed; // legacy items reviewed before scheduling existed
+        }
+        // Once a passage is fully learned, pull it into the review cycle automatically
+        // so spaced repetition starts without the user having to log a first review.
+        function scheduleFirstReviewIfNeeded(it) {
+            if (it.transient || it.nextReview || it.lastReviewed) return;
+            it.box = 1;
+            it.nextReview = Date.now() + SRS_INTERVALS[1] * DAY;
+            persistCurrentItem();
+            updateNextReviewLabel();
+            renderMemoryList();
         }
         function logReview(quality) {
             const it = currentItem;
@@ -1444,10 +1688,11 @@
             const it = currentItem;
             const el = $('next-review-label');
             if (!it || it.transient) { el.textContent = ''; return; }
-            if (!it.lastReviewed) { el.textContent = 'Not reviewed yet'; return; }
+            if (!it.lastReviewed && !it.nextReview) { el.textContent = 'Not reviewed yet'; return; }
             const due = it.nextReview || Date.now();
             const diff = Math.round((due - Date.now()) / DAY);
-            el.textContent = diff <= 0 ? `Due now · reviewed ${it.reviewCount}×` : `Next review in ${diff} day${diff === 1 ? '' : 's'} · reviewed ${it.reviewCount}×`;
+            const times = it.reviewCount ? ` · reviewed ${it.reviewCount}×` : '';
+            el.textContent = diff <= 0 ? `Due now${times}` : `Next review in ${diff} day${diff === 1 ? '' : 's'}${times}`;
         }
         function bumpStreak() {
             const today = new Date().toDateString();
@@ -1486,11 +1731,89 @@
             const b = $('aloud-btn'); if (b) b.textContent = '🔊 Read aloud';
         }
 
-        // ===================== Print (hand off to First Letter Method) =====================
-        function printCurrent() {
-            if (!currentItem) return;
-            const ref = encodeURIComponent(currentItem.reference);
-            window.open(`first-letter-method.html?ref=${ref}&scope=${currentItem.scope}&print=1`, '_blank');
+        // ===================== Print study sheet =====================
+        // Every verse of the passage (all chapters for book scope), regardless of
+        // which chunk is currently on screen.
+        function allPassageVerses(it) {
+            if (it.snapshot) return it.snapshot.map(s => ({ chapter: s.chapter, verse: s.verse, text: s.text }));
+            if (!bibleData || it.bookIndex == null) return [];
+            const book = bibleData[it.bookIndex];
+            const out = [];
+            if (it.scope === 'book') {
+                book.chapters.forEach((ch, ci) => ch.verses.forEach(v => out.push({ chapter: ci + 1, verse: v.verse, text: v.text })));
+            } else if (it.scope === 'chapter') {
+                book.chapters[it.chapterIdx].verses.forEach(v => out.push({ chapter: it.chapter, verse: v.verse, text: v.text }));
+            } else {
+                book.chapters[it.chapterIdx].verses
+                    .filter(v => v.verse >= it.verseStart && v.verse <= it.verseEnd)
+                    .forEach(v => out.push({ chapter: it.chapter, verse: v.verse, text: v.text }));
+            }
+            return out;
+        }
+        function togglePrintPanel() {
+            if (!currentItem) { toast('Open a passage first.'); return; }
+            const panel = $('print-panel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        function buildPrintMarkup(mode, verses, withChapters) {
+            const parts = [];
+            let lastChapter = null;
+            verses.forEach(v => {
+                if (withChapters && v.chapter !== lastChapter) {
+                    parts.push(`<h3 class="print-ch${lastChapter === null ? ' first' : ''}">Chapter ${v.chapter}</h3>`);
+                    lastChapter = v.chapter;
+                }
+                const body = mode === 'full' ? v.text : verseHints(v.text);
+                parts.push(`<p class="print-verse"><span class="print-vn">${v.verse}</span>${escapeHtml(body)}</p>`);
+            });
+            return parts.join('');
+        }
+        function buildPrintArea() {
+            const it = currentItem;
+            const verses = allPassageVerses(it);
+            const showHints = $('print-hints').checked;
+            const showFull = $('print-full').checked;
+            const pageBreak = $('print-page-break').checked;
+            const compact = (document.querySelector('input[name="print-layout"]:checked') || {}).value === 'compact';
+            const size = $('print-size').value || 'md';
+
+            const area = $('print-area');
+            const classes = [`print-size-${size}`];
+            if (compact) classes.push('print-compact');
+            area.className = classes.join(' ');
+
+            // Default to hints if nothing chosen
+            const sections = [];
+            if (showHints || (!showHints && !showFull)) sections.push({ key: 'hints', heading: 'First Letters', cls: 'print-hints' });
+            if (showFull) sections.push({ key: 'full', heading: 'Full Text (KJV)', cls: 'print-full' });
+
+            const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+            const wordCount = verses.reduce((s, v) => s + v.text.split(/\s+/).filter(Boolean).length, 0);
+            let html = `<header class="print-header">
+                <p class="print-eyebrow">First Letter Method · Memorization Sheet</p>
+                <h1>${escapeHtml(it.reference)}</h1>
+                <p class="print-sub">KJV &nbsp;·&nbsp; ${verses.length} verse${verses.length === 1 ? '' : 's'} &nbsp;·&nbsp; ${wordCount} words &nbsp;·&nbsp; ${escapeHtml(today)}</p>
+            </header>`;
+
+            const withChapters = it.scope === 'book';
+            sections.forEach((s, i) => {
+                const breakCls = (pageBreak && i > 0) ? ' page-break' : '';
+                html += `<section class="print-section ${s.cls}${breakCls}">
+                    <h2>${escapeHtml(s.heading)}</h2>
+                    ${buildPrintMarkup(s.key, verses, withChapters)}
+                </section>`;
+            });
+
+            html += `<footer class="print-footer">bibleprogress.com &nbsp;·&nbsp; "Thy word have I hid in mine heart, that I might not sin against thee." — Psalm 119:11</footer>`;
+            area.innerHTML = html;
+        }
+        function doPrint() {
+            if (!currentItem) { toast('Open a passage first.'); return; }
+            if (!allPassageVerses(currentItem).length) { toast('Nothing to print yet — Bible data may still be loading.'); return; }
+            buildPrintArea();
+            // Give layout a tick to settle, then trigger print
+            setTimeout(() => window.print(), 60);
         }
 
         // ===================== Memory list rendering =====================
@@ -1544,14 +1867,23 @@
             updateDueSummary();
         }
         function reviewMeta(it) {
-            if (!it.lastReviewed) return 'Tap to start learning';
+            if (!it.lastReviewed && !it.nextReview) return 'Tap to start learning';
             const diff = Math.round(((it.nextReview || Date.now()) - Date.now()) / DAY);
-            if (diff <= 0) return `Due for review · reviewed ${it.reviewCount}×`;
-            return `Next review in ${diff}d · reviewed ${it.reviewCount}×`;
+            const times = it.reviewCount ? ` · reviewed ${it.reviewCount}×` : '';
+            if (diff <= 0) return `Due for review${times}`;
+            return `Next review in ${diff}d${times}`;
         }
         function updateDueSummary() {
             const n = dueCount();
-            $('due-summary').textContent = n ? `● ${n} due for review` : '';
+            $('due-summary').innerHTML = n
+                ? `● ${n} due · <button class="underline decoration-2 underline-offset-2 hover:text-rose-700" onclick="reviewNextDue()">review now</button>`
+                : '';
+        }
+        function reviewNextDue() {
+            const due = store.items.filter(isDue).sort((a, b) => (a.nextReview || 0) - (b.nextReview || 0));
+            if (!due.length) { toast('Nothing due — well done!'); return; }
+            openStudy(due[0]);
+            setStudyMode('practice');
         }
         function removeItem(id) {
             const it = store.items.find(x => x.id === id);
@@ -1659,12 +1991,22 @@
                         if (ch) { const vv = ch.verses.find(x => x.verse === v); if (vv) words += vv.text.split(/\s+/).filter(Boolean).length; }
                     });
                 } else if (it.snapshot) {
-                    Object.keys(it.mastered || {}).forEach(() => { words += (it.snapshot[0] ? it.snapshot[0].text.split(/\s+/).filter(Boolean).length : 0); });
+                    it.snapshot.forEach(s => {
+                        if (it.mastered[`${s.chapter}:${s.verse}`]) words += s.text.split(/\s+/).filter(Boolean).length;
+                    });
                 }
             });
             $('stat-verses').textContent = verses;
             $('stat-words').textContent = words.toLocaleString();
-            $('stat-streak').textContent = store.streak || 0;
+            $('stat-streak').textContent = currentStreak();
+        }
+        // The stored streak only counts if the last review was today or yesterday;
+        // otherwise it has lapsed and should read 0.
+        function currentStreak() {
+            if (!store.lastReviewDay) return 0;
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - DAY).toDateString();
+            return (store.lastReviewDay === today || store.lastReviewDay === yesterday) ? (store.streak || 0) : 0;
         }
 
         // ===================== Keyboard shortcuts =====================
@@ -1685,6 +2027,29 @@
             }
         });
 
+        // ===================== Deep links (?ref=...&scope=...&print=1) =====================
+        // Supports links from the main app and legacy first-letter-method.html URLs,
+        // which now redirect here with their query string intact.
+        function applyUrlParams() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const ref = params.get('ref');
+                if (!ref || !bibleData) return;
+                const scp = params.get('scope');
+                if (scp === 'verse' || scp === 'chapter' || scp === 'book') setScope(scp);
+                const parsed = parseReference(ref);
+                if (parsed.error) { flashStatus(parsed.error, true); return; }
+                if (parsed.scope) setScope(parsed.scope);
+                const it = buildItemFromParsed(parsed);
+                const existing = findExisting(it);
+                if (existing) openStudy(existing);
+                else { it.transient = true; openStudy(it); }
+                if (params.get('print') === '1') {
+                    setTimeout(() => { $('print-panel').classList.remove('hidden'); doPrint(); }, 400);
+                }
+            } catch (e) { console.error('applyUrlParams', e); }
+        }
+
         // ===================== Init =====================
         document.addEventListener('DOMContentLoaded', () => {
             loadStore();
@@ -1692,7 +2057,7 @@
             renderPopular();
             renderMemoryList();
             refreshStats();
-            loadBible().then(() => { renderStarred(); });
+            loadBible().then(() => { renderStarred(); applyUrlParams(); });
             $('test-input').addEventListener('input', renderTestCanvas);
             window.addEventListener('beforeunload', stopReadAloud);
         });

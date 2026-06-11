@@ -554,6 +554,10 @@ These are the highest-impact improvements identified from a Feb 2026 audit.
   - First-letter hints, hidden recall, type-to-test, read-aloud
   - Per-verse mastery progress + Leitner spaced-repetition review scheduling
   - Imports starred verses from the app; migrates legacy custom-verse data
+  - Consolidated first-letter-method.html into memorize.html (printable study
+    sheets are now native; the old URL redirects and forwards deep-link params)
+  - Auto-schedules the first spaced-repetition review when a passage is fully
+    learned, plus a "review now" shortcut when items are due
 
 - [x] **Security improvements** ✅
   - XSS prevention, HTTPS validation, file upload security
