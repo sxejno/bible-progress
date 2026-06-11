@@ -47,7 +47,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
@@ -412,14 +412,15 @@
     </style>
 </head>
 <body class="pb-24">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-xl focus:font-bold focus:shadow-lg">Skip to main content</a>
     <!-- Version Toggle moved to Settings -->
 
     <div id="auth-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="bg-white rounded-[2rem] p-6 w-full max-w-sm shadow-2xl modal-in border border-white/50">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="auth-modal-title" class="text-xl font-black text-slate-900 tracking-tight">Sync Progress</h2>
-                <button onclick="window.toggleAuthModal(false)" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close authentication modal">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button onclick="window.toggleAuthModal(false)" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close authentication modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
@@ -459,8 +460,8 @@
             <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-200/20 rounded-full blur-3xl"></div>
 
             <div class="relative">
-                <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-2 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm" aria-label="Close introduction modal">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button onclick="window.closeIntroModal()" class="absolute -top-2 -right-2 p-3 bg-white/80 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-slate-600 shadow-sm" aria-label="Close introduction modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
 
                 <!-- Step 1: Pick a Plan -->
@@ -520,8 +521,8 @@
         <div class="bg-white rounded-[2rem] p-6 w-full max-w-md shadow-2xl modal-in border border-white/50">
             <div class="flex justify-between items-center mb-6">
                 <h2 id="calibration-modal-title" class="text-xl font-black text-slate-900 tracking-tight">Calibrate Reading Speed</h2>
-                <button onclick="window.closeCalibrationModal()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close calibration modal">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button onclick="window.closeCalibrationModal()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close calibration modal">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
@@ -651,7 +652,7 @@
                     <h2 id="bible-reader-title" class="text-2xl font-black text-slate-900 tracking-tight">Loading...</h2>
                     <p id="bible-reader-subtitle" class="text-sm text-slate-500 mt-1">King James Version</p>
                 </div>
-                <button onclick="window.closeBibleReader()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close Bible reader">
+                <button onclick="window.closeBibleReader()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close Bible reader">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -706,14 +707,14 @@
                     </div>
                     
                     <div class="flex items-center gap-3 self-end sm:self-auto">
-                        <button onclick="window.showIntroModal()" class="p-2 bg-white hover:bg-indigo-50 rounded-full transition-all text-slate-600 hover:text-indigo-600 border border-slate-200 hover:border-indigo-200 shadow-sm hover:shadow-md hover:scale-110" title="Help & Introduction" aria-label="Show help and introduction">
+                        <button onclick="window.showIntroModal()" class="p-3 bg-white hover:bg-indigo-50 rounded-full transition-all text-slate-600 hover:text-indigo-600 border border-slate-200 hover:border-indigo-200 shadow-sm hover:shadow-md hover:scale-110" title="Help & Introduction" aria-label="Show help and introduction">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </button>
 
                         <div class="relative group">
                             <button id="profile-menu-btn" onclick="window.toggleProfileMenu()" class="flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-50 transition-all border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md" aria-label="Toggle profile menu" aria-expanded="false" aria-haspopup="true">
                                 <div id="current-profile-dot" class="w-3 h-3 rounded-full profile-dot shadow-sm"></div>
-                                <span id="current-profile-name">Default</span>
+                                <span id="current-profile-name" class="truncate max-w-[10rem]">Default</span>
                                 <svg class="w-4 h-4 text-slate-400 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             </button>
 
@@ -791,7 +792,7 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
+    <main id="main-content" class="max-w-5xl mx-auto px-4 sm:px-6 mt-8">
 
         <div class="tab-scroll-wrapper hidden sm:block">
             <div id="tab-scroll-container" class="overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex sm:justify-center">
@@ -983,7 +984,7 @@
                 <div class="relative group">
                     <input type="text" id="book-search" oninput="window.debouncedHandleSearch()" placeholder="Search books..." class="w-full pl-12 pr-12 py-4 rounded-2xl border-2 border-indigo-200 bg-white shadow-md hover:shadow-lg text-base font-medium text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 focus:shadow-xl placeholder-slate-400 outline-none transition-all" aria-label="Search books">
                     <svg class="w-6 h-6 absolute left-4 top-4 text-slate-300 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <button id="book-search-clear" onclick="window.clearBookSearch()" class="absolute right-3 top-3 p-1 rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-all hidden" aria-label="Clear search">
+                    <button id="book-search-clear" onclick="window.clearBookSearch()" class="absolute right-1.5 top-1.5 p-3 rounded-full text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-all hidden" aria-label="Clear search">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -1223,6 +1224,13 @@
                                 <div id="pace-nt" class="text-lg font-black text-emerald-800">--</div>
                                 <div class="text-[9px] text-slate-400 font-bold uppercase">NT words/day</div>
                             </div>
+                        </div>
+                    </div>
+                    <!-- Projected finish date -->
+                    <div class="mt-6 pt-6 border-t border-slate-100">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Projected Finish</div>
+                        <div id="finish-projection" class="text-center p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <div class="text-sm text-slate-400 font-bold">Start reading to see your projected finish date</div>
                         </div>
                     </div>
                 </div>
@@ -2192,6 +2200,31 @@
         }
 
         // --- CUSTOM MODAL SYSTEM ---
+        // Trap Tab/Shift+Tab inside a modal container; returns a cleanup function
+        // that removes the listener and restores focus to the element focused at open
+        function createFocusTrap(container) {
+            const previouslyFocused = document.activeElement;
+            const handleFocusTrap = (e) => {
+                if (e.key !== 'Tab') return;
+                const focusables = container.querySelectorAll('button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])');
+                if (focusables.length === 0) return;
+                const first = focusables[0];
+                const last = focusables[focusables.length - 1];
+                if (e.shiftKey && (document.activeElement === first || !container.contains(document.activeElement))) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && (document.activeElement === last || !container.contains(document.activeElement))) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            };
+            document.addEventListener('keydown', handleFocusTrap);
+            return () => {
+                document.removeEventListener('keydown', handleFocusTrap);
+                if (previouslyFocused && typeof previouslyFocused.focus === 'function') previouslyFocused.focus();
+            };
+        }
+
         window.showCustomModal = (title, message, type = 'info', options = {}) => {
             return new Promise((resolve) => {
                 // Remove any existing custom modals
@@ -2301,16 +2334,19 @@
                 document.body.appendChild(overlay);
                 document.body.style.overflow = 'hidden';
 
-                // Focus input for prompt type
-                if (type === 'prompt') {
-                    setTimeout(() => {
+                // Move focus into the modal (input for prompts, primary button otherwise)
+                setTimeout(() => {
+                    if (type === 'prompt') {
                         const input = document.getElementById('custom-modal-input');
                         if (input) {
                             input.focus();
                             input.select();
+                            return;
                         }
-                    }, 100);
-                }
+                    }
+                    const primary = modal.querySelector('#custom-modal-confirm, #custom-modal-submit, #custom-modal-ok');
+                    primary?.focus();
+                }, 100);
 
                 // Close on Escape key (defined before closeModal so it can be cleaned up)
                 const handleEscape = (e) => {
@@ -2319,9 +2355,13 @@
                     }
                 };
 
+                // Trap Tab/Shift+Tab inside the modal while it is open
+                const releaseFocusTrap = createFocusTrap(modal);
+
                 // Handle button clicks
                 const closeModal = (result) => {
                     document.removeEventListener('keydown', handleEscape);
+                    releaseFocusTrap();
                     document.body.style.overflow = '';
                     overlay.style.opacity = '0';
                     setTimeout(() => overlay.remove(), 200);
@@ -2467,7 +2507,10 @@
                     updateState()
                 })
 
+                const releaseFocusTrap = createFocusTrap(modal)
+
                 const closeModal = (result) => {
+                    releaseFocusTrap()
                     overlay.style.opacity = '0'
                     setTimeout(() => overlay.remove(), 200)
                     resolve(result)
@@ -2505,9 +2548,17 @@
         };
 
         // --- VALIDATE APP DATA ---
+        const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype'];
+        function hasForbiddenKeys(obj) {
+            return FORBIDDEN_KEYS.some(k => Object.prototype.hasOwnProperty.call(obj, k));
+        }
+
         function validateAppData(data) {
             if(!data || typeof data !== 'object') return false;
+            // Reject prototype pollution vectors
+            if(hasForbiddenKeys(data)) return false;
             if(!data.profiles || typeof data.profiles !== 'object') return false;
+            if(hasForbiddenKeys(data.profiles)) return false;
             // Must have at least one profile
             if(Object.keys(data.profiles).length === 0) return false;
             // activeProfileId should be a string (but doesn't need to exist in profiles - we'll fix that in migration)
@@ -2732,6 +2783,19 @@
             const month = String(easternDate.getMonth() + 1).padStart(2, '0');
             const day = String(easternDate.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        }
+
+        // Day of week (0=Sun..6=Sat) for "today" in Eastern Time, matching getLocalDateString's day boundary
+        function getEasternDayOfWeek() {
+            const easternDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+            return easternDate.getDay();
+        }
+
+        // Day of week for a "YYYY-MM-DD" string. Avoids new Date(dateStr).getDay(),
+        // which parses as UTC midnight and shifts the weekday in western timezones.
+        function getDayOfWeekFromDateString(dateStr) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            return new Date(y, m - 1, d).getDay();
         }
 
         // --- HORNER DAILY PROGRESS HELPERS ---
@@ -3016,6 +3080,18 @@
                 return;
             }
 
+            // Conflict guard: if the snapshot is older than local state (e.g. a stale
+            // queued snapshot arriving after newer local edits), don't apply it —
+            // push the newer local state back to the cloud instead.
+            if (typeof cloudData.lastModified === 'number' && typeof appData.lastModified === 'number' &&
+                cloudData.lastModified < appData.lastModified) {
+                log('⏭️ Skipping stale cloud snapshot (older than local state)');
+                if (currentUser) {
+                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
+                }
+                return;
+            }
+            const localLastModified = appData.lastModified;
             // Preserve today's local daily plan chapters before overwriting appData.
             // The onSnapshot can fire before saveProgress() has synced the cache
             // to Firestore, causing the daily plan to lose its pinned chapters
@@ -3216,7 +3292,10 @@
             // Reset daily progress if needed after loading from cloud
             resetHornerDailyProgressIfNeeded();
 
-            localStorage.setItem('kjv_v6_data', JSON.stringify(appData));
+            // Keep the newest modification timestamp after merging local data back in
+            appData.lastModified = Math.max(appData.lastModified || 0, localLastModified || 0);
+
+            localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData));
             refreshUI();
         }
 
@@ -3235,6 +3314,7 @@
 
         function refreshUI() {
             currentProfileName.innerText = appData.activeProfileId;
+            currentProfileName.title = appData.activeProfileId;
             updateProfileColor();
 
             // Update active plan for current profile
@@ -3380,6 +3460,8 @@
 
         // --- GLOBAL FUNCTIONS ---
         window.saveProgress = (immediate = false) => {
+			// Stamp the edit time so cloud sync can detect and skip stale snapshots
+			appData.lastModified = Date.now();
 			// Helper function to perform localStorage save
 			const saveToLocalStorage = () => {
 				try {
@@ -3489,7 +3571,7 @@
                 itemDiv.className = `flex items-center justify-between group/item px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors ${isActive ? 'bg-indigo-50/50' : ''}`;
 
                 const btn = document.createElement('button');
-                btn.className = `text-left flex-1 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2`;
+                btn.className = `text-left flex-1 min-w-0 text-sm font-bold ${isActive ? 'text-indigo-600' : 'text-slate-600'} flex items-center gap-2`;
                 btn.onclick = () => window.switchProfile(name);
 
                 const dot = document.createElement('div');
@@ -3497,8 +3579,9 @@
                 dot.style.backgroundColor = color.solid;
 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = 'truncate';
+                nameSpan.className = 'truncate min-w-0';
                 nameSpan.textContent = name;
+                nameSpan.title = name;
 
                 btn.appendChild(dot);
                 btn.appendChild(nameSpan);
@@ -7863,6 +7946,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         if (!/^\d?\s?[A-Za-z].*\s\d+:\d+$/.test(ref) || !verseText) return;
                         map.set(ref, verseText);
                     });
+                    if (map.size === 0) throw new Error('BSB Bible text could not be parsed');
                     const converted = [];
                     bible.forEach(book => {
                         const chapters = [];
@@ -7892,10 +7976,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
 // Open Bible reader modal with specific book and chapter
+        let bibleReaderFocusTrapRelease = null;
         window.openBibleReader = async (bookName, chapterNumber) => {
             const modal = document.getElementById('bible-reader-modal');
+            const wasHidden = modal.classList.contains('hidden');
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';  // Prevent background scrolling
+
+            // Trap focus only on first open (this also runs for in-reader chapter navigation)
+            if (wasHidden && !bibleReaderFocusTrapRelease) {
+                bibleReaderFocusTrapRelease = createFocusTrap(modal);
+            }
 
             currentReaderBook = bookName;
             currentReaderChapter = chapterNumber;
@@ -7924,7 +8015,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 We couldn't load the Bible text. This might be due to a network issue or the file being unavailable.
                                 Please check your internet connection and try again.
                             </p>
-                            <button onclick="window.openBibleReader('${bookName}', ${chapterNumber})"
+                            <button onclick="window.openBibleReader('${escapeHtml(bookName)}', ${chapterNumber})"
                                 class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
                                 Try Again
                             </button>
@@ -7943,6 +8034,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const modal = document.getElementById('bible-reader-modal');
             modal.classList.add('hidden');
             document.body.style.overflow = '';  // Restore scrolling
+            if (bibleReaderFocusTrapRelease) {
+                bibleReaderFocusTrapRelease();
+                bibleReaderFocusTrapRelease = null;
+            }
             currentReaderBook = null;
             currentReaderChapter = null;
             activeReaderVersion = null;
@@ -8324,7 +8419,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             <h2 class="text-2xl font-black text-slate-900 tracking-tight">Memorized Verses ⭐</h2>
                             <p class="text-sm text-slate-500 mt-1">${memorizedList.length} verse${memorizedList.length !== 1 ? 's' : ''}</p>
                         </div>
-                        <button onclick="this.closest('.fixed').remove()" class="p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close">
+                        <button onclick="this.closest('.fixed').remove()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -8388,7 +8483,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             window.activeTab = t;
             ['DASHBOARD', 'ALL', 'PLAN', 'STATS', 'TOOLS', 'ABOUT', 'SETTINGS'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab.toLowerCase()}`);
-                if(el) el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
+                if(el) {
+                    el.className = (tab === t) ? "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all tab-active whitespace-nowrap" : "px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wide transition-all text-slate-500 hover:text-indigo-600 whitespace-nowrap";
+                    el.setAttribute('aria-selected', tab === t ? 'true' : 'false');
+                }
             });
 
             // Update bottom nav active state
@@ -8459,6 +8557,40 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 window.renderSubdivisionStats();
             }
         };
+
+        // Arrow-key navigation for the main tab bar (ArrowLeft/ArrowRight, Home/End)
+        (() => {
+            const tablist = document.querySelector('[role="tablist"][aria-label="Main navigation"]');
+            if (!tablist) return;
+            tablist.addEventListener('keydown', (e) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+                const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+                const currentIdx = tabs.indexOf(document.activeElement);
+                if (currentIdx === -1) return;
+                e.preventDefault();
+                let nextIdx;
+                if (e.key === 'Home') nextIdx = 0;
+                else if (e.key === 'End') nextIdx = tabs.length - 1;
+                else if (e.key === 'ArrowLeft') nextIdx = (currentIdx - 1 + tabs.length) % tabs.length;
+                else nextIdx = (currentIdx + 1) % tabs.length;
+                tabs[nextIdx].focus();
+                tabs[nextIdx].click();
+            });
+        })();
+
+        // Floating scroll-to-top button, shown after scrolling down a screen or two
+        (() => {
+            const btn = document.getElementById('scroll-top-btn');
+            if (!btn) return;
+            let visible = false;
+            window.addEventListener('scroll', () => {
+                const shouldShow = window.scrollY > 600;
+                if (shouldShow !== visible) {
+                    visible = shouldShow;
+                    btn.classList.toggle('hidden', !shouldShow);
+                }
+            }, { passive: true });
+        })();
 
         // Debounce utility function
         const debounce = (func, delay) => {
@@ -9604,6 +9736,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                     p && typeof p === 'object' && p.name && p.config &&
                                     typeof p.config.ot === 'number' && typeof p.config.nt === 'number'
                                 );
+                                // Default optional fields older backups may lack (rendered directly in the plan list)
+                                appData.customPlans[profileName].forEach(p => {
+                                    if (typeof p.config.psalms !== 'number') p.config.psalms = 0;
+                                    if (typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
+                                });
                             });
 
                             // Ensure hornerCycleCount exists (migration for existing backups)
@@ -9640,7 +9777,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             const profileCount = Object.keys(appData.profiles).length;
                             log(`✅ Restored ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
                         } else if (typeof data === 'object') {
-                            // Legacy format: single profile data
+                            // Legacy format: single profile data — accept only if every entry
+                            // looks like chapter progress ("Book-Chapter": timestamp/true)
+                            const entries = Object.entries(data);
+                            const looksLikeChapterData = entries.length > 0 && !hasForbiddenKeys(data) &&
+                                entries.every(([key, val]) =>
+                                    /^.+-\d+$/.test(key) && (val === true || typeof val === 'number'));
+                            if (!looksLikeChapterData) {
+                                throw new Error("Invalid data structure");
+                            }
                             appData.profiles[appData.activeProfileId] = data;
                             log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
                         } else {
@@ -9929,7 +10074,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-xl font-black text-slate-900">Add Reading Goal</h3>
-                            <button onclick="window.closeGoalModal()" class="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close modal">
+                            <button onclick="window.closeGoalModal()" class="p-3 -m-2 text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close modal">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
@@ -10426,8 +10571,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             else if (activePlan === 'FIVE_DAY') {
                 descText = "<strong>Five-Day Plan:</strong> Read the entire Bible in one year, 5 days a week (weekends off!). <span class='inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold ml-2'>✨ Sustainable Pace</span><br><span class='text-xs opacity-90 mt-1 block'>Old Testament in chronological order • New Testament spread throughout the year</span>";
 
-                // Get current day of week in local timezone
-                const dayOfWeek = new Date().getDay();
+                // Get current day of week in Eastern Time (matches the app's day boundary)
+                const dayOfWeek = getEasternDayOfWeek();
                 let planDay = dayOfWeek;
                 if(dayOfWeek === 0) planDay = 1;
                 else if(dayOfWeek === 6) planDay = 1;
@@ -10763,7 +10908,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : 'text-slate-700 group-hover:text-indigo-600'}">${cIdx + 1}</span>
                         <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-indigo-200' : 'text-slate-400'}">${words}w</span>
                     </button>
-                    <button onclick="event.stopPropagation(); window.openBibleReader('${book.name}', ${cIdx + 1})" title="Read chapter" class="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm md:opacity-0 md:group-hover:opacity-100 z-10" aria-label="Read ${book.name} chapter ${cIdx + 1}">
+                    <button onclick="event.stopPropagation(); window.openBibleReader('${escapeHtml(book.name)}', ${cIdx + 1})" title="Read chapter" class="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm md:opacity-0 md:group-hover:opacity-100 z-10" aria-label="Read ${escapeHtml(book.name)} chapter ${cIdx + 1}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </button>
                 </div>`;
@@ -10864,7 +11009,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const catId = c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
                 return { ...c, percent: (readW/totalW*100).toFixed(1), id: catId };
             });
-            container.innerHTML = catStats.map(c => `<div onclick="window.scrollToCategory('${c.id}')" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${c.style} cursor-pointer hover:shadow-md transition-shadow" title="Jump to ${c.name}"><span class="opacity-70">${c.name}</span><span>${c.percent}%</span></div>`).join('');
+            container.innerHTML = catStats.map(c => `<div onclick="window.scrollToCategory('${c.id}')" class="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wide ${c.style} cursor-pointer hover:shadow-md transition-shadow" title="Jump to ${escapeHtml(c.name)}"><span class="opacity-70">${escapeHtml(c.name)}</span><span>${c.percent}%</span></div>`).join('');
         }
 
         window.scrollToCategory = (catId) => {
@@ -11048,7 +11193,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 date.setDate(date.getDate() - i);
                 const dateStr = getLocalDateString(date.getTime());
                 const count = activityMap[dateStr] || 0;
-                days.push({ date: dateStr, count, dayOfWeek: date.getDay() });
+                days.push({ date: dateStr, count, dayOfWeek: getDayOfWeekFromDateString(dateStr) });
             }
 
             // Group by week
@@ -11501,8 +11646,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const dayTotals = [0, 0, 0, 0, 0, 0, 0]
             const dayCounts = [0, 0, 0, 0, 0, 0, 0]
             Object.keys(activityMap).forEach(dateStr => {
-                const d = new Date(dateStr)
-                const day = d.getDay()
+                const day = getDayOfWeekFromDateString(dateStr)
                 dayTotals[day] += activityMap[dateStr]
                 dayCounts[day]++
             })
@@ -11575,6 +11719,45 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const paceNtEl = document.getElementById('pace-nt')
             if (paceOtEl) paceOtEl.textContent = Math.round(otWords / totalDays).toLocaleString()
             if (paceNtEl) paceNtEl.textContent = Math.round(ntWords / totalDays).toLocaleString()
+
+            renderFinishProjection(activityMap, otWords + ntWords)
+        }
+
+        // Project a whole-Bible finish date from recent reading pace
+        function renderFinishProjection(activityMap, wordsRead) {
+            const el = document.getElementById('finish-projection')
+            if (!el) return
+
+            const remaining = WORD_TOTALS.GLOBAL - wordsRead
+            if (remaining <= 0) {
+                el.innerHTML = `<div class="text-lg font-black text-emerald-700">Complete! 🎉</div>
+                    <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">You've read the whole Bible</div>`
+                return
+            }
+
+            // Prefer pace over the last 30 days; fall back to all-time average
+            const todayStr = getTodaysDate()
+            const cutoff = new Date(Date.now() - 30 * 86400000)
+            const cutoffStr = getLocalDateString(cutoff.getTime())
+            let recentWords = 0
+            Object.keys(activityMap).forEach(dateStr => {
+                if (dateStr >= cutoffStr && dateStr <= todayStr) recentWords += activityMap[dateStr]
+            })
+            const allTimeDays = Object.keys(activityMap).length
+            const wordsPerDay = recentWords > 0 ? recentWords / 30 : (allTimeDays > 0 ? wordsRead / allTimeDays : 0)
+
+            if (wordsPerDay <= 0) {
+                el.innerHTML = '<div class="text-sm text-slate-400 font-bold">Start reading to see your projected finish date</div>'
+                return
+            }
+
+            const daysLeft = Math.ceil(remaining / wordsPerDay)
+            const finishDate = new Date(Date.now() + daysLeft * 86400000)
+            const dateLabel = finishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+            const paceLabel = Math.round(wordsPerDay).toLocaleString()
+            const basis = recentWords > 0 ? 'last 30 days' : 'all-time average'
+            el.innerHTML = `<div class="text-lg font-black text-indigo-700">${dateLabel}</div>
+                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">At ${paceLabel} words/day (${basis}) • ${daysLeft.toLocaleString()} days to go</div>`
         }
 
         // --- CROSS-PLAN HISTORY RENDERING ---
@@ -11758,9 +11941,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 })
                 return chapters
             } else if (activePlan === 'FIVE_DAY' && typeof PLAN_FIVE_DAY !== 'undefined') {
-                const now = new Date()
-                const easternDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }))
-                let dayOfWeek = easternDate.getDay()
+                let dayOfWeek = getEasternDayOfWeek()
                 let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
 
                 const computeFn = () => {
@@ -13487,7 +13668,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (!['KJV', 'BSB'].includes(version)) return;
             appData.bibleVersion = version;
             activeReaderVersion = version;
-            window.saveProgress();
+            window.saveProgress(true);
             if (currentReaderBook && currentReaderChapter) renderBibleChapter(currentReaderBook, currentReaderChapter);
         };
 
@@ -14052,6 +14233,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
     </div>
 
     <!-- Mobile Bottom Navigation -->
+    <button id="scroll-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="hidden fixed bottom-20 sm:bottom-6 right-4 z-40 p-3 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 hover:shadow-xl transition-all" aria-label="Scroll to top">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 sm:hidden" aria-label="Mobile navigation">
         <div class="flex justify-around py-1.5 px-1 max-w-lg mx-auto">
             <button onclick="window.setTab('DASHBOARD')" class="bottom-nav-item flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-indigo-600" id="bnav-dashboard" aria-label="Home">

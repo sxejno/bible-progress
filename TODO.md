@@ -100,7 +100,7 @@ These issues significantly impact user experience and should be addressed ASAP.
 **Status**: 🟡 Requires planning
 
 - [ ] **Cloud sync conflict resolution**
-  - [ ] Implement timestamp-based merging
+  - [x] Implement timestamp-based merging ✅ **COMPLETED 2026-06-11** — `appData.lastModified` stamped on every save; stale cloud snapshots are skipped and local state re-pushed
   - [ ] Add manual conflict resolution UI
   - [ ] Test simultaneous edits across devices
   - **Deliverable**: Robust multi-device sync
@@ -127,7 +127,7 @@ These issues significantly impact user experience and should be addressed ASAP.
   - [ ] Export heatmap as image
 
 - [ ] **Reading estimates and projections**
-  - [ ] Calculate "finish date" based on current pace
+  - [x] Calculate "finish date" based on current pace ✅ **COMPLETED 2026-06-11** — "Projected Finish" card on Stats page (last-30-day pace with all-time fallback)
   - [ ] Show average chapters/day
   - [ ] Project completion date for each reading plan
   - [ ] Weekly/monthly progress reports
@@ -357,12 +357,6 @@ These issues significantly impact user experience and should be addressed ASAP.
   - **Solution**: Version cache name or use network-first for CDNs
   - **Priority**: High (affects all users on update)
 
-- [ ] **🟡 MEDIUM: Long profile names overflow UI**
-  - **Location**: Profile dropdown
-  - **Impact**: Names 50+ characters break layout
-  - **Solution**: Truncate with ellipsis + tooltip
-  - **Priority**: Medium (edge case)
-
 - [ ] **🟡 MEDIUM: Blue Letter Bible links may break**
   - **Location**: External reading links
   - **Impact**: If BLB changes URL format, links fail
@@ -376,6 +370,32 @@ These issues significantly impact user experience and should be addressed ASAP.
   - **Priority**: Low (doesn't break functionality)
 
 ### Fixed Bugs (Recently Resolved)
+
+- [x] **Timezone bugs in day-of-week logic** ✅ **COMPLETED 2026-06-11**
+  - Day-of-week stats chart used `new Date("YYYY-MM-DD").getDay()` (UTC parse) — every reading attributed to the previous weekday for US users
+  - Heatmap mixed Eastern date strings with local-timezone `getDay()` — misaligned grid
+  - Five-Day plan used local day-of-week instead of Eastern — wrong day's reading shown
+  - Added `getEasternDayOfWeek()` and `getDayOfWeekFromDateString()` helpers; all day boundaries now consistently Eastern Time
+
+- [x] **Backup restore hardening** ✅ **COMPLETED 2026-06-11**
+  - `validateAppData()` now rejects `__proto__`/`constructor`/`prototype` keys (prototype pollution)
+  - Legacy single-profile import now validates entries look like chapter data instead of accepting any object
+  - Restored custom plans get `psalms`/`proverbs` defaults (older backups rendered "undefined Ps")
+
+- [x] **Service worker fixes** ✅ **COMPLETED 2026-06-11**
+  - Crash when requests lack an `Accept` header (null dereference in fetch handler)
+  - Data files (fivedayplan, pronunciations, chapter summaries) now pre-cached; `kjv_bible.json`/`bsb.txt` cached via "download offline" flow
+  - Cache bumped to `bible-progress-v6`
+
+- [x] **BSB reader showed blank page if bsb.txt failed to parse** ✅ **COMPLETED 2026-06-11**
+  - Empty parse result now surfaces the "Unable to Load Bible Text" error UI
+
+- [x] **Bible version preference could be lost on quick close** ✅ **COMPLETED 2026-06-11**
+  - `setBibleVersion` now saves immediately instead of debounced
+
+- [x] **Profile name truncation + misc escaping** ✅ **COMPLETED 2026-06-11**
+  - Long profile names truncate with tooltip; book/category names escaped in onclick/title attributes
+  - `processCloudSnapshot` uses `CONFIG.STORAGE_KEY_DATA` instead of hardcoded key
 
 - [x] **Search results don't show count** ✅ **COMPLETED 2026-01-17**
   - Added "X books found" counter below search box
@@ -413,19 +433,14 @@ These are the highest-impact improvements identified from a Feb 2026 audit.
 
 ### Tier 1: High Impact, Low Effort
 
-- [ ] **1. Increase touch target sizes for close/action buttons**
-  - Multiple close buttons are 20x20px; WCAG minimum is 44x44px
-  - Affects: All modal close buttons, help button, search clear button
-  - Fix: Increase padding on icon buttons (e.g., `p-2` to `p-3`)
+- [x] **1. Increase touch target sizes for close/action buttons** ✅ **COMPLETED 2026-06-11**
+  - Enlarged modal close buttons, help button, and search clear button to ≥44x44px
 
-- [ ] **2. Add keyboard arrow-key navigation for main tabs**
-  - Tabs have `role="tab"` and `aria-selected` but no arrow key support
-  - Bible reader already has arrow key support (good pattern to follow)
-  - Fix: Add keydown listener for ArrowLeft/ArrowRight on tab bar
+- [x] **2. Add keyboard arrow-key navigation for main tabs** ✅ **COMPLETED 2026-06-11**
+  - ArrowLeft/ArrowRight/Home/End on the main tab bar; `aria-selected` now kept in sync
 
-- [ ] **3. Add focus trap to modals**
-  - Focus can escape to background elements when modals are open
-  - Fix: Trap Tab/Shift+Tab within modal bounds
+- [x] **3. Add focus trap to modals** ✅ **COMPLETED 2026-06-11**
+  - Shared `createFocusTrap()` helper wired into custom modals, profile-pick modal, and Bible reader; restores focus on close
 
 ### Tier 2: High Impact, Medium Effort
 
@@ -438,23 +453,20 @@ These are the highest-impact improvements identified from a Feb 2026 audit.
   - Login shows "Logging in..." (good), but cloud sync has no visual feedback
   - Fix: Show spinner/toast during sync writes and reads
 
-- [ ] **6. Add scroll-to-top floating button for Books view**
-  - Mobile users scrolling 66 books have no quick way back to top
-  - Fix: Floating button that appears after scrolling past threshold
+- [x] **6. Add scroll-to-top floating button** ✅ **COMPLETED 2026-06-11**
+  - Floating button appears after scrolling past 600px, smooth-scrolls to top
 
 ### Tier 3: Nice-to-Have
 
-- [ ] **7. Add skip-to-main-content link**
-  - Standard accessibility feature for keyboard/screen reader users
-  - Fix: Hidden link at top of page that becomes visible on focus
+- [x] **7. Add skip-to-main-content link** ✅ **COMPLETED 2026-06-11**
+  - Hidden link at top of page, visible on keyboard focus
 
 - [ ] **8. Empty state for dashboard when no chapters read**
   - Dashboard shows 0% but no helpful onboarding prompt
   - Fix: Show CTA to pick a reading plan or mark first chapter
 
-- [ ] **9. Profile name truncation for long names**
-  - Names 50+ characters overflow UI elements
-  - Fix: CSS `truncate` class + title tooltip
+- [x] **9. Profile name truncation for long names** ✅ **COMPLETED 2026-06-11**
+  - Truncation + title tooltip in profile dropdown and header trigger
 
 ---
 

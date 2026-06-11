@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v5';
+const CACHE_NAME = 'bible-progress-v6';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -11,14 +11,25 @@ const ASSETS_TO_CACHE = [
     '/terms.html',
     '/manifest.json',
     '/favicon.png',
+    '/favicon.ico',
     '/icon-192.png',
-    '/icon-512.png'
+    '/icon-512.png',
+    '/fivedayplan.json',
+    '/pronunciations.json',
+    '/bible_chapter_summaries_concise.json'
+];
+
+// Large data files cached only via the explicit "download offline" flow
+// (too heavy for install, and cache.addAll fails atomically if any request fails)
+const LARGE_DATA_ASSETS = [
+    '/kjv_bible.json',
+    '/bsb.txt'
 ];
 
 // CDN resources to cache for offline use
 const CDN_RESOURCES = [
     'https://cdn.tailwindcss.com',
-    'https://cdn.jsdelivr.net/npm/chart.js',
+    'https://cdn.jsdelivr.net/npm/chart.js@4',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
@@ -52,7 +63,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Network-first strategy for HTML to ensure updates
-    if (event.request.headers.get('accept').includes('text/html')) {
+    if ((event.request.headers.get('accept') || '').includes('text/html')) {
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
@@ -118,7 +129,8 @@ self.addEventListener('message', (event) => {
 async function downloadOfflineResources(client) {
     try {
         const cache = await caches.open(CACHE_NAME);
-        const totalResources = ASSETS_TO_CACHE.length + CDN_RESOURCES.length;
+        const localAssets = ASSETS_TO_CACHE.concat(LARGE_DATA_ASSETS);
+        const totalResources = localAssets.length + CDN_RESOURCES.length;
         let downloaded = 0;
 
         // Send progress update
@@ -132,12 +144,12 @@ async function downloadOfflineResources(client) {
 
         sendProgress('Downloading app files...', 0);
 
-        // Cache local assets
-        for (const url of ASSETS_TO_CACHE) {
+        // Cache local assets (including large Bible data files for full offline use)
+        for (const url of localAssets) {
             try {
                 await cache.add(url);
                 downloaded++;
-                sendProgress(`Downloading app files... (${downloaded}/${ASSETS_TO_CACHE.length})`,
+                sendProgress(`Downloading app files... (${downloaded}/${localAssets.length})`,
                     Math.floor((downloaded / totalResources) * 100));
             } catch (error) {
                 console.warn(`Failed to cache ${url}:`, error);
@@ -154,7 +166,7 @@ async function downloadOfflineResources(client) {
                 if (response.ok) {
                     await cache.put(url, response);
                     downloaded++;
-                    sendProgress(`Downloading external resources... (${downloaded - ASSETS_TO_CACHE.length}/${CDN_RESOURCES.length})`,
+                    sendProgress(`Downloading external resources... (${downloaded - localAssets.length}/${CDN_RESOURCES.length})`,
                         Math.floor((downloaded / totalResources) * 100));
                 }
             } catch (error) {
