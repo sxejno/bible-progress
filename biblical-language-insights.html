@@ -68,6 +68,19 @@
     </style>
 </head>
 <body class="p-4 md:p-6">
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <div class="max-w-7xl mx-auto space-y-6 md:space-y-8">
         <header class="glass rounded-3xl p-6 md:p-8">
             <div class="flex flex-wrap items-start justify-between gap-4">

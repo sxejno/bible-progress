@@ -24,7 +24,20 @@
   * { scrollbar-width: thin; scrollbar-color: #374151 transparent; }
 </style>
 </head>
-<body>
+<body data-dark-native>
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useCallback, useMemo } = React;

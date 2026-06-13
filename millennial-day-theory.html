@@ -146,6 +146,19 @@
     </style>
 </head>
 <body>
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <header class="sticky top-0 z-20 border-b border-indigo-100/80 glass">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <a href="index.html" aria-label="Back to Bible Progress home page" class="inline-flex items-center gap-2 text-indigo-700 hover:text-indigo-900 font-semibold">

@@ -103,6 +103,19 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <!-- Loading Overlay -->
     <div id="loader" class="fixed inset-0 flex items-center justify-center z-50" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="text-center">
