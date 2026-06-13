@@ -1119,6 +1119,39 @@
                 </div>
             </div>
 
+            <!-- Weekly / Monthly Report -->
+            <div class="mt-12">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">This Week &amp; This Month</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">This Week</div>
+                                <div id="report-week-delta" class="text-[10px] font-black px-2 py-0.5 rounded-full"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <div><div id="report-week-chapters" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Chapters</div></div>
+                                <div><div id="report-week-words" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Words</div></div>
+                                <div><div id="report-week-time" class="text-xl font-black text-indigo-900">--</div><div class="text-[9px] text-slate-400 font-bold uppercase">Reading Time</div></div>
+                                <div><div id="report-week-avg" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Avg Ch/Day</div></div>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">This Month</div>
+                                <div id="report-month-delta" class="text-[10px] font-black px-2 py-0.5 rounded-full"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <div><div id="report-month-chapters" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Chapters</div></div>
+                                <div><div id="report-month-words" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Words</div></div>
+                                <div><div id="report-month-time" class="text-xl font-black text-indigo-900">--</div><div class="text-[9px] text-slate-400 font-bold uppercase">Reading Time</div></div>
+                                <div><div id="report-month-avg" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Avg Ch/Day</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Reading Velocity -->
             <div class="mt-12">
                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Velocity</h3>
@@ -12789,6 +12822,89 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('best-week-date').textContent = bestWeek.date ? `Week of ${new Date(bestWeek.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''
         }
 
+        // This Week / This Month report card with deltas vs the previous period
+        function renderPeriodReport() {
+            const progress = getProgress()
+            // Bucket read chapters by Eastern day: { 'YYYY-MM-DD': { words, chapters } }
+            const daily = {}
+            Object.keys(progress).forEach(chapterKey => {
+                const ts = progress[chapterKey]
+                if (typeof ts !== 'number' || ts <= 1) return // skip legacy boolean→1 migration values
+                const dateStr = getLocalDateString(ts)
+                if (!daily[dateStr]) daily[dateStr] = { words: 0, chapters: 0 }
+                daily[dateStr].words += getWordCountForChapter(chapterKey)
+                daily[dateStr].chapters++
+            })
+
+            // Anchor from the Eastern "today" string; build dates from parts to avoid
+            // the new Date('YYYY-MM-DD') UTC-midnight pitfall
+            const todayStr = getTodaysDate()
+            const [ty, tm, td] = todayStr.split('-').map(Number)
+            const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+            const sumRange = (start, days) => {
+                const total = { words: 0, chapters: 0 }
+                for (let i = 0; i < days; i++) {
+                    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+                    const entry = daily[fmt(d)]
+                    if (entry) { total.words += entry.words; total.chapters += entry.chapters }
+                }
+                return total
+            }
+
+            const todayD = new Date(ty, tm - 1, td)
+            const dow = todayD.getDay() // weeks start Sunday, matching the heatmap
+
+            // Compare against the SAME number of elapsed days of the previous period,
+            // so the delta isn't a guaranteed drop early in the week/month
+            const weekElapsed = dow + 1
+            const week = sumRange(new Date(ty, tm - 1, td - dow), weekElapsed)
+            const prevWeek = sumRange(new Date(ty, tm - 1, td - dow - 7), weekElapsed)
+
+            const monthElapsed = td
+            const month = sumRange(new Date(ty, tm - 1, 1), monthElapsed)
+            const daysInPrevMonth = new Date(ty, tm - 1, 0).getDate()
+            const prevMonth = sumRange(new Date(ty, tm - 2, 1), Math.min(monthElapsed, daysInPrevMonth))
+
+            const wpm = appData.wordsPerMinute || 250
+            const fmtTime = (words) => {
+                if (words <= 0) return '0 min'
+                const minutes = Math.ceil(words / wpm)
+                if (minutes < 60) return `${minutes} min`
+                return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+            }
+
+            const renderSide = (prefix, cur, prev, elapsedDays, compareLabel) => {
+                const el = (suffix) => document.getElementById(`report-${prefix}-${suffix}`)
+                if (!el('chapters')) return
+                el('chapters').textContent = cur.chapters.toLocaleString()
+                el('words').textContent = cur.words.toLocaleString()
+                el('time').textContent = fmtTime(cur.words)
+                el('avg').textContent = (cur.chapters / Math.max(1, elapsedDays)).toFixed(1)
+                const deltaEl = el('delta')
+                const base = 'text-[10px] font-black px-2 py-0.5 rounded-full'
+                if (prev.words > 0) {
+                    const pctChange = Math.round(((cur.words - prev.words) / prev.words) * 100)
+                    if (pctChange > 0) {
+                        deltaEl.className = `${base} bg-emerald-100 text-emerald-700`
+                        deltaEl.textContent = `↑ ${pctChange}% vs ${compareLabel}`
+                    } else if (pctChange < 0) {
+                        deltaEl.className = `${base} bg-amber-100 text-amber-700`
+                        deltaEl.textContent = `↓ ${Math.abs(pctChange)}% vs ${compareLabel}`
+                    } else {
+                        deltaEl.className = `${base} bg-slate-100 text-slate-500`
+                        deltaEl.textContent = `= ${compareLabel}`
+                    }
+                } else {
+                    deltaEl.className = base
+                    deltaEl.textContent = ''
+                }
+            }
+
+            renderSide('week', week, prevWeek, weekElapsed, 'last week')
+            renderSide('month', month, prevMonth, monthElapsed, 'last month')
+        }
+
         window.renderStatsPage = () => {
             const allCats = ALL_CATEGORIES;
             const dataset = []; const labels = []; const colors = []; let chartTotalRead = 0;
@@ -13003,6 +13119,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Deep stats: velocity, ETA, records
             renderDeepStats(activityMap, chartTotalRead);
+
+            // Weekly/monthly report card
+            renderPeriodReport();
 
             // Reading pattern insights
             renderReadingPatterns(activityMap);
