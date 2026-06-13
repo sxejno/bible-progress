@@ -8031,22 +8031,30 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (!bibleTextData[activeReaderVersion || appData.bibleVersion || 'KJV']) {
                 const result = await loadBibleText();
 
-                // If loading failed, show error message
+                // If loading failed, show error message (offline-aware)
                 if (!result) {
+                    const isOffline = !navigator.onLine;
                     document.getElementById('bible-reader-verses').innerHTML = `
                         <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
                             <svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
-                            <h3 class="text-xl font-bold text-slate-800 mb-2">Unable to Load Bible Text</h3>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${isOffline ? 'You\'re Offline' : 'Unable to Load Bible Text'}</h3>
                             <p class="text-sm text-slate-600 mb-6 max-w-md">
-                                We couldn't load the Bible text. This might be due to a network issue or the file being unavailable.
-                                Please check your internet connection and try again.
+                                ${isOffline
+                                    ? 'This Bible text isn\'t saved for offline use yet. Visit Settings → Download for Offline Use while online so you can read anywhere.'
+                                    : 'We couldn\'t load the Bible text. This might be due to a network issue or the file being unavailable. Please check your internet connection and try again.'}
                             </p>
-                            <button onclick="window.openBibleReader('${escapeHtml(bookName)}', ${chapterNumber})"
-                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
-                                Try Again
-                            </button>
+                            <div class="flex flex-wrap gap-3 justify-center">
+                                ${isOffline ? `<button onclick="window.closeBibleReader(); window.setTab('SETTINGS'); setTimeout(() => document.getElementById('offline-download-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200)"
+                                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                                    Go to Settings
+                                </button>` : ''}
+                                <button onclick="window.openBibleReader('${escapeHtml(bookName)}', ${chapterNumber})"
+                                    class="px-6 py-3 ${isOffline ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-indigo-600 hover:bg-indigo-700 text-white'} rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                                    Try Again
+                                </button>
+                            </div>
                         </div>
                     `;
                     return;
@@ -10604,9 +10612,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 // Get current day of week in Eastern Time (matches the app's day boundary)
                 const dayOfWeek = getEasternDayOfWeek();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                 let planDay = dayOfWeek;
                 if(dayOfWeek === 0) planDay = 1;
                 else if(dayOfWeek === 6) planDay = 1;
+
+                if(isWeekend) {
+                    descText += "<br><span class='text-xs opacity-90 mt-1 block'>🛋️ Weekend break — here's Monday's reading if you want to get ahead.</span>";
+                }
 
                 const computeFn = () => {
                     let currentWeek = null;
@@ -10648,7 +10661,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 chapters: chs,
                                 words: totalWordsForReading,
                                 label: scriptureRef,
-                                badge: `Today`,
+                                badge: isWeekend ? `Monday` : `Today`,
                                 isComplete: false,
                                 fiveDayWeek: currentWeek.week_number
                             });
