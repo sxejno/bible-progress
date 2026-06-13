@@ -124,13 +124,13 @@ These issues significantly impact user experience and should be addressed ASAP.
   - [ ] GitHub-style contribution heatmap
   - [ ] Show reading intensity over time (daily/weekly/monthly views)
   - [ ] Highlight longest/current streaks visually
-  - [ ] Export heatmap as image
+  - [x] Export heatmap as image ✅ **COMPLETED 2026-06-12** — "Share Progress" button on Stats renders a 1080x1080 PNG card with %, streaks, and a 12-week heatmap strip (Web Share on mobile, download elsewhere)
 
 - [ ] **Reading estimates and projections**
   - [x] Calculate "finish date" based on current pace ✅ **COMPLETED 2026-06-11** — "Projected Finish" card on Stats page (last-30-day pace with all-time fallback)
-  - [ ] Show average chapters/day
+  - [x] Show average chapters/day ✅ **COMPLETED 2026-06-12** — Avg Ch/Day in the This Week & This Month report card
   - [ ] Project completion date for each reading plan
-  - [ ] Weekly/monthly progress reports
+  - [x] Weekly/monthly progress reports ✅ **COMPLETED 2026-06-12** — Stats card with chapters/words/reading time/avg per current week and month, with % delta vs the same elapsed span of the previous period
 
 - [ ] **Personal reading notes**
   - [ ] Add note-taking per chapter
@@ -170,7 +170,7 @@ These issues significantly impact user experience and should be addressed ASAP.
   - [ ] Discussion boards per chapter
 
 - [ ] **Progress sharing**
-  - [ ] Generate shareable progress cards (social media)
+  - [x] Generate shareable progress cards (social media) ✅ **COMPLETED 2026-06-12** — "Share Progress" PNG card (1080x1080) via Web Share API with download fallback
   - [ ] Embed progress widget on personal websites
   - [ ] Leaderboards (opt-in)
 

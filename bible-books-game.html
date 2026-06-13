@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bible Books Memory Game - Bible Progress</title>
+    <meta name="description" content="Test yourself: how many of the 66 books of the Bible can you name in 5 minutes? A free memory game from Bible Progress.">
+    <link rel="canonical" href="https://bibleprogress.com/bible-books-game.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bible Progress">
+    <meta property="og:url" content="https://bibleprogress.com/bible-books-game.html">
+    <meta property="og:title" content="Bible Books Memory Game | Bible Progress">
+    <meta property="og:description" content="How many of the 66 books of the Bible can you name in 5 minutes? Play the free memory game.">
+    <meta property="og:image" content="https://bibleprogress.com/icon-512.png">
     <link rel="icon" href="favicon.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -206,6 +214,19 @@
     </style>
 </head>
 <body class="p-3 md:p-5">
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-4">

@@ -1055,7 +1055,10 @@
             <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
             <div class="mt-12">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Activity</h3>
+                <div class="flex items-center justify-between mb-6 px-2">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Reading Activity</h3>
+                    <button onclick="window.shareProgressImage()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wide rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg" aria-label="Share your progress as an image">Share Progress</button>
+                </div>
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
                     <!-- Streak Status Banner -->
                     <div id="streak-status-banner" class="mb-6 hidden">
@@ -1116,6 +1119,39 @@
                         <div id="heatmap-container" class="min-w-[600px]"></div>
                     </div>
                     <p class="text-xs text-slate-400 mt-4 text-center">Your reading activity over time. Each square represents a day of Bible reading.</p>
+                </div>
+            </div>
+
+            <!-- Weekly / Monthly Report -->
+            <div class="mt-12">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">This Week &amp; This Month</h3>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">This Week</div>
+                                <div id="report-week-delta" class="text-[10px] font-black px-2 py-0.5 rounded-full"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <div><div id="report-week-chapters" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Chapters</div></div>
+                                <div><div id="report-week-words" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Words</div></div>
+                                <div><div id="report-week-time" class="text-xl font-black text-indigo-900">--</div><div class="text-[9px] text-slate-400 font-bold uppercase">Reading Time</div></div>
+                                <div><div id="report-week-avg" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Avg Ch/Day</div></div>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wide">This Month</div>
+                                <div id="report-month-delta" class="text-[10px] font-black px-2 py-0.5 rounded-full"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-center">
+                                <div><div id="report-month-chapters" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Chapters</div></div>
+                                <div><div id="report-month-words" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Words</div></div>
+                                <div><div id="report-month-time" class="text-xl font-black text-indigo-900">--</div><div class="text-[9px] text-slate-400 font-bold uppercase">Reading Time</div></div>
+                                <div><div id="report-month-avg" class="text-xl font-black text-indigo-900">0</div><div class="text-[9px] text-slate-400 font-bold uppercase">Avg Ch/Day</div></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -2337,7 +2373,7 @@
                 // Move focus into the modal (input for prompts, primary button otherwise)
                 setTimeout(() => {
                     if (type === 'prompt') {
-                        const input = document.getElementById('custom-modal-input');
+                        const input = modal.querySelector('#custom-modal-input');
                         if (input) {
                             input.focus();
                             input.select();
@@ -2369,12 +2405,12 @@
                 };
 
                 if (type === 'confirm') {
-                    document.getElementById('custom-modal-confirm')?.addEventListener('click', () => closeModal(true));
-                    document.getElementById('custom-modal-cancel')?.addEventListener('click', () => closeModal(false));
+                    modal.querySelector('#custom-modal-confirm')?.addEventListener('click', () => closeModal(true));
+                    modal.querySelector('#custom-modal-cancel')?.addEventListener('click', () => closeModal(false));
                 } else if (type === 'prompt') {
-                    const submitBtn = document.getElementById('custom-modal-submit');
-                    const cancelBtn = document.getElementById('custom-modal-cancel');
-                    const input = document.getElementById('custom-modal-input');
+                    const submitBtn = modal.querySelector('#custom-modal-submit');
+                    const cancelBtn = modal.querySelector('#custom-modal-cancel');
+                    const input = modal.querySelector('#custom-modal-input');
 
                     submitBtn?.addEventListener('click', () => {
                         const value = input?.value || '';
@@ -2392,7 +2428,7 @@
                         }
                     });
                 } else {
-                    document.getElementById('custom-modal-ok')?.addEventListener('click', () => closeModal(true));
+                    modal.querySelector('#custom-modal-ok')?.addEventListener('click', () => closeModal(true));
                 }
 
                 // Close on overlay click
@@ -2645,10 +2681,11 @@
             appData.hornerDailyProgress[appData.activeProfileId] = oldData;
         }
         // Ensure each profile has hornerDailyProgress initialized
+        // (getLocalDateString is hoisted; getTodaysDate is a const and not yet initialized here)
         Object.keys(appData.profiles).forEach(profileId => {
             if(!appData.hornerDailyProgress[profileId]) {
                 appData.hornerDailyProgress[profileId] = {
-                    date: new Date().toISOString().split('T')[0],
+                    date: getLocalDateString(Date.now()),
                     completedLists: []
                 };
             }
@@ -3729,7 +3766,7 @@
             appData.profilePlans[sanitized] = 'MCHEYNE';
             // Initialize hornerDailyProgress for new profile
             appData.hornerDailyProgress[sanitized] = {
-                date: new Date().toISOString().split('T')[0],
+                date: getTodaysDate(),
                 completedLists: []
             };
             // Initialize dailyPlanProgress for new profile
@@ -3772,6 +3809,9 @@
                 if(appData.dailyPlanProgress) delete appData.dailyPlanProgress[name];
                 if(appData.memorizedVerses) delete appData.memorizedVerses[name];
                 if(appData.goals) delete appData.goals[name];
+                if(appData.customPlans) delete appData.customPlans[name];
+                if(appData.hornerCycleCount) delete appData.hornerCycleCount[name];
+                if(appData.profileColors) delete appData.profileColors[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -3880,6 +3920,30 @@
             if(appData.memorizedVerses && appData.memorizedVerses[oldName]) {
                 appData.memorizedVerses[newName] = appData.memorizedVerses[oldName];
                 delete appData.memorizedVerses[oldName];
+            }
+
+            // Update goals if exists
+            if(appData.goals && appData.goals[oldName]) {
+                appData.goals[newName] = appData.goals[oldName];
+                delete appData.goals[oldName];
+            }
+
+            // Update customPlans if exists
+            if(appData.customPlans && appData.customPlans[oldName]) {
+                appData.customPlans[newName] = appData.customPlans[oldName];
+                delete appData.customPlans[oldName];
+            }
+
+            // Update hornerCycleCount if exists
+            if(appData.hornerCycleCount && appData.hornerCycleCount[oldName]) {
+                appData.hornerCycleCount[newName] = appData.hornerCycleCount[oldName];
+                delete appData.hornerCycleCount[oldName];
+            }
+
+            // Update profileColors if exists
+            if(appData.profileColors && appData.profileColors[oldName]) {
+                appData.profileColors[newName] = appData.profileColors[oldName];
+                delete appData.profileColors[oldName];
             }
 
             window.saveProgress(true); // Immediate save
@@ -8003,22 +8067,30 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (!bibleTextData[activeReaderVersion || appData.bibleVersion || 'KJV']) {
                 const result = await loadBibleText();
 
-                // If loading failed, show error message
+                // If loading failed, show error message (offline-aware)
                 if (!result) {
+                    const isOffline = !navigator.onLine;
                     document.getElementById('bible-reader-verses').innerHTML = `
                         <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
                             <svg class="w-16 h-16 text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
-                            <h3 class="text-xl font-bold text-slate-800 mb-2">Unable to Load Bible Text</h3>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">${isOffline ? 'You\'re Offline' : 'Unable to Load Bible Text'}</h3>
                             <p class="text-sm text-slate-600 mb-6 max-w-md">
-                                We couldn't load the Bible text. This might be due to a network issue or the file being unavailable.
-                                Please check your internet connection and try again.
+                                ${isOffline
+                                    ? 'This Bible text isn\'t saved for offline use yet. Visit Settings → Download for Offline Use while online so you can read anywhere.'
+                                    : 'We couldn\'t load the Bible text. This might be due to a network issue or the file being unavailable. Please check your internet connection and try again.'}
                             </p>
-                            <button onclick="window.openBibleReader('${escapeHtml(bookName)}', ${chapterNumber})"
-                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
-                                Try Again
-                            </button>
+                            <div class="flex flex-wrap gap-3 justify-center">
+                                ${isOffline ? `<button onclick="window.closeBibleReader(); window.setTab('SETTINGS'); setTimeout(() => document.getElementById('offline-download-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200)"
+                                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                                    Go to Settings
+                                </button>` : ''}
+                                <button onclick="window.openBibleReader('${escapeHtml(bookName)}', ${chapterNumber})"
+                                    class="px-6 py-3 ${isOffline ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-indigo-600 hover:bg-indigo-700 text-white'} rounded-xl font-bold transition-colors shadow-sm hover:shadow-md">
+                                    Try Again
+                                </button>
+                            </div>
                         </div>
                     `;
                     return;
@@ -9791,7 +9863,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         } else {
                             throw new Error("Invalid data structure");
                         }
-                        window.saveProgress();
+                        // Immediate save: the debounced save races the 1s reload below, and the
+                        // fresh lastModified stamp must persist so the cloud conflict guard
+                        // doesn't overwrite the restored backup with a newer cloud snapshot
+                        window.saveProgress(true);
 
                         // Show success message
                         const profileCount = Object.keys(appData.profiles).length;
@@ -10573,9 +10648,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 // Get current day of week in Eastern Time (matches the app's day boundary)
                 const dayOfWeek = getEasternDayOfWeek();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                 let planDay = dayOfWeek;
                 if(dayOfWeek === 0) planDay = 1;
                 else if(dayOfWeek === 6) planDay = 1;
+
+                if(isWeekend) {
+                    descText += "<br><span class='text-xs opacity-90 mt-1 block'>🛋️ Weekend break — here's Monday's reading if you want to get ahead.</span>";
+                }
 
                 const computeFn = () => {
                     let currentWeek = null;
@@ -10617,7 +10697,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 chapters: chs,
                                 words: totalWordsForReading,
                                 label: scriptureRef,
-                                badge: `Today`,
+                                badge: isWeekend ? `Monday` : `Today`,
                                 isComplete: false,
                                 fiveDayWeek: currentWeek.week_number
                             });
@@ -11279,6 +11359,149 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             container.innerHTML = html;
         }
+
+        // Render a shareable 1080x1080 progress card (canvas → PNG) and share/download it
+        window.shareProgressImage = async () => {
+            await document.fonts.ready; // ensure Inter is available for canvas text
+
+            const progress = getProgress();
+            let wordsRead = 0;
+            Object.keys(progress).forEach(chapterKey => {
+                if(progress[chapterKey]) wordsRead += getWordCountForChapter(chapterKey);
+            });
+            const pct = Math.min(100, (wordsRead / WORD_TOTALS.GLOBAL) * 100);
+            const streaks = calculateStreaks();
+            const activityMap = getReadingActivity();
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+
+            // Indigo gradient background
+            const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
+            bg.addColorStop(0, '#4f46e5');
+            bg.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, 1080, 1080);
+
+            // White rounded panel
+            ctx.fillStyle = '#ffffff';
+            if(ctx.roundRect) {
+                ctx.beginPath();
+                ctx.roundRect(60, 60, 960, 960, 48);
+                ctx.fill();
+            } else {
+                ctx.fillRect(60, 60, 960, 960);
+            }
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1e1b4b';
+            ctx.font = "900 64px Inter, sans-serif";
+            ctx.fillText('Bible Progress', 540, 180);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = "600 30px Inter, sans-serif";
+            ctx.fillText(appData.activeProfileId, 540, 232);
+
+            // Headline percentage
+            ctx.fillStyle = '#4f46e5';
+            ctx.font = "900 150px Inter, sans-serif";
+            ctx.fillText(`${pct.toFixed(1)}%`, 540, 410);
+            ctx.fillStyle = '#64748b';
+            ctx.font = "700 30px Inter, sans-serif";
+            ctx.fillText('of the Bible read', 540, 462);
+
+            // Three stat columns
+            const stats = [
+                { value: wordsRead.toLocaleString(), label: 'Words Read' },
+                { value: `${streaks.current}`, label: 'Day Streak' },
+                { value: `${streaks.longest}`, label: 'Longest Streak' }
+            ];
+            stats.forEach((stat, i) => {
+                const x = 270 + i * 270;
+                ctx.fillStyle = '#0f172a';
+                ctx.font = "900 52px Inter, sans-serif";
+                ctx.fillText(stat.value, x, 580);
+                ctx.fillStyle = '#64748b';
+                ctx.font = "700 22px Inter, sans-serif";
+                ctx.fillText(stat.label.toUpperCase(), x, 620);
+            });
+
+            // 12-week mini heatmap (Sunday-aligned, same thresholds as the Stats heatmap)
+            const getColor = (count) => {
+                if(count === 0) return '#f1f5f9';
+                if(count <= 1500) return '#bfdbfe';
+                if(count <= 3500) return '#60a5fa';
+                if(count <= 7000) return '#3b82f6';
+                return '#1e40af';
+            };
+            const days = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            for(let i = 83; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = getLocalDateString(date.getTime());
+                days.push({ count: activityMap[dateStr] || 0, dayOfWeek: getDayOfWeekFromDateString(dateStr) });
+            }
+            const weeks = [];
+            let currentWeek = [];
+            for(let i = 0; i < days[0].dayOfWeek; i++) currentWeek.push(null);
+            days.forEach((day, idx) => {
+                currentWeek.push(day);
+                if(currentWeek.length === 7 || idx === days.length - 1) {
+                    while(currentWeek.length < 7) currentWeek.push(null);
+                    weeks.push(currentWeek);
+                    currentWeek = [];
+                }
+            });
+            const cell = 36, gap = 8;
+            const strip = weeks.slice(-12);
+            const stripW = strip.length * (cell + gap) - gap;
+            const startX = (1080 - stripW) / 2;
+            const startY = 680;
+            strip.forEach((week, w) => {
+                week.forEach((day, d) => {
+                    if(!day) return;
+                    ctx.fillStyle = getColor(day.count);
+                    if(ctx.roundRect) {
+                        ctx.beginPath();
+                        ctx.roundRect(startX + w * (cell + gap), startY + d * (cell + gap), cell, cell, 8);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(startX + w * (cell + gap), startY + d * (cell + gap), cell, cell);
+                    }
+                });
+            });
+
+            ctx.fillStyle = '#a5b4fc';
+            ctx.font = "700 28px Inter, sans-serif";
+            ctx.fillText('bibleprogress.com', 540, 990);
+
+            canvas.toBlob(async (blob) => {
+                if(!blob) {
+                    window.showToast('Could not generate image', 'error', 3000);
+                    return;
+                }
+                const file = new File([blob], 'bible-progress.png', { type: 'image/png' });
+                if(navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({ files: [file], title: 'Bible Progress', text: `I've read ${pct.toFixed(1)}% of the Bible` });
+                        return;
+                    } catch(err) {
+                        if(err && err.name === 'AbortError') return; // user cancelled the share sheet
+                        // fall through to download on other failures
+                    }
+                }
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'bible-progress.png';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+                window.showToast('Progress image saved', 'success', 3000);
+            }, 'image/png');
+        };
 
         // --- STREAK ENHANCEMENT FUNCTIONS ---
 
@@ -12745,6 +12968,89 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('best-week-date').textContent = bestWeek.date ? `Week of ${new Date(bestWeek.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''
         }
 
+        // This Week / This Month report card with deltas vs the previous period
+        function renderPeriodReport() {
+            const progress = getProgress()
+            // Bucket read chapters by Eastern day: { 'YYYY-MM-DD': { words, chapters } }
+            const daily = {}
+            Object.keys(progress).forEach(chapterKey => {
+                const ts = progress[chapterKey]
+                if (typeof ts !== 'number' || ts <= 1) return // skip legacy boolean→1 migration values
+                const dateStr = getLocalDateString(ts)
+                if (!daily[dateStr]) daily[dateStr] = { words: 0, chapters: 0 }
+                daily[dateStr].words += getWordCountForChapter(chapterKey)
+                daily[dateStr].chapters++
+            })
+
+            // Anchor from the Eastern "today" string; build dates from parts to avoid
+            // the new Date('YYYY-MM-DD') UTC-midnight pitfall
+            const todayStr = getTodaysDate()
+            const [ty, tm, td] = todayStr.split('-').map(Number)
+            const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+            const sumRange = (start, days) => {
+                const total = { words: 0, chapters: 0 }
+                for (let i = 0; i < days; i++) {
+                    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i)
+                    const entry = daily[fmt(d)]
+                    if (entry) { total.words += entry.words; total.chapters += entry.chapters }
+                }
+                return total
+            }
+
+            const todayD = new Date(ty, tm - 1, td)
+            const dow = todayD.getDay() // weeks start Sunday, matching the heatmap
+
+            // Compare against the SAME number of elapsed days of the previous period,
+            // so the delta isn't a guaranteed drop early in the week/month
+            const weekElapsed = dow + 1
+            const week = sumRange(new Date(ty, tm - 1, td - dow), weekElapsed)
+            const prevWeek = sumRange(new Date(ty, tm - 1, td - dow - 7), weekElapsed)
+
+            const monthElapsed = td
+            const month = sumRange(new Date(ty, tm - 1, 1), monthElapsed)
+            const daysInPrevMonth = new Date(ty, tm - 1, 0).getDate()
+            const prevMonth = sumRange(new Date(ty, tm - 2, 1), Math.min(monthElapsed, daysInPrevMonth))
+
+            const wpm = appData.wordsPerMinute || 250
+            const fmtTime = (words) => {
+                if (words <= 0) return '0 min'
+                const minutes = Math.ceil(words / wpm)
+                if (minutes < 60) return `${minutes} min`
+                return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+            }
+
+            const renderSide = (prefix, cur, prev, elapsedDays, compareLabel) => {
+                const el = (suffix) => document.getElementById(`report-${prefix}-${suffix}`)
+                if (!el('chapters')) return
+                el('chapters').textContent = cur.chapters.toLocaleString()
+                el('words').textContent = cur.words.toLocaleString()
+                el('time').textContent = fmtTime(cur.words)
+                el('avg').textContent = (cur.chapters / Math.max(1, elapsedDays)).toFixed(1)
+                const deltaEl = el('delta')
+                const base = 'text-[10px] font-black px-2 py-0.5 rounded-full'
+                if (prev.words > 0) {
+                    const pctChange = Math.round(((cur.words - prev.words) / prev.words) * 100)
+                    if (pctChange > 0) {
+                        deltaEl.className = `${base} bg-emerald-100 text-emerald-700`
+                        deltaEl.textContent = `↑ ${pctChange}% vs ${compareLabel}`
+                    } else if (pctChange < 0) {
+                        deltaEl.className = `${base} bg-amber-100 text-amber-700`
+                        deltaEl.textContent = `↓ ${Math.abs(pctChange)}% vs ${compareLabel}`
+                    } else {
+                        deltaEl.className = `${base} bg-slate-100 text-slate-500`
+                        deltaEl.textContent = `= ${compareLabel}`
+                    }
+                } else {
+                    deltaEl.className = base
+                    deltaEl.textContent = ''
+                }
+            }
+
+            renderSide('week', week, prevWeek, weekElapsed, 'last week')
+            renderSide('month', month, prevMonth, monthElapsed, 'last month')
+        }
+
         window.renderStatsPage = () => {
             const allCats = ALL_CATEGORIES;
             const dataset = []; const labels = []; const colors = []; let chartTotalRead = 0;
@@ -12959,6 +13265,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Deep stats: velocity, ETA, records
             renderDeepStats(activityMap, chartTotalRead);
+
+            // Weekly/monthly report card
+            renderPeriodReport();
 
             // Reading pattern insights
             renderReadingPatterns(activityMap);

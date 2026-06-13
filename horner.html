@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professor Horner's Bible Reading System - Analytics</title>
 
+    <meta name="description" content="Interactive analytics for Professor Grant Horner's 10-list Bible reading system — word counts, daily reading time, and the interweaving effect of 10 chapters a day.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bibleprogress.com/horner.html">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bible Progress">
+    <meta property="og:url" content="https://bibleprogress.com/horner.html">
+    <meta property="og:title" content="Professor Horner's Bible Reading System — Analytics | Bible Progress">
+    <meta property="og:description" content="Explore the 10-list Horner reading system with precise word counts, daily reading time, and interweaving patterns.">
+    <meta property="og:image" content="https://bibleprogress.com/icon-512.png">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -92,6 +103,19 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <!-- Loading Overlay -->
     <div id="loader" class="fixed inset-0 flex items-center justify-center z-50" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="text-center">
@@ -104,6 +128,10 @@
     <div class="max-w-7xl mx-auto" id="mainContent" style="display: none;">
         <!-- Header -->
         <header class="mb-8 text-center">
+            <a href="index.html" class="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-semibold mb-4 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Bible Progress
+            </a>
             <div class="glass rounded-3xl p-8 shadow-2xl">
                 <h1 class="text-4xl md:text-5xl font-black gradient-text mb-3">
                     📖 Professor Horner's Bible Reading System

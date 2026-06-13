@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service - Bible Progress</title>
+    <link rel="canonical" href="https://bibleprogress.com/terms.html">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
@@ -14,6 +15,19 @@
     </style>
 </head>
 <body class="font-sans antialiased">
+<!-- Shared dark mode: follows the main app's Settings preference -->
+<style>
+    .dark-mode {
+        filter: invert(0.9) hue-rotate(180deg);
+        background: #1a1a1a !important;
+    }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled' && !document.body.hasAttribute('data-dark-native')) {
+        document.body.classList.add('dark-mode');
+    }
+</script>
     <div class="max-w-4xl mx-auto px-4 py-12">
         <!-- Header -->
         <div class="text-center mb-12">

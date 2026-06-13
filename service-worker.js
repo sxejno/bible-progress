@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v7';
+const CACHE_NAME = 'bible-progress-v8';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -81,19 +81,46 @@ self.addEventListener('fetch', (event) => {
                 })
         );
     } else {
-        // Cache-first strategy for other assets
-        event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                return cachedResponse || fetch(event.request).then((response) => {
-                    // Cache new resources
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
+        const url = new URL(event.request.url);
+        const isDataFile = url.pathname.endsWith('.json') || url.pathname.endsWith('.txt');
+
+        if (isDataFile) {
+            // Stale-while-revalidate for data files: serve cached copy instantly,
+            // refresh it in the background so updates arrive without a cache bump
+            event.respondWith(
+                caches.open(CACHE_NAME).then((cache) =>
+                    cache.match(event.request).then((cachedResponse) => {
+                        const networkFetch = fetch(event.request)
+                            .then((response) => {
+                                if (response && response.ok) {
+                                    cache.put(event.request, response.clone());
+                                }
+                                return response;
+                            })
+                            .catch(() => cachedResponse);
+                        if (cachedResponse) {
+                            event.waitUntil(networkFetch);
+                            return cachedResponse;
+                        }
+                        return networkFetch;
+                    })
+                )
+            );
+        } else {
+            // Cache-first strategy for other assets
+            event.respondWith(
+                caches.match(event.request).then((cachedResponse) => {
+                    return cachedResponse || fetch(event.request).then((response) => {
+                        // Cache new resources
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                        return response;
                     });
-                    return response;
-                });
-            })
-        );
+                })
+            );
+        }
     }
 });
 
