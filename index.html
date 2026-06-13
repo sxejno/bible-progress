@@ -1055,7 +1055,10 @@
             <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
             <div class="mt-12">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Reading Activity</h3>
+                <div class="flex items-center justify-between mb-6 px-2">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Reading Activity</h3>
+                    <button onclick="window.shareProgressImage()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wide rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg" aria-label="Share your progress as an image">Share Progress</button>
+                </div>
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
                     <!-- Streak Status Banner -->
                     <div id="streak-status-banner" class="mb-6 hidden">
@@ -11356,6 +11359,149 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             container.innerHTML = html;
         }
+
+        // Render a shareable 1080x1080 progress card (canvas → PNG) and share/download it
+        window.shareProgressImage = async () => {
+            await document.fonts.ready; // ensure Inter is available for canvas text
+
+            const progress = getProgress();
+            let wordsRead = 0;
+            Object.keys(progress).forEach(chapterKey => {
+                if(progress[chapterKey]) wordsRead += getWordCountForChapter(chapterKey);
+            });
+            const pct = Math.min(100, (wordsRead / WORD_TOTALS.GLOBAL) * 100);
+            const streaks = calculateStreaks();
+            const activityMap = getReadingActivity();
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+
+            // Indigo gradient background
+            const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
+            bg.addColorStop(0, '#4f46e5');
+            bg.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, 1080, 1080);
+
+            // White rounded panel
+            ctx.fillStyle = '#ffffff';
+            if(ctx.roundRect) {
+                ctx.beginPath();
+                ctx.roundRect(60, 60, 960, 960, 48);
+                ctx.fill();
+            } else {
+                ctx.fillRect(60, 60, 960, 960);
+            }
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1e1b4b';
+            ctx.font = "900 64px Inter, sans-serif";
+            ctx.fillText('Bible Progress', 540, 180);
+
+            ctx.fillStyle = '#64748b';
+            ctx.font = "600 30px Inter, sans-serif";
+            ctx.fillText(appData.activeProfileId, 540, 232);
+
+            // Headline percentage
+            ctx.fillStyle = '#4f46e5';
+            ctx.font = "900 150px Inter, sans-serif";
+            ctx.fillText(`${pct.toFixed(1)}%`, 540, 410);
+            ctx.fillStyle = '#64748b';
+            ctx.font = "700 30px Inter, sans-serif";
+            ctx.fillText('of the Bible read', 540, 462);
+
+            // Three stat columns
+            const stats = [
+                { value: wordsRead.toLocaleString(), label: 'Words Read' },
+                { value: `${streaks.current}`, label: 'Day Streak' },
+                { value: `${streaks.longest}`, label: 'Longest Streak' }
+            ];
+            stats.forEach((stat, i) => {
+                const x = 270 + i * 270;
+                ctx.fillStyle = '#0f172a';
+                ctx.font = "900 52px Inter, sans-serif";
+                ctx.fillText(stat.value, x, 580);
+                ctx.fillStyle = '#64748b';
+                ctx.font = "700 22px Inter, sans-serif";
+                ctx.fillText(stat.label.toUpperCase(), x, 620);
+            });
+
+            // 12-week mini heatmap (Sunday-aligned, same thresholds as the Stats heatmap)
+            const getColor = (count) => {
+                if(count === 0) return '#f1f5f9';
+                if(count <= 1500) return '#bfdbfe';
+                if(count <= 3500) return '#60a5fa';
+                if(count <= 7000) return '#3b82f6';
+                return '#1e40af';
+            };
+            const days = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            for(let i = 83; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = getLocalDateString(date.getTime());
+                days.push({ count: activityMap[dateStr] || 0, dayOfWeek: getDayOfWeekFromDateString(dateStr) });
+            }
+            const weeks = [];
+            let currentWeek = [];
+            for(let i = 0; i < days[0].dayOfWeek; i++) currentWeek.push(null);
+            days.forEach((day, idx) => {
+                currentWeek.push(day);
+                if(currentWeek.length === 7 || idx === days.length - 1) {
+                    while(currentWeek.length < 7) currentWeek.push(null);
+                    weeks.push(currentWeek);
+                    currentWeek = [];
+                }
+            });
+            const cell = 36, gap = 8;
+            const strip = weeks.slice(-12);
+            const stripW = strip.length * (cell + gap) - gap;
+            const startX = (1080 - stripW) / 2;
+            const startY = 680;
+            strip.forEach((week, w) => {
+                week.forEach((day, d) => {
+                    if(!day) return;
+                    ctx.fillStyle = getColor(day.count);
+                    if(ctx.roundRect) {
+                        ctx.beginPath();
+                        ctx.roundRect(startX + w * (cell + gap), startY + d * (cell + gap), cell, cell, 8);
+                        ctx.fill();
+                    } else {
+                        ctx.fillRect(startX + w * (cell + gap), startY + d * (cell + gap), cell, cell);
+                    }
+                });
+            });
+
+            ctx.fillStyle = '#a5b4fc';
+            ctx.font = "700 28px Inter, sans-serif";
+            ctx.fillText('bibleprogress.com', 540, 990);
+
+            canvas.toBlob(async (blob) => {
+                if(!blob) {
+                    window.showToast('Could not generate image', 'error', 3000);
+                    return;
+                }
+                const file = new File([blob], 'bible-progress.png', { type: 'image/png' });
+                if(navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({ files: [file], title: 'Bible Progress', text: `I've read ${pct.toFixed(1)}% of the Bible` });
+                        return;
+                    } catch(err) {
+                        if(err && err.name === 'AbortError') return; // user cancelled the share sheet
+                        // fall through to download on other failures
+                    }
+                }
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'bible-progress.png';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+                window.showToast('Progress image saved', 'success', 3000);
+            }, 'image/png');
+        };
 
         // --- STREAK ENHANCEMENT FUNCTIONS ---
 
