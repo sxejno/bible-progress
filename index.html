@@ -2337,7 +2337,7 @@
                 // Move focus into the modal (input for prompts, primary button otherwise)
                 setTimeout(() => {
                     if (type === 'prompt') {
-                        const input = document.getElementById('custom-modal-input');
+                        const input = modal.querySelector('#custom-modal-input');
                         if (input) {
                             input.focus();
                             input.select();
@@ -2369,12 +2369,12 @@
                 };
 
                 if (type === 'confirm') {
-                    document.getElementById('custom-modal-confirm')?.addEventListener('click', () => closeModal(true));
-                    document.getElementById('custom-modal-cancel')?.addEventListener('click', () => closeModal(false));
+                    modal.querySelector('#custom-modal-confirm')?.addEventListener('click', () => closeModal(true));
+                    modal.querySelector('#custom-modal-cancel')?.addEventListener('click', () => closeModal(false));
                 } else if (type === 'prompt') {
-                    const submitBtn = document.getElementById('custom-modal-submit');
-                    const cancelBtn = document.getElementById('custom-modal-cancel');
-                    const input = document.getElementById('custom-modal-input');
+                    const submitBtn = modal.querySelector('#custom-modal-submit');
+                    const cancelBtn = modal.querySelector('#custom-modal-cancel');
+                    const input = modal.querySelector('#custom-modal-input');
 
                     submitBtn?.addEventListener('click', () => {
                         const value = input?.value || '';
@@ -2392,7 +2392,7 @@
                         }
                     });
                 } else {
-                    document.getElementById('custom-modal-ok')?.addEventListener('click', () => closeModal(true));
+                    modal.querySelector('#custom-modal-ok')?.addEventListener('click', () => closeModal(true));
                 }
 
                 // Close on overlay click
@@ -2645,10 +2645,11 @@
             appData.hornerDailyProgress[appData.activeProfileId] = oldData;
         }
         // Ensure each profile has hornerDailyProgress initialized
+        // (getLocalDateString is hoisted; getTodaysDate is a const and not yet initialized here)
         Object.keys(appData.profiles).forEach(profileId => {
             if(!appData.hornerDailyProgress[profileId]) {
                 appData.hornerDailyProgress[profileId] = {
-                    date: new Date().toISOString().split('T')[0],
+                    date: getLocalDateString(Date.now()),
                     completedLists: []
                 };
             }
@@ -3729,7 +3730,7 @@
             appData.profilePlans[sanitized] = 'MCHEYNE';
             // Initialize hornerDailyProgress for new profile
             appData.hornerDailyProgress[sanitized] = {
-                date: new Date().toISOString().split('T')[0],
+                date: getTodaysDate(),
                 completedLists: []
             };
             // Initialize dailyPlanProgress for new profile
@@ -3772,6 +3773,9 @@
                 if(appData.dailyPlanProgress) delete appData.dailyPlanProgress[name];
                 if(appData.memorizedVerses) delete appData.memorizedVerses[name];
                 if(appData.goals) delete appData.goals[name];
+                if(appData.customPlans) delete appData.customPlans[name];
+                if(appData.hornerCycleCount) delete appData.hornerCycleCount[name];
+                if(appData.profileColors) delete appData.profileColors[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -3880,6 +3884,30 @@
             if(appData.memorizedVerses && appData.memorizedVerses[oldName]) {
                 appData.memorizedVerses[newName] = appData.memorizedVerses[oldName];
                 delete appData.memorizedVerses[oldName];
+            }
+
+            // Update goals if exists
+            if(appData.goals && appData.goals[oldName]) {
+                appData.goals[newName] = appData.goals[oldName];
+                delete appData.goals[oldName];
+            }
+
+            // Update customPlans if exists
+            if(appData.customPlans && appData.customPlans[oldName]) {
+                appData.customPlans[newName] = appData.customPlans[oldName];
+                delete appData.customPlans[oldName];
+            }
+
+            // Update hornerCycleCount if exists
+            if(appData.hornerCycleCount && appData.hornerCycleCount[oldName]) {
+                appData.hornerCycleCount[newName] = appData.hornerCycleCount[oldName];
+                delete appData.hornerCycleCount[oldName];
+            }
+
+            // Update profileColors if exists
+            if(appData.profileColors && appData.profileColors[oldName]) {
+                appData.profileColors[newName] = appData.profileColors[oldName];
+                delete appData.profileColors[oldName];
             }
 
             window.saveProgress(true); // Immediate save
@@ -9791,7 +9819,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         } else {
                             throw new Error("Invalid data structure");
                         }
-                        window.saveProgress();
+                        // Immediate save: the debounced save races the 1s reload below, and the
+                        // fresh lastModified stamp must persist so the cloud conflict guard
+                        // doesn't overwrite the restored backup with a newer cloud snapshot
+                        window.saveProgress(true);
 
                         // Show success message
                         const profileCount = Object.keys(appData.profiles).length;
