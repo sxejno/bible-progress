@@ -200,6 +200,19 @@
             <div id="learn-people" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
             <p id="people-empty" class="hidden text-center text-slate-500 py-8 font-medium">No one matches that search.</p>
         </section>
+
+        <!-- Go deeper: external maps & diagrams -->
+        <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">🔗</div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">Go Deeper: Maps &amp; Diagrams</h2>
+                    <p class="text-sm text-slate-600">Free, high-detail outside resources. The maps above are drawn in-house; these are for closer study.</p>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-3" id="go-deeper-links"></div>
+            <p class="text-xs text-slate-400 mt-3">Links open in a new tab. License notes are the publishers’ own — verify before reusing images elsewhere.</p>
+        </section>
     </div>
 
     <!-- DEEP-DIVE PANEL -->
@@ -266,14 +279,21 @@
     const numdot = (x, y, num, name, o = {}) => `<circle cx="${x}" cy="${y}" r="10" fill="${o.fill || '#4338ca'}" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y + 4}" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">${num}</text>` + lbl(x + (o.dx ?? 14), y + (o.dy ?? 4), name, { anchor: o.anchor || 'start', fs: o.fs || 12, fw: 700 });
 
     // Shared Levant landmass (Mediterranean to the west) for 0 0 800 600 maps
-    const LEVANT_LAND = land('M300,0 L800,0 L800,600 L205,600 L212,520 L233,400 L256,260 L282,120 Z');
+    // Real-geography projection for the Levant maps: equirectangular lon/lat → 800×600 viewBox,
+    // with longitude scaled by cos(latitude) so shapes aren't stretched. Calibrated to authoritative
+    // coordinates (cf. OpenBible.info geocoding) so cities sit in correct relative positions.
+    const GEO = (lon, lat) => [Math.round((150 + (lon - 34.2) * 157.1) * 10) / 10, Math.round((40 + (33.7 - lat) * 185.7) * 10) / 10];
+    const gdot = (lon, lat, name, o = {}) => { const [x, y] = GEO(lon, lat); return dot(x, y, name, o); };
+    const gcap = (lon, lat, name, o = {}) => { const [x, y] = GEO(lon, lat); return capital(x, y, name, o); };
+
+    const LEVANT_LAND = land('M170,600 L192,449 L205,417 L221,393 L237,346 L260,263 L271,202 L287,185 L307,120 L334,66 L340,40 L800,40 L800,600 Z');
     const LEVANT_FEATURES =
-        water('M455,118 a20,28 0 1,0 0.1,0 Z', '#9ec8ec') +           // Sea of Galilee
-        seaLabel(455, 122, 'Sea of', { fs: 9 }) + seaLabel(455, 132, 'Galilee', { fs: 9 }) +
-        river('M455,146 C448,200 470,260 482,318') +                  // Jordan
-        water('M482,318 a20,55 0 1,0 0.1,0 Z', '#aac6dd') +           // Dead Sea
-        seaLabel(482, 372, 'Dead', { fs: 9 }) + seaLabel(482, 384, 'Sea', { fs: 9 }) +
-        seaLabel(120, 300, 'Mediterranean Sea', { rot: -90 });
+        water('M368,185 a11,18 0 1,0 0.1,0 Z', '#9ec8ec') +            // Sea of Galilee
+        seaLabel(396, 200, 'Sea of', { fs: 9 }) + seaLabel(396, 210, 'Galilee', { fs: 9 }) +
+        river('M368,221 C362,270 354,330 349,398') +                   // Jordan
+        water('M346,401 a12,50 0 1,0 0.1,0 Z', '#aac6dd') +            // Dead Sea
+        seaLabel(367, 450, 'Dead', { fs: 9 }) + seaLabel(367, 460, 'Sea', { fs: 9 }) +
+        seaLabel(108, 320, 'Mediterranean Sea', { rot: -90 });
 
     const LEARN_MAPS = {
         // 1. Abraham's journey across the Fertile Crescent
@@ -321,41 +341,41 @@
         'twelve-tribes': () => svgMap('0 0 800 600',
             LEVANT_LAND + LEVANT_FEATURES +
             // translucent tribal regions
-            [['#fca5a5',370,120,'Asher'],['#fcd34d',470,110,'Naphtali'],['#86efac',430,160,'Zebulun'],
-             ['#93c5fd',478,195,'Issachar'],['#c4b5fd',410,235,'Manasseh (W)'],['#c4b5fd',575,225,'Manasseh (E)'],
-             ['#fda4af',440,290,'Ephraim'],['#a5b4fc',362,300,'Dan'],['#f9a8d4',458,335,'Benjamin'],
-             ['#6ee7b7',575,330,'Gad'],['#fdba74',575,420,'Reuben'],['#fde047',445,420,'Judah'],
-             ['#fca5a5',420,470,'Simeon']]
-             .map(([c,x,y,n]) => `<circle cx="${x}" cy="${y}" r="26" fill="${c}" opacity="0.45"/><text x="${x}" y="${y+4}" font-size="11" font-weight="800" fill="#1e293b" text-anchor="middle" ${halo}>${n}</text>`).join('') +
-            capital(458, 360, '', { fs: 18 }) +
-            dot(470, 70, 'Dan (migrated north)', { fs: 11, anchor: 'middle', dx: 0, dy: -8 }),
+            [['#fca5a5',307,168,'Asher'],['#fcd34d',356,170,'Naphtali'],['#86efac',324,214,'Zebulun'],
+             ['#93c5fd',348,244,'Issachar'],['#c4b5fd',300,286,'Manasseh (W)'],['#c4b5fd',402,260,'Manasseh (E)'],
+             ['#fda4af',316,334,'Ephraim'],['#a5b4fc',260,362,'Dan'],['#f9a8d4',316,388,'Benjamin'],
+             ['#6ee7b7',402,352,'Gad'],['#fdba74',402,450,'Reuben'],['#fde047',278,452,'Judah'],
+             ['#fca5a5',244,492,'Simeon']]
+             .map(([c,x,y,n]) => `<circle cx="${x}" cy="${y}" r="24" fill="${c}" opacity="0.45"/><text x="${x}" y="${y+4}" font-size="10.5" font-weight="800" fill="#1e293b" text-anchor="middle" ${halo}>${n}</text>`).join('') +
+            gcap(35.235, 31.778, '', { fs: 18 }) +
+            gdot(35.65, 33.25, 'Dan (migrated north)', { fs: 11, anchor: 'middle', dx: 0, dy: -8 }),
             'The land divided among the twelve tribes', '#cfe4f7'),
 
         // 4. United Kingdom (David & Solomon)
         'united-kingdom': () => svgMap('0 0 800 600',
             LEVANT_LAND + LEVANT_FEATURES +
-            `<path d="M470,70 C560,90 640,130 650,230 C655,330 600,470 470,535 C400,500 410,420 408,360 C405,300 410,200 420,150 C435,110 450,85 470,70 Z" fill="#6366f1" opacity="0.14" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="9 7"/>` +
-            regionLabel(560, 470, 'KINGDOM', { fill: '#4f46e5', fs: 15 }) +
-            capital(458, 338, 'Jerusalem', { fs: 26, dx: 14 }) +
-            dot(440, 410, 'Hebron (David’s 1st capital)', { fs: 11, anchor: 'end', dx: -8 }) +
-            dot(470, 70, 'Dan', { fs: 12, anchor: 'middle', dx: 0, dy: -8 }) +
-            dot(405, 455, 'Beersheba', { fs: 12, anchor: 'middle', dx: 0, dy: 18 }) +
-            seaLabel(560, 250, '“from Dan to Beersheba”', { fs: 12, fill: '#4f46e5' }),
+            `<path d="M378,124 C440,170 446,300 410,440 C382,498 300,512 243,495 C272,440 286,360 292,280 C300,200 332,150 378,124 Z" fill="#6366f1" opacity="0.13" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="9 7"/>` +
+            regionLabel(470, 470, 'KINGDOM', { fill: '#4f46e5', fs: 15 }) +
+            gcap(35.235, 31.778, 'Jerusalem', { fs: 26, dx: 14 }) +
+            gdot(35.10, 31.53, 'Hebron (David’s 1st capital)', { fs: 11, anchor: 'start', dx: 9 }) +
+            gdot(35.65, 33.25, 'Dan', { fs: 12, anchor: 'start', dx: 9, dy: -6 }) +
+            gdot(34.79, 31.25, 'Beersheba', { fs: 12, anchor: 'middle', dx: 0, dy: 18 }) +
+            seaLabel(490, 250, '“from Dan to Beersheba”', { fs: 12, fill: '#4f46e5' }),
             'The united kingdom of David and Solomon', '#cfe4f7'),
 
         // 5. Divided Kingdom (Israel / Judah)
         'divided-kingdom': () => svgMap('0 0 800 600',
             LEVANT_LAND +
-            `<path d="M300,0 L800,0 L800,300 L408,300 L420,150 L282,120 Z" fill="#60a5fa" opacity="0.18"/>` + // Israel (north)
-            `<path d="M408,300 L800,300 L800,600 L205,600 L212,520 L233,400 L256,300 Z" fill="#f59e0b" opacity="0.16"/>` + // Judah (south)
-            `<line x1="256" y1="300" x2="800" y2="300" stroke="#475569" stroke-width="2" stroke-dasharray="6 6"/>` +
+            `<path d="M340,40 L800,40 L800,369 L235,369 L260,263 L271,202 L287,185 L307,120 L334,66 Z" fill="#60a5fa" opacity="0.18"/>` + // Israel (north)
+            `<path d="M235,369 L800,369 L800,600 L170,600 L192,449 L221,393 L237,346 Z" fill="#f59e0b" opacity="0.16"/>` + // Judah (south)
+            `<line x1="235" y1="369" x2="800" y2="369" stroke="#475569" stroke-width="2" stroke-dasharray="6 6"/>` +
             LEVANT_FEATURES +
-            regionLabel(600, 130, 'ISRAEL', { fill: '#2563eb', fs: 22 }) +
-            seaLabel(600, 155, '(North — 10 tribes)', { fs: 12, fill: '#2563eb' }) +
+            regionLabel(560, 150, 'ISRAEL', { fill: '#2563eb', fs: 22 }) +
+            seaLabel(560, 175, '(North — 10 tribes)', { fs: 12, fill: '#2563eb' }) +
             regionLabel(560, 470, 'JUDAH', { fill: '#b45309', fs: 22 }) +
             seaLabel(560, 495, '(South — Judah &amp; Benjamin)', { fs: 12, fill: '#b45309' }) +
-            capital(430, 245, 'Samaria', { fs: 22 }) +
-            capital(458, 340, 'Jerusalem', { fs: 22 }),
+            gcap(35.19, 32.28, 'Samaria', { fs: 22 }) +
+            gcap(35.235, 31.778, 'Jerusalem', { fs: 22 }),
             'The kingdom divided: Israel and Judah', '#cfe4f7'),
 
         // 6. Exile to Babylon and return
@@ -376,20 +396,20 @@
         // 7. New Testament Holy Land
         'nt-holyland': () => svgMap('0 0 800 600',
             LEVANT_LAND + LEVANT_FEATURES +
-            regionLabel(585, 100, 'GALILEE', { fs: 17, fill: '#0e7490' }) +
-            regionLabel(585, 235, 'SAMARIA', { fs: 17, fill: '#7c6b45' }) +
-            regionLabel(585, 400, 'JUDEA', { fs: 17, fill: '#7c6b45' }) +
-            regionLabel(635, 310, 'PEREA', { fs: 14, fill: '#7c6b45' }) +
-            seaLabel(515, 250, 'Jordan R.', { rot: 78, fs: 12 }) +
-            dot(485, 132, 'Capernaum', { fs: 13, dy: -7 }) +
-            dot(440, 170, 'Nazareth', { fs: 13, anchor: 'end', dx: -9 }) +
-            dot(420, 150, 'Cana', { fs: 12, anchor: 'end', dx: -9, dy: -6 }) +
-            dot(430, 248, 'Sychar', { fs: 12, anchor: 'end', dx: -9 }) +
-            dot(478, 322, 'Jericho', { fs: 12, dy: -6 }) +
-            capital(458, 340, 'Jerusalem', { fs: 22, anchor: 'end', dx: -12 }) +
-            dot(472, 352, 'Bethany', { fs: 11, anchor: 'start', dx: 9, dy: 3 }) +
-            dot(452, 366, 'Bethlehem', { fs: 12, anchor: 'middle', dx: 0, dy: 16 }) +
-            dot(360, 55, 'Tyre', { fs: 12, anchor: 'end', dx: -9 }),
+            regionLabel(470, 165, 'GALILEE', { fs: 16, fill: '#0e7490' }) +
+            regionLabel(470, 300, 'SAMARIA', { fs: 16, fill: '#7c6b45' }) +
+            regionLabel(470, 430, 'JUDEA', { fs: 16, fill: '#7c6b45' }) +
+            regionLabel(430, 360, 'PEREA', { fs: 13, fill: '#7c6b45' }) +
+            seaLabel(372, 300, 'Jordan R.', { rot: 80, fs: 11 }) +
+            gdot(35.575, 32.88, 'Capernaum', { fs: 13, dy: -8 }) +
+            gdot(35.30, 32.70, 'Nazareth', { fs: 13, anchor: 'end', dx: -9 }) +
+            gdot(35.34, 32.745, 'Cana', { fs: 12, anchor: 'end', dx: -9, dy: -8 }) +
+            gdot(35.28, 32.21, 'Sychar (Samaria)', { fs: 12, anchor: 'end', dx: -9 }) +
+            gdot(35.44, 31.87, 'Jericho', { fs: 12, anchor: 'start', dx: 9, dy: -5 }) +
+            gcap(35.235, 31.778, 'Jerusalem', { fs: 22, anchor: 'end', dx: -12 }) +
+            gdot(35.26, 31.77, 'Bethany', { fs: 11, anchor: 'start', dx: 9, dy: 3 }) +
+            gdot(35.20, 31.705, 'Bethlehem', { fs: 12, anchor: 'end', dx: -9, dy: 4 }) +
+            gdot(35.20, 33.27, 'Tyre', { fs: 12, anchor: 'end', dx: -9 }),
             'The Holy Land in the time of Jesus', '#cfe4f7'),
 
         // 8. Paul's missionary journeys (Mediterranean)
@@ -534,17 +554,17 @@
         // ---------- 13. Joshua's conquest of Canaan ----------
         'conquest-canaan': () => svgMap('0 0 800 600',
             LEVANT_LAND + LEVANT_FEATURES +
-            route('M538,330 C512,326 498,324 490,322', { sw: 3.5 }) +
-            route('M478,318 C466,314 460,312 462,310', { sw: 3 }) +
-            route('M470,332 C430,360 392,360 368,360', { marker: 'arrowG', stroke: '#047857', sw: 3, dash: '6 7' }) +
-            route('M472,318 C472,250 476,160 480,104', { marker: 'arrowR', stroke: '#dc2626', sw: 3, dash: '6 7' }) +
-            dot(490, 322, 'Jericho', { fs: 12, anchor: 'start', dx: 9 }) +
-            dot(460, 308, 'Ai', { fs: 12, anchor: 'end', dx: -8, dy: -4 }) +
-            dot(450, 328, 'Gibeon', { fs: 11, anchor: 'end', dx: -8 }) +
-            dot(522, 334, 'Gilgal', { fs: 11, anchor: 'start', dx: 9 }) +
-            dot(368, 360, 'Lachish', { fs: 12, anchor: 'end', dx: -8 }) +
-            dot(440, 410, 'Hebron', { fs: 12, anchor: 'start', dx: 9 }) +
-            dot(480, 100, 'Hazor', { fs: 12, anchor: 'start', dx: 9 }) +
+            route('M373,381 C363,380 356,380 351,380', { sw: 3.5 }) +
+            route('M341,377 C333,374 327,372 323,371', { sw: 3 }) +
+            route('M312,392 C290,414 268,430 257,436', { marker: 'arrowG', stroke: '#047857', sw: 3, dash: '6 7' }) +
+            route('M346,365 C351,280 360,210 365,172', { marker: 'arrowR', stroke: '#dc2626', sw: 3, dash: '6 7' }) +
+            gdot(35.44, 31.87, 'Jericho', { fs: 12, anchor: 'start', dx: 9 }) +
+            gdot(35.26, 31.92, 'Ai', { fs: 12, anchor: 'end', dx: -8, dy: -4 }) +
+            gdot(35.18, 31.85, 'Gibeon', { fs: 11, anchor: 'end', dx: -8, dy: 7 }) +
+            gdot(35.50, 31.86, 'Gilgal', { fs: 11, anchor: 'start', dx: 9 }) +
+            gdot(34.85, 31.565, 'Lachish', { fs: 12, anchor: 'end', dx: -8 }) +
+            gdot(35.10, 31.53, 'Hebron', { fs: 12, anchor: 'start', dx: 9 }) +
+            gdot(35.57, 33.02, 'Hazor', { fs: 12, anchor: 'start', dx: 9 }) +
             `<g transform="translate(556,470)" font-size="12" font-weight="700" fill="#334155">
                 <rect x="-12" y="-18" width="218" height="86" rx="10" fill="#ffffff" opacity="0.85" stroke="#cbd5e1"/>
                 <line x1="0" y1="0" x2="24" y2="0" stroke="#4338ca" stroke-width="3" stroke-dasharray="11 8"/><text x="32" y="4">Central (Jericho → Ai)</text>
@@ -1016,6 +1036,19 @@
         { name: 'Herod the Great', era: 'christ', testament: 'NT', role: 'Client king', relation: '', blurb: 'Lavishly rebuilt the Temple; tried to kill the infant Jesus.' },
     ];
 
+    /* ================= GO-DEEPER LINKS ================= */
+    // External, freely-licensed resources for higher-detail study. (Links only — no images embedded.)
+    const LEARN_LINKS = [
+        { cat: 'Maps', title: 'churchmaps.info', license: 'Public domain', desc: 'High-resolution Bible maps released fully into the public domain — free to use, modify, and share.', url: 'https://churchmaps.info/' },
+        { cat: 'Maps', title: 'Bible.ca — 100 free Bible maps', license: 'Free use', desc: 'A large set of printable, public-use maps covering the whole biblical narrative.', url: 'https://www.bible.ca/maps/' },
+        { cat: 'Maps', title: 'Shepherd’s Historical Atlas (1923)', license: 'Public domain', desc: 'The classic “Palestine” and ancient-empire plates, scanned at high resolution on Wikimedia Commons.', url: 'https://commons.wikimedia.org/wiki/Category:Historical_Atlas_by_William_R._Shepherd' },
+        { cat: 'Maps', title: 'Wikimedia Commons — Biblical maps', license: 'Mostly PD / CC', desc: 'A deep category of historical and biblical maps (check each file’s license tag).', url: 'https://commons.wikimedia.org/wiki/Category:Biblical_maps' },
+        { cat: 'Maps', title: 'OpenBible.info — Bible geocoding', license: 'CC-BY 4.0', desc: 'Precise coordinates for every place in the Bible — the source used to calibrate the maps on this page.', url: 'https://www.openbible.info/geo/' },
+        { cat: 'Tabernacle & Temple', title: 'Wikimedia — Tabernacle diagrams', license: 'Public domain', desc: 'Schematic floor-plans and classic engravings of the Tabernacle and its furnishings.', url: 'https://commons.wikimedia.org/wiki/Category:Tabernacle_diagrams' },
+        { cat: 'Tabernacle & Temple', title: 'FreeBibleimages — Moses & the Tabernacle', license: 'Free for teaching', desc: 'Illustrated slide sets of the Tabernacle’s construction and furniture (publisher’s own terms).', url: 'https://freebibleimages.org/illustrations/moses-tabernacle/' },
+        { cat: 'Tabernacle & Temple', title: 'ESV — The Tabernacle & Court', license: 'Free to view', desc: 'A clean, modern cutaway illustration of the Tabernacle and its courtyard.', url: 'https://www.esv.org/resources/esv-global-study-bible/illustration-02-tabernacle/' },
+    ];
+
     /* ================= RENDER ================= */
     const el = (id) => document.getElementById(id);
     let activeEra = null;
@@ -1155,6 +1188,19 @@
         }).join('');
     };
 
+    function renderLinks() {
+        const licColor = { 'Public domain': '#059669', 'Free use': '#0e7490', 'Mostly PD / CC': '#0e7490', 'CC-BY 4.0': '#7c3aed', 'Free for teaching': '#d97706', 'Free to view': '#d97706' };
+        el('go-deeper-links').innerHTML = LEARN_LINKS.map(l => `
+            <a href="${l.url}" target="_blank" rel="noopener noreferrer" class="topic-card glass rounded-2xl p-4 flex flex-col">
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">${l.cat}</span>
+                    <span class="era-badge flex-shrink-0" style="background:${licColor[l.license] || '#64748b'}">${l.license}</span>
+                </div>
+                <h3 class="text-base font-black text-slate-900 leading-tight">${l.title}<span class="text-indigo-400"> ↗</span></h3>
+                <p class="text-sm text-slate-600 mt-1.5 flex-1">${l.desc}</p>
+            </a>`).join('');
+    }
+
     /* ================= INIT ================= */
     function initLearn() {
         syncDarkIcon();
@@ -1162,6 +1208,7 @@
         renderTimeline();
         renderGrid();
         window.renderPeople();
+        renderLinks();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLearn);
     else initLearn();
