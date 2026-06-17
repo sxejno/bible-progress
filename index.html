@@ -13707,10 +13707,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		  },
 		  DOM: {
 			headline: 'Hey Dom!',
-			body: 'This Bible stuff is actually pretty important...',
+			body: 'This Bible stuff is actually pretty important. Here is the study hub for our conversations:',
 			verse: '"Iron sharpeneth iron; so a man sharpeneth the countenance of his friend." - Proverbs 27:17',
 			signoff: '- Shane',
-			button: '0/Time! ⌛'
+			button: '0/Time! ⌛',
+			link: 'learn.html',
+			linkLabel: 'Open our study hub →'
 		  },
 		  DAVID: {
 			headline: 'Hey David!',
@@ -13787,7 +13789,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			  <p class="text-slate-600 mb-4">${escapeHtml(p.body)}</p>
 			  <p class="text-sm text-slate-500 italic mb-6">${escapeHtml(p.verse)}</p>
 			  <p class="text-xs text-slate-400 mb-6">${escapeHtml(p.signoff)}</p>
-			  <button class="creator-close px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">${escapeHtml(p.button)}</button>
+			  ${p.link ? `<a href="${escapeHtml(p.link)}" class="block w-full mb-3 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">${escapeHtml(p.linkLabel || 'Open →')}</a>` : ''}<button class="creator-close px-6 py-3 ${p.link ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'} rounded-xl font-bold">${escapeHtml(p.button)}</button>
 			</div>
 		  `;
 

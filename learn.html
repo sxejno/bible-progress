@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Foundations — Learning the Bible Together</title>
+    <meta name="description" content="An interactive, Christ-centered walk through the Bible's storyline: covenant lineage, the Temple, sacrifice fulfilled in Christ, the BC/AD calendar, and accurate maps of the biblical world.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://bibleprogress.com/learn.html">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        :root { color-scheme: light; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #f1f5f9 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 35px rgba(79, 70, 229, 0.08);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.45s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Topic cards */
+        .topic-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; cursor: pointer; }
+        .topic-card:hover { transform: translateY(-3px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 14px 32px rgba(79, 70, 229, 0.16); }
+
+        .era-badge { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 999px; padding: 0.25rem 0.6rem; color: #fff; }
+
+        /* Start-here path strip */
+        .path-scroll { scrollbar-width: thin; scroll-snap-type: x proximity; }
+        .path-pill { scroll-snap-align: start; }
+        .path-pill .num { display:inline-flex; align-items:center; justify-content:center; width:1.6rem; height:1.6rem; border-radius:999px; background:#4f46e5; color:#fff; font-weight:800; font-size:0.8rem; }
+
+        /* Timeline — filter chips (compact) */
+        .timeline-scroll { scrollbar-width: thin; }
+        .era-chip { scroll-snap-align: center; flex: 0 0 auto; border: 2px solid var(--era); color: var(--era); background: #fff; border-radius: 1rem; padding: 0.55rem 0.9rem; font-weight: 700; transition: all 0.18s ease; text-align:center; }
+        .era-chip:hover { background: var(--era); color: #fff; }
+        .era-chip.active { background: var(--era); color: #fff; box-shadow: 0 8px 20px -6px var(--era); transform: translateY(-2px); }
+        .era-chip .era-range { display:block; font-size: 10px; font-weight: 600; opacity: 0.85; margin-top: 1px; }
+        .era-christ { background: linear-gradient(135deg,#4f46e5,#6366f1); color:#fff; border-color:#4f46e5; padding: 0.55rem 1.1rem; }
+        .era-christ .era-range, .era-christ:hover { color:#fff; }
+
+        /* Timeline — visual band with event flags */
+        .tl-track { display:flex; gap:0; overflow-x:auto; padding-bottom:8px; align-items:flex-end; }
+        .tl-era { flex:0 0 auto; width:172px; background:transparent; border:none; cursor:pointer; text-align:center; padding:0 5px; font-family:inherit; }
+        .tl-evwrap { height:122px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; gap:4px; margin-bottom:7px; }
+        .tl-ev { font-size:10px; line-height:1.25; color:#475569; background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:3px 7px; text-align:left; }
+        .tl-ev b { color:var(--era); display:block; font-size:10px; }
+        .tl-bar { height:14px; background:var(--era); opacity:0.85; transition:all .18s ease; border-right:2px solid #fff; }
+        .tl-era:first-child .tl-bar { border-top-left-radius:7px; border-bottom-left-radius:7px; }
+        .tl-era:last-child .tl-bar { border-top-right-radius:7px; border-bottom-right-radius:7px; border-right:none; }
+        .tl-era:hover .tl-bar, .tl-era.active .tl-bar { opacity:1; height:19px; }
+        .tl-meta { margin-top:7px; }
+        .tl-label { display:block; font-size:12px; font-weight:800; color:#1e293b; }
+        .tl-range { display:block; font-size:10px; font-weight:600; color:#64748b; margin-top:1px; }
+        .tl-christ .tl-bar { background:linear-gradient(90deg,#4f46e5,#818cf8); height:24px; box-shadow:0 6px 16px -6px #4f46e5; }
+        .tl-christ .tl-label { color:#4f46e5; }
+        .tl-pivot { font-size:10px; font-weight:900; letter-spacing:0.12em; color:#4f46e5; margin-bottom:3px; }
+
+        /* Who's who */
+        .person-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .person-card:hover { transform: translateY(-2px); border-color: rgba(99,102,241,0.4); box-shadow: 0 12px 26px rgba(79,70,229,0.14); }
+        .role-pill { font-size:10px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border-radius:999px; padding:0.15rem 0.55rem; background:#eef2ff; color:#4338ca; }
+
+
+        /* Deep-dive prose */
+        .prose-learn p { margin: 0 0 0.9rem; line-height: 1.7; color: #334155; }
+        .prose-learn h4 { font-weight: 800; color: #1e293b; margin: 1.4rem 0 0.5rem; font-size: 1.05rem; }
+        .prose-learn ul { margin: 0 0 1rem 1.1rem; list-style: disc; color:#334155; }
+        .prose-learn li { margin-bottom: 0.35rem; line-height: 1.6; }
+        .prose-learn .verse { font-style: italic; color:#4338ca; }
+        .callout { border-left: 4px solid #6366f1; background: #eef2ff; border-radius: 0 0.75rem 0.75rem 0; padding: 0.85rem 1.1rem; margin: 1.1rem 0; }
+        .callout .callout-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: #4f46e5; }
+
+        /* Maps */
+        .learn-map { display:block; width:100%; height:auto; border-radius: 1rem; border: 1px solid #dbe3ef; }
+        mark { background:#fef08a; color:#1e293b; padding:0 0.2em; border-radius:0.25rem; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+<!-- Shared dark mode: follows the main app's Settings preference. Re-invert maps so they keep their natural palette (water blue, land parchment) just like images. -->
+<style>
+    .dark-mode { filter: invert(0.9) hue-rotate(180deg); background: #1a1a1a !important; }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+    .dark-mode .learn-map { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
+</script>
+
+<div class="max-w-6xl mx-auto space-y-6 md:space-y-8">
+
+    <!-- Header -->
+    <header class="glass rounded-3xl p-6 md:p-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="max-w-3xl">
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-indigo-100 text-indigo-700 mb-4">A study companion</p>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Foundations</h1>
+                <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">A Christ-centered walk through the Bible's storyline — built for unhurried conversations. Start at the beginning, or jump to whatever you're talking about.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="dark-toggle" onclick="toggleDark()" class="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white text-slate-700 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors" aria-label="Toggle dark mode">
+                    <span id="dark-toggle-icon">🌙</span>
+                </button>
+                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-800 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Bible Progress
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HUB (path + timeline + grid) -->
+    <div id="learn-hub" class="space-y-6 md:space-y-8 animate-fade-in">
+
+        <!-- Intro tiles -->
+        <section class="grid md:grid-cols-3 gap-4">
+            <article class="glass rounded-2xl p-5">
+                <div class="text-xs font-black uppercase tracking-wider text-indigo-500">One story</div>
+                <p class="mt-2 text-slate-700">66 books, two Testaments, ~1,500 years of writing — yet one unfolding story of God redeeming a people, climaxing in Jesus Christ.</p>
+            </article>
+            <article class="glass rounded-2xl p-5">
+                <div class="text-xs font-black uppercase tracking-wider text-emerald-500">How to use this</div>
+                <p class="mt-2 text-slate-700">Follow the numbered <b>Start Here</b> path, click any era on the <b>timeline</b> to filter, or open a <b>topic card</b> for a deep dive with maps.</p>
+            </article>
+            <article class="glass rounded-2xl p-5">
+                <div class="text-xs font-black uppercase tracking-wider text-amber-500">The thread to watch</div>
+                <p class="mt-2 text-slate-700">Promise → lineage → law → temple → sacrifice → exile → Messiah. Every line runs toward Christ (Luke 24:27).</p>
+            </article>
+        </section>
+
+        <!-- Start Here path -->
+        <section class="glass rounded-3xl p-6 md:p-7">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">🧭</div>
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-slate-900">Start Here → Advanced</h2>
+                    <p class="text-sm text-slate-600">A suggested order, from the basics to the deeper threads.</p>
+                </div>
+            </div>
+            <div id="learn-path" class="path-scroll flex gap-3 overflow-x-auto pb-3"></div>
+        </section>
+
+        <!-- Timeline -->
+        <section class="glass rounded-3xl p-6 md:p-7">
+            <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center text-lg">📜</div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-900">The Timeline</h2>
+                        <p class="text-sm text-slate-600">From creation to the early church, with key dates. Click any era to filter the topics — Christ stands at the center of it all.</p>
+                    </div>
+                </div>
+                <button onclick="filterLearnByEra(null)" id="clear-era" class="hidden text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 hover:bg-indigo-100">Show all eras ✕</button>
+            </div>
+            <div id="learn-timeline" class="tl-track"></div>
+            <p class="text-xs text-slate-400 mt-2">Dates before the kingdom are approximate; scholars differ. Scroll sideways to follow the whole story.</p>
+        </section>
+
+        <!-- Topic grid -->
+        <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-end justify-between gap-3 mb-5 flex-wrap">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
+                    <p id="grid-subtitle" class="text-slate-600 mt-1">Everything we've covered — and what's next.</p>
+                </div>
+            </div>
+            <div id="learn-topics" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            <p id="grid-empty" class="hidden text-center text-slate-500 py-10 font-medium"></p>
+        </section>
+
+        <!-- Who's Who -->
+        <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">👥</div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">Who's Who</h2>
+                    <p class="text-sm text-slate-600">Quick profiles to keep the cast straight — who they are and how they connect.</p>
+                </div>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3 mb-5">
+                <input id="people-search" type="text" placeholder="Search a name or role (e.g., David, prophet, apostle)…" class="sm:col-span-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300" oninput="renderPeople()">
+                <select id="people-testament" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300" onchange="renderPeople()">
+                    <option value="all">All Scripture</option>
+                    <option value="OT">Old Testament</option>
+                    <option value="NT">New Testament</option>
+                </select>
+            </div>
+            <div id="learn-people" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+            <p id="people-empty" class="hidden text-center text-slate-500 py-8 font-medium">No one matches that search.</p>
+        </section>
+    </div>
+
+    <!-- DEEP-DIVE PANEL -->
+    <div id="learn-detail" class="hidden animate-fade-in"></div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 mt-2 pt-6">
+        <div class="text-sm text-slate-600 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+            <p class="italic">"And beginning at Moses and all the prophets, he expounded unto them in all the scriptures the things concerning himself." — Luke 24:27</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    "use strict";
+
+    /* escapeHtml — wrap ANY dynamic/user-supplied value before injecting into innerHTML.
+       (Topic bodies below are author-authored, trusted, static strings and are injected raw on purpose;
+        they contain intended markup. If a dynamic value is ever introduced, escape it with this.) */
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    /* ---------- Dark mode (shares the main app's setting) ---------- */
+    function syncDarkIcon() {
+        const on = document.body.classList.contains('dark-mode');
+        const icon = document.getElementById('dark-toggle-icon');
+        if (icon) icon.textContent = on ? '☀️' : '🌙';
+    }
+    function toggleDark() {
+        const on = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', on ? 'enabled' : 'disabled');
+        syncDarkIcon();
+    }
+    window.toggleDark = toggleDark;
+
+    /* ================= MAP TOOLKIT (inline SVG, offline) ================= */
+    const SVG_DEFS = `<defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4338ca"/></marker>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#047857"/></marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b45309"/></marker>
+    </defs>`;
+    const halo = 'style="paint-order:stroke;stroke:#ffffff;stroke-width:1.5px;"';
+    const svgMap = (vb, inner, title, bg) =>
+        `<svg class="learn-map" viewBox="${vb}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${title}" style="background:${bg || '#cfe4f7'};">${SVG_DEFS}${inner}</svg>`;
+    const land = (d, fill) => `<path d="${d}" fill="${fill || '#f3ead2'}" stroke="#d8c79c" stroke-width="2"/>`;
+    const water = (d, fill) => `<path d="${d}" fill="${fill || '#bcd9f2'}" stroke="#9cc3e6" stroke-width="1.5"/>`;
+    const river = (d) => `<path d="${d}" fill="none" stroke="#7fb3e0" stroke-width="3.5" stroke-linecap="round"/>`;
+    const dot = (x, y, n, o = {}) =>
+        `<circle cx="${x}" cy="${y}" r="${o.r || 5}" fill="${o.fill || '#1e293b'}" stroke="#fff" stroke-width="1.5"/>` +
+        (n ? `<text x="${x + (o.dx ?? 9)}" y="${y + (o.dy ?? 4)}" font-size="${o.fs || 14}" font-weight="600" fill="#0f172a" text-anchor="${o.anchor || 'start'}" ${halo}>${n}</text>` : '');
+    const capital = (x, y, n, o = {}) =>
+        `<text x="${x}" y="${y + 7}" font-size="${o.fs || 24}" text-anchor="middle" fill="#b45309" ${halo}>★</text>` +
+        `<text x="${x + (o.dx ?? 14)}" y="${y + (o.dy ?? 6)}" font-size="${o.fs2 || 15}" font-weight="800" fill="#0f172a" text-anchor="${o.anchor || 'start'}" ${halo}>${n}</text>`;
+    const seaLabel = (x, y, n, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 16}" font-style="italic" font-weight="600" fill="#2563eb" text-anchor="middle" opacity="0.85" transform="${o.rot ? `rotate(${o.rot} ${x} ${y})` : ''}">${n}</text>`;
+    const regionLabel = (x, y, n, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 17}" font-weight="800" fill="${o.fill || '#7c6b45'}" text-anchor="middle" letter-spacing="1.5" opacity="0.8" ${o.halo ? halo : ''}>${n}</text>`;
+    const route = (d, o = {}) => `<path d="${d}" fill="none" stroke="${o.stroke || '#4338ca'}" stroke-width="${o.sw || 3.5}" stroke-dasharray="${o.dash ?? '11 8'}" ${o.marker === 'none' ? '' : `marker-end="url(#${o.marker || 'arrow'})"`} stroke-linecap="round" stroke-linejoin="round" opacity="${o.op || 1}"/>`;
+    // plain text label + thin leader line (for floor-plan annotations)
+    const lbl = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-size="${o.fs || 11}" font-weight="${o.fw || 700}" fill="${o.fill || '#334155'}" text-anchor="${o.anchor || 'start'}">${t}</text>`;
+    const lead = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#94a3b8" stroke-width="1.1"/>`;
+    const compass = (x, y) => `<g font-size="11" font-weight="800" fill="#64748b" text-anchor="middle"><circle cx="${x}" cy="${y}" r="2.5" fill="#64748b"/><text x="${x}" y="${y - 9}">N</text><text x="${x}" y="${y + 17}">S</text><text x="${x + 13}" y="${y + 4}">E</text><text x="${x - 13}" y="${y + 4}">W</text></g>`;
+    const numdot = (x, y, num, name, o = {}) => `<circle cx="${x}" cy="${y}" r="10" fill="${o.fill || '#4338ca'}" stroke="#fff" stroke-width="1.5"/><text x="${x}" y="${y + 4}" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">${num}</text>` + lbl(x + (o.dx ?? 14), y + (o.dy ?? 4), name, { anchor: o.anchor || 'start', fs: o.fs || 12, fw: 700 });
+
+    // Shared Levant landmass (Mediterranean to the west) for 0 0 800 600 maps
+    const LEVANT_LAND = land('M300,0 L800,0 L800,600 L205,600 L212,520 L233,400 L256,260 L282,120 Z');
+    const LEVANT_FEATURES =
+        water('M455,118 a20,28 0 1,0 0.1,0 Z', '#9ec8ec') +           // Sea of Galilee
+        seaLabel(455, 122, 'Sea of', { fs: 9 }) + seaLabel(455, 132, 'Galilee', { fs: 9 }) +
+        river('M455,146 C448,200 470,260 482,318') +                  // Jordan
+        water('M482,318 a20,55 0 1,0 0.1,0 Z', '#aac6dd') +           // Dead Sea
+        seaLabel(482, 372, 'Dead', { fs: 9 }) + seaLabel(482, 384, 'Sea', { fs: 9 }) +
+        seaLabel(120, 300, 'Mediterranean Sea', { rot: -90 });
+
+    const LEARN_MAPS = {
+        // 1. Abraham's journey across the Fertile Crescent
+        patriarchs: () => svgMap('0 0 1000 560',
+            water('M0,0 L300,0 C250,70 170,110 70,140 L0,170 Z', '#bcd9f2') +              // Mediterranean (NW)
+            water('M1000,560 L1000,360 C900,400 840,470 820,560 Z', '#bcd9f2') +           // Persian Gulf (SE)
+            river('M560,120 C640,200 740,320 850,470') +                                    // Euphrates
+            river('M610,110 C690,190 780,300 870,460') +                                    // Tigris
+            regionLabel(720, 250, 'MESOPOTAMIA') +
+            regionLabel(230, 195, 'CANAAN', { fs: 15 }) +
+            regionLabel(150, 405, 'EGYPT', { fs: 15 }) +
+            regionLabel(560, 430, 'ARABIAN  DESERT', { fs: 14 }) +
+            // route: Ur -> Haran -> Canaan (main, indigo); Canaan -> Egypt -> back (dashed, amber)
+            route('M850,470 C700,430 590,260 545,110', { sw: 4 }) +
+            route('M540,120 C440,150 320,190 250,235', { sw: 4 }) +
+            route('M235,250 C190,330 145,405 130,452', { marker: 'arrowA', stroke: '#b45309', dash: '6 7' }) +
+            dot(855, 472, 'Ur', { anchor: 'start', dx: 10 }) +
+            dot(545, 100, 'Haran', { dy: -8, dx: -6, anchor: 'end' }) +
+            dot(235, 250, 'Shechem / Canaan', { dy: -10, anchor: 'middle', dx: 0 }) +
+            dot(130, 452, 'Egypt (famine)', { fs: 13, anchor: 'start', dx: 12, dy: 4 }) +
+            dot(760, 410, 'Babylon', { fs: 12, fill: '#64748b' }),
+            'Abraham’s journey from Ur to Canaan', '#f3ead2'),
+
+        // 2. Exodus & wilderness
+        exodus: () => svgMap('0 0 900 580',
+            water('M0,0 L300,0 C240,120 150,200 0,250 Z', '#bcd9f2') +                      // Mediterranean
+            water('M520,250 C470,360 500,500 540,580 L470,580 C440,470 450,340 470,250 Z', '#aac6dd') + // Red Sea (Gulf of Suez)
+            water('M690,260 C700,380 690,500 700,580 L640,580 C630,470 640,360 650,260 Z', '#aac6dd') +  // Gulf of Aqaba
+            river('M150,520 C160,440 150,360 140,290') +                                    // Nile
+            regionLabel(110, 360, 'EGYPT') +
+            regionLabel(720, 150, 'CANAAN', { fs: 15 }) +
+            regionLabel(590, 470, 'SINAI', { fs: 16 }) +
+            seaLabel(495, 430, 'Red Sea', { rot: 80, fs: 13 }) +
+            route('M180,300 C320,290 430,300 470,330', { sw: 4 }) +                          // Goshen -> Red Sea crossing
+            route('M480,360 C540,430 600,470 615,500', { sw: 4 }) +                          // to Sinai
+            route('M620,495 C700,440 760,330 760,250', { sw: 4, dash: '7 8' }) +             // wandering -> plains of Moab
+            dot(175, 300, 'Goshen', { anchor: 'end', dx: -8 }) +
+            dot(470, 335, 'Red Sea crossing', { dy: -10, anchor: 'middle', dx: 0 }) +
+            dot(615, 500, 'Mt. Sinai', { dy: 20, anchor: 'middle', dx: 0, r: 6 }) +
+            dot(765, 250, 'Plains of Moab', { dy: -8, anchor: 'middle', dx: 0 }) +
+            dot(790, 175, 'Jericho', { fs: 12, fill: '#64748b', anchor: 'middle', dy: -8, dx: 0 }),
+            'The Exodus route from Egypt to the plains of Moab', '#f3ead2'),
+
+        // 3. Twelve tribes allotment
+        'twelve-tribes': () => svgMap('0 0 800 600',
+            LEVANT_LAND + LEVANT_FEATURES +
+            // translucent tribal regions
+            [['#fca5a5',370,120,'Asher'],['#fcd34d',470,110,'Naphtali'],['#86efac',430,160,'Zebulun'],
+             ['#93c5fd',478,195,'Issachar'],['#c4b5fd',410,235,'Manasseh (W)'],['#c4b5fd',575,225,'Manasseh (E)'],
+             ['#fda4af',440,290,'Ephraim'],['#a5b4fc',362,300,'Dan'],['#f9a8d4',458,335,'Benjamin'],
+             ['#6ee7b7',575,330,'Gad'],['#fdba74',575,420,'Reuben'],['#fde047',445,420,'Judah'],
+             ['#fca5a5',420,470,'Simeon']]
+             .map(([c,x,y,n]) => `<circle cx="${x}" cy="${y}" r="26" fill="${c}" opacity="0.45"/><text x="${x}" y="${y+4}" font-size="11" font-weight="800" fill="#1e293b" text-anchor="middle" ${halo}>${n}</text>`).join('') +
+            capital(458, 360, '', { fs: 18 }) +
+            dot(470, 70, 'Dan (migrated north)', { fs: 11, anchor: 'middle', dx: 0, dy: -8 }),
+            'The land divided among the twelve tribes', '#cfe4f7'),
+
+        // 4. United Kingdom (David & Solomon)
+        'united-kingdom': () => svgMap('0 0 800 600',
+            LEVANT_LAND + LEVANT_FEATURES +
+            `<path d="M470,70 C560,90 640,130 650,230 C655,330 600,470 470,535 C400,500 410,420 408,360 C405,300 410,200 420,150 C435,110 450,85 470,70 Z" fill="#6366f1" opacity="0.14" stroke="#6366f1" stroke-width="2.5" stroke-dasharray="9 7"/>` +
+            regionLabel(560, 470, 'KINGDOM', { fill: '#4f46e5', fs: 15 }) +
+            capital(458, 338, 'Jerusalem', { fs: 26, dx: 14 }) +
+            dot(440, 410, 'Hebron (David’s 1st capital)', { fs: 11, anchor: 'end', dx: -8 }) +
+            dot(470, 70, 'Dan', { fs: 12, anchor: 'middle', dx: 0, dy: -8 }) +
+            dot(405, 455, 'Beersheba', { fs: 12, anchor: 'middle', dx: 0, dy: 18 }) +
+            seaLabel(560, 250, '“from Dan to Beersheba”', { fs: 12, fill: '#4f46e5' }),
+            'The united kingdom of David and Solomon', '#cfe4f7'),
+
+        // 5. Divided Kingdom (Israel / Judah)
+        'divided-kingdom': () => svgMap('0 0 800 600',
+            LEVANT_LAND +
+            `<path d="M300,0 L800,0 L800,300 L408,300 L420,150 L282,120 Z" fill="#60a5fa" opacity="0.18"/>` + // Israel (north)
+            `<path d="M408,300 L800,300 L800,600 L205,600 L212,520 L233,400 L256,300 Z" fill="#f59e0b" opacity="0.16"/>` + // Judah (south)
+            `<line x1="256" y1="300" x2="800" y2="300" stroke="#475569" stroke-width="2" stroke-dasharray="6 6"/>` +
+            LEVANT_FEATURES +
+            regionLabel(600, 130, 'ISRAEL', { fill: '#2563eb', fs: 22 }) +
+            seaLabel(600, 155, '(North — 10 tribes)', { fs: 12, fill: '#2563eb' }) +
+            regionLabel(560, 470, 'JUDAH', { fill: '#b45309', fs: 22 }) +
+            seaLabel(560, 495, '(South — Judah &amp; Benjamin)', { fs: 12, fill: '#b45309' }) +
+            capital(430, 245, 'Samaria', { fs: 22 }) +
+            capital(458, 340, 'Jerusalem', { fs: 22 }),
+            'The kingdom divided: Israel and Judah', '#cfe4f7'),
+
+        // 6. Exile to Babylon and return
+        'exile-return': () => svgMap('0 0 1000 560',
+            water('M0,0 L160,0 C130,90 70,150 0,180 Z', '#bcd9f2') +
+            river('M560,90 C660,200 760,330 840,470') +
+            river('M600,80 C700,190 800,320 875,460') +
+            regionLabel(170, 250, 'JUDAH', { fs: 16 }) +
+            regionLabel(800, 250, 'BABYLONIA', { fs: 16 }) +
+            route('M215,300 C420,250 640,250 745,320', { marker: 'arrowR', stroke: '#dc2626', sw: 4 }) +     // exile east
+            route('M760,360 C600,420 400,420 235,360', { marker: 'arrowG', stroke: '#047857', sw: 4, dash: '7 8' }) + // return west
+            dot(205, 305, 'Jerusalem', { anchor: 'end', dx: -8 }) +
+            dot(755, 335, 'Babylon', { anchor: 'start', dx: 10 }) +
+            seaLabel(470, 235, 'Exile — 586 BC', { fs: 14, fill: '#dc2626' }) +
+            seaLabel(470, 400, 'Return — 538 BC (Cyrus’ decree)', { fs: 14, fill: '#047857' }),
+            'Exile to Babylon and the return under Cyrus', '#f3ead2'),
+
+        // 7. New Testament Holy Land
+        'nt-holyland': () => svgMap('0 0 800 600',
+            LEVANT_LAND + LEVANT_FEATURES +
+            regionLabel(585, 100, 'GALILEE', { fs: 17, fill: '#0e7490' }) +
+            regionLabel(585, 235, 'SAMARIA', { fs: 17, fill: '#7c6b45' }) +
+            regionLabel(585, 400, 'JUDEA', { fs: 17, fill: '#7c6b45' }) +
+            regionLabel(635, 310, 'PEREA', { fs: 14, fill: '#7c6b45' }) +
+            seaLabel(515, 250, 'Jordan R.', { rot: 78, fs: 12 }) +
+            dot(485, 132, 'Capernaum', { fs: 13, dy: -7 }) +
+            dot(440, 170, 'Nazareth', { fs: 13, anchor: 'end', dx: -9 }) +
+            dot(420, 150, 'Cana', { fs: 12, anchor: 'end', dx: -9, dy: -6 }) +
+            dot(430, 248, 'Sychar', { fs: 12, anchor: 'end', dx: -9 }) +
+            dot(478, 322, 'Jericho', { fs: 12, dy: -6 }) +
+            capital(458, 340, 'Jerusalem', { fs: 22, anchor: 'end', dx: -12 }) +
+            dot(472, 352, 'Bethany', { fs: 11, anchor: 'start', dx: 9, dy: 3 }) +
+            dot(452, 366, 'Bethlehem', { fs: 12, anchor: 'middle', dx: 0, dy: 16 }) +
+            dot(360, 55, 'Tyre', { fs: 12, anchor: 'end', dx: -9 }),
+            'The Holy Land in the time of Jesus', '#cfe4f7'),
+
+        // 8. Paul's missionary journeys (Mediterranean)
+        'paul-journeys': () => svgMap('0 0 1000 600',
+            land('M120,150 C170,160 210,210 200,300 C190,360 150,360 130,330 C170,320 160,250 120,230 Z', '#f3ead2') + // Italy boot
+            land('M330,180 C420,170 470,210 460,290 C450,340 380,360 340,330 C300,300 300,230 330,180 Z', '#f3ead2') + // Greece
+            land('M520,170 C700,150 860,180 900,250 C870,320 720,330 560,310 C520,280 510,220 520,170 Z', '#f3ead2') + // Asia Minor
+            land('M880,250 C940,260 970,320 950,400 C900,420 860,360 870,300 Z', '#f3ead2') + // Syria/Levant
+            land('M505,352 a30,12 0 1,0 0.1,0 Z', '#f3ead2') + regionLabel(535, 358, 'Cyprus', { fs: 11 }) +
+            regionLabel(165, 250, 'ITALY', { fs: 14 }) +
+            regionLabel(395, 255, 'GREECE', { fs: 14 }) +
+            regionLabel(700, 240, 'ASIA  MINOR', { fs: 15 }) +
+            seaLabel(450, 470, 'Mediterranean Sea', { fs: 16 }) +
+            route('M845,330 C720,300 640,290 600,295', { marker: 'arrowA', stroke: '#b45309', sw: 3, op: 0.95 }) +   // J1 amber
+            route('M845,335 C650,360 500,330 440,300', { marker: 'arrow', stroke: '#2563eb', sw: 3, op: 0.95, dash: '9 9' }) + // J2 blue
+            route('M845,340 C600,400 420,360 360,300', { marker: 'arrowG', stroke: '#047857', sw: 3, op: 0.95, dash: '4 8' }) + // J3 green
+            route('M340,330 C260,360 200,300 165,270', { marker: 'arrowR', stroke: '#dc2626', sw: 3, op: 0.95, dash: '2 7' }) + // to Rome red
+            capital(900, 300, 'Antioch', { fs: 16, anchor: 'end', dx: -14 }) +
+            dot(165, 250, 'Rome', { anchor: 'middle', dx: 0, dy: -10 }) +
+            dot(345, 300, 'Corinth', { fs: 12, anchor: 'end', dx: -9, dy: 12 }) +
+            dot(400, 200, 'Philippi', { fs: 12, dy: -6 }) +
+            dot(560, 300, 'Ephesus', { fs: 12, anchor: 'end', dx: -9 }) +
+            dot(915, 450, 'Jerusalem', { fs: 12, anchor: 'end', dx: -9 }) +
+            // legend
+            `<g transform="translate(40,470)" font-size="12" font-weight="700" fill="#334155">
+                <rect x="-12" y="-18" width="220" height="110" rx="10" fill="#ffffff" opacity="0.78" stroke="#cbd5e1"/>
+                <line x1="0" y1="0" x2="26" y2="0" stroke="#b45309" stroke-width="3" stroke-dasharray="11 8"/><text x="34" y="4">1st journey</text>
+                <line x1="0" y1="24" x2="26" y2="24" stroke="#2563eb" stroke-width="3" stroke-dasharray="9 9"/><text x="34" y="28">2nd journey</text>
+                <line x1="0" y1="48" x2="26" y2="48" stroke="#047857" stroke-width="3" stroke-dasharray="4 8"/><text x="34" y="52">3rd journey</text>
+                <line x1="0" y1="72" x2="26" y2="72" stroke="#dc2626" stroke-width="3" stroke-dasharray="2 7"/><text x="34" y="76">Voyage to Rome</text>
+             </g>`,
+            'Paul’s missionary journeys across the Roman world', '#cfe4f7'),
+
+        // 9. Jerusalem & the Temple Mount (schematic)
+        'jerusalem-temple': () => svgMap('0 0 800 560',
+            land('M150,80 C250,40 480,40 560,90 C600,180 600,360 560,470 C470,520 250,520 170,470 C120,360 120,170 150,80 Z', '#f3ead2') + // city
+            `<path d="M150,80 C250,40 480,40 560,90 C600,180 600,360 560,470 C470,520 250,520 170,470 C120,360 120,170 150,80 Z" fill="none" stroke="#a8895a" stroke-width="6"/>` + // walls
+            water('M610,60 C650,200 650,380 615,520 L645,520 C685,380 685,200 645,60 Z', '#cde0c4') + // Kidron Valley (green)
+            land('M650,90 C740,120 760,300 700,470 C660,360 660,200 650,90 Z', '#e7dcb6') + // Mount of Olives
+            // Temple platform
+            `<rect x="360" y="120" width="160" height="120" rx="6" fill="#e9d8a6" stroke="#b08e57" stroke-width="3"/>` +
+            `<rect x="402" y="140" width="76" height="80" rx="4" fill="#fffaf0" stroke="#b08e57" stroke-width="2.5"/>` +
+            `<rect x="430" y="150" width="22" height="26" fill="#caa46a"/>` + // Holy of Holies
+            `<circle cx="395" cy="255" r="11" fill="#d97706"/>` + // altar
+            regionLabel(440, 110, 'TEMPLE MOUNT', { fs: 13, fill: '#7c5a1e', halo: true }) +
+            `<text x="441" y="135" font-size="10" font-weight="700" fill="#7c5a1e" text-anchor="middle" ${halo}>Holy of Holies</text>` +
+            dot(395, 255, 'Altar of sacrifice', { fs: 11, anchor: 'start', dx: 12, fill: '#d97706' }) +
+            regionLabel(300, 430, 'CITY OF DAVID', { fs: 12, fill: '#7c6b45' }) +
+            regionLabel(300, 200, 'UPPER CITY', { fs: 12, fill: '#7c6b45' }) +
+            seaLabel(628, 300, 'Kidron', { rot: 90, fs: 12, fill: '#4d7c0f' }) +
+            regionLabel(710, 290, 'MOUNT', { fs: 12, fill: '#6b5b35' }) + regionLabel(710, 308, 'OF OLIVES', { fs: 12, fill: '#6b5b35' }) +
+            dot(320, 466, 'Pool of Siloam', { fs: 11, anchor: 'middle', dx: 0, dy: 16 }),
+            'Jerusalem and the Temple Mount', '#eef2f6'),
+
+        // ---------- 10. The Tabernacle — floor plan (Exodus 26–27, 30) ----------
+        'tabernacle-plan': () => svgMap('0 0 1000 560',
+            `<rect x="130" y="80" width="800" height="400" rx="4" fill="#efe6cf" stroke="#cdbb8c" stroke-width="3"/>` +
+            `<rect x="922" y="200" width="16" height="160" rx="2" fill="#8189c6" stroke="#5b63a8" stroke-width="2"/>` +
+            `<rect x="800" y="260" width="40" height="40" fill="#bd7e3f" stroke="#8a5a2b" stroke-width="2"/>` +
+            `<circle cx="700" cy="280" r="17" fill="#cd9a5b" stroke="#8a5a2b" stroke-width="2"/>` +
+            `<rect x="200" y="240" width="240" height="80" fill="#e3d4ad" stroke="#9c855a" stroke-width="2.5"/>` +
+            `<rect x="200" y="240" width="80" height="80" fill="#cdb784" stroke="#9c855a" stroke-width="2.5"/>` +
+            `<line x1="280" y1="240" x2="280" y2="320" stroke="#7c3f8a" stroke-width="5"/>` +
+            `<line x1="440" y1="240" x2="440" y2="320" stroke="#8189c6" stroke-width="5"/>` +
+            `<rect x="226" y="262" width="28" height="26" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<rect x="295" y="272" width="16" height="16" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<rect x="350" y="251" width="26" height="15" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<circle cx="362" cy="305" r="9" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<text x="240" y="312" font-size="9" font-weight="800" fill="#5c4a1e" text-anchor="middle">MOST HOLY</text>` +
+            `<text x="386" y="334" font-size="9" font-weight="800" fill="#5c4a1e" text-anchor="middle">HOLY PLACE</text>` +
+            regionLabel(540, 56, 'THE TABERNACLE', { fs: 17, fill: '#7c5a1e' }) +
+            lead(240, 186, 240, 262) + lbl(240, 176, 'Ark of the Covenant', { anchor: 'middle' }) +
+            lead(303, 214, 303, 272) + lbl(303, 204, 'Altar of Incense', { anchor: 'middle' }) +
+            lead(390, 186, 365, 251) + lbl(400, 176, 'Table of Showbread', { anchor: 'middle' }) +
+            lead(362, 362, 362, 314) + lbl(362, 376, 'Lampstand (Menorah)', { anchor: 'middle' }) +
+            lead(440, 362, 440, 320) + lbl(470, 376, 'Entrance (screen)', { anchor: 'start' }) +
+            lbl(820, 252, 'Bronze Altar', { anchor: 'middle' }) +
+            lbl(700, 252, 'Laver', { anchor: 'middle' }) +
+            lead(902, 280, 922, 280) + lbl(898, 283, 'East Gate', { anchor: 'end' }) +
+            compass(180, 130) +
+            lbl(540, 508, 'Outer court: 100 × 50 cubits (≈ 150 × 75 ft). Entrance faces east.', { anchor: 'middle', fs: 12, fill: '#7c6b45' }),
+            'The Tabernacle — floor plan', '#f6efdc'),
+
+        // ---------- 11. Solomon's Temple — floor plan (1 Kings 6–7) ----------
+        'solomon-temple-plan': () => svgMap('0 0 1000 540',
+            `<rect x="138" y="168" width="624" height="224" fill="none" stroke="#b6a373" stroke-width="2" stroke-dasharray="5 5"/>` +
+            `<rect x="150" y="180" width="700" height="200" fill="#e3d4ad" stroke="#9c855a" stroke-width="3"/>` +
+            `<rect x="150" y="180" width="200" height="200" fill="#cdb784" stroke="#9c855a" stroke-width="3"/>` +
+            `<line x1="350" y1="180" x2="350" y2="380" stroke="#7c3f8a" stroke-width="5"/>` +
+            `<line x1="750" y1="180" x2="750" y2="380" stroke="#9c855a" stroke-width="2"/>` +
+            `<circle cx="862" cy="205" r="11" fill="#b08d57" stroke="#7c5a1e" stroke-width="2"/>` +
+            `<circle cx="862" cy="355" r="11" fill="#b08d57" stroke="#7c5a1e" stroke-width="2"/>` +
+            `<path d="M180,250 Q250,212 320,250" fill="none" stroke="#8a6a1f" stroke-width="2.5"/>` +
+            `<rect x="232" y="266" width="34" height="28" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<rect x="366" y="272" width="16" height="16" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<circle cx="470" cy="248" r="7" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.3"/><circle cx="520" cy="248" r="7" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.3"/><circle cx="470" cy="312" r="7" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.3"/><circle cx="520" cy="312" r="7" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.3"/>` +
+            `<rect x="600" y="252" width="26" height="15" rx="2" fill="#caa14a" stroke="#8a6a1f" stroke-width="1.5"/>` +
+            `<circle cx="905" cy="240" r="22" fill="#9fb6c9" stroke="#5b7186" stroke-width="2"/>` +
+            `<rect x="886" y="300" width="40" height="40" fill="#bd7e3f" stroke="#8a5a2b" stroke-width="2"/>` +
+            `<text x="250" y="285" font-size="10" font-weight="800" fill="#5c4a1e" text-anchor="middle">MOST HOLY</text>` +
+            `<text x="540" y="200" font-size="10" font-weight="800" fill="#5c4a1e" text-anchor="middle">HOLY PLACE</text>` +
+            `<text x="800" y="200" font-size="10" font-weight="800" fill="#5c4a1e" text-anchor="middle">PORCH</text>` +
+            regionLabel(500, 56, 'SOLOMON’S TEMPLE', { fs: 17, fill: '#7c5a1e' }) +
+            lead(249, 232, 249, 266) + lbl(249, 222, 'Ark &amp; Cherubim', { anchor: 'middle' }) +
+            lead(374, 404, 374, 288) + lbl(374, 418, 'Altar of Incense', { anchor: 'middle' }) +
+            lead(495, 404, 495, 312) + lbl(495, 418, 'Lampstands (10)', { anchor: 'middle' }) +
+            lead(613, 232, 613, 252) + lbl(630, 222, 'Table of Showbread', { anchor: 'middle' }) +
+            lead(862, 152, 862, 194) + lbl(862, 142, 'Jachin &amp; Boaz (pillars)', { anchor: 'middle' }) +
+            lbl(905, 210, 'Bronze Sea', { anchor: 'middle' }) +
+            lbl(906, 360, 'Great Altar', { anchor: 'middle' }) +
+            lbl(150, 416, 'Side chambers (3 stories)', { anchor: 'start', fill: '#7c6b45' }) +
+            compass(195, 132) +
+            lbl(500, 500, 'The house: 60 cubits long, 20 wide, 30 high (≈ 90 × 30 ft). Entrance faces east.', { anchor: 'middle', fs: 12, fill: '#7c6b45' }),
+            'Solomon’s Temple — floor plan', '#f6efdc'),
+
+        // ---------- 12. Herod's Temple courts (Second Temple) — schematic ----------
+        'herod-temple-courts': () => svgMap('0 0 1000 640',
+            `<rect x="80" y="70" width="840" height="500" rx="8" fill="#efe6cf" stroke="#cdbb8c" stroke-width="13" opacity="0.6"/>` +
+            `<rect x="80" y="70" width="840" height="500" rx="8" fill="none" stroke="#b6a373" stroke-width="3"/>` +
+            `<rect x="300" y="150" width="520" height="340" rx="6" fill="#e7dcbf" stroke="#a8895a" stroke-width="2" stroke-dasharray="6 5"/>` +
+            `<rect x="620" y="190" width="180" height="260" fill="#e3d4ad" stroke="#9c855a" stroke-width="2"/>` +
+            `<rect x="360" y="190" width="260" height="260" fill="#dcc998" stroke="#9c855a" stroke-width="2"/>` +
+            `<rect x="470" y="288" width="48" height="48" fill="#bd7e3f" stroke="#8a5a2b" stroke-width="2"/>` +
+            `<rect x="330" y="250" width="120" height="140" fill="#fffaf0" stroke="#b08e57" stroke-width="3"/>` +
+            `<rect x="330" y="294" width="40" height="52" fill="#caa46a" stroke="#b08e57" stroke-width="2"/>` +
+            `<rect x="120" y="86" width="92" height="72" fill="#d8cbb0" stroke="#a8895a" stroke-width="2"/>` +
+            `<rect x="300" y="500" width="520" height="48" fill="#ded2b6" stroke="#a8895a" stroke-width="2"/>` +
+            regionLabel(500, 50, 'HEROD’S TEMPLE  (Second Temple)', { fs: 16, fill: '#7c5a1e' }) +
+            lbl(500, 128, 'Court of the Gentiles', { anchor: 'middle', fs: 13, fill: '#7c6b45' }) +
+            lbl(710, 326, 'Court of', { anchor: 'middle', fs: 11 }) + lbl(710, 340, 'the Women', { anchor: 'middle', fs: 11 }) +
+            lbl(545, 225, 'Court of Israel &amp; Priests', { anchor: 'middle', fs: 11 }) +
+            lead(494, 372, 494, 336) + lbl(494, 386, 'Altar of burnt offering', { anchor: 'middle' }) +
+            lead(300, 224, 330, 262) + lbl(298, 216, 'The Sanctuary', { anchor: 'middle' }) +
+            lbl(350, 420, 'Holy of Holies (empty)', { anchor: 'middle', fs: 10, fill: '#7c5a1e' }) +
+            lbl(166, 124, 'Antonia', { anchor: 'middle', fs: 10 }) + lbl(166, 136, 'Fortress', { anchor: 'middle', fs: 10 }) +
+            lbl(560, 528, 'Royal Stoa', { anchor: 'middle', fs: 11 }) +
+            lbl(858, 168, 'Solomon’s', { anchor: 'middle', fs: 10 }) + lbl(858, 180, 'Porch', { anchor: 'middle', fs: 10 }) +
+            compass(140, 470) +
+            lbl(500, 606, 'Schematic — nested courts, the holiest at the west. Not to exact scale.', { anchor: 'middle', fs: 12, fill: '#7c6b45' }),
+            'Herod’s Temple — the courts', '#f6efdc'),
+
+        // ---------- 13. Joshua's conquest of Canaan ----------
+        'conquest-canaan': () => svgMap('0 0 800 600',
+            LEVANT_LAND + LEVANT_FEATURES +
+            route('M538,330 C512,326 498,324 490,322', { sw: 3.5 }) +
+            route('M478,318 C466,314 460,312 462,310', { sw: 3 }) +
+            route('M470,332 C430,360 392,360 368,360', { marker: 'arrowG', stroke: '#047857', sw: 3, dash: '6 7' }) +
+            route('M472,318 C472,250 476,160 480,104', { marker: 'arrowR', stroke: '#dc2626', sw: 3, dash: '6 7' }) +
+            dot(490, 322, 'Jericho', { fs: 12, anchor: 'start', dx: 9 }) +
+            dot(460, 308, 'Ai', { fs: 12, anchor: 'end', dx: -8, dy: -4 }) +
+            dot(450, 328, 'Gibeon', { fs: 11, anchor: 'end', dx: -8 }) +
+            dot(522, 334, 'Gilgal', { fs: 11, anchor: 'start', dx: 9 }) +
+            dot(368, 360, 'Lachish', { fs: 12, anchor: 'end', dx: -8 }) +
+            dot(440, 410, 'Hebron', { fs: 12, anchor: 'start', dx: 9 }) +
+            dot(480, 100, 'Hazor', { fs: 12, anchor: 'start', dx: 9 }) +
+            `<g transform="translate(556,470)" font-size="12" font-weight="700" fill="#334155">
+                <rect x="-12" y="-18" width="218" height="86" rx="10" fill="#ffffff" opacity="0.85" stroke="#cbd5e1"/>
+                <line x1="0" y1="0" x2="24" y2="0" stroke="#4338ca" stroke-width="3" stroke-dasharray="11 8"/><text x="32" y="4">Central (Jericho → Ai)</text>
+                <line x1="0" y1="24" x2="24" y2="24" stroke="#047857" stroke-width="3" stroke-dasharray="6 7"/><text x="32" y="28">Southern campaign</text>
+                <line x1="0" y1="48" x2="24" y2="48" stroke="#dc2626" stroke-width="3" stroke-dasharray="6 7"/><text x="32" y="52">Northern campaign</text>
+             </g>`,
+            'Joshua’s conquest of Canaan', '#cfe4f7'),
+
+        // ---------- 14. The empires that ruled the biblical world ----------
+        'world-empires': () => svgMap('0 0 1120 600',
+            water('M0,0 L320,0 C300,80 220,150 120,168 L0,190 Z', '#bcd9f2') +
+            water('M1120,360 L1120,600 L1010,600 C1000,470 1010,420 1040,372 Z', '#bcd9f2') +
+            river('M620,120 C720,230 820,360 920,470') + river('M662,110 C762,220 862,350 952,460') +
+            river('M250,470 C262,380 252,300 240,236') +
+            `<ellipse cx="230" cy="420" rx="82" ry="60" fill="#f59e0b" opacity="0.18"/>` +
+            `<ellipse cx="640" cy="205" rx="95" ry="55" fill="#16a34a" opacity="0.16"/>` +
+            `<ellipse cx="800" cy="335" rx="90" ry="55" fill="#ca8a04" opacity="0.18"/>` +
+            `<ellipse cx="990" cy="330" rx="92" ry="72" fill="#0891b2" opacity="0.16"/>` +
+            `<ellipse cx="365" cy="250" rx="82" ry="52" fill="#7c3aed" opacity="0.15"/>` +
+            `<ellipse cx="150" cy="255" rx="70" ry="50" fill="#dc2626" opacity="0.15"/>` +
+            route('M650,235 C705,272 745,300 782,322', { marker: 'arrowA', stroke: '#a16207', sw: 3, dash: '8 7' }) +
+            route('M850,338 C900,332 940,328 956,326', { marker: 'arrow', stroke: '#0e7490', sw: 3, dash: '8 7' }) +
+            route('M945,302 C720,205 520,212 438,244', { marker: 'arrow', stroke: '#6d28d9', sw: 3, dash: '8 7' }) +
+            route('M300,256 C255,256 225,255 212,253', { marker: 'arrowR', stroke: '#b91c1c', sw: 3, dash: '8 7' }) +
+            seaLabel(150, 110, 'Mediterranean Sea', { fs: 13 }) + seaLabel(1058, 470, 'Persian Gulf', { rot: -64, fs: 11 }) +
+            lbl(230, 426, 'EGYPT', { anchor: 'middle', fs: 13, fill: '#b45309' }) +
+            lbl(640, 188, 'ASSYRIA', { anchor: 'middle', fs: 13, fill: '#15803d' }) + lbl(640, 172, 'Nineveh · fell Israel 722 BC', { anchor: 'middle', fs: 10, fill: '#15803d' }) +
+            lbl(800, 318, 'BABYLON', { anchor: 'middle', fs: 13, fill: '#a16207' }) + lbl(800, 302, 'took Judah 586 BC', { anchor: 'middle', fs: 10, fill: '#a16207' }) +
+            lbl(990, 314, 'PERSIA', { anchor: 'middle', fs: 13, fill: '#0e7490' }) + lbl(990, 410, 'return decree 538 BC', { anchor: 'middle', fs: 10, fill: '#0e7490' }) +
+            lbl(365, 234, 'GREECE', { anchor: 'middle', fs: 13, fill: '#6d28d9' }) + lbl(365, 312, 'Alexander · 331 BC', { anchor: 'middle', fs: 10, fill: '#6d28d9' }) +
+            lbl(150, 238, 'ROME', { anchor: 'middle', fs: 13, fill: '#b91c1c' }) + lbl(150, 314, 'rules at Christ’s birth', { anchor: 'middle', fs: 10, fill: '#b91c1c' }) +
+            regionLabel(560, 552, 'Assyria → Babylon → Persia → Greece → Rome', { fs: 15, fill: '#475569' }),
+            'The empires that ruled the biblical world', '#f3ead2'),
+
+        // ---------- 15. The seven churches of Revelation ----------
+        'seven-churches': () => svgMap('0 0 900 600',
+            water('M0,0 L250,0 C232,120 212,180 252,250 C300,330 232,420 252,520 C262,560 242,580 232,600 L0,600 Z', '#bcd9f2') +
+            seaLabel(120, 300, 'Aegean Sea', { rot: -90 }) +
+            regionLabel(580, 120, 'ASIA  MINOR', { fs: 16 }) +
+            `<ellipse cx="175" cy="470" rx="20" ry="12" fill="#f3ead2" stroke="#d8c79c" stroke-width="2"/>` +
+            lbl(175, 496, 'Patmos', { anchor: 'middle', fs: 11 }) +
+            route('M300,420 C296,394 298,366 300,340', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            route('M302,322 C308,288 320,250 328,220', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            route('M340,210 C376,222 406,236 422,246', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            route('M434,260 C454,296 464,330 470,350', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            route('M480,368 C496,386 508,400 516,410', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            route('M522,432 C522,460 522,486 521,500', { sw: 2.5, dash: '7 6', marker: 'none' }) +
+            numdot(300, 430, '1', 'Ephesus', { anchor: 'end', dx: -14 }) +
+            numdot(300, 330, '2', 'Smyrna', { anchor: 'end', dx: -14 }) +
+            numdot(330, 210, '3', 'Pergamum', { anchor: 'end', dx: -14 }) +
+            numdot(430, 250, '4', 'Thyatira', { anchor: 'start', dx: 14 }) +
+            numdot(470, 360, '5', 'Sardis', { anchor: 'start', dx: 14 }) +
+            numdot(522, 420, '6', 'Philadelphia', { anchor: 'start', dx: 14 }) +
+            numdot(522, 510, '7', 'Laodicea', { anchor: 'start', dx: 14 }) +
+            lbl(450, 560, 'John wrote to these seven churches from exile on Patmos (Revelation 1–3).', { anchor: 'middle', fs: 11, fill: '#6b7280' }),
+            'The seven churches of Revelation', '#cfe4f7'),
+
+        // ---------- 16. The rivers of Eden (Genesis 2:10–14) ----------
+        'eden-rivers': () => svgMap('0 0 900 540',
+            water('M820,540 C760,470 760,420 782,372 L900,362 L900,540 Z', '#bcd9f2') +
+            seaLabel(842, 470, 'Persian', { fs: 12 }) + seaLabel(842, 484, 'Gulf', { fs: 12 }) +
+            `<circle cx="420" cy="150" r="15" fill="#4d7c0f" opacity="0.45"/>` +
+            river('M420,162 C520,232 680,322 800,402') +
+            river('M402,166 C472,252 602,342 782,412') +
+            `<path d="M414,164 C360,252 300,360 270,470" fill="none" stroke="#9ec8ec" stroke-width="3" stroke-dasharray="9 7"/>` +
+            `<path d="M432,158 C500,206 560,246 642,248" fill="none" stroke="#9ec8ec" stroke-width="3" stroke-dasharray="9 7"/>` +
+            lbl(420, 132, 'Eden (location unknown)', { anchor: 'middle', fill: '#4d7c0f' }) +
+            lbl(706, 360, 'Hiddekel', { anchor: 'start', fill: '#2563eb' }) + lbl(706, 374, '(Tigris)', { anchor: 'start', fs: 10, fill: '#2563eb' }) +
+            lbl(556, 330, 'Euphrates', { anchor: 'end', fill: '#2563eb' }) +
+            lbl(266, 486, 'Pishon?', { anchor: 'middle', fill: '#64748b' }) +
+            lbl(648, 246, 'Gihon?', { anchor: 'start', fill: '#64748b' }) +
+            regionLabel(450, 56, 'THE RIVERS OF EDEN', { fs: 16, fill: '#4d7c0f' }) +
+            lbl(450, 512, 'Four rivers are named; only the Tigris (Hiddekel) and Euphrates are known today. Eden’s site is uncertain.', { anchor: 'middle', fs: 11, fill: '#6b7280' }),
+            'The rivers flowing out of Eden', '#f3ead2'),
+    };
+
+    /* ================= ERAS ================= */
+    const LEARN_ERAS = [
+        { id: 'beginnings',   label: 'Beginnings',         range: 'Genesis 1–11',  color: '#0891b2',
+          events: [{ y: '"In the beginning"', t: 'Creation & the Fall' }, { y: 'primeval', t: 'Flood · Babel' }] },
+        { id: 'patriarchs',   label: 'Patriarchs',         range: '~2000–1800 BC', color: '#d97706',
+          events: [{ y: '~2000 BC', t: 'Abraham called' }, { y: '', t: 'Isaac · Jacob · Joseph' }] },
+        { id: 'exodus',       label: 'Exodus & Law',       range: '~1446 BC',      color: '#ea580c',
+          events: [{ y: '~1446 BC', t: 'The Exodus' }, { y: 'Sinai', t: 'The Law & Tabernacle' }] },
+        { id: 'conquest',     label: 'Conquest & Judges',  range: '~1400–1050 BC', color: '#65a30d',
+          events: [{ y: '~1400 BC', t: 'Joshua takes the land' }, { y: '~1380–1050', t: 'The Judges' }] },
+        { id: 'united',       label: 'United Kingdom',     range: '~1050–930 BC',  color: '#059669',
+          events: [{ y: '~1050 BC', t: 'Saul, first king' }, { y: '~1010 BC', t: 'David' }, { y: '~966 BC', t: "Solomon's Temple" }] },
+        { id: 'divided',      label: 'Divided Kingdom',    range: '930–586 BC',    color: '#0d9488',
+          events: [{ y: '930 BC', t: 'Kingdom splits' }, { y: '722 BC', t: 'Israel falls (Assyria)' }] },
+        { id: 'exile',        label: 'Exile & Return',     range: '586–430 BC',    color: '#2563eb',
+          events: [{ y: '586 BC', t: 'Jerusalem & Temple fall' }, { y: '538 BC', t: 'Return (Cyrus)' }, { y: '~516 BC', t: 'Second Temple built' }] },
+        { id: 'silence',      label: '400 Silent Years',   range: '430–5 BC',      color: '#64748b',
+          events: [{ y: '~430–5 BC', t: 'Persia → Greece → Rome' }] },
+        { id: 'christ',       label: 'Christ — the Nexus', range: '~5 BC – 33 AD', color: '#4f46e5',
+          events: [{ y: '~5 BC', t: 'Birth of Christ' }, { y: '~30 AD', t: 'Cross & Resurrection' }] },
+        { id: 'church',       label: 'Early Church',       range: '33–100 AD',     color: '#7c3aed',
+          events: [{ y: '~33 AD', t: 'Pentecost' }, { y: '~46–62 AD', t: "Paul's journeys" }] },
+        { id: 'temple-after', label: 'After the Temple',   range: '70 & 363 AD',   color: '#e11d48',
+          events: [{ y: '70 AD', t: 'Second Temple destroyed' }, { y: '363 AD', t: "Julian's rebuild fails" }] },
+    ];
+    const eraById = Object.fromEntries(LEARN_ERAS.map(e => [e.id, e]));
+
+    /* ================= TOPICS ================= */
+    const LEARN_TOPICS = [
+        {
+            id: 'what-is-the-bible', title: 'What the Bible Is', era: 'overview', level: 'foundation', pathOrder: 1,
+            summary: 'One library, two Testaments, one story climaxing in Christ.', maps: [],
+            body: `
+                <p>The Bible is not one book but a <b>library of 66 books</b> written by roughly 40 authors across about 1,500 years — kings and shepherds, prophets and fishermen — on three continents and in three languages (Hebrew, Aramaic, Greek). Yet it tells <b>one unified story</b>: the living God creating, a world fallen into sin, and God's relentless plan to redeem a people for Himself, accomplished in <b>Jesus Christ</b>.</p>
+                <h4>The two Testaments</h4>
+                <ul>
+                    <li><b>Old Testament (39 books):</b> creation, the patriarchs, Israel, the law, the kingdom, exile, and the prophets — all leaning forward, promising a Redeemer.</li>
+                    <li><b>New Testament (27 books):</b> the Gospels (Jesus' life, death, resurrection), Acts (the church spreads), the Epistles (letters teaching the church), and Revelation (the end and the renewal of all things).</li>
+                </ul>
+                <h4>Why it connects to everything</h4>
+                <p>The Bible claims to explain the world we actually live in: where we came from, why things are broken, what God is doing about it, and where history is going. It has shaped law, calendars, literature, art, and the very idea of human dignity.</p>
+                <p class="verse">"All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness" (2 Timothy 3:16).</p>
+                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">Dom's instinct — that this is information "withheld" — is worth honoring. The Bible was meant to be <i>read</i>. The best first move is simply to start reading a Gospel (try John) and let the story do its work.</p></div>`
+        },
+        {
+            id: 'how-to-read', title: 'How to Read the Bible', era: 'overview', level: 'foundation', pathOrder: 2,
+            summary: 'Read it as one story that points to Jesus.', maps: [],
+            body: `
+                <p>The Bible rewards a few simple habits. First, read it as a <b>story</b>, not a rulebook to dip into at random. Second, read every part in light of the <b>whole</b> — the Old Testament sets up promises that the New Testament fulfills.</p>
+                <h4>The covenant arc</h4>
+                <p>The storyline advances through <b>covenants</b> — binding promises God makes: with Noah, Abraham, Israel at Sinai, David, and finally the <b>New Covenant</b> in Christ's blood (Luke 22:20). Track the promises and you track the plot.</p>
+                <h4>Read it Christ-centered</h4>
+                <p>After His resurrection, Jesus walked two disciples through "Moses and all the prophets" and showed "the things concerning himself" (Luke 24:27). He is the key that unlocks the whole book.</p>
+                <ul>
+                    <li><b>Context:</b> who wrote it, to whom, and where it sits in the story.</li>
+                    <li><b>Genre:</b> read poetry as poetry, history as history, letters as letters.</li>
+                    <li><b>Christ:</b> ask how this passage anticipates or flows from Jesus.</li>
+                </ul>
+                <div class="callout"><div class="callout-label">A simple plan</div><p style="margin:0">A great on-ramp: a Gospel (John), then Genesis, then Exodus, then Romans. The main app's reading plans can pace the whole Bible from here.</p></div>`
+        },
+        {
+            id: 'calendar-bc-ad', title: 'The Calendar: Christ at the Center', era: 'christ', level: 'foundation', pathOrder: 3,
+            summary: 'BC/AD vs BCE/CE — history still counts from Bethlehem.', maps: [],
+            body: `
+                <p>The world's dominant calendar is built around one birth. <b>BC</b> means "Before Christ"; <b>AD</b> is Latin <i>Anno Domini</i>, "in the year of our Lord." The numbering was devised by the monk <b>Dionysius Exiguus</b> in AD 525 and counts forward and backward from the birth of Jesus. History itself is split in two by the manger in Bethlehem.</p>
+                <h4>BCE / CE</h4>
+                <p>In recent times many institutions switched to <b>BCE</b> ("Before Common Era") and <b>CE</b> ("Common Era"). The labels remove Christ's name — yet they change <i>nothing</i> about the count. The pivot point is still the very same year tied to the birth in Bethlehem. The dividing line of human history remains exactly where it was; only the name has been quietly erased.</p>
+                <p class="verse">"But when the fulness of the time was come, God sent forth his Son" (Galatians 4:4).</p>
+                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">You can rename the hinge, but you cannot move it. Even a determinedly secular calendar still measures all of history from Christ — a quiet, daily witness in every date we write.</p></div>`
+        },
+        {
+            id: 'covenant-abraham', title: 'Abraham & the Covenant', era: 'patriarchs', level: 'core', pathOrder: 4,
+            summary: 'God’s promise of land, seed, and blessing to all nations.', maps: ['patriarchs'],
+            body: `
+                <p>Around 2000 BC, God called <b>Abram</b> out of <b>Ur</b> of the Chaldees, leading him through <b>Haran</b> into <b>Canaan</b> (Genesis 12). He made a covenant with three great promises: a <b>land</b>, a <b>seed</b> (descendants), and a <b>blessing</b> — "in thee shall all families of the earth be blessed" (Genesis 12:3).</p>
+                <h4>Justified by faith</h4>
+                <p>Abraham "believed in the LORD; and he counted it to him for righteousness" (Genesis 15:6). This single verse becomes the backbone of the New Testament's teaching that we are made right with God <b>by faith</b>, not by works (Romans 4; Galatians 3).</p>
+                <h4>The name change</h4>
+                <p>God renamed him <b>Abraham</b>, "father of many nations" (Genesis 17:5), sealing the covenant with the sign of circumcision.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Paul says the ultimate "seed" of Abraham is Christ (Galatians 3:16), and that everyone who believes — Jew or Gentile, Dom included — becomes a child of Abraham by faith. The promise was aimed at us all along.</p></div>`
+        },
+        {
+            id: 'ishmael-isaac', title: 'Ishmael & Isaac', era: 'patriarchs', level: 'core', pathOrder: 5,
+            summary: 'The child of the flesh vs. the child of promise.', maps: [],
+            body: `
+                <p>God promised Abraham a son, but he and Sarah grew impatient. Through Sarah's servant Hagar, Abraham fathered <b>Ishmael</b> (Genesis 16) — a son by human scheming. Years later, when it was humanly impossible, God gave the promised son <b>Isaac</b> ("he laughs") to Sarah in her old age (Genesis 21).</p>
+                <h4>Two principles</h4>
+                <p>Scripture treats this as a picture: Ishmael, the <b>child of the flesh</b> (human effort), and Isaac, the <b>child of promise</b> (God's grace). Paul uses exactly this contrast in Galatians 4:22–31 to teach that God's people are born of promise, not of works.</p>
+                <h4>The binding of Isaac</h4>
+                <p>In Genesis 22, God tests Abraham, calling him to offer Isaac on Mount Moriah — then provides a ram in his place. A father, a beloved son, wood carried up a hill, a substitute provided: a vivid foreshadowing of the cross.</p>
+                <div class="callout"><div class="callout-label">Note</div><p style="margin:0">God still blessed Ishmael and made him a great nation (Genesis 21:13). But the covenant line — the line of the Messiah — ran through Isaac.</p></div>`
+        },
+        {
+            id: 'esau-jacob', title: 'Esau, Jacob & Israel', era: 'patriarchs', level: 'core', pathOrder: 6,
+            summary: 'Grace chooses the younger; Jacob becomes Israel.', maps: [],
+            body: `
+                <p>Isaac's twins, <b>Esau</b> and <b>Jacob</b>, struggled even in the womb. Esau, the elder, despised his birthright and sold it for a bowl of stew (Genesis 25:29–34). Jacob ("heel-grabber, supplanter") schemed to obtain both birthright and blessing.</p>
+                <h4>Wrestling with God</h4>
+                <p>After years away, a humbled Jacob wrestled all night with God at the Jabbok and would not let go without a blessing. God renamed him <b>Israel</b> — "he strives with God" / "God strives" (Genesis 32:28). The deceiver became the father of a nation by grace and struggle.</p>
+                <h4>Election by grace</h4>
+                <p>"The elder shall serve the younger" (Genesis 25:23). Paul cites this (Romans 9) to show that God's covenant runs not by human merit or birth order but by His sovereign, gracious choice.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">"Israel" is now the name of the covenant people and, later, the land. Every later mention of Israel reaches back to this transformed man.</p></div>`
+        },
+        {
+            id: 'twelve-tribes', title: 'The Twelve Tribes', era: 'conquest', level: 'core', pathOrder: 7,
+            summary: 'Jacob’s twelve sons become the nation — and its map.', maps: ['twelve-tribes'],
+            body: `
+                <p>Jacob (Israel) had twelve sons, who became the <b>twelve tribes of Israel</b>: Reuben, Simeon, Levi, Judah, Dan, Naphtali, Gad, Asher, Issachar, Zebulun, Joseph, and Benjamin. After the Exodus and conquest, the land of Canaan was divided among them by lot (Joshua 13–19).</p>
+                <h4>Two adjustments that keep the count at twelve</h4>
+                <ul>
+                    <li><b>Levi</b> received no land allotment — the priestly tribe's inheritance was the LORD Himself and service at the tabernacle/temple (Joshua 13:33).</li>
+                    <li><b>Joseph</b> was given a double portion through his two sons, <b>Ephraim</b> and <b>Manasseh</b>, who each became a tribe — restoring the number to twelve.</li>
+                </ul>
+                <h4>Judah and the scepter</h4>
+                <p>Jacob prophesied that the ruler would come from <b>Judah</b>: "The sceptre shall not depart from Judah... until Shiloh come" (Genesis 49:10). David, and ultimately Jesus — "the Lion of the tribe of Juda" (Revelation 5:5) — came from this tribe.</p>
+                <div class="callout"><div class="callout-label">Full circle</div><p style="margin:0">Jesus chose <b>twelve apostles</b>, deliberately echoing the twelve tribes — the foundation of a renewed people of God (Matthew 19:28).</p></div>`
+        },
+        {
+            id: 'exodus-journey', title: 'The Exodus', era: 'exodus', level: 'core', pathOrder: 8,
+            summary: 'Redemption from Egypt through the Passover lamb.', maps: ['exodus'],
+            body: `
+                <p>Israel grew into a nation while enslaved in <b>Egypt</b>. God raised up <b>Moses</b>, sent ten plagues, and delivered His people — the defining act of redemption in the Old Testament (Exodus 1–15).</p>
+                <h4>The Passover</h4>
+                <p>On the final night, each household killed a <b>lamb</b> and put its blood on the doorposts; the angel of death "passed over" those covered by the blood (Exodus 12). They then crossed the <b>Red Sea</b> on dry ground while Pharaoh's army drowned behind them.</p>
+                <h4>To Sinai and the Law</h4>
+                <p>At <b>Mount Sinai</b>, God gave the Ten Commandments and the Law, formally constituting Israel as His covenant nation. Decades of wilderness wandering followed, ending on the <b>plains of Moab</b>, across the Jordan from the Promised Land.</p>
+                <p class="verse">"Christ our passover is sacrificed for us" (1 Corinthians 5:7).</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Jesus died at Passover. John the Baptist called Him "the Lamb of God, which taketh away the sin of the world" (John 1:29). The Exodus is the pattern; the cross is the fulfillment.</p></div>`
+        },
+        {
+            id: 'tabernacle', title: 'The Tabernacle', era: 'exodus', level: 'core', pathOrder: 9,
+            summary: 'God’s portable dwelling — a tent shaped by grace.', maps: ['tabernacle-plan'],
+            body: `
+                <p>At Sinai, God gave detailed plans for the <b>Tabernacle</b> — a portable tent where He would dwell among His people as they traveled (Exodus 25–40). "Let them make me a sanctuary; that I may dwell among them" (Exodus 25:8).</p>
+                <h4>Its layout preached the gospel</h4>
+                <ul>
+                    <li><b>The courtyard:</b> a bronze <b>altar</b> for sacrifice and a laver for washing — you approach God only through blood and cleansing.</li>
+                    <li><b>The Holy Place:</b> lampstand, table of bread, altar of incense — light, provision, and prayer.</li>
+                    <li><b>The Most Holy Place (Holy of Holies):</b> the <b>Ark of the Covenant</b>, where God's presence dwelt above the mercy seat — entered only once a year by the high priest, with blood.</li>
+                </ul>
+                <p>A thick <b>veil</b> separated the people from that innermost presence — a constant reminder that sin bars the way to a holy God.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">"The Word was made flesh, and dwelt [literally <i>tabernacled</i>] among us" (John 1:14). The tent was always pointing to a Person.</p></div>`
+        },
+        {
+            id: 'solomon-temple', title: 'Solomon’s Temple', era: 'united', level: 'core', pathOrder: 10,
+            summary: 'The tent becomes a permanent house in Jerusalem.', maps: ['solomon-temple-plan', 'jerusalem-temple'],
+            body: `
+                <p>Once Israel was settled and at peace under King David, his son <b>Solomon</b> built the first <b>Temple</b> in <b>Jerusalem</b> (~960 BC) on Mount Moriah — the same hill where Abraham had offered Isaac (2 Chronicles 3:1). It followed the tabernacle's pattern but in permanent stone and gold (1 Kings 6–8).</p>
+                <h4>God fills the house</h4>
+                <p>When it was dedicated, "the glory of the LORD had filled the house of the LORD" (1 Kings 8:11). The Temple became the center of Israel's worship, sacrifice, and national identity.</p>
+                <h4>David's son and David's greater Son</h4>
+                <p>God had promised David an everlasting throne (2 Samuel 7). Solomon built the house — but the promise pointed past him to the Messiah, the true Son of David whose kingdom never ends.</p>
+                <div class="callout"><div class="callout-label">A sobering note</div><p style="margin:0">Solomon's later idolatry began the cracks that would split the kingdom and, centuries on, see this glorious Temple destroyed in 586 BC.</p></div>`
+        },
+        {
+            id: 'sacrifice-origin', title: 'Sacrifice: Origin & Purpose', era: 'exodus', level: 'core', pathOrder: 11,
+            summary: 'Why blood? Sin, substitution, and covering.', maps: [],
+            body: `
+                <p>The principle of sacrifice runs from the Bible's first pages. After Adam and Eve sinned, God clothed them with <b>animal skins</b> (Genesis 3:21) — the first death to cover human shame. <b>Abel</b> brought an acceptable offering by faith (Genesis 4:4; Hebrews 11:4).</p>
+                <h4>Substitution</h4>
+                <p>The logic is consistent: sin earns death (Genesis 2:17), but God graciously accepts a <b>substitute</b> — a life given in place of the sinner. "Without shedding of blood is no remission" (Hebrews 9:22). The Passover lamb, then the whole sacrificial system at the tabernacle and temple, taught Israel daily that approaching a holy God costs blood.</p>
+                <h4>The Day of Atonement</h4>
+                <p>Once a year (Leviticus 16), the high priest entered the Holy of Holies with blood, and a scapegoat carried the people's sins away into the wilderness — picturing both <b>payment</b> and <b>removal</b> of sin.</p>
+                <div class="callout"><div class="callout-label">Why it never "ran out"</div><p style="margin:0">"It is not possible that the blood of bulls and of goats should take away sins" (Hebrews 10:4). The endless repetition was the point: these sacrifices pointed forward to one final, sufficient sacrifice.</p></div>`
+        },
+        {
+            id: 'united-divided-kingdom', title: 'United & Divided Kingdom', era: 'divided', level: 'core', pathOrder: 12,
+            summary: 'From Saul, David, Solomon to a nation split in two.', maps: ['united-kingdom', 'divided-kingdom'],
+            body: `
+                <p>Israel's monarchy began with <b>Saul</b>, then <b>David</b> (who made Jerusalem the capital), then <b>Solomon</b> — the golden age of a <b>united kingdom</b> "from Dan to Beersheba."</p>
+                <h4>The split (930 BC)</h4>
+                <p>After Solomon's death, his son Rehoboam's harshness split the nation (1 Kings 12):</p>
+                <ul>
+                    <li><b>Israel</b> — the ten northern tribes, capital <b>Samaria</b>. Every king led the people into idolatry; it fell to <b>Assyria</b> in 722 BC.</li>
+                    <li><b>Judah</b> — the southern tribes (Judah & Benjamin), capital <b>Jerusalem</b>, ruled by David's line. It lasted longer but finally fell to <b>Babylon</b> in 586 BC.</li>
+                </ul>
+                <h4>The prophets</h4>
+                <p>Through these centuries God sent prophets — Elijah, Isaiah, Jeremiah, Amos and others — pleading with the people to return, and pointing ahead to a coming King and a New Covenant.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">The throne of David seemed to end in ruins. But the prophets insisted a greater Son of David was still coming (Isaiah 9:6–7).</p></div>`
+        },
+        {
+            id: 'exile-and-return', title: 'Exile & Return', era: 'exile', level: 'core', pathOrder: 13,
+            summary: 'Judah carried to Babylon — then brought home.', maps: ['exile-return'],
+            body: `
+                <p>In 586 BC <b>Babylon</b> destroyed Jerusalem and the Temple and carried Judah into <b>exile</b> — the great trauma of the Old Testament. Yet even there God preserved His people (Daniel, Ezekiel) and kept His promises.</p>
+                <h4>The return</h4>
+                <p>Seventy years later, just as Jeremiah foretold (Jeremiah 29:10), the Persian king <b>Cyrus</b> decreed in 538 BC that the Jews could return and rebuild (Ezra 1). Under <b>Zerubbabel</b>, <b>Ezra</b>, and <b>Nehemiah</b>, they rebuilt the Temple and the walls of Jerusalem.</p>
+                <h4>A purified people</h4>
+                <p>The exile cured Israel of idol-worship for good and intensified their longing for the promised Messiah and a restored kingdom.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Exile and return became the Bible's great picture of judgment and restoration — ultimately the story of every sinner brought home to God through Christ.</p></div>`
+        },
+        {
+            id: 'second-temple', title: 'The Second Temple', era: 'exile', level: 'core', pathOrder: 14,
+            summary: 'Rebuilt after exile, expanded by Herod — and Jesus’ world.', maps: ['herod-temple-courts', 'jerusalem-temple'],
+            body: `
+                <p>The returning exiles rebuilt the Temple around <b>516 BC</b>. It was humbler than Solomon's — older men who remembered the first wept (Ezra 3:12). Then came the <b>400 "silent years"</b> between the Testaments, when no prophet spoke, but God was arranging the world stage (Greek language, Roman roads and peace) for the Messiah.</p>
+                <h4>Herod's expansion</h4>
+                <p>Beginning around 20 BC, <b>Herod the Great</b> massively enlarged and beautified this Second Temple. This was the magnificent Temple Jesus knew — where He was presented as a baby, taught as a boy, and overturned the money-changers' tables.</p>
+                <h4>Foretold destruction</h4>
+                <p>Jesus predicted, "There shall not be left here one stone upon another, that shall not be thrown down" (Matthew 24:2). In <b>AD 70</b>, Rome destroyed it — and it has never been rebuilt.</p>
+                <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">With the Temple gone, the entire sacrificial system stopped — a fitting end, since the once-for-all sacrifice had already been made at the cross.</p></div>`
+        },
+        {
+            id: 'nt-holy-land', title: 'The Holy Land of Jesus', era: 'christ', level: 'core', pathOrder: 15,
+            summary: 'Galilee, Samaria, Judea — the geography of the Gospels.', maps: ['nt-holyland'],
+            body: `
+                <p>The Gospels unfold across a surprisingly small land. Knowing the map makes the story come alive.</p>
+                <ul>
+                    <li><b>Galilee</b> (north): Jesus grew up in <b>Nazareth</b> and based His ministry around the <b>Sea of Galilee</b>, in towns like <b>Capernaum</b>. His first miracle was at <b>Cana</b>.</li>
+                    <li><b>Samaria</b> (middle): home of the Samaritans, whom Jews avoided — yet Jesus deliberately went there (the woman at the well, John 4).</li>
+                    <li><b>Judea</b> (south): <b>Bethlehem</b> (His birth), <b>Jericho</b>, <b>Bethany</b>, and <b>Jerusalem</b> — where He was crucified and rose again.</li>
+                </ul>
+                <p>The <b>Jordan River</b>, where Jesus was baptized, runs from the Sea of Galilee down to the Dead Sea, the lowest point on earth.</p>
+                <div class="callout"><div class="callout-label">Tip for conversations</div><p style="margin:0">Have the map open while reading a Gospel. Tracing Jesus' movements — north in Galilee, the journeys up to Jerusalem — turns abstract names into a real, walkable world.</p></div>`
+        },
+        {
+            id: 'christ-true-temple', title: 'Christ, the True Temple', era: 'christ', level: 'advanced', pathOrder: 16,
+            summary: 'The dwelling of God moves from a building to a Person — and His people.', maps: [],
+            body: `
+                <p>The whole temple story was always pointing beyond stone. When challenged for a sign, Jesus said, "Destroy this temple, and in three days I will raise it up." John explains: "he spake of the temple of his body" (John 2:19–21). Jesus is the place where God and humanity truly meet.</p>
+                <h4>The veil torn</h4>
+                <p>At the moment Jesus died, "the veil of the temple was rent in twain from the top to the bottom" (Matthew 27:51). The barrier that kept sinners out of God's presence was torn open — from heaven's side. Through Christ, we now have "boldness to enter into the holiest" (Hebrews 10:19–20).</p>
+                <h4>His people, a temple</h4>
+                <p>Astonishingly, the New Testament then calls believers themselves God's temple: "ye are the temple of God, and ... the Spirit of God dwelleth in you" (1 Corinthians 3:16). And the final vision needs no temple at all — "for the Lord God Almighty and the Lamb are the temple of it" (Revelation 21:22).</p>
+                <div class="callout"><div class="callout-label">The big picture</div><p style="margin:0">Tabernacle → Temple → Christ → the Church → the new creation. God's project was never a building. It was always <i>"I will dwell among them."</i></p></div>`
+        },
+        {
+            id: 'sacrifice-fulfilled', title: 'Sacrifice Fulfilled in Christ', era: 'christ', level: 'advanced', pathOrder: 17,
+            summary: 'One offering, once for all — the system’s true goal.', maps: [],
+            body: `
+                <p>Every lamb, every altar, every Day of Atonement was a signpost. The book of Hebrews drives it home: the old sacrifices could never actually <b>take away</b> sin — their endless repetition proved it (Hebrews 10:1–4). They were a shadow; Christ is the substance.</p>
+                <h4>Once for all</h4>
+                <p>Jesus is at once the perfect <b>High Priest</b> and the spotless <b>Lamb</b>. "By his own blood he entered in once into the holy place, having obtained eternal redemption for us" (Hebrews 9:12). "We are sanctified through the offering of the body of Jesus Christ <b>once for all</b>" (Hebrews 10:10).</p>
+                <h4>"It is finished"</h4>
+                <p>On the cross Jesus cried, "It is finished" (John 19:30) — the debt paid in full. Because the real sacrifice has been made, no further sacrifice is needed or possible (Hebrews 10:18). This is the heart of the gospel: Christ in the sinner's place.</p>
+                <div class="callout"><div class="callout-label">For Dom</div><p style="margin:0">This is the "so what" of the whole Old Testament. All that blood was teaching one lesson the human heart resists: we cannot pay for ourselves — but Someone already did, completely.</p></div>`
+        },
+        {
+            id: 'pauls-journeys', title: 'Paul’s Missionary Journeys', era: 'church', level: 'core', pathOrder: 18,
+            summary: 'The gospel spreads across the Roman world.', maps: ['paul-journeys'],
+            body: `
+                <p>After Pentecost, the gospel exploded outward from Jerusalem. The book of <b>Acts</b> follows the apostle <b>Paul</b> on three great missionary journeys (plus a final voyage to Rome), planting churches across the Roman Empire from <b>Antioch</b> through <b>Asia Minor</b> and <b>Greece</b>.</p>
+                <ul>
+                    <li><b>First journey:</b> Cyprus and southern Asia Minor (Acts 13–14).</li>
+                    <li><b>Second journey:</b> into Macedonia and Greece — <b>Philippi</b>, <b>Thessalonica</b>, <b>Athens</b>, <b>Corinth</b> (Acts 16–18).</li>
+                    <li><b>Third journey:</b> a long ministry centered on <b>Ephesus</b> (Acts 18–21).</li>
+                    <li><b>To Rome:</b> arrested in Jerusalem, Paul appealed to Caesar and was shipwrecked en route to <b>Rome</b> (Acts 27–28).</li>
+                </ul>
+                <p>Many New Testament letters — Romans, Corinthians, Galatians, Philippians and more — were written by Paul to these very churches.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Abraham's promise — "all families of the earth blessed" — is being fulfilled before our eyes as the gospel reaches the Gentiles.</p></div>`
+        },
+        {
+            id: 'saul-paul-conversion', title: 'Saul’s Conversion', era: 'church', level: 'core', pathOrder: 19,
+            summary: 'The persecutor meets the risen Christ on the Damascus road.', maps: [],
+            body: `
+                <p><b>Saul of Tarsus</b> was a brilliant, zealous Pharisee who violently persecuted the early church, even approving the stoning of Stephen (Acts 7–8). He was the last man anyone expected God to use.</p>
+                <h4>The Damascus road</h4>
+                <p>On his way to arrest Christians in Damascus, a blinding light stopped him and the risen Jesus spoke: "Saul, Saul, why persecutest thou me?" (Acts 9:4). Notice — to persecute the church is to persecute <b>Christ Himself</b>. Saul was struck blind, then healed and baptized, and became the apostle <b>Paul</b>, the greatest missionary in history.</p>
+                <p class="verse">"This is a faithful saying... that Christ Jesus came into the world to save sinners; of whom I am chief" (1 Timothy 1:15).</p>
+                <div class="callout"><div class="callout-label">Note — two Sauls</div><p style="margin:0">Don't confuse this <b>Saul of Tarsus</b> (New Testament → Paul) with <b>King Saul</b>, Israel's first king a thousand years earlier. Same Hebrew name, very different men.</p></div>
+                <div class="callout"><div class="callout-label">For Dom</div><p style="margin:0">No one is too far gone. If grace could conquer Christianity's fiercest enemy and make him its boldest preacher, it can reach anyone.</p></div>`
+        },
+        {
+            id: 'third-temple-attempts', title: 'Third-Temple Attempts', era: 'temple-after', level: 'advanced', pathOrder: 20,
+            summary: 'Rebuilding efforts repeatedly fail — once stopped by fire.', maps: [],
+            body: `
+                <p>Since AD 70 the Temple has lain in ruins, and repeated attempts to rebuild it have come to nothing. The most striking is the case of the Roman emperor <b>Julian the Apostate</b>.</p>
+                <h4>Julian and the fireballs (AD 363)</h4>
+                <p>Julian rejected Christianity and, partly to discredit Jesus' prophecy that the Temple would be thrown down, ordered the Jerusalem Temple rebuilt. According to the contemporary Roman historian <b>Ammianus Marcellinus</b> — himself a pagan, no friend of Christianity — as workers cleared the foundations, "fearful balls of fire breaking out near the foundations" repeatedly burst forth, scorching the workmen and making the site inaccessible. The project was abandoned; Julian died in battle soon after. Christian writers saw it as plain divine confirmation of Christ's word.</p>
+                <h4>The Dome of the Rock</h4>
+                <p>Since AD 691 the Temple Mount has held the Islamic <b>Dome of the Rock</b>, making any rebuilding politically explosive. Modern movements (e.g. the Temple Institute) have prepared vessels and plans, and the Third Temple features in many end-times discussions — but no temple stands today.</p>
+                <div class="callout"><div class="callout-label">The Christian reading</div><p style="margin:0">For Christians the deepest point is theological, not political: the sacrificial system was <i>fulfilled</i> at the cross. The true Temple is the risen Christ. The empty Mount is, in a sense, a fitting monument to a finished work.</p></div>`
+        },
+        {
+            id: 'creation-fall', title: 'Creation & the Fall', era: 'beginnings', level: 'foundation',
+            summary: 'How the world began, how it broke, and the first promise of rescue.', maps: ['eden-rivers'],
+            body: `
+                <p>The Bible opens with God speaking the universe into being: "In the beginning God created the heaven and the earth" (Genesis 1:1). Over six days He orders and fills creation and calls it "very good," resting on the seventh. Humanity — male and female — is made uniquely <b>in the image of God</b> (Genesis 1:27), given dignity and a job: to know God and steward His world.</p>
+                <h4>The Fall</h4>
+                <p>Placed in <b>Eden</b>, Adam and Eve were given freedom with one boundary. Tempted by the serpent, they ate the forbidden fruit and rebelled (Genesis 3). Sin, shame, and death entered the world; they were cast out of the garden.</p>
+                <h4>The first gospel</h4>
+                <p>Yet in the middle of the curse comes the Bible's first promise of a Redeemer: the seed of the woman would crush the serpent's head (Genesis 3:15). The whole rest of Scripture is the unfolding of that promise.</p>
+                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">Everyone senses the world is both wondrous and broken. Genesis explains both at once: a very good creation, marred by a real fall — and a God who immediately promises to fix it.</p></div>`
+        },
+        {
+            id: 'flood-babel', title: 'The Flood & Babel', era: 'beginnings', level: 'foundation',
+            summary: 'Judgment and grace; why the nations and languages scattered.', maps: [],
+            body: `
+                <p>As humanity multiplied, so did its wickedness. God sent a great <b>Flood</b> in judgment, but saved <b>Noah</b>, his family, and the animals in the ark (Genesis 6–9). Afterward God set the <b>rainbow</b> as the sign of His covenant never again to destroy the earth so.</p>
+                <h4>Babel</h4>
+                <p>United in pride, people built a tower at <b>Babel</b> to "make us a name." God confused their language and scattered them across the earth (Genesis 11). This explains the origin of the nations and tongues — and sets up Abraham, through whom God will begin to bless those scattered nations.</p>
+                <div class="callout"><div class="callout-label">Full circle</div><p style="margin:0">At Pentecost (Acts 2), the curse of Babel is reversed in preview: people of every language hear the gospel, each in their own tongue. What pride scattered, grace gathers.</p></div>`
+        },
+        {
+            id: 'joshua-conquest', title: 'Joshua & the Conquest', era: 'conquest', level: 'core',
+            summary: 'Israel crosses the Jordan to receive the Promised Land.', maps: ['conquest-canaan'],
+            body: `
+                <p>After Moses died, <b>Joshua</b> led Israel across the <b>Jordan</b> (which God parted, as at the Red Sea) into Canaan. The walls of <b>Jericho</b> fell after Israel marched around them (Joshua 6). A central thrust split the land, followed by southern and northern campaigns.</p>
+                <h4>The land as gift</h4>
+                <p>The conquest fulfilled the promise made to Abraham centuries earlier. "There failed not ought of any good thing which the LORD had spoken... all came to pass" (Joshua 21:45). The land was divided among the tribes.</p>
+                <h4>A famous charge</h4>
+                <p class="verse">"Choose you this day whom ye will serve... but as for me and my house, we will serve the LORD" (Joshua 24:15).</p>
+                <div class="callout"><div class="callout-label">Then came the Judges</div><p style="margin:0">After Joshua, Israel fell into a cycle — sin, oppression, crying out, and rescue by a "judge" (Deborah, Gideon, Samson). "Every man did that which was right in his own eyes" (Judges 21:25) — setting the stage for the kings.</p></div>`
+        },
+        {
+            id: 'between-testaments', title: 'Between the Testaments', era: 'silence', level: 'advanced',
+            summary: 'The 400 "silent years" that set the stage for Christ.', maps: ['world-empires'],
+            body: `
+                <p>Between Malachi and Matthew lie about <b>400 years</b> with no biblical prophet — but far from empty. World powers rose and fell exactly as Daniel had foreseen, and God quietly prepared the world for His Son.</p>
+                <h4>Empire after empire</h4>
+                <ul>
+                    <li><b>Persia</b> let the Jews return and rebuild (where the Old Testament ends).</li>
+                    <li><b>Greece</b> — Alexander the Great spread the Greek language; the Old Testament was translated into Greek (the <b>Septuagint</b>).</li>
+                    <li>The <b>Maccabees</b> won a brief Jewish independence (remembered at Hanukkah) after the Temple was desecrated.</li>
+                    <li><b>Rome</b> conquered it all, bringing roads, law, and a forced peace (the <i>Pax Romana</i>).</li>
+                </ul>
+                <h4>"The fulness of the time"</h4>
+                <p>By Jesus' birth the stage was perfectly set: a common language for the gospel, safe roads for missionaries, synagogues in every city, and a Jewish people intensely longing for their Messiah.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">God's silence was not absence. "When the fulness of the time was come, God sent forth his Son" (Galatians 4:4) — into a world made ready.</p></div>`
+        },
+        {
+            id: 'revelation-seven-churches', title: 'Revelation & the End', era: 'church', level: 'advanced',
+            summary: 'Christ reigns, He wins, and all things are made new.', maps: ['seven-churches'],
+            body: `
+                <p>The Bible's last book was written by the apostle <b>John</b>, exiled for his faith on the island of <b>Patmos</b>. It opens with letters from the risen Christ to <b>seven churches</b> in Asia Minor (Revelation 2–3) — real congregations, each praised or corrected.</p>
+                <h4>Unveiling</h4>
+                <p>"Revelation" means an <i>unveiling</i>. Through vivid visions it pulls back the curtain on history to show one thing clearly: however fierce the dragon and the beasts, <b>the Lamb wins</b>. Christ reigns now and will return to judge and to save.</p>
+                <h4>All things new</h4>
+                <p>It ends where the Bible's story was always heading — a <b>new heaven and new earth</b>, every tear wiped away, God dwelling with His people. Strikingly, the New Jerusalem has no temple, "for the Lord God Almighty and the Lamb are the temple of it" (Revelation 21:22).</p>
+                <div class="callout"><div class="callout-label">Full circle</div><p style="margin:0">The story that began in a garden (Eden) ends in a garden-city, with the tree of life restored and humanity finally home with God. Paradise lost becomes paradise regained.</p></div>`
+        },
+    ];
+
+    const topicById = Object.fromEntries(LEARN_TOPICS.map(t => [t.id, t]));
+    // Suggested "Start Here → Advanced" reading order (pedagogical, roughly chronological).
+    const LEARN_PATH = [
+        'what-is-the-bible', 'how-to-read', 'calendar-bc-ad',
+        'creation-fall', 'flood-babel',
+        'covenant-abraham', 'ishmael-isaac', 'esau-jacob', 'twelve-tribes',
+        'exodus-journey', 'tabernacle', 'sacrifice-origin', 'joshua-conquest',
+        'united-divided-kingdom', 'solomon-temple', 'exile-and-return', 'between-testaments', 'second-temple',
+        'nt-holy-land', 'christ-true-temple', 'sacrifice-fulfilled',
+        'pauls-journeys', 'saul-paul-conversion', 'revelation-seven-churches', 'third-temple-attempts',
+    ];
+
+    /* ================= WHO'S WHO ================= */
+    const LEARN_PEOPLE = [
+        { name: 'Adam', era: 'beginnings', testament: 'OT', role: 'First man', relation: 'Husband of Eve', blurb: 'Made in God’s image; through his sin, death entered the world (Romans 5).' },
+        { name: 'Eve', era: 'beginnings', testament: 'OT', role: 'First woman', relation: 'Wife of Adam · “mother of all living”', blurb: 'Deceived in the garden — yet given the first promise of a Redeemer.' },
+        { name: 'Noah', era: 'beginnings', testament: 'OT', role: 'Builder of the ark', relation: 'Father of Shem, Ham & Japheth', blurb: 'Walked with God; preserved through the Flood; received the rainbow covenant.' },
+        { name: 'Abraham', era: 'patriarchs', testament: 'OT', role: 'Father of the faithful', relation: 'Husband of Sarah · father of Ishmael & Isaac', blurb: 'Called from Ur; promised land, descendants, and blessing for all nations.' },
+        { name: 'Sarah', era: 'patriarchs', testament: 'OT', role: 'Matriarch', relation: 'Wife of Abraham · mother of Isaac', blurb: 'Bore the child of promise in her old age.' },
+        { name: 'Hagar', era: 'patriarchs', testament: 'OT', role: 'Servant', relation: 'Mother of Ishmael', blurb: 'Sarah’s Egyptian maid; met and comforted by God in the wilderness.' },
+        { name: 'Ishmael', era: 'patriarchs', testament: 'OT', role: 'Abraham’s son', relation: 'Son of Abraham & Hagar', blurb: 'Blessed into a great nation, but not the covenant line.' },
+        { name: 'Isaac', era: 'patriarchs', testament: 'OT', role: 'Child of promise', relation: 'Son of Abraham & Sarah · father of Esau & Jacob', blurb: 'Nearly offered on Mt. Moriah; a picture of the beloved son.' },
+        { name: 'Rebekah', era: 'patriarchs', testament: 'OT', role: 'Matriarch', relation: 'Wife of Isaac · mother of the twins', blurb: 'Helped secure the blessing for her younger son, Jacob.' },
+        { name: 'Esau', era: 'patriarchs', testament: 'OT', role: 'Elder twin', relation: 'Son of Isaac · brother of Jacob', blurb: 'Sold his birthright for a bowl of stew; father of the Edomites.' },
+        { name: 'Jacob (Israel)', era: 'patriarchs', testament: 'OT', role: 'Patriarch', relation: 'Son of Isaac · father of the 12 tribes', blurb: 'The “supplanter,” renamed Israel after wrestling with God.' },
+        { name: 'Joseph', era: 'patriarchs', testament: 'OT', role: 'Dreamer & ruler', relation: 'Son of Jacob & Rachel', blurb: 'Sold into Egypt, raised to power, saved his family: “ye thought evil… God meant it unto good.”' },
+        { name: 'Moses', era: 'exodus', testament: 'OT', role: 'Deliverer & lawgiver', relation: 'Brother of Aaron & Miriam', blurb: 'Led Israel out of Egypt and received the Law at Sinai.' },
+        { name: 'Aaron', era: 'exodus', testament: 'OT', role: 'First high priest', relation: 'Brother of Moses', blurb: 'Spoke for Moses; his descendants became Israel’s priests.' },
+        { name: 'Joshua', era: 'conquest', testament: 'OT', role: 'Successor of Moses', relation: '', blurb: 'Led Israel across the Jordan to take the Promised Land.' },
+        { name: 'Deborah', era: 'conquest', testament: 'OT', role: 'Judge & prophetess', relation: '', blurb: 'Led Israel to victory over Sisera’s army.' },
+        { name: 'Gideon', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'Defeated the Midianites with just 300 men.' },
+        { name: 'Samson', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'A Nazirite of great strength, undone by compromise.' },
+        { name: 'Ruth', era: 'conquest', testament: 'OT', role: 'Faithful convert', relation: 'Great-grandmother of David', blurb: 'A Moabite who clung to Israel’s God — and entered the Messiah’s line.' },
+        { name: 'Samuel', era: 'conquest', testament: 'OT', role: 'Last judge, first prophet', relation: '', blurb: 'Anointed both Saul and David as king.' },
+        { name: 'Saul (King)', era: 'united', testament: 'OT', role: 'Israel’s first king', relation: '', blurb: 'Tall and promising, but disobedient and rejected. (Not Saul of Tarsus!)' },
+        { name: 'David', era: 'united', testament: 'OT', role: 'Shepherd-king', relation: 'Father of Solomon · ancestor of Jesus', blurb: '“A man after God’s own heart,” promised an everlasting throne.' },
+        { name: 'Solomon', era: 'united', testament: 'OT', role: 'Wise king', relation: 'Son of David & Bathsheba', blurb: 'Built the first Temple; his later idolatry split the kingdom.' },
+        { name: 'Elijah', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'Confronted the prophets of Baal on Mt. Carmel; taken up in a whirlwind.' },
+        { name: 'Elisha', era: 'divided', testament: 'OT', role: 'Prophet', relation: 'Successor of Elijah', blurb: 'Worked many miracles in the northern kingdom.' },
+        { name: 'Isaiah', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'Foretold the virgin birth and the suffering Servant (Isaiah 53).' },
+        { name: 'Jeremiah', era: 'divided', testament: 'OT', role: 'The weeping prophet', relation: '', blurb: 'Warned Judah of Babylon and promised a New Covenant.' },
+        { name: 'Daniel', era: 'exile', testament: 'OT', role: 'Exile & seer', relation: '', blurb: 'Faithful in Babylon; the lions’ den; visions of coming kingdoms.' },
+        { name: 'Ezra', era: 'exile', testament: 'OT', role: 'Priest-scribe', relation: '', blurb: 'Restored the Law among the returned exiles.' },
+        { name: 'Nehemiah', era: 'exile', testament: 'OT', role: 'Governor', relation: '', blurb: 'Rebuilt the walls of Jerusalem in just 52 days.' },
+        { name: 'Cyrus', era: 'exile', testament: 'OT', role: 'Persian king', relation: '', blurb: 'Freed the Jews to return — named by Isaiah ~150 years beforehand (Isaiah 44–45).' },
+        { name: 'Mary', era: 'christ', testament: 'NT', role: 'Mother of Jesus', relation: 'Wife of Joseph', blurb: 'A young virgin who bore the Son of God.' },
+        { name: 'Joseph (of Nazareth)', era: 'christ', testament: 'NT', role: 'Guardian of Jesus', relation: 'Husband of Mary · of David’s line', blurb: 'A carpenter who raised Jesus as his own son.' },
+        { name: 'John the Baptist', era: 'christ', testament: 'NT', role: 'Forerunner', relation: 'Cousin of Jesus', blurb: 'Prepared the way and called Jesus “the Lamb of God.”' },
+        { name: 'Jesus Christ', era: 'christ', testament: 'NT', role: 'The Messiah, Son of God', relation: 'Son of David · Son of God', blurb: 'The center of the whole story: He lived, died, rose, and reigns.' },
+        { name: 'Peter', era: 'church', testament: 'NT', role: 'Apostle', relation: 'Brother of Andrew', blurb: 'Impulsive fisherman who preached at Pentecost; a leader of the Twelve.' },
+        { name: 'John (Apostle)', era: 'church', testament: 'NT', role: 'Apostle', relation: 'Brother of James', blurb: '“The disciple Jesus loved”; wrote a Gospel, three letters, and Revelation.' },
+        { name: 'James', era: 'church', testament: 'NT', role: 'Leader in Jerusalem', relation: 'Brother of Jesus', blurb: 'Led the Jerusalem church and wrote the epistle of James.' },
+        { name: 'Judas Iscariot', era: 'christ', testament: 'NT', role: 'The betrayer', relation: 'One of the Twelve', blurb: 'Betrayed Jesus for thirty pieces of silver.' },
+        { name: 'Paul (Saul of Tarsus)', era: 'church', testament: 'NT', role: 'Apostle to the Gentiles', relation: '', blurb: 'A persecutor turned missionary who wrote much of the New Testament. (Not King Saul!)' },
+        { name: 'Barnabas', era: 'church', testament: 'NT', role: 'Encourager', relation: 'Paul’s first partner', blurb: 'The “son of consolation” who vouched for the new convert Saul.' },
+        { name: 'Stephen', era: 'church', testament: 'NT', role: 'First martyr', relation: '', blurb: 'Stoned for his bold witness while Saul looked on approving.' },
+        { name: 'Timothy', era: 'church', testament: 'NT', role: 'Young pastor', relation: 'Paul’s protégé', blurb: 'Mentored by Paul, who wrote him two letters.' },
+        { name: 'Luke', era: 'church', testament: 'NT', role: 'Physician & historian', relation: '', blurb: 'A Gentile doctor who wrote the Gospel of Luke and the book of Acts.' },
+        { name: 'Pontius Pilate', era: 'christ', testament: 'NT', role: 'Roman governor', relation: '', blurb: 'Sentenced Jesus to crucifixion while “washing his hands” of it.' },
+        { name: 'Herod the Great', era: 'christ', testament: 'NT', role: 'Client king', relation: '', blurb: 'Lavishly rebuilt the Temple; tried to kill the infant Jesus.' },
+    ];
+
+    /* ================= RENDER ================= */
+    const el = (id) => document.getElementById(id);
+    let activeEra = null;
+
+    function eraBadge(eraId) {
+        const e = eraById[eraId];
+        if (!e) return '';
+        return `<span class="era-badge" style="background:${e.color}">${e.label}</span>`;
+    }
+    const mapIcon = `<svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>`;
+
+    function renderPath() {
+        el('learn-path').innerHTML = LEARN_PATH.map((id, i) => {
+            const t = topicById[id];
+            if (!t) return '';
+            return `<button class="path-pill flex-shrink-0 flex items-center gap-2 bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl pl-2 pr-4 py-2 text-left transition-colors" onclick="openLearnTopic('${id}')">
+                <span class="num">${i + 1}</span>
+                <span class="text-sm font-bold text-slate-700">${t.title}</span>
+            </button>`;
+        }).join('');
+    }
+
+    function renderTimeline() {
+        el('learn-timeline').innerHTML = LEARN_ERAS.map(e => {
+            const isChrist = e.id === 'christ';
+            const evs = (e.events || []).map(ev => `<div class="tl-ev">${ev.y ? `<b>${ev.y}</b>` : ''}${ev.t}</div>`).join('')
+                + (isChrist ? '<div class="tl-pivot">✝ BC ┃ AD</div>' : '');
+            return `<button class="tl-era ${isChrist ? 'tl-christ' : ''} ${e.id === activeEra ? 'active' : ''}" style="--era:${e.color}" onclick="filterLearnByEra('${e.id}')" aria-label="Filter to era: ${e.label}">
+                <div class="tl-evwrap">${evs}</div>
+                <div class="tl-bar"></div>
+                <div class="tl-meta"><span class="tl-label">${e.label}</span><span class="tl-range">${e.range}</span></div>
+            </button>`;
+        }).join('');
+        el('clear-era').classList.toggle('hidden', !activeEra);
+    }
+
+    function renderGrid() {
+        const order = id => { const i = LEARN_PATH.indexOf(id); return i === -1 ? 999 : i; };
+        let topics = LEARN_TOPICS.slice().sort((a, b) => order(a.id) - order(b.id));
+        if (activeEra) topics = topics.filter(t => t.era === activeEra);
+        const grid = el('learn-topics');
+        const empty = el('grid-empty');
+
+        if (activeEra) {
+            const e = eraById[activeEra];
+            el('grid-subtitle').textContent = `Showing the era: ${e.label} (${e.range}).`;
+        } else {
+            el('grid-subtitle').textContent = "Everything we've covered — and what's next.";
+        }
+
+        if (!topics.length) {
+            grid.innerHTML = '';
+            empty.classList.remove('hidden');
+            empty.textContent = 'No topic cards land in this era yet — but it still shapes the story. Pick another era, or show all.';
+            return;
+        }
+        empty.classList.add('hidden');
+        grid.innerHTML = topics.map(t => `
+            <article class="topic-card glass rounded-2xl p-5 flex flex-col" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    ${eraBadge(t.era)}
+                    ${t.maps && t.maps.length ? `<span class="text-indigo-400" title="Includes a map">${mapIcon}</span>` : ''}
+                </div>
+                <h3 class="text-lg font-black text-slate-900 leading-snug">${t.title}</h3>
+                <p class="text-sm text-slate-600 mt-1.5 flex-1">${t.summary}</p>
+                <span class="text-xs font-bold text-indigo-600 mt-3">Open →</span>
+            </article>`).join('');
+    }
+
+    window.openLearnTopic = (id) => {
+        const t = LEARN_TOPICS.find(x => x.id === id);
+        if (!t) return;
+        const mapsHtml = (t.maps || []).map(mid => LEARN_MAPS[mid] ? `<div class="mt-5">${LEARN_MAPS[mid]()}</div>` : '').join('');
+        el('learn-detail').innerHTML = `
+            <article class="glass rounded-3xl p-6 md:p-9">
+                <button onclick="closeLearnTopic()" class="inline-flex items-center gap-2 text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 hover:bg-indigo-100 mb-5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Back to topics
+                </button>
+                <div class="mb-3">${eraBadge(t.era)}</div>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-5">${t.title}</h2>
+                <div class="prose-learn max-w-3xl">${t.body}</div>
+                ${mapsHtml}
+                <div class="mt-8 pt-5 border-t border-slate-200">
+                    <button onclick="closeLearnTopic()" class="text-sm font-bold text-indigo-700 hover:text-indigo-900">← Back to all topics</button>
+                </div>
+            </article>`;
+        el('learn-hub').classList.add('hidden');
+        el('learn-detail').classList.remove('hidden');
+        el('learn-detail').classList.remove('animate-fade-in'); void el('learn-detail').offsetWidth; el('learn-detail').classList.add('animate-fade-in');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.closeLearnTopic = () => {
+        el('learn-detail').classList.add('hidden');
+        el('learn-detail').innerHTML = '';
+        el('learn-hub').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.filterLearnByEra = (eraId) => {
+        // clicking the active era again, or the explicit clear button (null), resets
+        activeEra = (eraId && eraId !== activeEra) ? eraId : null;
+        closeLearnTopicIfOpen();
+        renderTimeline();
+        renderGrid();
+        el('learn-topics').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    function closeLearnTopicIfOpen() {
+        if (!el('learn-detail').classList.contains('hidden')) window.closeLearnTopic();
+    }
+
+    /* ================= WHO'S WHO ================= */
+    window.renderPeople = () => {
+        const q = (el('people-search').value || '').toLowerCase().trim();
+        const test = el('people-testament').value;
+        const people = LEARN_PEOPLE.filter(p => {
+            if (test !== 'all' && p.testament !== test) return false;
+            if (!q) return true;
+            return (p.name + ' ' + p.role + ' ' + p.relation + ' ' + p.blurb).toLowerCase().includes(q);
+        });
+        const wrap = el('learn-people'), empty = el('people-empty');
+        if (!people.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+        wrap.innerHTML = people.map(p => {
+            const era = eraById[p.era] || { color: '#64748b', label: '' };
+            const shortEra = era.label.split('—')[0].trim();
+            return `<article class="person-card glass rounded-2xl p-4">
+                <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <h3 class="text-base font-black text-slate-900 leading-tight">${p.name}</h3>
+                    <span class="era-badge flex-shrink-0" style="background:${era.color}">${shortEra}</span>
+                </div>
+                <div class="mb-2"><span class="role-pill">${p.role}</span></div>
+                ${p.relation ? `<p class="text-xs text-slate-500 mb-1.5">${p.relation}</p>` : ''}
+                <p class="text-sm text-slate-600">${p.blurb}</p>
+            </article>`;
+        }).join('');
+    };
+
+    /* ================= INIT ================= */
+    function initLearn() {
+        syncDarkIcon();
+        renderPath();
+        renderTimeline();
+        renderGrid();
+        window.renderPeople();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLearn);
+    else initLearn();
+</script>
+</body>
+</html>
