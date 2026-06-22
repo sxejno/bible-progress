@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Foundations — Learning the Bible Together</title>
-    <meta name="description" content="An interactive, Christ-centered walk through the Bible's storyline: covenant lineage, the Temple, sacrifice fulfilled in Christ, the BC/AD calendar, and accurate maps of the biblical world.">
+    <title>Foundations — Learn the Bible Fast</title>
+    <meta name="description" content="The whole Bible as one story — fast, clear, and built to remember. Covenant lineage, the Temple, sacrifice fulfilled in Christ, the BC/AD calendar, and maps of the biblical world. Check off what you learn as you go.">
     <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="https://bibleprogress.com/learn.html">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -82,6 +82,20 @@
         .prose-learn .verse { font-style: italic; color:#4338ca; }
         .callout { border-left: 4px solid #6366f1; background: #eef2ff; border-radius: 0 0.75rem 0.75rem 0; padding: 0.85rem 1.1rem; margin: 1.1rem 0; }
         .callout .callout-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: #4f46e5; }
+        /* "Cool fact" callout — the things worth remembering */
+        .callout-cool { border-left-color: #d97706; background: linear-gradient(90deg, #fffbeb, #fef3c7); }
+        .callout-cool .callout-label { color: #b45309; }
+
+        /* Progress tracking */
+        .progress-track { height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #10b981); border-radius: 999px; transition: width 0.45s ease; }
+        .done-toggle { width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid #e2e8f0; background: #fff; transition: all 0.15s ease; flex: 0 0 auto; cursor: pointer; }
+        .done-toggle:hover { color: #10b981; border-color: #6ee7b7; }
+        .done-toggle.is-done { background: #10b981; border-color: #10b981; color: #fff; }
+        .topic-card.done { border-color: rgba(16, 185, 129, 0.45); }
+        .topic-card.done .open-label { color: #059669; }
+        .path-pill.done { border-color: rgba(16, 185, 129, 0.5); background: #f0fdf4; }
+        .path-pill.done .num { background: #10b981; }
 
         /* Maps */
         .learn-map { display:block; width:100%; height:auto; border-radius: 1rem; border: 1px solid #dbe3ef; }
@@ -105,9 +119,9 @@
     <header class="glass rounded-3xl p-6 md:p-8">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-3xl">
-                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-indigo-100 text-indigo-700 mb-4">A study companion</p>
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Foundations</h1>
-                <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">A Christ-centered walk through the Bible's storyline — built for unhurried conversations. Start at the beginning, or jump to whatever you're talking about.</p>
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-indigo-100 text-indigo-700 mb-4">Foundations</p>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">Learn the Bible</h1>
+                <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">The whole Bible as one story — fast, clear, and built to remember. Start at the beginning or jump to any topic, and check off each one as you learn it.</p>
             </div>
             <div class="flex items-center gap-2">
                 <button id="dark-toggle" onclick="toggleDark()" class="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white text-slate-700 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors" aria-label="Toggle dark mode">
@@ -132,12 +146,28 @@
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-emerald-500">How to use this</div>
-                <p class="mt-2 text-slate-700">Follow the numbered <b>Start Here</b> path, click any era on the <b>timeline</b> to filter, or open a <b>topic card</b> for a deep dive with maps.</p>
+                <p class="mt-2 text-slate-700">Follow the numbered <b>Start Here</b> path, filter by <b>era</b> on the timeline, or open any <b>topic</b> for a short deep dive with maps. Tap the <b>circle</b> to check it off.</p>
             </article>
             <article class="glass rounded-2xl p-5">
                 <div class="text-xs font-black uppercase tracking-wider text-amber-500">The thread to watch</div>
                 <p class="mt-2 text-slate-700">Promise → lineage → law → temple → sacrifice → exile → Messiah. Every line runs toward Christ (Luke 24:27).</p>
             </article>
+        </section>
+
+        <!-- Progress -->
+        <section class="glass rounded-3xl p-6 md:p-7">
+            <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">✓</div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-slate-900">Your Progress</h2>
+                        <p class="text-sm text-slate-600">Check off each topic as you learn it — <span id="progress-count" class="font-bold text-emerald-700">0 of 0 done</span>.</p>
+                    </div>
+                </div>
+                <button onclick="resetLearnProgress()" class="text-sm font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-xl px-3 py-2 transition-colors">Reset</button>
+            </div>
+            <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+            <p id="progress-pct" class="text-right text-xs font-bold text-slate-500 mt-1.5">0% complete</p>
         </section>
 
         <!-- Start Here path -->
@@ -173,7 +203,7 @@
             <div class="flex items-end justify-between gap-3 mb-5 flex-wrap">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
-                    <p id="grid-subtitle" class="text-slate-600 mt-1">Everything we've covered — and what's next.</p>
+                    <p id="grid-subtitle" class="text-slate-600 mt-1">The whole story, one topic at a time — check off what you've learned.</p>
                 </div>
             </div>
             <div id="learn-topics" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
@@ -663,7 +693,7 @@
                 <h4>Why it connects to everything</h4>
                 <p>The Bible claims to explain the world we actually live in: where we came from, why things are broken, what God is doing about it, and where history is going. It has shaped law, calendars, literature, art, and the very idea of human dignity.</p>
                 <p class="verse">"All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness" (2 Timothy 3:16).</p>
-                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">Dom's instinct — that this is information "withheld" — is worth honoring. The Bible was meant to be <i>read</i>. The best first move is simply to start reading a Gospel (try John) and let the story do its work.</p></div>`
+                <div class="callout"><div class="callout-label">Where to start</div><p style="margin:0">The Bible was meant to be <i>read</i>, not just talked about. The best first move is simple: open a Gospel — try <b>John</b> — and let the story do its work.</p></div>`
         },
         {
             id: 'how-to-read', title: 'How to Read the Bible', era: 'overview', level: 'foundation', pathOrder: 2,
@@ -689,7 +719,7 @@
                 <h4>BCE / CE</h4>
                 <p>In recent times many institutions switched to <b>BCE</b> ("Before Common Era") and <b>CE</b> ("Common Era"). The labels remove Christ's name — yet they change <i>nothing</i> about the count. The pivot point is still the very same year tied to the birth in Bethlehem. The dividing line of human history remains exactly where it was; only the name has been quietly erased.</p>
                 <p class="verse">"But when the fulness of the time was come, God sent forth his Son" (Galatians 4:4).</p>
-                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">You can rename the hinge, but you cannot move it. Even a determinedly secular calendar still measures all of history from Christ — a quiet, daily witness in every date we write.</p></div>`
+                <div class="callout callout-cool"><div class="callout-label">💡 Worth remembering</div><p style="margin:0">You can rename the hinge, but you cannot move it. Even a determinedly secular calendar still counts all of history from Christ — a quiet witness in every date you write.</p></div>`
         },
         {
             id: 'covenant-abraham', title: 'Abraham & the Covenant', era: 'patriarchs', level: 'core', pathOrder: 4,
@@ -700,7 +730,7 @@
                 <p>Abraham "believed in the LORD; and he counted it to him for righteousness" (Genesis 15:6). This single verse becomes the backbone of the New Testament's teaching that we are made right with God <b>by faith</b>, not by works (Romans 4; Galatians 3).</p>
                 <h4>The name change</h4>
                 <p>God renamed him <b>Abraham</b>, "father of many nations" (Genesis 17:5), sealing the covenant with the sign of circumcision.</p>
-                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Paul says the ultimate "seed" of Abraham is Christ (Galatians 3:16), and that everyone who believes — Jew or Gentile, Dom included — becomes a child of Abraham by faith. The promise was aimed at us all along.</p></div>`
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Paul says the ultimate "seed" of Abraham is Christ (Galatians 3:16), and that everyone who believes — Jew or Gentile — becomes a child of Abraham by faith. The promise was aimed at all nations all along.</p></div>`
         },
         {
             id: 'ishmael-isaac', title: 'Ishmael & Isaac', era: 'patriarchs', level: 'core', pathOrder: 5,
@@ -711,6 +741,7 @@
                 <p>Scripture treats this as a picture: Ishmael, the <b>child of the flesh</b> (human effort), and Isaac, the <b>child of promise</b> (God's grace). Paul uses exactly this contrast in Galatians 4:22–31 to teach that God's people are born of promise, not of works.</p>
                 <h4>The binding of Isaac</h4>
                 <p>In Genesis 22, God tests Abraham, calling him to offer Isaac on Mount Moriah — then provides a ram in his place. A father, a beloved son, wood carried up a hill, a substitute provided: a vivid foreshadowing of the cross.</p>
+                <div class="callout callout-cool"><div class="callout-label">💡 The hill that keeps appearing</div><p style="margin:0">That same ridge — <b>Mount Moriah</b> — is exactly where Solomon later built the Temple (2 Chronicles 3:1), the place of a thousand years of sacrifice. The hill where God provided a substitute for Isaac became the hill where sacrifice was made for the nation.</p></div>
                 <div class="callout"><div class="callout-label">Note</div><p style="margin:0">God still blessed Ishmael and made him a great nation (Genesis 21:13). But the covenant line — the line of the Messiah — ran through Isaac.</p></div>`
         },
         {
@@ -834,7 +865,7 @@
                     <li><b>Judea</b> (south): <b>Bethlehem</b> (His birth), <b>Jericho</b>, <b>Bethany</b>, and <b>Jerusalem</b> — where He was crucified and rose again.</li>
                 </ul>
                 <p>The <b>Jordan River</b>, where Jesus was baptized, runs from the Sea of Galilee down to the Dead Sea, the lowest point on earth.</p>
-                <div class="callout"><div class="callout-label">Tip for conversations</div><p style="margin:0">Have the map open while reading a Gospel. Tracing Jesus' movements — north in Galilee, the journeys up to Jerusalem — turns abstract names into a real, walkable world.</p></div>`
+                <div class="callout"><div class="callout-label">Read it with the map</div><p style="margin:0">Keep this map open while reading a Gospel. Tracing Jesus' movements — north in Galilee, the journeys up to Jerusalem — turns abstract names into a real, walkable world.</p></div>`
         },
         {
             id: 'christ-true-temple', title: 'Christ, the True Temple', era: 'christ', level: 'advanced', pathOrder: 16,
@@ -856,7 +887,7 @@
                 <p>Jesus is at once the perfect <b>High Priest</b> and the spotless <b>Lamb</b>. "By his own blood he entered in once into the holy place, having obtained eternal redemption for us" (Hebrews 9:12). "We are sanctified through the offering of the body of Jesus Christ <b>once for all</b>" (Hebrews 10:10).</p>
                 <h4>"It is finished"</h4>
                 <p>On the cross Jesus cried, "It is finished" (John 19:30) — the debt paid in full. Because the real sacrifice has been made, no further sacrifice is needed or possible (Hebrews 10:18). This is the heart of the gospel: Christ in the sinner's place.</p>
-                <div class="callout"><div class="callout-label">For Dom</div><p style="margin:0">This is the "so what" of the whole Old Testament. All that blood was teaching one lesson the human heart resists: we cannot pay for ourselves — but Someone already did, completely.</p></div>`
+                <div class="callout"><div class="callout-label">The "so what"</div><p style="margin:0">This is the point of the whole Old Testament. All that blood was teaching one lesson the human heart resists: we cannot pay for ourselves — but Someone already did, completely.</p></div>`
         },
         {
             id: 'pauls-journeys', title: 'Paul’s Missionary Journeys', era: 'church', level: 'core', pathOrder: 18,
@@ -881,7 +912,7 @@
                 <p>On his way to arrest Christians in Damascus, a blinding light stopped him and the risen Jesus spoke: "Saul, Saul, why persecutest thou me?" (Acts 9:4). Notice — to persecute the church is to persecute <b>Christ Himself</b>. Saul was struck blind, then healed and baptized, and became the apostle <b>Paul</b>, the greatest missionary in history.</p>
                 <p class="verse">"This is a faithful saying... that Christ Jesus came into the world to save sinners; of whom I am chief" (1 Timothy 1:15).</p>
                 <div class="callout"><div class="callout-label">Note — two Sauls</div><p style="margin:0">Don't confuse this <b>Saul of Tarsus</b> (New Testament → Paul) with <b>King Saul</b>, Israel's first king a thousand years earlier. Same Hebrew name, very different men.</p></div>
-                <div class="callout"><div class="callout-label">For Dom</div><p style="margin:0">No one is too far gone. If grace could conquer Christianity's fiercest enemy and make him its boldest preacher, it can reach anyone.</p></div>`
+                <div class="callout"><div class="callout-label">The point</div><p style="margin:0">No one is too far gone. If grace could conquer Christianity's fiercest enemy and make him its boldest preacher, it can reach anyone.</p></div>`
         },
         {
             id: 'third-temple-attempts', title: 'Third-Temple Attempts', era: 'temple-after', level: 'advanced', pathOrder: 20,
@@ -903,7 +934,7 @@
                 <p>Placed in <b>Eden</b>, Adam and Eve were given freedom with one boundary. Tempted by the serpent, they ate the forbidden fruit and rebelled (Genesis 3). Sin, shame, and death entered the world; they were cast out of the garden.</p>
                 <h4>The first gospel</h4>
                 <p>Yet in the middle of the curse comes the Bible's first promise of a Redeemer: the seed of the woman would crush the serpent's head (Genesis 3:15). The whole rest of Scripture is the unfolding of that promise.</p>
-                <div class="callout"><div class="callout-label">Talking point</div><p style="margin:0">Everyone senses the world is both wondrous and broken. Genesis explains both at once: a very good creation, marred by a real fall — and a God who immediately promises to fix it.</p></div>`
+                <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">Everyone senses the world is both wondrous and broken. Genesis explains both at once: a very good creation, marred by a real fall — and a God who immediately promises to fix it.</p></div>`
         },
         {
             id: 'flood-babel', title: 'The Flood & Babel', era: 'beginnings', level: 'foundation',
@@ -923,6 +954,7 @@
                 <p>The conquest fulfilled the promise made to Abraham centuries earlier. "There failed not ought of any good thing which the LORD had spoken... all came to pass" (Joshua 21:45). The land was divided among the tribes.</p>
                 <h4>A famous charge</h4>
                 <p class="verse">"Choose you this day whom ye will serve... but as for me and my house, we will serve the LORD" (Joshua 24:15).</p>
+                <div class="callout callout-cool"><div class="callout-label">💡 Same name as Jesus</div><p style="margin:0"><b>"Joshua"</b> is the Hebrew name <i>Yeshua</i> — "the LORD saves." It is the very same name as <b>Jesus</b>. The man who led Israel into the Promised Land carried the name of the One who leads His people into the true and final rest (Hebrews 4:8–9).</p></div>
                 <div class="callout"><div class="callout-label">Then came the Judges</div><p style="margin:0">After Joshua, Israel fell into a cycle — sin, oppression, crying out, and rescue by a "judge" (Deborah, Gideon, Samson). "Every man did that which was right in his own eyes" (Judges 21:25) — setting the stage for the kings.</p></div>`
         },
         {
@@ -1019,6 +1051,65 @@
     /* ================= RENDER ================= */
     const el = (id) => document.getElementById(id);
     let activeEra = null;
+    let currentDetailId = null;
+
+    /* ---------- Progress (saved in localStorage) ---------- */
+    const LEARN_PROGRESS_KEY = 'bibleLearnProgress';
+    function loadDone() {
+        try { return new Set(JSON.parse(localStorage.getItem(LEARN_PROGRESS_KEY) || '[]')); }
+        catch { return new Set(); }
+    }
+    let doneSet = loadDone();
+    const isDone = (id) => doneSet.has(id);
+    function saveDone() { localStorage.setItem(LEARN_PROGRESS_KEY, JSON.stringify([...doneSet])); }
+
+    const checkIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
+    const circleIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>`;
+
+    function refreshDetailButtons() {
+        if (!currentDetailId || el('learn-detail').classList.contains('hidden')) return;
+        const html = detailDoneHtml(currentDetailId);
+        const top = el('detail-done-area'), bottom = el('detail-done-area-bottom');
+        if (top) top.innerHTML = html;
+        if (bottom) bottom.innerHTML = html;
+    }
+
+    window.toggleDone = (id, ev) => {
+        if (ev) ev.stopPropagation();
+        if (doneSet.has(id)) doneSet.delete(id); else doneSet.add(id);
+        saveDone();
+        renderPath();
+        renderGrid();
+        renderProgress();
+        refreshDetailButtons();
+    };
+
+    window.resetLearnProgress = () => {
+        if (!doneSet.size) return;
+        if (!confirm('Clear all checked-off topics? This cannot be undone.')) return;
+        doneSet.clear();
+        saveDone();
+        renderPath();
+        renderGrid();
+        renderProgress();
+        refreshDetailButtons();
+    };
+
+    function renderProgress() {
+        const total = LEARN_TOPICS.length;
+        const done = LEARN_TOPICS.reduce((n, t) => n + (isDone(t.id) ? 1 : 0), 0);
+        const pct = total ? Math.round((done / total) * 100) : 0;
+        el('progress-fill').style.width = pct + '%';
+        el('progress-count').textContent = `${done} of ${total} done`;
+        el('progress-pct').textContent = pct === 100 ? '100% — you’ve covered the whole story! 🎉' : pct + '% complete';
+    }
+
+    function detailDoneHtml(id) {
+        const d = isDone(id);
+        return `<button onclick="toggleDone('${id}', event)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold border transition-colors ${d ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600' : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'}">
+            ${d ? checkIcon : circleIcon}<span>${d ? 'Done — tap to review again' : 'Mark as done'}</span>
+        </button>`;
+    }
 
     function eraBadge(eraId) {
         const e = eraById[eraId];
@@ -1031,8 +1122,9 @@
         el('learn-path').innerHTML = LEARN_PATH.map((id, i) => {
             const t = topicById[id];
             if (!t) return '';
-            return `<button class="path-pill flex-shrink-0 flex items-center gap-2 bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl pl-2 pr-4 py-2 text-left transition-colors" onclick="openLearnTopic('${id}')">
-                <span class="num">${i + 1}</span>
+            const done = isDone(id);
+            return `<button class="path-pill ${done ? 'done' : ''} flex-shrink-0 flex items-center gap-2 bg-white border border-slate-200 hover:border-indigo-300 rounded-2xl pl-2 pr-4 py-2 text-left transition-colors" onclick="openLearnTopic('${id}')">
+                <span class="num">${done ? '✓' : i + 1}</span>
                 <span class="text-sm font-bold text-slate-700">${t.title}</span>
             </button>`;
         }).join('');
@@ -1063,7 +1155,7 @@
             const e = eraById[activeEra];
             el('grid-subtitle').textContent = `Showing the era: ${e.label} (${e.range}).`;
         } else {
-            el('grid-subtitle').textContent = "Everything we've covered — and what's next.";
+            el('grid-subtitle').textContent = "The whole story, one topic at a time — check off what you've learned.";
         }
 
         if (!topics.length) {
@@ -1073,34 +1165,45 @@
             return;
         }
         empty.classList.add('hidden');
-        grid.innerHTML = topics.map(t => `
-            <article class="topic-card glass rounded-2xl p-5 flex flex-col" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
+        grid.innerHTML = topics.map(t => {
+            const done = isDone(t.id);
+            return `
+            <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     ${eraBadge(t.era)}
-                    ${t.maps && t.maps.length ? `<span class="text-indigo-400" title="Includes a map">${mapIcon}</span>` : ''}
+                    <div class="flex items-center gap-2">
+                        ${t.maps && t.maps.length ? `<span class="text-indigo-400" title="Includes a map">${mapIcon}</span>` : ''}
+                        <button class="done-toggle ${done ? 'is-done' : ''}" title="${done ? 'Mark to review' : 'Mark as done'}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}: ${t.title}" aria-pressed="${done}" onclick="toggleDone('${t.id}', event)">${done ? checkIcon : circleIcon}</button>
+                    </div>
                 </div>
                 <h3 class="text-lg font-black text-slate-900 leading-snug">${t.title}</h3>
                 <p class="text-sm text-slate-600 mt-1.5 flex-1">${t.summary}</p>
-                <span class="text-xs font-bold text-indigo-600 mt-3">Open →</span>
-            </article>`).join('');
+                <span class="open-label text-xs font-bold text-indigo-600 mt-3">${done ? 'Done ✓ · open to review →' : 'Open →'}</span>
+            </article>`;
+        }).join('');
     }
 
     window.openLearnTopic = (id) => {
         const t = LEARN_TOPICS.find(x => x.id === id);
         if (!t) return;
+        currentDetailId = id;
         const mapsHtml = (t.maps || []).map(mid => LEARN_MAPS[mid] ? `<div class="mt-5">${LEARN_MAPS[mid]()}</div>` : '').join('');
         el('learn-detail').innerHTML = `
             <article class="glass rounded-3xl p-6 md:p-9">
-                <button onclick="closeLearnTopic()" class="inline-flex items-center gap-2 text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 hover:bg-indigo-100 mb-5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Back to topics
-                </button>
+                <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
+                    <button onclick="closeLearnTopic()" class="inline-flex items-center gap-2 text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 hover:bg-indigo-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        Back to topics
+                    </button>
+                    <span id="detail-done-area">${detailDoneHtml(id)}</span>
+                </div>
                 <div class="mb-3">${eraBadge(t.era)}</div>
                 <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-5">${t.title}</h2>
                 <div class="prose-learn max-w-3xl">${t.body}</div>
                 ${mapsHtml}
-                <div class="mt-8 pt-5 border-t border-slate-200">
+                <div class="mt-8 pt-5 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
                     <button onclick="closeLearnTopic()" class="text-sm font-bold text-indigo-700 hover:text-indigo-900">← Back to all topics</button>
+                    <span id="detail-done-area-bottom">${detailDoneHtml(id)}</span>
                 </div>
             </article>`;
         el('learn-hub').classList.add('hidden');
@@ -1113,6 +1216,7 @@
         el('learn-detail').classList.add('hidden');
         el('learn-detail').innerHTML = '';
         el('learn-hub').classList.remove('hidden');
+        currentDetailId = null;
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -1161,6 +1265,7 @@
         renderPath();
         renderTimeline();
         renderGrid();
+        renderProgress();
         window.renderPeople();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLearn);
