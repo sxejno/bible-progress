@@ -94,6 +94,30 @@
         .done-toggle.is-done { background: #10b981; border-color: #10b981; color: #fff; }
         .topic-card.done { border-color: rgba(16, 185, 129, 0.45); }
         .topic-card.done .open-label { color: #059669; }
+
+        /* Completed cards: greyed/muted, brought back to life on hover */
+        .topic-card.done { background: #eef1f5; border-color: #dde4ec; box-shadow: none; }
+        .topic-card.done h3 { color: #94a3b8; }
+        .topic-card.done .card-summary { color: #aeb8c4; }
+        .topic-card.done .card-meta { opacity: 0.55; }
+        .topic-card.done .era-badge { opacity: 0.5; }
+        .topic-card.done:hover { background: #ffffff; box-shadow: 0 14px 32px rgba(79, 70, 229, 0.16); }
+        .topic-card.done:hover h3 { color: #0f172a; }
+        .topic-card.done:hover .card-summary { color: #475569; }
+        .topic-card.done:hover .card-meta { opacity: 1; }
+        .topic-card.done:hover .era-badge { opacity: 1; }
+
+        /* Difficulty-level pill */
+        .level-pill { font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 999px; white-space: nowrap; }
+        .level-foundation { background: #d1fae5; color: #047857; }
+        .level-core { background: #e0e7ff; color: #4338ca; }
+        .level-advanced { background: #ede9fe; color: #6d28d9; }
+
+        /* Status filter segmented control */
+        .seg { display: inline-flex; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 999px; padding: 3px; }
+        .seg button { font-size: 12px; font-weight: 700; color: #64748b; padding: 0.3rem 0.85rem; border-radius: 999px; transition: all 0.15s ease; }
+        .seg button:hover { color: #4338ca; }
+        .seg button.active { background: #fff; color: #4338ca; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .path-pill.done { border-color: rgba(16, 185, 129, 0.5); background: #f0fdf4; }
         .path-pill.done .num { background: #10b981; }
 
@@ -164,7 +188,10 @@
                         <p class="text-sm text-slate-600">Check off each topic as you learn it — <span id="progress-count" class="font-bold text-emerald-700">0 of 0 done</span>.</p>
                     </div>
                 </div>
-                <button onclick="resetLearnProgress()" class="text-sm font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-xl px-3 py-2 transition-colors">Reset</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="openNextUnfinished()" id="next-unfinished" class="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl px-4 py-2 transition-colors">Continue ▶</button>
+                    <button onclick="resetLearnProgress()" class="text-sm font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-xl px-3 py-2 transition-colors">Reset</button>
+                </div>
             </div>
             <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
             <p id="progress-pct" class="text-right text-xs font-bold text-slate-500 mt-1.5">0% complete</p>
@@ -204,6 +231,11 @@
                 <div>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
                     <p id="grid-subtitle" class="text-slate-600 mt-1">The whole story, one topic at a time — check off what you've learned.</p>
+                </div>
+                <div class="seg" role="tablist" aria-label="Filter topics by status">
+                    <button id="sf-all" class="active" role="tab" onclick="setStatusFilter('all')">All</button>
+                    <button id="sf-todo" role="tab" onclick="setStatusFilter('todo')">To do</button>
+                    <button id="sf-done" role="tab" onclick="setStatusFilter('done')">Done</button>
                 </div>
             </div>
             <div id="learn-topics" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
@@ -772,6 +804,27 @@
 
     const checkIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
     const circleIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>`;
+    const checkIconSm = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
+
+    /* ---------- topic meta + filtering ---------- */
+    let statusFilter = 'all';
+    const LEVELS = { foundation: 'Foundation', core: 'Core', advanced: 'Advanced' };
+    const readMins = (t) => Math.max(1, Math.round(String(t.body || '').replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length / 200));
+
+    window.setStatusFilter = (v) => {
+        statusFilter = v;
+        ['all', 'todo', 'done'].forEach(k => el('sf-' + k).classList.toggle('active', k === v));
+        renderGrid();
+    };
+    window.openNextUnfinished = () => {
+        const next = LEARN_PATH.find(id => !isDone(id));
+        if (next) openLearnTopic(next);
+    };
+    window.markDoneAndNext = (id, nextId) => {
+        doneSet.add(id); saveDone();
+        renderPath(); renderGrid(); renderProgress();
+        if (nextId) openLearnTopic(nextId); else closeLearnTopic();
+    };
 
     function refreshDetailButtons() {
         if (!currentDetailId || el('learn-detail').classList.contains('hidden')) return;
@@ -809,6 +862,16 @@
         el('progress-fill').style.width = pct + '%';
         el('progress-count').textContent = `${done} of ${total} done`;
         el('progress-pct').textContent = pct === 100 ? '100% — you’ve covered the whole story! 🎉' : pct + '% complete';
+        const nb = el('next-unfinished');
+        if (nb) {
+            const next = LEARN_PATH.find(id => !isDone(id));
+            nb.classList.toggle('hidden', !next);
+            if (next) {
+                const nt = topicById[next];
+                nb.textContent = (done === 0 ? 'Start' : 'Continue') + ' ▶';
+                nb.title = nt ? 'Next: ' + nt.title : 'Continue';
+            }
+        }
     }
 
     function detailDoneHtml(id) {
@@ -855,6 +918,8 @@
         const order = id => { const i = LEARN_PATH.indexOf(id); return i === -1 ? 999 : i; };
         let topics = LEARN_TOPICS.slice().sort((a, b) => order(a.id) - order(b.id));
         if (activeEra) topics = topics.filter(t => t.era === activeEra);
+        if (statusFilter === 'todo') topics = topics.filter(t => !isDone(t.id));
+        else if (statusFilter === 'done') topics = topics.filter(t => isDone(t.id));
         const grid = el('learn-topics');
         const empty = el('grid-empty');
 
@@ -868,24 +933,33 @@
         if (!topics.length) {
             grid.innerHTML = '';
             empty.classList.remove('hidden');
-            empty.textContent = 'No topic cards land in this era yet — but it still shapes the story. Pick another era, or show all.';
+            empty.textContent = statusFilter === 'done'
+                ? 'Nothing completed here yet — open a topic and mark it done.'
+                : statusFilter === 'todo'
+                    ? 'All done here — every topic in view is complete. 🎉'
+                    : 'No topic cards land in this era yet — but it still shapes the story. Pick another era, or show all.';
             return;
         }
         empty.classList.add('hidden');
         grid.innerHTML = topics.map(t => {
             const done = isDone(t.id);
+            const lvl = t.level || 'core';
+            const mins = readMins(t);
             return `
-            <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
+            <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}${done ? ' (completed)' : ''}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     ${eraBadge(t.era)}
                     <div class="flex items-center gap-2">
                         ${t.maps && t.maps.length ? `<span class="text-indigo-400" title="Includes a map">${mapIcon}</span>` : ''}
-                        <button class="done-toggle ${done ? 'is-done' : ''}" title="${done ? 'Mark to review' : 'Mark as done'}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}: ${t.title}" aria-pressed="${done}" onclick="toggleDone('${t.id}', event)">${done ? checkIcon : circleIcon}</button>
+                        <button class="done-toggle ${done ? 'is-done' : ''}" title="${done ? 'Mark as not done' : 'Mark as done'}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}: ${t.title}" aria-pressed="${done}" onclick="toggleDone('${t.id}', event)">${done ? checkIcon : circleIcon}</button>
                     </div>
                 </div>
                 <h3 class="text-lg font-black text-slate-900 leading-snug">${t.title}</h3>
-                <p class="text-sm text-slate-600 mt-1.5 flex-1">${t.summary}</p>
-                <span class="open-label text-xs font-bold text-indigo-600 mt-3">${done ? 'Done ✓ · open to review →' : 'Open →'}</span>
+                <p class="card-summary text-sm text-slate-600 mt-1.5 flex-1">${t.summary}</p>
+                <div class="flex items-center justify-between gap-2 mt-3">
+                    <span class="card-meta inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400"><span class="level-pill level-${lvl}">${LEVELS[lvl] || 'Core'}</span> ~${mins} min</span>
+                    <span class="open-label text-xs font-bold text-indigo-600">${done ? 'Reviewed ✓' : 'Open →'}</span>
+                </div>
             </article>`;
         }).join('');
     }
@@ -894,7 +968,20 @@
         const t = LEARN_TOPICS.find(x => x.id === id);
         if (!t) return;
         currentDetailId = id;
+        const lvl = t.level || 'core';
+        const mins = readMins(t);
         const mapsHtml = (t.maps || []).map(mid => LEARN_MAPS[mid] ? `<div class="mt-5">${LEARN_MAPS[mid]()}</div>` : '').join('');
+        const idx = LEARN_PATH.indexOf(id);
+        const prevId = idx > 0 ? LEARN_PATH[idx - 1] : null;
+        const nextId = (idx >= 0 && idx < LEARN_PATH.length - 1) ? LEARN_PATH[idx + 1] : null;
+        const navBtn = (tid, dir) => {
+            const tt = topicById[tid];
+            if (!tt) return '<span class="flex-1"></span>';
+            return `<button onclick="openLearnTopic('${tid}')" class="group flex-1 min-w-[140px] ${dir === 'prev' ? 'text-left' : 'text-right'} bg-white border border-slate-200 hover:border-indigo-300 rounded-xl px-4 py-3 transition-colors">
+                <span class="block text-[11px] font-bold uppercase tracking-wide text-slate-400">${dir === 'prev' ? '← Previous' : 'Next →'}</span>
+                <span class="block text-sm font-bold text-slate-700 group-hover:text-indigo-700 truncate">${tt.title}</span>
+            </button>`;
+        };
         el('learn-detail').innerHTML = `
             <article class="glass rounded-3xl p-6 md:p-9">
                 <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
@@ -905,12 +992,26 @@
                     <span id="detail-done-area">${detailDoneHtml(id)}</span>
                 </div>
                 <div class="mb-3">${eraBadge(t.era)}</div>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-5">${t.title}</h2>
+                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">${t.title}</h2>
+                <div class="flex flex-wrap items-center gap-2 mb-6 text-sm font-semibold text-slate-500">
+                    <span class="level-pill level-${lvl}">${LEVELS[lvl] || 'Core'}</span>
+                    <span>~${mins} min read</span>
+                    ${t.maps && t.maps.length ? `<span class="text-slate-400">· ${t.maps.length} map${t.maps.length > 1 ? 's' : ''}</span>` : ''}
+                </div>
                 <div class="prose-learn max-w-3xl">${t.body}</div>
                 ${mapsHtml}
-                <div class="mt-8 pt-5 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
-                    <button onclick="closeLearnTopic()" class="text-sm font-bold text-indigo-700 hover:text-indigo-900">← Back to all topics</button>
-                    <span id="detail-done-area-bottom">${detailDoneHtml(id)}</span>
+                <div class="mt-8 pt-5 border-t border-slate-200 space-y-4">
+                    ${nextId
+                        ? `<button onclick="markDoneAndNext('${id}','${nextId}')" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">${checkIconSm}<span>Mark done &amp; continue →</span></button>`
+                        : `<button onclick="markDoneAndNext('${id}','')" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">${checkIconSm}<span>Mark done — you’ve reached the end! 🎉</span></button>`}
+                    <div class="flex items-stretch justify-between gap-3">
+                        ${prevId ? navBtn(prevId, 'prev') : '<span class="flex-1"></span>'}
+                        ${nextId ? navBtn(nextId, 'next') : '<span class="flex-1"></span>'}
+                    </div>
+                    <div class="flex items-center justify-between gap-3 flex-wrap">
+                        <button onclick="closeLearnTopic()" class="text-sm font-bold text-indigo-700 hover:text-indigo-900">← All topics</button>
+                        <span id="detail-done-area-bottom">${detailDoneHtml(id)}</span>
+                    </div>
                 </div>
             </article>`;
         el('learn-hub').classList.add('hidden');
@@ -974,6 +1075,9 @@
         renderGrid();
         renderProgress();
         window.renderPeople();
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !el('learn-detail').classList.contains('hidden')) closeLearnTopic();
+        });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLearn);
     else initLearn();
