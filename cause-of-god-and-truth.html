@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>The Cause of God and Truth — John Gill | Bible Progress</title>
+    <meta name="description" content="A navigable companion to John Gill's four-part defense of the doctrines of grace (1735–1738). Browse by doctrine, by Scripture passage, or by the ancient church writers — with links to the full public-domain text.">
+    <meta property="og:title" content="The Cause of God and Truth — John Gill | Bible Progress">
+    <meta property="og:description" content="John Gill's classic answer to the Five Points of Arminianism, made navigable: by doctrine, by Scripture passage, and by the ante-Nicene fathers.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bibleprogress.com/cause-of-god-and-truth.html">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="The Cause of God and Truth — John Gill">
+    <meta name="twitter:description" content="Navigate Gill's four-part defense of the doctrines of grace by doctrine, Scripture, and church history.">
+    <link rel="canonical" href="https://bibleprogress.com/cause-of-god-and-truth.html">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root { color-scheme: light; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #f1f5f9 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #0f172a;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 12px 36px rgba(79, 70, 229, 0.1);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Scripture / quotes */
+        .scripture { font-family: 'Crimson Pro', Georgia, 'Times New Roman', serif; }
+
+        /* Tab nav */
+        .tab-bar { scrollbar-width: none; }
+        .tab-bar::-webkit-scrollbar { display: none; }
+        .tab-btn { flex: 0 0 auto; border-radius: 999px; padding: 0.5rem 1rem; font-weight: 700; font-size: 0.9rem; color: #475569; background: transparent; border: 1px solid transparent; transition: all 0.15s ease; white-space: nowrap; cursor: pointer; }
+        .tab-btn:hover { color: #4338ca; background: #eef2ff; }
+        .tab-btn.active { color: #fff; background: #4f46e5; box-shadow: 0 8px 18px -6px rgba(79,70,229,0.6); }
+
+        /* Cards */
+        .lift { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+        .lift:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(79,70,229,0.16); }
+
+        .part-num { display:inline-flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem; border-radius:0.9rem; font-weight:900; font-size:1.1rem; flex:0 0 auto; }
+
+        /* Passage entry */
+        .passage { transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+        .passage:hover { border-color: rgba(99,102,241,0.4); }
+        .ref-pill { font-weight:800; font-size:0.78rem; letter-spacing:0.01em; border-radius:999px; padding:0.2rem 0.65rem; background:#eef2ff; color:#4338ca; }
+        .tag-pill { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; border-radius:999px; padding:0.15rem 0.55rem; }
+
+        .book-chip { flex:0 0 auto; border:1.5px solid #e2e8f0; color:#475569; background:#fff; border-radius:999px; padding:0.35rem 0.8rem; font-weight:700; font-size:0.82rem; transition:all 0.15s ease; cursor:pointer; white-space:nowrap; }
+        .book-chip:hover { border-color:#a5b4fc; color:#4338ca; }
+        .book-chip.active { background:#4f46e5; color:#fff; border-color:#4f46e5; }
+
+        /* Father timeline row */
+        .father-row { transition: background 0.15s ease; }
+        .father-row:hover { background:#f8fafc; }
+        .era-tick { font-size:10px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; }
+
+        /* Progress */
+        .progress-track { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #10b981); border-radius: 999px; transition: width 0.45s ease; }
+        .check-toggle { width: 28px; height: 28px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px solid #e2e8f0; background: #fff; transition: all 0.15s ease; flex: 0 0 auto; cursor: pointer; }
+        .check-toggle:hover { color: #10b981; border-color: #6ee7b7; }
+        .check-toggle.is-done { background: #10b981; border-color: #10b981; color: #fff; }
+
+        .lead-cap::first-letter { font-family:'Crimson Pro',serif; font-size:3.2rem; font-weight:600; float:left; line-height:0.8; padding:0.1rem 0.55rem 0 0; color:#4f46e5; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+<!-- Shared dark mode: follows the main app's Settings preference. -->
+<style>
+    .dark-mode { filter: invert(0.92) hue-rotate(180deg); background: #1a1a1a !important; }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
+</script>
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="glass rounded-3xl p-6 md:p-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="max-w-3xl">
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-indigo-100 text-indigo-700 mb-4">Reformed Classics</p>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">The Cause of God and Truth</h1>
+                <p class="text-base md:text-lg text-slate-600 mt-2 font-semibold">John Gill, D.D. &middot; in four parts &middot; 1735&ndash;1738</p>
+                <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">Gill's classic, point-by-point defense of the doctrines of grace &mdash; made navigable. Browse it <b>by doctrine</b>, <b>by Scripture passage</b>, or <b>by the ancient church</b>, then read his own words in the full public-domain text.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="dark-toggle" onclick="toggleDark()" class="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white text-slate-700 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors" aria-label="Toggle dark mode">
+                    <span id="dark-toggle-icon">🌙</span>
+                </button>
+                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-800 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Bible Progress
+                </a>
+            </div>
+        </div>
+
+        <!-- Book facts -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Author</div>
+                <div class="text-sm font-bold text-slate-800 mt-1">John Gill (1697&ndash;1771)</div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Written against</div>
+                <div class="text-sm font-bold text-slate-800 mt-1">Daniel Whitby's <span class="italic">Five Points</span></div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Structure</div>
+                <div class="text-sm font-bold text-slate-800 mt-1">4 parts</div>
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-3.5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Subject</div>
+                <div class="text-sm font-bold text-slate-800 mt-1">The doctrines of grace</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab nav -->
+    <nav class="glass rounded-2xl p-2 sticky top-3 z-30">
+        <div id="tab-bar" class="tab-bar flex gap-1 overflow-x-auto"></div>
+    </nav>
+
+    <!-- ============ OVERVIEW ============ -->
+    <section id="view-overview" class="space-y-6 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-8">
+            <h2 class="text-2xl font-black text-slate-900 mb-4">What this book is</h2>
+            <div class="text-slate-700 leading-relaxed space-y-4 max-w-3xl">
+                <p class="lead-cap">In 1710 the Arminian divine <b>Daniel Whitby</b> published <span class="italic">A Discourse on the Five Points</span>, the most influential English assault on Calvinism of its age. A quarter-century later a young Particular Baptist pastor in Southwark answered it. <b>The Cause of God and Truth</b> is John Gill's reply &mdash; a methodical, four-part defense of unconditional election, particular redemption, efficacious grace, and the perseverance of the saints, against the doctrine of free will and universal grace.</p>
+                <p>Gill does not argue in the abstract. He works through the actual battlefield of the controversy: the specific verses each side appeals to, the philosophical objections raised against the decrees, and the testimony of the early church. The four parts each take a different angle on the same question &mdash; <span class="italic">is salvation, from first to last, the free gift of a sovereign God, or does it finally turn on the will of man?</span></p>
+            </div>
+        </div>
+
+        <!-- the five points map -->
+        <div class="glass rounded-3xl p-6 md:p-8">
+            <h2 class="text-2xl font-black text-slate-900 mb-1">Five points answering five points</h2>
+            <p class="text-slate-600 mb-5">The Arminian <span class="italic">Remonstrance</span> made five claims. Gill answers each.</p>
+            <div id="five-points" class="grid md:grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- progress -->
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                <div>
+                    <h2 class="text-xl font-black text-slate-900">Track your study</h2>
+                    <p class="text-sm text-slate-600">Check off each part and doctrine as you read it &mdash; <span id="progress-count" class="font-bold text-emerald-700">0 done</span>.</p>
+                </div>
+                <button onclick="resetProgress()" class="text-sm font-bold text-slate-500 hover:text-rose-600 border border-slate-200 rounded-xl px-3 py-2 transition-colors">Reset</button>
+            </div>
+            <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+            <p id="progress-pct" class="text-right text-xs font-bold text-slate-500 mt-1.5">0% complete</p>
+        </div>
+    </section>
+
+    <!-- ============ THE FOUR PARTS ============ -->
+    <section id="view-parts" class="hidden space-y-4 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-2xl font-black text-slate-900">The four parts</h2>
+            <p class="text-slate-600 mt-1">Four ways of pressing one case. Read them in order, or jump to whichever angle you need.</p>
+        </div>
+        <div id="parts-list" class="space-y-4"></div>
+    </section>
+
+    <!-- ============ BY DOCTRINE ============ -->
+    <section id="view-doctrine" class="hidden space-y-4 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-2xl font-black text-slate-900">By doctrine</h2>
+            <p class="text-slate-600 mt-1">The doctrines Gill defends, each summarized with his thesis, his proof-texts, the objections he answers, and where in the book to find it. Tap <span class="font-semibold text-indigo-600">&ldquo;passages&rdquo;</span> to see the verses he re-reads on that head.</p>
+        </div>
+        <div id="doctrine-list" class="grid md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- ============ BY SCRIPTURE ============ -->
+    <section id="view-scripture" class="hidden space-y-4 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-2xl font-black text-slate-900">By Scripture</h2>
+            <p class="text-slate-600 mt-1">Parts I &amp; III turn on individual verses. Here are principal passages the Arminians pressed &mdash; each with the text (KJV), how it was used against the doctrines of grace, and the heart of Gill's reply. Reading a book today? Filter to it.</p>
+            <div class="mt-4 flex flex-col gap-3">
+                <input id="scripture-search" type="text" oninput="renderPassages()" placeholder="Search a verse, word, or argument…  e.g. &quot;all men&quot;, John, perish" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" aria-label="Search passages">
+                <div id="book-chips" class="tab-bar flex gap-2 overflow-x-auto pb-1"></div>
+            </div>
+            <p class="mt-3 text-xs text-slate-500">Showing <span id="passage-count" class="font-bold text-slate-700">0</span> passages. Summaries are an editorial paraphrase &mdash; <button onclick="showView('read')" class="text-indigo-600 font-semibold hover:underline">read Gill's own words</button> in the full text.</p>
+        </div>
+        <div id="passage-list" class="space-y-3"></div>
+        <p id="passage-empty" class="hidden text-center text-slate-400 font-bold py-10">No passages match that search.</p>
+    </section>
+
+    <!-- ============ THE ANCIENTS (PART IV) ============ -->
+    <section id="view-ancients" class="hidden space-y-4 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-2xl font-black text-slate-900">The ancients <span class="text-slate-400 font-bold text-lg">— Part IV</span></h2>
+            <p class="text-slate-700 mt-2 leading-relaxed max-w-3xl">Whitby claimed the doctrines of grace were a late invention &mdash; that the church knew nothing of unconditional election before <b>Augustine</b> (354&ndash;430). Part IV answers the charge historically: Gill marshals the Christian writers of the first four centuries to argue that the substance of these doctrines was confessed long before Augustine was born. Below are the witnesses he calls, in order.</p>
+            <p class="mt-3 text-xs text-slate-500">Dates are approximate. Whether every father was &ldquo;Calvinist&rdquo; is debated by historians; what follows is the line of witnesses <span class="italic">Gill himself</span> assembles.</p>
+        </div>
+        <div class="glass rounded-3xl p-4 md:p-6">
+            <div id="fathers-list" class="divide-y divide-slate-100"></div>
+        </div>
+    </section>
+
+    <!-- ============ READ THE TEXT ============ -->
+    <section id="view-read" class="hidden space-y-4 animate-fade-in">
+        <div class="glass rounded-3xl p-6 md:p-8">
+            <h2 class="text-2xl font-black text-slate-900">Read the full text</h2>
+            <p class="text-slate-700 mt-2 leading-relaxed max-w-3xl">This site offers a guide to the book; for Gill's own words, the complete work is in the public domain. These editions are free and complete &mdash; if one host is down, try another.</p>
+            <div id="read-links" class="grid md:grid-cols-2 gap-3 mt-5"></div>
+            <div class="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm text-slate-600">
+                <b class="text-indigo-700">A note on this page.</b> The summaries here are a study aid in our own words, meant to help you find your way around a long book. They are not quotations of Gill and are no substitute for reading him. Where a verse is shown, the text is the King James Version.
+            </div>
+        </div>
+        <div class="glass rounded-3xl p-6 md:p-7">
+            <h3 class="text-lg font-black text-slate-900 mb-3">Keep going on Bible Progress</h3>
+            <div class="grid sm:grid-cols-3 gap-3">
+                <a href="learn.html" class="rounded-2xl border border-slate-200 p-4 lift bg-white block"><div class="text-2xl mb-1">🧭</div><div class="font-black text-slate-800">Learn the Bible</div><div class="text-xs text-slate-500 mt-1">The whole story, fast.</div></a>
+                <a href="memorize.html" class="rounded-2xl border border-slate-200 p-4 lift bg-white block"><div class="text-2xl mb-1">💡</div><div class="font-black text-slate-800">Memorize Scripture</div><div class="text-xs text-slate-500 mt-1">Hide the Word in your heart.</div></a>
+                <a href="index.html" class="rounded-2xl border border-slate-200 p-4 lift bg-white block"><div class="text-2xl mb-1">📖</div><div class="font-black text-slate-800">Track your reading</div><div class="text-xs text-slate-500 mt-1">Progress by word count.</div></a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center text-xs text-slate-400 py-6">
+        A study companion to a public-domain work. <span class="font-semibold">The Cause of God and Truth</span> by John Gill (1697&ndash;1771).
+        &middot; <a href="index.html" class="hover:text-indigo-500 underline">Bible Progress</a>
+    </footer>
+</div>
+
+<script>
+    /* ---------- helpers ---------- */
+    const el = (id) => document.getElementById(id);
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    /* ---------- dark mode (shares the main app's setting) ---------- */
+    function syncDarkIcon(){ const on=document.body.classList.contains('dark-mode'); const i=el('dark-toggle-icon'); if(i) i.textContent=on?'☀️':'🌙'; }
+    function toggleDark(){ const on=document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', on?'enabled':'disabled'); syncDarkIcon(); }
+    window.toggleDark = toggleDark;
+
+    /* ================= DATA ================= */
+
+    const TABS = [
+        { id:'overview',  label:'Overview' },
+        { id:'parts',     label:'The Four Parts' },
+        { id:'doctrine',  label:'By Doctrine' },
+        { id:'scripture', label:'By Scripture' },
+        { id:'ancients',  label:'The Ancients' },
+        { id:'read',      label:'Read the Text' },
+    ];
+
+    // The Remonstrant five points vs. Gill's answer
+    const FIVE_POINTS = [
+        { arm:'Conditional election', armText:'God chose those he foresaw would believe.', cal:'Unconditional election', calText:'God chose a people in Christ of free grace, before they had done good or ill (Rom. 9:11; Eph. 1:4).' },
+        { arm:'Universal redemption', armText:'Christ died for every individual without exception.', cal:'Particular redemption', calText:'Christ died to actually save his sheep — the redemption is as particular as it is effectual (John 10:15; Eph. 5:25).' },
+        { arm:'Resistible grace', armText:'Saving grace can be finally refused by the will.', cal:'Efficacious grace', calText:'The inward call of the Spirit infallibly renews and draws; only the outward call is resisted (John 6:37, 44).' },
+        { arm:'Free will / partial depravity', armText:'Fallen man retains power to turn himself to God.', cal:'Total inability', calText:'The natural man is dead in sin and cannot of himself come to Christ (John 6:44; Rom. 8:7; 1 Cor. 2:14).' },
+        { arm:'Falling from grace', armText:'A true believer may finally and totally fall away.', cal:'Perseverance of the saints', calText:'Those truly called are kept by God’s power and shall never perish (John 10:28-29; 1 Pet. 1:5).' },
+    ];
+
+    const PARTS = [
+        { num:'I', color:'#4f46e5', bg:'#eef2ff',
+          title:'The Arminian texts, examined',
+          tagline:'Going through Scripture in order',
+          body:'Gill takes the principal passages the Arminians urge for free will and universal grace — verse by verse, in canonical order from Genesis to Revelation — and shows that, rightly read, none of them establishes their scheme and all of them agree with the doctrines of grace.',
+          look:'Best read as a reference: find the verse, see how it was pressed, and how Gill answers it. The <b>By Scripture</b> tab is built from this part.',
+          jump:'scripture', jumpLabel:'Browse the passages' },
+        { num:'II', color:'#0d9488', bg:'#f0fdfa',
+          title:'The case from Scripture',
+          tagline:'Positive proof, head by head',
+          body:'The mirror image of Part I. Here Gill lays out the passages that positively establish each doctrine — reprobation, election, redemption, original sin, efficacious grace, perseverance — and answers the objections raised against each text.',
+          look:'Organized by doctrine. The <b>By Doctrine</b> tab follows this structure.',
+          jump:'doctrine', jumpLabel:'Browse by doctrine' },
+        { num:'III', color:'#b45309', bg:'#fffbeb',
+          title:'The arguments, answered',
+          tagline:'Reason and objection',
+          body:'Leaving the proof-texts, Gill turns to the philosophical and rational arguments against the decrees — that they make God unjust, destroy human liberty, or make him the author of sin. He answers them under the same doctrinal heads, adding the foreknowledge and providence of God and the case of the heathen.',
+          look:'The hardest objections live here. See the <b>By Doctrine</b> cards for the questions each head wrestles with.',
+          jump:'doctrine', jumpLabel:'See the objections' },
+        { num:'IV', color:'#9333ea', bg:'#faf5ff',
+          title:'The witness of the ancients',
+          tagline:'Before Augustine',
+          body:'A historical defense. To answer the charge that these doctrines were a late novelty, Gill cites the Christian writers of the first four centuries — from Clement of Rome to the eve of Augustine — to show the church held them long before. (A Vindication of Part IV, against Henry Heywood, was later added.)',
+          look:'A chronological roll-call of witnesses.',
+          jump:'ancients', jumpLabel:'Meet the witnesses' },
+    ];
+
+    const DOCTRINES = [
+        { id:'reprobation', name:'Reprobation', icon:'⚖️', color:'#475569',
+          thesis:'In the same eternal decree by which God chose some, he passed by others and ordained them, for their sin, to just condemnation — for the glory of his justice. The decree is sovereign, not grounded on foreseen unbelief; yet God is in no way the author of any man’s sin, and the lost perish only for their own.',
+          proofs:['Prov. 16:4','Rom. 9:17-22','1 Pet. 2:8','Jude 4'],
+          objections:'Does this make God unjust, or the author of sin? Gill: the potter has power over the clay; God ordains the end and the righteous means, and condemns none but for sin.',
+          parts:'II · III · IV', filter:null },
+        { id:'election', name:'Election', icon:'👑', color:'#4f46e5',
+          thesis:'God’s eternal, unconditional choice of a definite people in Christ unto salvation — of pure grace, before the foundation of the world, not on the basis of anything foreseen in them. It is the fountain of every saving blessing.',
+          proofs:['John 15:16','Rom. 9:11','Eph. 1:4-5','2 Thess. 2:13'],
+          objections:'Is election arbitrary or unfair? Gill: grace is not owed; God may do as he will with his own, and election renders him a debtor to none.',
+          parts:'II · III · IV', filter:null },
+        { id:'redemption', name:'Particular Redemption', icon:'🐑', color:'#0d9488',
+          thesis:'Christ died with the intention and effect of actually redeeming the elect — not merely making all men salvable. The atonement’s extent matches its efficacy: all for whom he died are saved. The texts of "all," "world," and "every man" mean all sorts of men, or the elect of every nation, not every individual.',
+          proofs:['Matt. 1:21','John 10:15','Acts 20:28','Eph. 5:25'],
+          objections:'But does not Scripture say Christ died for "all" and "the world"? Gill devotes much of Part I to these very words — see the passages tagged here.',
+          parts:'I · II · III · IV', filter:'redemption' },
+        { id:'inability', name:'Original Sin & Free Will', icon:'🔗', color:'#b45309',
+          thesis:'By Adam’s fall all are born guilty and wholly corrupt — dead in sin, unable of themselves to any spiritual good or to turn to God. The will is free, but free toward evil; it is in bondage as to saving good until grace frees it. Commands and invitations show man’s duty, not his ability.',
+          proofs:['Gen. 6:5','Ps. 51:5','John 6:44','Rom. 8:7','1 Cor. 2:14'],
+          objections:'If man cannot obey, why command him? Gill: the loss of ability does not cancel the obligation; the law reveals sin and drives to grace.',
+          parts:'I · III · IV', filter:'inability' },
+        { id:'grace', name:'Efficacious Grace', icon:'🔥', color:'#dc2626',
+          thesis:'In effectual calling the Spirit works invincibly and savingly — giving a new heart and making the unwilling willing — so that the elect are infallibly converted. The outward call by the word may be, and is, resisted; the inward work of grace cannot be finally frustrated.',
+          proofs:['Ezek. 36:26-27','John 6:37','Acts 16:14','Phil. 2:13'],
+          objections:'Doesn’t "ye do always resist the Holy Ghost" prove grace resistible? Gill distinguishes the resisting of the outward ministry from the inward, victorious work — see the passages here.',
+          parts:'I · II · III · IV', filter:'grace' },
+        { id:'perseverance', name:'Perseverance of the Saints', icon:'🛡️', color:'#0284c7',
+          thesis:'Those truly regenerated and effectually called can never totally nor finally fall away, but are kept by the power of God through faith unto salvation. The "falling away" passages describe apostate professors, or serve as the very means by which God preserves his own.',
+          proofs:['Jer. 32:40','John 10:28-29','Rom. 8:38-39','1 Pet. 1:5'],
+          objections:'What of Hebrews 6 and 10, and "destroy not him for whom Christ died"? Gill answers each — see the passages tagged here.',
+          parts:'I · II · III · IV', filter:'perseverance' },
+        { id:'providence', name:'Foreknowledge & Providence', icon:'🌐', color:'#7c3aed',
+          thesis:'God certainly foreknows all that comes to pass and governs all things by his providence — including sin, which he permits, bounds, and overrules to his own ends without being its author. His foreknowledge rests on his decree, not the reverse; and his certainty does not destroy the liberty or contingency of second causes.',
+          proofs:['Isa. 46:9-10','Acts 2:23','Acts 4:27-28','Eph. 1:11'],
+          objections:'Do the decrees destroy human freedom and make God the author of sin? The core of Part III’s reasoning.',
+          parts:'III', filter:null },
+        { id:'heathen', name:'The Case of the Heathen', icon:'🌍', color:'#059669',
+          thesis:'Gill answers the charge that these doctrines make God unjust for leaving nations without the gospel: saving grace is owed to none; the heathen have the light of nature and the works of creation, leaving them without excuse; and the sovereign distribution of gospel light is God’s to give or withhold in justice.',
+          proofs:['Acts 14:16','Acts 17:30','Rom. 1:19-20','Rom. 2:14-15'],
+          objections:'Is it fair to condemn those who never heard? Gill: none are condemned for want of what they never had, but for sin against the light they did have.',
+          parts:'III', filter:null },
+    ];
+
+    // Part I passages — KJV text drawn from this site’s own Bible data.
+    const PASSAGES = [
+        { id:'gen4_7',  ref:'Genesis 4:7', book:'Genesis', tags:['inability'], parts:'I',
+          kjv:"If thou doest well, shalt thou not be accepted? and if thou doest not well, sin lieth at the door. And unto thee shall be his desire, and thou shalt rule over him.",
+          appeal:'Cited for free will — man has power to do well and be accepted.',
+          reply:'Spoken to Cain about acceptance in worship and the firstborn’s privilege, not the power of fallen man to convert himself. A command presupposes duty, not ability.' },
+        { id:'gen6_3',  ref:'Genesis 6:3', book:'Genesis', tags:['grace'], parts:'I',
+          kjv:"And the LORD said, My spirit shall not always strive with man, for that he also is flesh: yet his days shall be an hundred and twenty years.",
+          appeal:'Cited to prove the Spirit’s saving grace is resistible and can be lost.',
+          reply:'The "striving" is God’s long forbearance — his Spirit pleading through Noah’s ministry across 120 years before the flood. It speaks of patience withdrawn in judgment, not of internal saving grace being defeated.' },
+        { id:'deut5_29', ref:'Deuteronomy 5:29', book:'Deuteronomy', tags:['grace'], parts:'I',
+          kjv:"O that there were such an heart in them, that they would fear me, and keep all my commandments always, that it might be well with them, and with their children for ever!",
+          appeal:'Cited as God wishing all would obey — implying the power lay in them.',
+          reply:'An expression of God’s approval of obedience as a good thing, spoken after the manner of men. It proves Israel lacked such a heart — the very heart God elsewhere promises to give (Deut. 30:6) — not that they could supply it.' },
+        { id:'deut30_19', ref:'Deuteronomy 30:19', book:'Deuteronomy', tags:['inability'], parts:'I',
+          kjv:"I call heaven and earth to record this day against you, that I have set before you life and death, blessing and cursing: therefore choose life, that both thou and thy seed may live:",
+          appeal:'The great free-will text — "choose life."',
+          reply:'Set before national Israel are covenant blessings and curses in the land — life and death temporal. Setting a choice before men declares their duty; it grants no power, and the same chapter (v. 6) ascribes the circumcised heart to God.' },
+        { id:'josh24_15', ref:'Joshua 24:15', book:'Joshua', tags:['inability'], parts:'I',
+          kjv:"And if it seem evil unto you to serve the LORD, choose you this day whom ye will serve... but as for me and my house, we will serve the LORD.",
+          appeal:'"Choose you this day" — proof of free will in religion.',
+          reply:'A call to public, outward covenant service of the LORD over idols, addressed to a professing nation. It concerns external worship, not the inward power to regenerate — and Joshua adds, v. 19, "ye cannot serve the LORD."' },
+        { id:'ps81_13', ref:'Psalm 81:13', book:'Psalms', tags:['grace'], parts:'I',
+          kjv:"Oh that my people had hearkened unto me, and Israel had walked in my ways!",
+          appeal:'Cited as God’s frustrated wish for all to be saved.',
+          reply:'Like Deut. 5:29 — God’s approbation of obedience and his complaint of Israel’s disobedience, spoken after the manner of men, touching temporal blessings to the nation. Not a defeated decree.' },
+        { id:'prov1_24', ref:'Proverbs 1:24', book:'Proverbs', tags:['grace'], parts:'I',
+          kjv:"Because I have called, and ye refused; I have stretched out my hand, and no man regarded;",
+          appeal:'Grace offered and refused — therefore resistible.',
+          reply:'This is Wisdom’s outward call through the ministry, which men do refuse — proving the enmity of the heart, exactly what the doctrines of grace assert. The inward, efficacious call is another thing entirely.' },
+        { id:'isa5_4', ref:'Isaiah 5:4', book:'Isaiah', tags:['grace'], parts:'I',
+          kjv:"What could have been done more to my vineyard, that I have not done in it? wherefore, when I looked that it should bring forth grapes, brought it forth wild grapes?",
+          appeal:'God did all he could; man frustrated his grace.',
+          reply:'The "more" is of outward means and privileges given to national Israel — the vineyard. God was not obliged to give, and is not here speaking of, the almighty operation of efficacious grace.' },
+        { id:'isa55_1', ref:'Isaiah 55:1', book:'Isaiah', tags:['redemption'], parts:'I',
+          kjv:"Ho, every one that thirsteth, come ye to the waters... come, buy wine and milk without money and without price.",
+          appeal:'A universal offer implying universal ability and redemption.',
+          reply:'A free invitation to the thirsty — and that thirst is itself wrought by grace. The call goes out freely to all, but is made effectual as God draws. A gracious offer proves neither free will nor universal atonement.' },
+        { id:'isa65_2', ref:'Isaiah 65:2', book:'Isaiah', tags:['grace'], parts:'I',
+          kjv:"I have spread out my hands all the day unto a rebellious people, which walketh in a way that was not good, after their own thoughts;",
+          appeal:'God’s universal striving, resisted by man (cf. Rom. 10:21).',
+          reply:'God’s patient outward dealing with rebellious Israel through the prophets. The spread hands are the ministry and invitation, not the inward work of the Spirit; the verse exhibits Israel’s obstinacy.' },
+        { id:'ezek18_23', ref:'Ezekiel 18:23', book:'Ezekiel', tags:['redemption','grace'], parts:'I',
+          kjv:"Have I any pleasure at all that the wicked should die? saith the Lord GOD: and not that he should return from his ways, and live?",
+          appeal:'God wills the salvation of all the wicked.',
+          reply:'It concerns the house of Israel and temporal death, and the way of repentance set before them. God has no delight in death as such, and delights in conversion as a good thing — his revealed will of approbation, not his secret decree to save every man.' },
+        { id:'ezek33_11', ref:'Ezekiel 33:11', book:'Ezekiel', tags:['redemption','grace'], parts:'I',
+          kjv:"As I live, saith the Lord GOD, I have no pleasure in the death of the wicked; but that the wicked turn from his way and live: turn ye, turn ye from your evil ways; for why will ye die, O house of Israel?",
+          appeal:'The classic proof that God wills every sinner’s salvation.',
+          reply:'Addressed to the house of Israel about turning from the way to temporal ruin. "Turn ye" is the command and duty — the means by which God turns his own. It reveals God’s delight in repentance, not a universal decree of salvation.' },
+        { id:'matt11_21', ref:'Matthew 11:21', book:'Matthew', tags:['grace'], parts:'I',
+          kjv:"Woe unto thee, Chorazin!... for if the mighty works, which were done in you, had been done in Tyre and Sidon, they would have repented long ago in sackcloth and ashes.",
+          appeal:'Sufficient grace was given that could have converted Tyre and Sidon.',
+          reply:'A proverbial way of aggravating Chorazin’s guilt. Such miracles would have produced an outward, "sackcloth and ashes" reformation — a legal repentance — not necessarily saving grace. It magnifies the impenitence of those who had Christ himself.' },
+        { id:'matt23_37', ref:'Matthew 23:37', book:'Matthew', tags:['grace','redemption'], parts:'I',
+          kjv:"O Jerusalem, Jerusalem... how often would I have gathered thy children together, even as a hen gathereth her chickens under her wings, and ye would not!",
+          appeal:'Christ willed to save, but man’s free will defeated him.',
+          reply:'Mark the change of person: "thy children" Christ would have gathered (to his ministry and protection); but "ye would not" speaks to the rulers — the scribes and Pharisees who hindered the people. The opposition is theirs, not a frustration of omnipotent grace.' },
+        { id:'luke19_41', ref:'Luke 19:41-42', book:'Luke', tags:['redemption','grace'], parts:'I',
+          kjv:"And when he was come near, he beheld the city, and wept over it... the things which belong unto thy peace! but now they are hid from thine eyes.",
+          appeal:'Christ desired the salvation of those who finally perished.',
+          reply:'His tears were over Jerusalem’s coming temporal destruction; "the things that belong to thy peace" are the means of escaping that ruin, now hidden in judgment. His human compassion over a city’s fall is not a divine decree to save all.' },
+        { id:'john1_9', ref:'John 1:9', book:'John', tags:['redemption'], parts:'I',
+          kjv:"That was the true Light, which lighteth every man that cometh into the world.",
+          appeal:'A saving light given to every individual.',
+          reply:'Christ is the author of the light of reason and conscience to every man born, and the only true spiritual light to those he enlightens. "Every man that cometh into the world" is a Hebraism for every man born — the light of nature universally, of grace particularly.' },
+        { id:'john5_40', ref:'John 5:40', book:'John', tags:['inability'], parts:'I',
+          kjv:"And ye will not come to me, that ye might have life.",
+          appeal:'"Ye will not" — the decisive factor is man’s free will.',
+          reply:'It states the disease, not a cure: "ye will not" means ye are unwilling — your corrupt will refuses. This is the bondage of the will, not its freedom; for "no man can come except the Father draw him" (6:44).' },
+        { id:'john12_32', ref:'John 12:32', book:'John', tags:['redemption'], parts:'I',
+          kjv:"And I, if I be lifted up from the earth, will draw all men unto me.",
+          appeal:'Universal drawing and universal redemption.',
+          reply:'In context (Greeks had come to see him) "all men" means all sorts of men — Gentiles as well as Jews, the elect of every nation. The "drawing" is the victorious grace of 6:44 that actually brings; and all who are drawn come — so it cannot mean every individual, or all would be saved.' },
+        { id:'acts7_51', ref:'Acts 7:51', book:'Acts', tags:['grace'], parts:'I',
+          kjv:"Ye stiffnecked and uncircumcised in heart and ears, ye do always resist the Holy Ghost: as your fathers did, so do ye.",
+          appeal:'The standard proof that saving grace is resistible.',
+          reply:'The resistance is to the Holy Ghost speaking in the outward ministry of the prophets and Stephen — as their fathers resisted. It is the external call and word that men resist; the inward, regenerating work of the Spirit is invincible.' },
+        { id:'rom5_18', ref:'Romans 5:18', book:'Romans', tags:['redemption'], parts:'I',
+          kjv:"...even so by the righteousness of one the free gift came upon all men unto justification of life.",
+          appeal:'Justification came upon all men — universal redemption.',
+          reply:'The "all men" justified are all who are in Christ — the "many" made righteous (v. 19) — just as condemnation is on all in Adam. It is a federal parallel of the two heads and their seed, not every individual; else all are saved.' },
+        { id:'rom14_15', ref:'Romans 14:15', book:'Romans', tags:['redemption','perseverance'], parts:'I',
+          kjv:"...Destroy not him with thy meat, for whom Christ died.",
+          appeal:'Christ died for some who may yet perish — against particular redemption and perseverance.',
+          reply:'"Destroy" here means to grieve, wound, or stumble a brother — a strong word to deter giving offense, not a threat of final perdition. It urges love, and overthrows neither particular redemption nor the keeping of God’s elect.' },
+        { id:'1cor8_11', ref:'1 Corinthians 8:11', book:'1 Corinthians', tags:['redemption','perseverance'], parts:'I',
+          kjv:"And through thy knowledge shall the weak brother perish, for whom Christ died?",
+          appeal:'A brother for whom Christ died may perish.',
+          reply:'As in Romans 14, "perish" is the wounding and stumbling of a weak brother by an uncharitable use of liberty. The apostle aggravates the sin; he does not teach that any for whom Christ truly died can finally be lost.' },
+        { id:'2cor5_14', ref:'2 Corinthians 5:14-15', book:'2 Corinthians', tags:['redemption'], parts:'I',
+          kjv:"...if one died for all, then were all dead: And that he died for all, that they which live should not henceforth live unto themselves, but unto him which died for them...",
+          appeal:'"He died for all" — universal atonement.',
+          reply:'The "all" he died for are the "all" who "were dead" and who now "live unto him." The death and its design are co-extensive: all for whom Christ died live to him. That is the elect — proving the atonement’s efficacy and particularity, not its universal extent.' },
+        { id:'1tim2_4', ref:'1 Timothy 2:4', book:'1 Timothy', tags:['redemption'], parts:'I',
+          kjv:"Who will have all men to be saved, and to come unto the knowledge of the truth.",
+          appeal:'God wills the salvation of every individual.',
+          reply:'"All men" means all sorts and ranks of men — note v. 1-2, "kings and all in authority" — against the notion that only Jews are saved. God’s will of purpose is never frustrated (Ps. 115:3); so this is some of all sorts, not all of every sort.' },
+        { id:'1tim4_10', ref:'1 Timothy 4:10', book:'1 Timothy', tags:['redemption'], parts:'I',
+          kjv:"...who is the Saviour of all men, specially of those that believe.",
+          appeal:'Christ is the Saviour of all men — universal redemption.',
+          reply:'God is the preserver and benefactor — Saviour in a providential, temporal sense — of all men, sustaining all; but "specially" the spiritual and eternal Saviour of believers. The word "specially" itself distinguishes the two senses.' },
+        { id:'titus2_11', ref:'Titus 2:11', book:'Titus', tags:['redemption'], parts:'I',
+          kjv:"For the grace of God that bringeth salvation hath appeared to all men,",
+          appeal:'Saving grace has been given to all men.',
+          reply:'The grace has now appeared — shone out — to all sorts of men, Gentiles as well as Jews, in this gospel day; or "all men" means the classes named in the context (aged, young, servants). It is the manifesting of grace to all kinds, not its bestowal on every soul.' },
+        { id:'heb2_9', ref:'Hebrews 2:9', book:'Hebrews', tags:['redemption'], parts:'I',
+          kjv:"...that he by the grace of God should taste death for every man.",
+          appeal:'Christ tasted death for every man — universal atonement.',
+          reply:'The context defines "every man": the "many sons" brought to glory (v. 10), the "brethren" (v. 11-12), the "children" God gave him (v. 13). He tasted death for every one of these — his people — not for every individual.' },
+        { id:'heb6_4', ref:'Hebrews 6:4-6', book:'Hebrews', tags:['perseverance'], parts:'I',
+          kjv:"For it is impossible for those who were once enlightened... and have tasted... If they shall fall away, to renew them again unto repentance...",
+          appeal:'True believers can fall away and be finally lost.',
+          reply:'The persons are described only by gifts and tastes that fall short of saving grace — like the stony ground. "Tasting" is not eating and digesting. These are apostates from profession; and the passage’s force secures the truly regenerate, who are kept by God’s power.' },
+        { id:'heb10_26', ref:'Hebrews 10:26', book:'Hebrews', tags:['perseverance'], parts:'I',
+          kjv:"For if we sin wilfully after that we have received the knowledge of the truth, there remaineth no more sacrifice for sins,",
+          appeal:'A believer may apostatize and lose salvation.',
+          reply:'The "wilful sin" is total, malicious apostasy — treading underfoot the Son of God and renouncing his sacrifice. It describes the apostate professor, not the falls of a true saint, who does not so sin; the warning is itself a means of perseverance.' },
+        { id:'2pet2_1', ref:'2 Peter 2:1', book:'2 Peter', tags:['redemption','perseverance'], parts:'I',
+          kjv:"...even denying the Lord that bought them, and bring upon themselves swift destruction.",
+          appeal:'Christ bought even those who are destroyed — against particular redemption.',
+          reply:'"The Lord" is the Sovereign Master (despotes); and "bought" need not mean redeemed by blood — it echoes God who "bought" Israel out of Egypt (Deut. 32:6), among whom these false teachers arose; or it is their own profession that he bought them. It describes apostate professors, not the redeemed.' },
+        { id:'2pet3_9', ref:'2 Peter 3:9', book:'2 Peter', tags:['redemption','election'], parts:'I',
+          kjv:"...is longsuffering to us-ward, not willing that any should perish, but that all should come to repentance.",
+          appeal:'God is not willing that any person should perish.',
+          reply:'Read the address: "to us-ward" — the beloved, the elect (v. 8, 15: "the longsuffering of our Lord is salvation"). God wills that none of these perish but that all of them come to repentance; hence Christ’s coming is delayed till they are gathered in.' },
+        { id:'1john2_2', ref:'1 John 2:2', book:'1 John', tags:['redemption'], parts:'I',
+          kjv:"And he is the propitiation for our sins: and not for ours only, but also for the sins of the whole world.",
+          appeal:'The strongest text for universal atonement.',
+          reply:'"The whole world" means the elect throughout the world — Gentiles as well as the Jewish "our" John first names (cf. John 11:51-52, "not for that nation only"). "World" often means the nations, or the elect among them — not every individual, else every sin is expiated and none can be punished.' },
+        { id:'rev3_20', ref:'Revelation 3:20', book:'Revelation', tags:['grace','inability'], parts:'I',
+          kjv:"Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him...",
+          appeal:'Christ waits on man’s free will to open the heart.',
+          reply:'Spoken to a church — backslidden believers — for renewed communion, not to dead sinners for conversion. And where Christ effectually calls, he himself opens the heart (as he opened Lydia’s, Acts 16:14). The "if any man hear" describes those whose ears he unstops.' },
+        { id:'rev22_17', ref:'Revelation 22:17', book:'Revelation', tags:['inability','grace'], parts:'I',
+          kjv:"...And let him that is athirst come. And whosoever will, let him take the water of life freely.",
+          appeal:'"Whosoever will" — proof of free will and a universal offer.',
+          reply:'The willing are God’s gift: "thy people shall be willing in the day of thy power" (Ps. 110:3). The offer is free and without price — magnifying grace, not native power; all the willing come, because he made them willing.' },
+    ];
+
+    // Part IV — witnesses Gill assembles, chronological. Dates approximate.
+    const FATHERS = [
+        { name:'Clement of Rome', dates:'c. 35 – 99', era:'Apostolic', note:'Earliest of the post-apostolic writers; cited on God’s electing and calling of a people.' },
+        { name:'Ignatius of Antioch', dates:'c. 35 – 108', era:'Apostolic', note:'Martyr-bishop; cited on the elect and the grace that keeps them.' },
+        { name:'Polycarp', dates:'c. 69 – 155', era:'Apostolic', note:'Disciple of John; a witness to the early confession of grace.' },
+        { name:'Justin Martyr', dates:'c. 100 – 165', era:'2nd century', note:'Apologist; cited on the foreknowledge and purpose of God.' },
+        { name:'Irenaeus', dates:'c. 130 – 202', era:'2nd century', note:'Of Lyons; cited on election and the saving work of Christ.' },
+        { name:'Theophilus of Antioch', dates:'fl. c. 170', era:'2nd century', note:'Apologist; a witness on grace and the will of God.' },
+        { name:'Athenagoras', dates:'fl. c. 175', era:'2nd century', note:'Apologist; cited among the early defenders.' },
+        { name:'Clement of Alexandria', dates:'c. 150 – 215', era:'2nd–3rd century', note:'Catechist; cited on the calling and election of the saved.' },
+        { name:'Tertullian', dates:'c. 155 – 220', era:'2nd–3rd century', note:'The first great Latin father; cited on grace, the will, and the decrees.' },
+        { name:'Minucius Felix', dates:'fl. c. 200', era:'3rd century', note:'Latin apologist; an early witness Gill enlists.' },
+        { name:'Origen', dates:'c. 184 – 253', era:'3rd century', note:'Of Alexandria; cited (with care) on foreknowledge and providence.' },
+        { name:'Cyprian', dates:'c. 200 – 258', era:'3rd century', note:'Bishop of Carthage; cited on grace and perseverance.' },
+        { name:'Novatian', dates:'fl. c. 250', era:'3rd century', note:'Latin writer; a witness on the sovereignty of grace.' },
+        { name:'Lactantius', dates:'c. 250 – 325', era:'4th century', note:'"The Christian Cicero"; cited on providence and the divine purpose.' },
+        { name:'Eusebius of Caesarea', dates:'c. 260 – 340', era:'4th century', note:'Church historian; a witness on election and calling.' },
+        { name:'Athanasius', dates:'c. 296 – 373', era:'4th century', note:'Of Alexandria; cited on grace and redemption.' },
+        { name:'Hilary of Poitiers', dates:'c. 310 – 367', era:'4th century', note:'Latin father; cited on the work of grace.' },
+        { name:'Basil of Caesarea', dates:'c. 330 – 379', era:'4th century', note:'Cappadocian; cited on grace and the will.' },
+        { name:'Gregory of Nazianzus', dates:'c. 329 – 390', era:'4th century', note:'Cappadocian; a witness on election and grace.' },
+        { name:'Ambrose', dates:'c. 339 – 397', era:'4th century', note:'Of Milan; cited on grace and predestination.' },
+        { name:'Chrysostom', dates:'c. 347 – 407', era:'4th century', note:'"Golden-mouthed"; cited on grace and the keeping of the saints.' },
+        { name:'Jerome', dates:'c. 347 – 420', era:'4th–5th century', note:'Translator of the Vulgate; among the latest witnesses before Augustine.' },
+        { name:'Augustine', dates:'354 – 430', era:'The terminus', note:'Not the inventor but the great summarizer — the point is that the doctrines were confessed long before him.', terminus:true },
+    ];
+
+    const READ_LINKS = [
+        { host:'Internet Archive', desc:'Scanned original editions — read in the browser or download.', url:'https://archive.org/details/causeofgodtruthi00gill', icon:'🏛️' },
+        { host:'Monergism', desc:'Complete work as a free PDF / ePub / Kindle download.', url:'https://www.monergism.com/cause-god-and-truth-ebook', icon:'📕' },
+        { host:'Grace-eBooks', desc:'Full text PDF of all four parts.', url:'https://grace-ebooks.com/library/John%20Gill/JG_Cause%20of%20God%20and%20Truth%20The.pdf', icon:'📘' },
+        { host:'PB Ministries', desc:'Browsable HTML, section by section.', url:'https://www.pbministries.org/books/gill/Cause_of_God/cause.htm', icon:'🌐' },
+    ];
+
+    const BOOK_ORDER = ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi','Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];
+    const doctrineById = Object.fromEntries(DOCTRINES.map(d => [d.id, d]));
+
+    /* ================= STATE ================= */
+    let activeView = 'overview';
+    let activeBook = 'ALL';
+    const PROGRESS_KEY = 'gill_cause_v1';
+    let progress = new Set();
+    try { progress = new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]')); } catch(e) { progress = new Set(); }
+    function saveProgress(){ localStorage.setItem(PROGRESS_KEY, JSON.stringify([...progress])); }
+
+    /* ================= RENDER: TABS ================= */
+    function renderTabs(){
+        el('tab-bar').innerHTML = TABS.map(t =>
+            `<button class="tab-btn ${t.id===activeView?'active':''}" onclick="showView('${t.id}')">${t.label}</button>`
+        ).join('');
+    }
+    function showView(id){
+        activeView = id;
+        TABS.forEach(t => { const v = el('view-'+t.id); if (v) v.classList.toggle('hidden', t.id !== id); });
+        renderTabs();
+        if (history.replaceState) history.replaceState(null, '', '#'+id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.showView = showView;
+
+    /* ================= RENDER: OVERVIEW ================= */
+    function renderFivePoints(){
+        el('five-points').innerHTML = FIVE_POINTS.map(p => `
+            <div class="rounded-2xl border border-slate-200 p-4 bg-white">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="tag-pill bg-rose-100 text-rose-700">Arminian</span>
+                    <span class="font-bold text-slate-800 text-sm">${escapeHtml(p.arm)}</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-3 italic">&ldquo;${escapeHtml(p.armText)}&rdquo;</p>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="tag-pill bg-indigo-100 text-indigo-700">Gill</span>
+                    <span class="font-bold text-indigo-900 text-sm">${escapeHtml(p.cal)}</span>
+                </div>
+                <p class="text-sm text-slate-600">${escapeHtml(p.calText)}</p>
+            </div>`).join('');
+    }
+
+    /* ================= RENDER: PARTS ================= */
+    function renderParts(){
+        el('parts-list').innerHTML = PARTS.map(p => {
+            const pid = 'part-'+p.num;
+            const done = progress.has(pid);
+            return `
+            <div class="glass rounded-3xl p-5 md:p-6 lift">
+                <div class="flex items-start gap-4">
+                    <span class="part-num" style="background:${p.bg};color:${p.color}">${p.num}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-widest" style="color:${p.color}">Part ${p.num} &middot; ${escapeHtml(p.tagline)}</div>
+                                <h3 class="text-xl font-black text-slate-900 leading-tight">${escapeHtml(p.title)}</h3>
+                            </div>
+                            <button class="check-toggle ${done?'is-done':''}" onclick="toggleProgress('${pid}')" aria-label="Mark part read" title="Mark as read">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            </button>
+                        </div>
+                        <p class="text-slate-700 mt-2 leading-relaxed">${p.body}</p>
+                        <div class="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-3 text-sm text-slate-600"><b class="text-slate-700">How to use it:</b> ${p.look}</div>
+                        <button onclick="showView('${p.jump}')" class="mt-3 inline-flex items-center gap-1.5 text-sm font-bold hover:translate-x-1 transition-transform" style="color:${p.color}">
+                            ${escapeHtml(p.jumpLabel)}
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ================= RENDER: DOCTRINES ================= */
+    function renderDoctrines(){
+        el('doctrine-list').innerHTML = DOCTRINES.map(d => {
+            const did = 'doc-'+d.id;
+            const done = progress.has(did);
+            const proofPills = d.proofs.map(r => `<span class="ref-pill">${escapeHtml(r)}</span>`).join(' ');
+            const passLink = d.filter ? `<button onclick="openScriptureForDoctrine('${d.id}')" class="inline-flex items-center gap-1 text-sm font-bold text-indigo-600 hover:underline">${PASSAGES.filter(p=>p.tags.includes(d.filter)).length} passages &rarr;</button>` : '';
+            return `
+            <div class="glass rounded-3xl p-5 lift flex flex-col">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-2xl" style="background:${d.color}1a">${d.icon}</div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900 leading-tight">${escapeHtml(d.name)}</h3>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-0.5">Parts ${escapeHtml(d.parts)}</div>
+                        </div>
+                    </div>
+                    <button class="check-toggle ${done?'is-done':''}" onclick="toggleProgress('${did}')" aria-label="Mark doctrine studied" title="Mark as studied">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed flex-1">${d.thesis}</p>
+                <div class="mt-3">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Proof-texts</div>
+                    <div class="flex flex-wrap gap-1.5">${proofPills}</div>
+                </div>
+                <div class="mt-3 rounded-xl bg-slate-50 border border-slate-100 p-3">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-1">Objection answered</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">${d.objections}</p>
+                </div>
+                ${passLink ? `<div class="mt-3">${passLink}</div>` : ''}
+            </div>`;
+        }).join('');
+    }
+    window.openScriptureForDoctrine = (docId) => {
+        const d = doctrineById[docId];
+        showView('scripture');
+        el('scripture-search').value = '';
+        // filter by doctrine via a pseudo book filter
+        activeBook = 'ALL';
+        doctrineFilter = d.filter;
+        renderBookChips();
+        renderPassages();
+    };
+
+    /* ================= RENDER: SCRIPTURE ================= */
+    let doctrineFilter = null;
+    function booksInUse(){ return [...new Set(PASSAGES.map(p=>p.book))].sort((a,b)=>BOOK_ORDER.indexOf(a)-BOOK_ORDER.indexOf(b)); }
+    function renderBookChips(){
+        const books = booksInUse();
+        const chips = [`<button class="book-chip ${activeBook==='ALL'&&!doctrineFilter?'active':''}" onclick="setBook('ALL')">All books</button>`]
+            .concat(books.map(b => `<button class="book-chip ${activeBook===b?'active':''}" onclick="setBook('${escapeHtml(b)}')">${escapeHtml(b)}</button>`));
+        el('book-chips').innerHTML = chips.join('');
+    }
+    window.setBook = (b) => { activeBook = b; doctrineFilter = null; renderBookChips(); renderPassages(); };
+
+    function renderPassages(){
+        const q = (el('scripture-search').value || '').toLowerCase().trim();
+        let list = PASSAGES.slice();
+        if (doctrineFilter) list = list.filter(p => p.tags.includes(doctrineFilter));
+        if (activeBook !== 'ALL') list = list.filter(p => p.book === activeBook);
+        if (q) list = list.filter(p => (p.ref+' '+p.kjv+' '+p.appeal+' '+p.reply+' '+p.book).toLowerCase().includes(q));
+        list.sort((a,b)=> BOOK_ORDER.indexOf(a.book)-BOOK_ORDER.indexOf(b.book));
+
+        el('passage-count').textContent = list.length;
+        const wrap = el('passage-list'), empty = el('passage-empty');
+        if (!list.length){ wrap.innerHTML=''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+
+        wrap.innerHTML = list.map(p => {
+            const tags = p.tags.map(t => { const d=doctrineById[t]; return d?`<span class="tag-pill" style="background:${d.color}1a;color:${d.color}">${escapeHtml(d.name)}</span>`:''; }).join(' ');
+            return `
+            <div class="passage glass rounded-2xl p-5 border">
+                <div class="flex items-center justify-between gap-3 flex-wrap mb-2">
+                    <span class="ref-pill">${escapeHtml(p.ref)}</span>
+                    <div class="flex flex-wrap gap-1.5">${tags}<span class="tag-pill bg-slate-100 text-slate-500">Part ${escapeHtml(p.parts)}</span></div>
+                </div>
+                <p class="scripture text-slate-800 text-[1.05rem] leading-relaxed mb-3">&ldquo;${escapeHtml(p.kjv)}&rdquo;</p>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div class="rounded-xl bg-rose-50/70 border border-rose-100 p-3">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-rose-600 mb-1">The Arminian appeal</div>
+                        <p class="text-sm text-slate-700">${escapeHtml(p.appeal)}</p>
+                    </div>
+                    <div class="rounded-xl bg-indigo-50/70 border border-indigo-100 p-3">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1">Gill's reply</div>
+                        <p class="text-sm text-slate-700">${p.reply}</p>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ================= RENDER: FATHERS ================= */
+    function renderFathers(){
+        el('fathers-list').innerHTML = FATHERS.map(f => `
+            <div class="father-row flex items-start gap-4 py-3.5 px-2 ${f.terminus?'rounded-xl bg-purple-50/60':''}">
+                <div class="flex-shrink-0 w-24 text-right">
+                    <div class="text-sm font-black ${f.terminus?'text-purple-700':'text-slate-800'}">${escapeHtml(f.dates)}</div>
+                    <div class="era-tick ${f.terminus?'text-purple-400':'text-slate-400'}">${escapeHtml(f.era)}</div>
+                </div>
+                <div class="w-px self-stretch ${f.terminus?'bg-purple-300':'bg-slate-200'}"></div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-black ${f.terminus?'text-purple-900':'text-slate-900'}">${escapeHtml(f.name)}</h4>
+                    <p class="text-sm text-slate-600 mt-0.5">${escapeHtml(f.note)}</p>
+                </div>
+            </div>`).join('');
+    }
+
+    /* ================= RENDER: READ LINKS ================= */
+    function renderReadLinks(){
+        el('read-links').innerHTML = READ_LINKS.map(l => `
+            <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" class="rounded-2xl border border-slate-200 p-4 lift bg-white block">
+                <div class="flex items-center gap-3">
+                    <div class="text-2xl">${l.icon}</div>
+                    <div class="flex-1">
+                        <div class="font-black text-slate-800">${escapeHtml(l.host)}</div>
+                        <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(l.desc)}</div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </div>
+            </a>`).join('');
+    }
+
+    /* ================= PROGRESS ================= */
+    const TRACKABLE = [...PARTS.map(p=>'part-'+p.num), ...DOCTRINES.map(d=>'doc-'+d.id)];
+    window.toggleProgress = (id) => {
+        if (progress.has(id)) progress.delete(id); else progress.add(id);
+        saveProgress();
+        renderParts(); renderDoctrines(); renderProgress();
+    };
+    window.resetProgress = () => { progress.clear(); saveProgress(); renderParts(); renderDoctrines(); renderProgress(); };
+    function renderProgress(){
+        const total = TRACKABLE.length;
+        const done = TRACKABLE.filter(id => progress.has(id)).length;
+        const pct = total ? Math.round(done/total*100) : 0;
+        el('progress-count').textContent = `${done} of ${total} done`;
+        el('progress-fill').style.width = pct+'%';
+        el('progress-pct').textContent = pct+'% complete';
+    }
+
+    /* ================= INIT ================= */
+    function init(){
+        syncDarkIcon();
+        renderTabs();
+        renderFivePoints();
+        renderParts();
+        renderDoctrines();
+        renderBookChips();
+        renderPassages();
+        renderFathers();
+        renderReadLinks();
+        renderProgress();
+        const hash = (location.hash||'').replace('#','');
+        if (TABS.some(t=>t.id===hash)) showView(hash);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+</script>
+</body>
+</html>
