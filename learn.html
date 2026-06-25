@@ -118,6 +118,15 @@
         .seg button { font-size: 12px; font-weight: 700; color: #64748b; padding: 0.3rem 0.85rem; border-radius: 999px; transition: all 0.15s ease; }
         .seg button:hover { color: #4338ca; }
         .seg button.active { background: #fff; color: #4338ca; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+        /* Clickable Scripture references */
+        .scripture-ref { color: #4338ca; font-weight: 600; background: none; border: none; padding: 0 1px; cursor: pointer; border-bottom: 1px dashed rgba(67, 56, 202, 0.45); font: inherit; }
+        .scripture-ref:hover { color: #3730a3; background: #eef2ff; border-bottom-style: solid; border-radius: 2px; }
+        .verse .scripture-ref { color: #4338ca; }
+        .sref-verse-num { font-size: 0.7em; font-weight: 800; color: #6366f1; vertical-align: super; margin-right: 2px; }
+
+        /* 100% completion confetti */
+        @keyframes learnfall { to { transform: translateY(110vh) rotate(540deg); opacity: 0.85; } }
         .path-pill.done { border-color: rgba(16, 185, 129, 0.5); background: #f0fdf4; }
         .path-pill.done .num { background: #10b981; }
 
@@ -185,7 +194,7 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg">✓</div>
                     <div>
                         <h2 class="text-xl md:text-2xl font-black text-slate-900">Your Progress</h2>
-                        <p class="text-sm text-slate-600">Check off each topic as you learn it — <span id="progress-count" class="font-bold text-emerald-700">0 of 0 done</span>.</p>
+                        <p class="text-sm text-slate-600">Check off each topic as you learn it — <span id="progress-count" class="font-bold text-emerald-700" aria-live="polite">0 of 0 done</span>.</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -227,7 +236,7 @@
 
         <!-- Topic grid -->
         <section class="glass rounded-3xl p-6 md:p-8">
-            <div class="flex items-end justify-between gap-3 mb-5 flex-wrap">
+            <div class="flex items-end justify-between gap-3 mb-4 flex-wrap">
                 <div>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
                     <p id="grid-subtitle" class="text-slate-600 mt-1">The whole story, one topic at a time — check off what you've learned.</p>
@@ -237,6 +246,10 @@
                     <button id="sf-todo" role="tab" onclick="setStatusFilter('todo')">To do</button>
                     <button id="sf-done" role="tab" onclick="setStatusFilter('done')">Done</button>
                 </div>
+            </div>
+            <div class="relative mb-5">
+                <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                <input id="topic-search" type="search" placeholder="Search topics — try “temple”, “Abraham”, “Passover”, “Babylon”…" oninput="setTopicSearch(this.value)" aria-label="Search topics" class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
             </div>
             <div id="learn-topics" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
             <p id="grid-empty" class="hidden text-center text-slate-500 py-10 font-medium"></p>
@@ -808,8 +821,12 @@
 
     /* ---------- topic meta + filtering ---------- */
     let statusFilter = 'all';
+    let searchQuery = '';
     const LEVELS = { foundation: 'Foundation', core: 'Core', advanced: 'Advanced' };
-    const readMins = (t) => Math.max(1, Math.round(String(t.body || '').replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length / 200));
+    const stripTags = (s) => String(s || '').replace(/<[^>]+>/g, ' ');
+    const readMins = (t) => Math.max(1, Math.round(stripTags(t.body).trim().split(/\s+/).filter(Boolean).length / 200));
+
+    window.setTopicSearch = (v) => { searchQuery = (v || '').toLowerCase().trim(); renderGrid(); };
 
     window.setStatusFilter = (v) => {
         statusFilter = v;
@@ -822,9 +839,176 @@
     };
     window.markDoneAndNext = (id, nextId) => {
         doneSet.add(id); saveDone();
-        renderPath(); renderGrid(); renderProgress();
+        renderPath(); renderGrid(); renderProgress(); maybeCelebrate();
         if (nextId) openLearnTopic(nextId); else closeLearnTopic();
     };
+
+    /* ---------- Related topics (curated threads) ---------- */
+    const RELATED = {
+        'what-is-the-bible': ['how-to-read', 'calendar-bc-ad', 'creation-fall'],
+        'how-to-read': ['what-is-the-bible', 'covenant-abraham', 'christ-true-temple'],
+        'calendar-bc-ad': ['nt-holy-land', 'sacrifice-fulfilled', 'between-testaments'],
+        'creation-fall': ['flood-babel', 'covenant-abraham', 'sacrifice-origin'],
+        'flood-babel': ['creation-fall', 'covenant-abraham', 'between-testaments'],
+        'covenant-abraham': ['ishmael-isaac', 'esau-jacob', 'twelve-tribes'],
+        'ishmael-isaac': ['covenant-abraham', 'esau-jacob', 'sacrifice-origin'],
+        'esau-jacob': ['ishmael-isaac', 'twelve-tribes', 'covenant-abraham'],
+        'twelve-tribes': ['esau-jacob', 'joshua-conquest', 'united-divided-kingdom'],
+        'exodus-journey': ['sacrifice-origin', 'tabernacle', 'joshua-conquest', 'sacrifice-fulfilled'],
+        'tabernacle': ['exodus-journey', 'solomon-temple', 'christ-true-temple', 'sacrifice-origin'],
+        'sacrifice-origin': ['exodus-journey', 'sacrifice-fulfilled', 'tabernacle'],
+        'joshua-conquest': ['twelve-tribes', 'exodus-journey', 'united-divided-kingdom'],
+        'united-divided-kingdom': ['solomon-temple', 'exile-and-return', 'twelve-tribes'],
+        'solomon-temple': ['tabernacle', 'second-temple', 'united-divided-kingdom', 'christ-true-temple'],
+        'exile-and-return': ['united-divided-kingdom', 'second-temple', 'between-testaments'],
+        'between-testaments': ['exile-and-return', 'second-temple', 'nt-holy-land'],
+        'second-temple': ['solomon-temple', 'exile-and-return', 'christ-true-temple', 'nt-holy-land'],
+        'nt-holy-land': ['between-testaments', 'pauls-journeys', 'christ-true-temple'],
+        'christ-true-temple': ['tabernacle', 'solomon-temple', 'second-temple', 'sacrifice-fulfilled'],
+        'sacrifice-fulfilled': ['sacrifice-origin', 'exodus-journey', 'christ-true-temple'],
+        'pauls-journeys': ['saul-paul-conversion', 'nt-holy-land', 'revelation-seven-churches'],
+        'saul-paul-conversion': ['pauls-journeys', 'revelation-seven-churches'],
+        'third-temple-attempts': ['second-temple', 'christ-true-temple', 'sacrifice-fulfilled'],
+        'revelation-seven-churches': ['pauls-journeys', 'christ-true-temple', 'creation-fall'],
+    };
+    function relatedFor(id) {
+        const t = topicById[id];
+        let list = (RELATED[id] || []).filter(rid => topicById[rid]);
+        if (!list.length && t) list = LEARN_TOPICS.filter(x => x.id !== id && x.era === t.era).map(x => x.id).slice(0, 3);
+        return list;
+    }
+
+    /* ---------- Clickable Scripture → in-page KJV passage ---------- */
+    const KJV_BOOKS = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+    const BOOK_ALIAS = { 'Psalm': 'Psalms', 'Song of Songs': 'Song of Solomon', 'Canticles': 'Song of Solomon', 'Revelations': 'Revelation' };
+    // longest names first so "1 Corinthians" wins over "Corinthians"; allow flexible spaces
+    const REF_BOOK_ALT = [...KJV_BOOKS, ...Object.keys(BOOK_ALIAS)].sort((a, b) => b.length - a.length).map(b => b.replace(/ /g, '\\s+')).join('|');
+    const REF_RE = new RegExp('\\b(' + REF_BOOK_ALT + ')\\s+(\\d+)(?:[\\u2013\\u2014-](\\d+))?(?::(\\d+)(?:[\\u2013\\u2014-](\\d+))?)?', 'g');
+
+    let kjvPromise = null;
+    function loadKJV() {
+        if (!kjvPromise) {
+            kjvPromise = fetch('kjv_bible.json')
+                .then(r => { if (!r.ok) throw new Error('fetch failed'); return r.json(); })
+                .then(arr => { const m = {}; for (const b of arr) m[b.book] = b; return m; })
+                .catch(err => { kjvPromise = null; throw err; });
+        }
+        return kjvPromise;
+    }
+    function parseRef(ref) {
+        REF_RE.lastIndex = 0;
+        const m = REF_RE.exec(ref);
+        if (!m) return null;
+        let book = m[1].replace(/\s+/g, ' ');
+        book = BOOK_ALIAS[book] || book;
+        return { book, ch: +m[2], chEnd: m[3] ? +m[3] : null, v: m[4] ? +m[4] : null, vEnd: m[5] ? +m[5] : null, label: m[0] };
+    }
+    function linkifyScripture(root) {
+        if (!root) return;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+        const nodes = []; let n;
+        while ((n = walker.nextNode())) { if (n.parentNode && n.parentNode.closest && n.parentNode.closest('.scripture-ref')) continue; nodes.push(n); }
+        for (const node of nodes) {
+            const text = node.nodeValue;
+            REF_RE.lastIndex = 0;
+            if (!REF_RE.test(text)) continue;
+            REF_RE.lastIndex = 0;
+            const frag = document.createDocumentFragment();
+            let last = 0, m;
+            while ((m = REF_RE.exec(text))) {
+                if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'scripture-ref';
+                btn.textContent = m[0];
+                btn.setAttribute('data-ref', m[0]);
+                btn.setAttribute('title', 'Read ' + m[0] + ' (KJV)');
+                btn.addEventListener('click', (e) => { e.stopPropagation(); showScripture(btn.getAttribute('data-ref')); });
+                frag.appendChild(btn);
+                last = m.index + m[0].length;
+            }
+            if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+            node.parentNode.replaceChild(frag, node);
+        }
+    }
+    function buildPassage(bible, p) {
+        const book = bible[p.book];
+        if (!book) return null;
+        const chap = book.chapters.find(c => c.chapter === p.ch);
+        if (!chap) return null;
+        let verses = chap.verses;
+        let note = '';
+        if (p.v) {
+            const end = p.vEnd || p.v;
+            verses = chap.verses.filter(vv => vv.verse >= p.v && vv.verse <= end);
+        } else if (p.chEnd && p.chEnd > p.ch) {
+            note = `Showing chapter ${p.ch}; this reference spans chapters ${p.ch}–${p.chEnd}.`;
+        }
+        if (!verses.length) return null;
+        const body = verses.map(vv => `<span class="leading-relaxed"><span class="sref-verse-num">${vv.verse}</span>${escapeHtml(vv.text)} </span>`).join('');
+        return { body, note };
+    }
+    let scriptureEsc = null;
+    window.showScripture = async (ref) => {
+        const p = parseRef(ref);
+        document.getElementById('scripture-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'scripture-modal';
+        modal.className = 'fixed inset-0 z-[250] bg-slate-900/70 flex items-end sm:items-center justify-center p-0 sm:p-4';
+        modal.innerHTML = `
+            <div class="bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col modal-in">
+                <div class="flex items-center justify-between gap-3 p-5 border-b border-slate-100">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-widest text-indigo-500">King James Version</div>
+                        <h3 class="text-xl font-black text-slate-900">${escapeHtml(ref)}</h3>
+                    </div>
+                    <button class="sref-close w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-lg" aria-label="Close">✕</button>
+                </div>
+                <div class="sref-body overflow-y-auto p-5 text-slate-700" style="font-size:1.02rem">
+                    <div class="flex items-center gap-2 text-slate-400 py-6 justify-center"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Loading…</div>
+                </div>
+                <div class="p-4 border-t border-slate-100 text-right">
+                    <button class="sref-close px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700">Close</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        const close = () => { modal.remove(); if (scriptureEsc) { document.removeEventListener('keydown', scriptureEsc, true); scriptureEsc = null; } };
+        modal.querySelectorAll('.sref-close').forEach(b => b.addEventListener('click', close));
+        modal.addEventListener('click', e => { if (e.target === modal) close(); });
+        scriptureEsc = (e) => { if (e.key === 'Escape') { e.stopPropagation(); close(); } };
+        document.addEventListener('keydown', scriptureEsc, true);
+        const bodyEl = modal.querySelector('.sref-body');
+        try {
+            const bible = await loadKJV();
+            const passage = p && buildPassage(bible, p);
+            if (!passage) { bodyEl.innerHTML = `<p class="text-slate-500">Couldn’t find that passage. <a class="text-indigo-600 font-bold" target="_blank" rel="noopener" href="https://www.biblegateway.com/passage/?version=KJV&search=${encodeURIComponent(ref)}">Open it on Bible Gateway →</a></p>`; return; }
+            bodyEl.innerHTML = (passage.note ? `<p class="text-xs text-slate-400 mb-3">${passage.note}</p>` : '') + `<p>${passage.body}</p>`;
+        } catch (err) {
+            bodyEl.innerHTML = `<p class="text-slate-500">Couldn’t load the text offline. <a class="text-indigo-600 font-bold" target="_blank" rel="noopener" href="https://www.biblegateway.com/passage/?version=KJV&search=${encodeURIComponent(ref)}">Read ${escapeHtml(ref)} on Bible Gateway →</a></p>`;
+        }
+    };
+
+    /* ---------- 100% celebration ---------- */
+    let learnCelebrated = false;
+    function maybeCelebrate() {
+        const total = LEARN_TOPICS.length;
+        const done = LEARN_TOPICS.reduce((n, t) => n + (isDone(t.id) ? 1 : 0), 0);
+        if (done < total) { learnCelebrated = false; return; }
+        if (total && !learnCelebrated) { learnCelebrated = true; fireConfetti(); }
+    }
+    function fireConfetti() {
+        const layer = document.createElement('div');
+        layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden';
+        const bits = ['🎉', '✨', '📖', '✝️', '🙌', '⭐', '🕊️'];
+        for (let i = 0; i < 80; i++) {
+            const s = document.createElement('div');
+            s.textContent = bits[i % bits.length];
+            s.style.cssText = `position:absolute;left:${Math.random() * 100}%;top:-40px;font-size:${15 + Math.random() * 26}px;animation:learnfall ${3 + Math.random() * 2.5}s linear forwards;animation-delay:${Math.random() * 0.9}s`;
+            layer.appendChild(s);
+        }
+        document.body.appendChild(layer);
+        setTimeout(() => layer.remove(), 7000);
+    }
 
     function refreshDetailButtons() {
         if (!currentDetailId || el('learn-detail').classList.contains('hidden')) return;
@@ -842,6 +1026,7 @@
         renderGrid();
         renderProgress();
         refreshDetailButtons();
+        maybeCelebrate();
     };
 
     window.resetLearnProgress = () => {
@@ -920,10 +1105,13 @@
         if (activeEra) topics = topics.filter(t => t.era === activeEra);
         if (statusFilter === 'todo') topics = topics.filter(t => !isDone(t.id));
         else if (statusFilter === 'done') topics = topics.filter(t => isDone(t.id));
+        if (searchQuery) topics = topics.filter(t => (t.title + ' ' + t.summary + ' ' + stripTags(t.body)).toLowerCase().includes(searchQuery));
         const grid = el('learn-topics');
         const empty = el('grid-empty');
 
-        if (activeEra) {
+        if (searchQuery) {
+            el('grid-subtitle').textContent = `${topics.length} topic${topics.length === 1 ? '' : 's'} matching “${searchQuery}”.`;
+        } else if (activeEra) {
             const e = eraById[activeEra];
             el('grid-subtitle').textContent = `Showing the era: ${e.label} (${e.range}).`;
         } else {
@@ -933,11 +1121,13 @@
         if (!topics.length) {
             grid.innerHTML = '';
             empty.classList.remove('hidden');
-            empty.textContent = statusFilter === 'done'
-                ? 'Nothing completed here yet — open a topic and mark it done.'
-                : statusFilter === 'todo'
-                    ? 'All done here — every topic in view is complete. 🎉'
-                    : 'No topic cards land in this era yet — but it still shapes the story. Pick another era, or show all.';
+            empty.textContent = searchQuery
+                ? `No topics match “${searchQuery}”. Try another word, or search a name in Who’s Who below.`
+                : statusFilter === 'done'
+                    ? 'Nothing completed here yet — open a topic and mark it done.'
+                    : statusFilter === 'todo'
+                        ? 'All done here — every topic in view is complete. 🎉'
+                        : 'No topic cards land in this era yet — but it still shapes the story. Pick another era, or show all.';
             return;
         }
         empty.classList.add('hidden');
@@ -946,7 +1136,7 @@
             const lvl = t.level || 'core';
             const mins = readMins(t);
             return `
-            <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}${done ? ' (completed)' : ''}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
+            <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" data-topic-id="${t.id}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}${done ? ' (completed)' : ''}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
                 <div class="flex items-center justify-between gap-2 mb-2">
                     ${eraBadge(t.era)}
                     <div class="flex items-center gap-2">
@@ -964,7 +1154,7 @@
         }).join('');
     }
 
-    window.openLearnTopic = (id) => {
+    function renderDetail(id) {
         const t = LEARN_TOPICS.find(x => x.id === id);
         if (!t) return;
         currentDetailId = id;
@@ -982,6 +1172,12 @@
                 <span class="block text-sm font-bold text-slate-700 group-hover:text-indigo-700 truncate">${tt.title}</span>
             </button>`;
         };
+        const rel = relatedFor(id);
+        const relHtml = rel.length ? `
+            <div>
+                <div class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Related topics</div>
+                <div class="flex flex-wrap gap-2">${rel.map(rid => `<button onclick="openLearnTopic('${rid}')" class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1.5 hover:bg-indigo-100 transition-colors">${topicById[rid].title} →</button>`).join('')}</div>
+            </div>` : '';
         el('learn-detail').innerHTML = `
             <article class="glass rounded-3xl p-6 md:p-9">
                 <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
@@ -992,15 +1188,17 @@
                     <span id="detail-done-area">${detailDoneHtml(id)}</span>
                 </div>
                 <div class="mb-3">${eraBadge(t.era)}</div>
-                <h2 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">${t.title}</h2>
+                <h2 id="detail-heading" tabindex="-1" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3 focus:outline-none">${t.title}</h2>
                 <div class="flex flex-wrap items-center gap-2 mb-6 text-sm font-semibold text-slate-500">
                     <span class="level-pill level-${lvl}">${LEVELS[lvl] || 'Core'}</span>
                     <span>~${mins} min read</span>
                     ${t.maps && t.maps.length ? `<span class="text-slate-400">· ${t.maps.length} map${t.maps.length > 1 ? 's' : ''}</span>` : ''}
                 </div>
+                <p class="text-xs text-slate-400 mb-4">💡 Tap any <span class="scripture-ref" style="cursor:default">verse reference</span> to read it in the KJV.</p>
                 <div class="prose-learn max-w-3xl">${t.body}</div>
                 ${mapsHtml}
-                <div class="mt-8 pt-5 border-t border-slate-200 space-y-4">
+                <div class="mt-8 pt-5 border-t border-slate-200 space-y-5">
+                    ${relHtml}
                     ${nextId
                         ? `<button onclick="markDoneAndNext('${id}','${nextId}')" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">${checkIconSm}<span>Mark done &amp; continue →</span></button>`
                         : `<button onclick="markDoneAndNext('${id}','')" class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">${checkIconSm}<span>Mark done — you’ve reached the end! 🎉</span></button>`}
@@ -1016,17 +1214,41 @@
             </article>`;
         el('learn-hub').classList.add('hidden');
         el('learn-detail').classList.remove('hidden');
+        linkifyScripture(el('learn-detail').querySelector('.prose-learn'));
         el('learn-detail').classList.remove('animate-fade-in'); void el('learn-detail').offsetWidth; el('learn-detail').classList.add('animate-fade-in');
+        const h = document.getElementById('detail-heading'); if (h) h.focus({ preventScroll: true });
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.openLearnTopic = (id) => {
+        if (!topicById[id]) return;
+        const enc = '#' + encodeURIComponent(id);
+        if (location.hash !== enc) history.pushState({ topic: id }, '', enc);
+        renderDetail(id);
     };
 
-    window.closeLearnTopic = () => {
+    function doCloseDetail() {
+        const prev = currentDetailId;
         el('learn-detail').classList.add('hidden');
         el('learn-detail').innerHTML = '';
         el('learn-hub').classList.remove('hidden');
         currentDetailId = null;
+        const card = prev && el('learn-topics') ? el('learn-topics').querySelector(`[data-topic-id="${prev}"]`) : null;
+        if (card) card.focus({ preventScroll: true });
+    }
+
+    window.closeLearnTopic = () => {
+        doCloseDetail();
+        if (location.hash) history.pushState({}, '', location.pathname + location.search);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    function syncFromHash() {
+        const id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+        if (id && topicById[id]) { if (currentDetailId !== id) renderDetail(id); }
+        else if (!el('learn-detail').classList.contains('hidden')) doCloseDetail();
+    }
+    window.addEventListener('popstate', syncFromHash);
 
     window.filterLearnByEra = (eraId) => {
         // clicking the active era again, or the explicit clear button (null), resets
@@ -1076,8 +1298,9 @@
         renderProgress();
         window.renderPeople();
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !el('learn-detail').classList.contains('hidden')) closeLearnTopic();
+            if (e.key === 'Escape' && !el('learn-detail').classList.contains('hidden') && !document.getElementById('scripture-modal')) closeLearnTopic();
         });
+        syncFromHash(); // open a topic if the URL has #topic-id
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initLearn);
     else initLearn();
