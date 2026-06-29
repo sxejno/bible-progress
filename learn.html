@@ -275,6 +275,23 @@
             <div id="learn-people" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
             <p id="people-empty" class="hidden text-center text-slate-500 py-8 font-medium">No one matches that search.</p>
         </section>
+
+        <!-- Glossary -->
+        <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-lg">📖</div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">Glossary</h2>
+                    <p class="text-sm text-slate-600">Key words the Bible (and this site) uses — in plain English.</p>
+                </div>
+            </div>
+            <div class="relative mb-5">
+                <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                <input id="glossary-search" type="search" placeholder="Search a term — try “grace”, “covenant”, “Gentile”…" oninput="renderGlossary()" aria-label="Search glossary" class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+            </div>
+            <div id="learn-glossary" class="grid sm:grid-cols-2 gap-3"></div>
+            <p id="glossary-empty" class="hidden text-center text-slate-500 py-8 font-medium">No term matches that search.</p>
+        </section>
     </div>
 
     <!-- DEEP-DIVE PANEL -->
@@ -695,6 +712,65 @@
                 <div class="callout"><div class="callout-label">Why hostile witnesses matter</div><p style="margin:0">A friendly source can be dismissed as wishful thinking. But when a nation's own rabbis, a Jewish general, and pagan Romans all record signs pointing the same direction — the end of the old order of sacrifice — the testimony is harder to wave away. For the Christian the thread runs straight to the cross: when the real offering was made, the shadows began to fade.</p></div>`
         },
         {
+            id: 'resurrection', title: 'The Resurrection', era: 'christ', level: 'core', pathOrder: 17,
+            summary: 'The empty tomb — the event the whole faith stands or falls on.', maps: [],
+            body: `
+                <p>On the third day after the crucifixion, Jesus' followers found the <b>tomb empty</b> and claimed He had risen and appeared to them alive (Luke 24; John 20). The resurrection is not a footnote to the gospel — it is the hinge: "if Christ be not raised... ye are yet in your sins" (1 Corinthians 15:17).</p>
+                <h4>An early, public claim</h4>
+                <p>Paul hands on what he calls a tradition he himself "received" — a creed most scholars date to within a few years of the cross: "Christ died for our sins... he was buried... he rose again the third day... and was seen of Cephas, then of the twelve... after that, of above five hundred brethren at once" (1 Corinthians 15:3–6). This was not a legend that slowly grew over centuries; it was being preached at once, while eyewitnesses were alive to confirm or deny it.</p>
+                <h4>The turn-around</h4>
+                <p>Something turned terrified, scattered disciples into bold witnesses who would rather die than recant. The skeptic <b>James</b>, Jesus' own brother, and the persecutor <b>Saul of Tarsus</b> were both upended by what they were convinced were appearances of the risen Christ. Even many who reject the miracle concede the first Christians sincerely believed they had seen Him alive.</p>
+                <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">The resurrection is God's public receipt that the cross was accepted — Jesus "declared to be the Son of God with power... by the resurrection from the dead" (Romans 1:4). It is the down-payment that everyone who trusts Him will rise too (1 Corinthians 15:20–23).</p></div>`
+        },
+        {
+            id: 'messianic-prophecy', title: 'Prophecy Fulfilled in Christ', era: 'christ', level: 'advanced', pathOrder: 18,
+            summary: 'Centuries-old predictions converging on one life.', maps: [],
+            body: `
+                <p>Long before Jesus was born, the Old Testament had sketched the coming Messiah in startling detail. Jesus said the Scriptures "testified of" Him (John 5:39), and after rising He showed how "all the prophets" had pointed to Him (Luke 24:27).</p>
+                <h4>A few of the threads</h4>
+                <ul>
+                    <li>Born in <b>Bethlehem</b> (Micah 5:2 → Matthew 2:1).</li>
+                    <li>Born of a <b>virgin</b> (Isaiah 7:14 → Matthew 1:22–23).</li>
+                    <li>Entering Jerusalem on a <b>donkey</b> (Zechariah 9:9 → Matthew 21:4–5).</li>
+                    <li>Betrayed for <b>thirty pieces of silver</b> (Zechariah 11:12–13 → Matthew 26:15).</li>
+                    <li>Hands and feet pierced, lots cast for His clothes (Psalm 22:16–18 → John 19:23–24) — written centuries before crucifixion existed.</li>
+                    <li>The <b>suffering Servant</b>, "wounded for our transgressions," silent before His accusers (Isaiah 53).</li>
+                </ul>
+                <p>Daniel even gave a timetable, counting from a decree to rebuild Jerusalem to the coming of "Messiah the Prince" (Daniel 9:24–26) — landing in exactly the right era.</p>
+                <div class="callout"><div class="callout-label">Go deeper</div><p style="margin:0">These read as signposts, not coincidences — many were wholly outside any one person's control. For a fuller treatment, see the site's <a href="prophecy.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Prophecy</a> page.</p></div>`
+        },
+        {
+            id: 'pentecost-church', title: 'Pentecost & the Early Church', era: 'church', level: 'core', pathOrder: 19,
+            summary: 'The Spirit comes, 3,000 believe, and the Church is born.', maps: [],
+            body: `
+                <p>Before ascending, Jesus told the disciples to wait in Jerusalem for power from on high (Acts 1:8). At <b>Pentecost</b> — fifty days after Passover — the <b>Holy Spirit</b> came with the sound of a rushing wind and tongues of fire, and the believers spoke in languages they had never learned (Acts 2:1–4).</p>
+                <h4>The first sermon</h4>
+                <p>Peter stood and preached that the crucified and risen Jesus is "both Lord and Christ," fulfilling Joel's promise that God would pour out His Spirit (Acts 2:16–17, 36). <b>Three thousand</b> were baptized that day (Acts 2:41) — the Church was born.</p>
+                <h4>A new kind of community</h4>
+                <p>The first believers "continued stedfastly in the apostles' doctrine and fellowship, and in breaking of bread, and in prayers" (Acts 2:42), sharing their goods and worshipping with "gladness and singleness of heart." From this Jerusalem core the gospel would spread to Judea, Samaria, and "the uttermost part of the earth."</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Pentecost answers <b>Babel</b> (Genesis 11): where God once scattered humanity by confusing its language, He now gathers people of every tongue to hear "the wonderful works of God."</p></div>`
+        },
+        {
+            id: 'biblical-archaeology', title: 'The Stones Cry Out', era: 'overview', level: 'advanced', pathOrder: 22,
+            summary: 'Bible people and places, turned up by the spade.', maps: [],
+            body: `
+                <p>The Bible names real kings, cities, and officials — and again and again the spade has turned them up. None of this by itself "proves" the faith, but it shows the story is anchored in real history, not myth.</p>
+                <h4>Old Testament</h4>
+                <ul>
+                    <li><b>Tel Dan Stele</b> (found 1993): a 9th-century-BC victory inscription naming the "<b>House of David</b>" — the earliest mention of David's dynasty outside the Bible, answering skeptics who doubted David existed at all.</li>
+                    <li><b>Cyrus Cylinder</b> (British Museum): records the Persian policy of letting captive peoples go home and rebuild their temples — just the kind of decree Ezra 1 credits for the Jews' return.</li>
+                    <li><b>Sennacherib's Prism</b>: the Assyrian king's own boast of shutting King Hezekiah up "like a bird in a cage" in 701 BC — yet, tellingly, he never claims to have taken Jerusalem, matching 2 Kings 19.</li>
+                    <li><b>Hezekiah's Tunnel</b> and its Siloam inscription: the very water tunnel 2 Kings 20:20 says Hezekiah cut through solid rock — still walkable today.</li>
+                </ul>
+                <h4>New Testament</h4>
+                <ul>
+                    <li><b>Pilate Stone</b> (found 1961, Caesarea): a limestone block naming "<b>Pontius Pilatus, Prefect of Judea</b>" — physical evidence for the governor who tried Jesus.</li>
+                    <li><b>Caiaphas Ossuary</b> (found 1990): an ornate bone-box twice inscribed "Joseph son of <b>Caiaphas</b>" — almost certainly the high priest who condemned Jesus (Matthew 26:57).</li>
+                    <li><b>Dead Sea Scrolls</b> (found 1947): copies of Old Testament books a thousand years older than any known before — and strikingly faithful to the text we still read, including a near-complete scroll of Isaiah.</li>
+                </ul>
+                <div class="callout"><div class="callout-label">A fair word</div><p style="margin:0">Archaeology confirms many details and is silent on others; it neither manufactures faith nor is required for it. But it steadily answers the charge that the Bible is mere legend — its world keeps proving to be the real one.</p></div>`
+        },
+        {
             id: 'creation-fall', title: 'Creation & the Fall', era: 'beginnings', level: 'foundation',
             summary: 'How the world began, how it broke, and the first promise of rescue.', maps: ['eden-rivers'],
             body: `
@@ -763,8 +839,9 @@
         'covenant-abraham', 'ishmael-isaac', 'esau-jacob', 'twelve-tribes',
         'exodus-journey', 'tabernacle', 'sacrifice-origin', 'joshua-conquest',
         'united-divided-kingdom', 'solomon-temple', 'exile-and-return', 'between-testaments', 'second-temple',
-        'nt-holy-land', 'christ-true-temple', 'sacrifice-fulfilled',
-        'pauls-journeys', 'saul-paul-conversion', 'revelation-seven-churches', 'third-temple-attempts', 'hostile-witnesses',
+        'nt-holy-land', 'christ-true-temple', 'sacrifice-fulfilled', 'resurrection', 'messianic-prophecy',
+        'pentecost-church', 'pauls-journeys', 'saul-paul-conversion', 'revelation-seven-churches',
+        'third-temple-attempts', 'hostile-witnesses', 'biblical-archaeology',
     ];
 
     /* ================= WHO'S WHO ================= */
@@ -882,11 +959,15 @@
         'second-temple': ['solomon-temple', 'exile-and-return', 'christ-true-temple', 'nt-holy-land'],
         'nt-holy-land': ['between-testaments', 'pauls-journeys', 'christ-true-temple'],
         'christ-true-temple': ['tabernacle', 'solomon-temple', 'second-temple', 'sacrifice-fulfilled'],
-        'sacrifice-fulfilled': ['sacrifice-origin', 'exodus-journey', 'christ-true-temple'],
-        'pauls-journeys': ['saul-paul-conversion', 'nt-holy-land', 'revelation-seven-churches'],
-        'saul-paul-conversion': ['pauls-journeys', 'revelation-seven-churches'],
+        'sacrifice-fulfilled': ['sacrifice-origin', 'christ-true-temple', 'resurrection', 'messianic-prophecy'],
+        'resurrection': ['sacrifice-fulfilled', 'messianic-prophecy', 'pentecost-church'],
+        'messianic-prophecy': ['resurrection', 'sacrifice-fulfilled', 'christ-true-temple'],
+        'pentecost-church': ['resurrection', 'pauls-journeys', 'flood-babel'],
+        'pauls-journeys': ['saul-paul-conversion', 'pentecost-church', 'revelation-seven-churches'],
+        'saul-paul-conversion': ['pauls-journeys', 'resurrection', 'revelation-seven-churches'],
         'third-temple-attempts': ['second-temple', 'christ-true-temple', 'sacrifice-fulfilled', 'hostile-witnesses'],
-        'hostile-witnesses': ['third-temple-attempts', 'sacrifice-fulfilled', 'second-temple'],
+        'hostile-witnesses': ['third-temple-attempts', 'biblical-archaeology', 'resurrection'],
+        'biblical-archaeology': ['hostile-witnesses', 'second-temple', 'what-is-the-bible'],
         'revelation-seven-churches': ['pauls-journeys', 'christ-true-temple', 'creation-fall'],
     };
     function relatedFor(id) {
@@ -1307,6 +1388,46 @@
         }).join('');
     };
 
+    /* ================= GLOSSARY ================= */
+    const LEARN_GLOSSARY = [
+        { term: 'Covenant', def: 'A binding relationship God initiates with His people — promises with terms, like a treaty or a marriage bond. The Bible’s two halves are named for two of them: Old and New.' },
+        { term: 'Atonement', def: 'Making things right between God and sinners through a substitute that pays for sin — literally “at-one-ment,” being made one again.' },
+        { term: 'Propitiation', def: 'A sacrifice that satisfies God’s justice and turns away wrath, so mercy can flow (Romans 3:25).' },
+        { term: 'Redemption', def: 'Buying back or setting free — as a slave is ransomed. Christ “redeems” His people by His blood (Ephesians 1:7).' },
+        { term: 'Justification', def: 'God declaring a guilty sinner righteous — counted “not guilty” — through faith in Christ, not by good works (Romans 5:1).' },
+        { term: 'Sanctification', def: 'The lifelong process of being made holy — gradually shaped to be more like Christ.' },
+        { term: 'Grace', def: 'God’s unearned favour and kindness toward people who deserve the opposite (Ephesians 2:8–9).' },
+        { term: 'Mercy', def: 'Not receiving the punishment we do deserve. Grace gives good we haven’t earned; mercy withholds the harm we have.' },
+        { term: 'Gospel', def: 'Literally “good news”: that Jesus died for sins, rose again, and saves all who trust Him (1 Corinthians 15:1–4).' },
+        { term: 'Messiah / Christ', def: 'Both mean “Anointed One” (Hebrew Mashiach, Greek Christos) — God’s long-promised King, Priest, and Saviour.' },
+        { term: 'Gentile', def: 'Anyone who is not Jewish; “the nations.” Much of the New Testament is the gospel reaching the Gentiles.' },
+        { term: 'Repentance', def: 'A change of mind that turns away from sin and back toward God.' },
+        { term: 'Faith', def: 'Trust in God and reliance on His promises — leaning on Christ rather than on oneself.' },
+        { term: 'Holy', def: 'Set apart, pure, belonging wholly to God. God’s defining attribute, and what He calls His people to be.' },
+        { term: 'Sin', def: 'Falling short of God’s standard and rebelling against Him — in act, word, thought, and nature (Romans 3:23).' },
+        { term: 'Sacrifice', def: 'An offering — often a life given — to deal with sin or to express worship. All of them pointed forward to Christ.' },
+        { term: 'Tabernacle', def: 'The portable tent of worship Israel carried through the wilderness, before the Temple was built.' },
+        { term: 'Prophet', def: 'One who speaks God’s message — calling people back to Him and often foretelling what is to come.' },
+        { term: 'Apostle', def: 'One “sent out.” Especially the eyewitness messengers Jesus commissioned to found the Church.' },
+        { term: 'Disciple', def: 'A learner and follower — someone apprenticed to the teaching and life of Jesus.' },
+        { term: 'Pentateuch', def: 'The first five books of the Bible (Genesis–Deuteronomy) — the Law, or Torah.' },
+        { term: 'Incarnation', def: 'God the Son becoming fully human in Jesus, without ceasing to be God (John 1:14).' },
+        { term: 'Resurrection', def: 'Rising bodily from death to a new, deathless life — as Jesus did, and as His people are promised.' },
+        { term: 'Salvation', def: 'God’s rescue of people from sin and its penalty into forgiveness, new life, and eternal life with Him.' },
+    ];
+    window.renderGlossary = () => {
+        const q = (el('glossary-search')?.value || '').toLowerCase().trim();
+        let terms = LEARN_GLOSSARY.slice().sort((a, b) => a.term.localeCompare(b.term));
+        if (q) terms = terms.filter(t => (t.term + ' ' + t.def).toLowerCase().includes(q));
+        const wrap = el('learn-glossary'), empty = el('glossary-empty');
+        if (!terms.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+        wrap.innerHTML = terms.map(t => `<article class="glass rounded-2xl p-4">
+            <h3 class="text-base font-black text-slate-900">${t.term}</h3>
+            <p class="text-sm text-slate-600 mt-1">${t.def}</p>
+        </article>`).join('');
+    };
+
     /* ================= INIT ================= */
     function initLearn() {
         syncDarkIcon();
@@ -1315,6 +1436,7 @@
         renderGrid();
         renderProgress();
         window.renderPeople();
+        window.renderGlossary();
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !el('learn-detail').classList.contains('hidden') && !document.getElementById('scripture-modal')) closeLearnTopic();
         });
