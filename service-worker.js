@@ -1,8 +1,9 @@
-const CACHE_NAME = 'bible-progress-v9';
+const CACHE_NAME = 'bible-progress-v10';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
-    '/index-classic.html',
+    '/learn.html',
+    '/chapter-recall.html',
     '/bible-books-game.html',
     '/cause-of-god-and-truth.html',
     '/memorize.html',

@@ -12,6 +12,14 @@
         <priority>1.0</priority>
     </url>
 
+    <!-- Study Tools -->
+    <url>
+        <loc>https://bibleprogress.com/chapter-recall.html</loc>
+        <lastmod>2026-07-03</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
     <!-- Legal Pages -->
     <url>
         <loc>https://bibleprogress.com/privacy.html</loc>
