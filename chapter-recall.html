@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Chapter Recall — Know Every Chapter | Bible Progress</title>
+    <meta name="description" content="Train your memory so a chapter reference instantly brings its contents to mind — 'Acts 5' → Ananias & Sapphira. Flashcards with spaced repetition covering all 1,189 chapters of the Bible, starting with the famous ones.">
+    <link rel="canonical" href="https://bibleprogress.com/chapter-recall.html">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        :root { color-scheme: light; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #f1f5f9 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 10px 35px rgba(79, 70, 229, 0.08);
+        }
+
+        .animate-fade-in { animation: fadeIn 0.35s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Segmented control */
+        .seg { display: inline-flex; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 999px; padding: 3px; }
+        .seg button { font-size: 12px; font-weight: 700; color: #64748b; padding: 0.35rem 0.9rem; border-radius: 999px; transition: all 0.15s ease; }
+        .seg button:hover { color: #4338ca; }
+        .seg button.active { background: #fff; color: #4338ca; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+        /* Deck chips */
+        .deck-chip { border: 2px solid #e2e8f0; background: #fff; border-radius: 1rem; padding: 0.6rem 1rem; font-weight: 700; color: #475569; transition: all 0.15s ease; text-align: left; }
+        .deck-chip:hover { border-color: #a5b4fc; color: #4338ca; }
+        .deck-chip.active { border-color: #4f46e5; background: #eef2ff; color: #4338ca; }
+        .deck-chip .deck-sub { display: block; font-size: 11px; font-weight: 600; color: #94a3b8; margin-top: 1px; }
+
+        /* Flashcard */
+        .quiz-ref { font-size: clamp(2.2rem, 7vw, 3.6rem); font-weight: 900; letter-spacing: -0.02em; color: #1e293b; }
+        .hook-pill { display: inline-block; font-size: 12px; font-weight: 800; background: linear-gradient(90deg, #fffbeb, #fef3c7); color: #b45309; border: 1px solid #fde68a; border-radius: 999px; padding: 0.3rem 0.85rem; }
+        .mc-btn { display: block; width: 100%; text-align: left; border: 2px solid #e2e8f0; background: #fff; border-radius: 1rem; padding: 0.85rem 1.1rem; font-weight: 700; color: #334155; transition: all 0.13s ease; }
+        .mc-btn:hover:not(:disabled) { border-color: #a5b4fc; background: #f5f7ff; }
+        .mc-btn.correct { border-color: #10b981; background: #ecfdf5; color: #047857; }
+        .mc-btn.wrong { border-color: #f43f5e; background: #fff1f2; color: #be123c; }
+        .mc-btn:disabled { cursor: default; }
+        .mc-key { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 0.45rem; background: #eef2ff; color: #4338ca; font-size: 12px; font-weight: 800; margin-right: 0.6rem; }
+
+        .grade-btn { flex: 1; border-radius: 1rem; padding: 0.85rem 0.5rem; font-weight: 800; border: 2px solid transparent; transition: all 0.13s ease; }
+        .grade-again { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+        .grade-again:hover { background: #ffe4e6; }
+        .grade-good { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+        .grade-good:hover { background: #e0e7ff; }
+        .grade-easy { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        .grade-easy:hover { background: #d1fae5; }
+        .grade-btn .kbd-hint { display: block; font-size: 10px; font-weight: 700; opacity: 0.65; margin-top: 2px; }
+
+        /* Progress + status dots */
+        .progress-track { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #4f46e5, #10b981); border-radius: 999px; transition: width 0.4s ease; }
+        .status-dot { display: inline-block; width: 9px; height: 9px; border-radius: 999px; background: #e2e8f0; flex: 0 0 auto; }
+        .status-dot.learning { background: #818cf8; }
+        .status-dot.known { background: #34d399; }
+        .status-dot.mastered { background: #059669; }
+
+        .browse-row { display: flex; align-items: baseline; gap: 0.7rem; padding: 0.55rem 0.75rem; border-radius: 0.75rem; }
+        .browse-row:hover { background: #f1f5f9; }
+        .browse-ch { flex: 0 0 auto; min-width: 3.2rem; font-weight: 800; color: #4338ca; font-size: 0.9rem; }
+
+        mark { background: #fef08a; color: #1e293b; padding: 0 0.15em; border-radius: 0.25rem; }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+<!-- Shared dark mode: follows the main app's Settings preference. -->
+<style>
+    .dark-mode { filter: invert(0.9) hue-rotate(180deg); background: #1a1a1a !important; }
+    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
+</style>
+<script>
+    if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
+</script>
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <header class="glass rounded-3xl p-6 md:p-8">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="max-w-2xl">
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-sky-100 text-sky-700 mb-4">Memory training</p>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">⚡ Chapter Recall</h1>
+                <p class="text-slate-700 mt-3 text-base md:text-lg leading-relaxed">Hear <b>"Acts 5"</b> and instantly think <b>"Ananias &amp; Sapphira."</b> Short daily rounds with spaced repetition build that instinct — one chapter at a time, out of all 1,189.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="dark-toggle" onclick="toggleDark()" class="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white text-slate-700 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors" aria-label="Toggle dark mode">
+                    <span id="dark-toggle-icon">🌙</span>
+                </button>
+                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-slate-800 font-semibold border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Bible Progress
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="glass rounded-2xl p-4 text-center">
+            <div id="stat-mastered" class="text-2xl font-black text-emerald-600">0</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">Mastered</div>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center">
+            <div id="stat-learning" class="text-2xl font-black text-indigo-600">0</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">Learning</div>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center">
+            <div id="stat-due" class="text-2xl font-black text-amber-600">0</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">Due today</div>
+        </div>
+        <div class="glass rounded-2xl p-4 text-center">
+            <div id="stat-coverage" class="text-2xl font-black text-slate-700">0%</div>
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">of 1,189 started</div>
+        </div>
+    </section>
+
+    <!-- View switcher -->
+    <div class="flex items-center justify-center">
+        <div class="seg" role="group" aria-label="Switch view">
+            <button id="tab-train" class="active" aria-pressed="true" onclick="setView('train')">🎯 Train</button>
+            <button id="tab-browse" aria-pressed="false" onclick="setView('browse')">📚 Browse all chapters</button>
+        </div>
+    </div>
+
+    <!-- ============ TRAIN VIEW ============ -->
+    <div id="view-train" class="space-y-6">
+
+        <!-- Deck + direction picker (hidden during a session) -->
+        <section id="deck-panel" class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-lg font-black text-slate-900 mb-1">Pick a deck</h2>
+            <p class="text-sm text-slate-600 mb-4">Reviews that are due always come first, from every deck. New cards come from the deck you pick here.</p>
+            <div class="grid sm:grid-cols-2 gap-3 mb-4">
+                <button id="deck-anchors" class="deck-chip active" onclick="setDeck('anchors')">
+                    ⭐ Anchor chapters
+                    <span class="deck-sub" id="anchors-sub">The famous ones — the best place to start</span>
+                </button>
+                <div class="deck-chip flex items-center gap-3" id="deck-book-chip" style="cursor:default">
+                    <span>📖</span>
+                    <select id="book-select" onchange="setDeck('book')" class="flex-1 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer" aria-label="Train a specific book"></select>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-500">
+                    <span>Mode:</span>
+                    <div class="seg" role="group" aria-label="Quiz direction">
+                        <button id="dir-mixed" class="active" aria-pressed="true" onclick="setDirection('mixed')">Mixed</button>
+                        <button id="dir-recall" aria-pressed="false" onclick="setDirection('recall')" title="See the reference, recall the contents">Ref → Contents</button>
+                        <button id="dir-mc" aria-pressed="false" onclick="setDirection('mc')" title="See the contents, pick the reference">Contents → Ref</button>
+                    </div>
+                </div>
+                <button onclick="startSession()" id="start-btn" class="text-white bg-indigo-600 hover:bg-indigo-700 font-black rounded-xl px-6 py-3 transition-colors">Start round ▶</button>
+            </div>
+            <p id="deck-info" class="text-xs text-slate-400 mt-3"></p>
+        </section>
+
+        <!-- Quiz area -->
+        <section id="quiz-panel" class="hidden glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-center justify-between gap-3 mb-4">
+                <span id="quiz-pos" class="text-xs font-black uppercase tracking-wider text-slate-400"></span>
+                <button onclick="endSession()" class="text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors">End round ✕</button>
+            </div>
+            <div class="progress-track mb-6"><div id="quiz-progress" class="progress-fill" style="width:0%"></div></div>
+            <div id="quiz-card" class="animate-fade-in"></div>
+        </section>
+
+        <!-- Session summary -->
+        <section id="summary-panel" class="hidden glass rounded-3xl p-6 md:p-8 text-center"></section>
+
+        <!-- How it works -->
+        <section class="glass rounded-3xl p-6 md:p-7">
+            <h2 class="text-lg font-black text-slate-900 mb-3">How this works</h2>
+            <div class="grid md:grid-cols-3 gap-4 text-sm text-slate-600">
+                <div><b class="text-slate-800">1. Short rounds.</b> Each round shows chapters due for review plus a few new ones. Grade yourself honestly — "Again" is not failure, it's scheduling.</div>
+                <div><b class="text-slate-800">2. Spaced repetition.</b> Chapters you know come back at growing intervals (1, 3, 7, 16, 35, 75 days). Chapters you miss come right back.</div>
+                <div><b class="text-slate-800">3. Both directions.</b> Seeing "Acts 5" and recalling the story is one skill; hearing the story and naming the chapter is another. Mixed mode trains both.</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ============ BROWSE VIEW ============ -->
+    <div id="view-browse" class="hidden space-y-6">
+        <section class="glass rounded-3xl p-6 md:p-7">
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+                <select id="browse-book" onchange="renderBrowse()" class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-200"></select>
+                <input id="browse-search" type="search" placeholder="Search all 1,189 summaries — try “Goliath”, “vineyard”, “Lazarus”…" oninput="renderBrowse()" aria-label="Search chapter summaries" class="flex-1 min-w-[220px] rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+            </div>
+            <div class="flex items-center gap-4 text-xs font-semibold text-slate-400 mb-3">
+                <span class="inline-flex items-center gap-1.5"><span class="status-dot"></span> Not started</span>
+                <span class="inline-flex items-center gap-1.5"><span class="status-dot learning"></span> Learning</span>
+                <span class="inline-flex items-center gap-1.5"><span class="status-dot known"></span> Known</span>
+                <span class="inline-flex items-center gap-1.5"><span class="status-dot mastered"></span> Mastered</span>
+            </div>
+            <div id="browse-list" class="divide-y divide-slate-100"></div>
+            <p id="browse-empty" class="hidden text-center text-slate-500 py-8 font-medium">Nothing matches that search.</p>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 mt-2 pt-6 pb-4">
+        <div class="text-sm text-slate-600">
+            <div class="font-black text-xs uppercase tracking-wider text-slate-400 mb-3">Explore more</div>
+            <div class="flex flex-wrap gap-x-6 gap-y-2 mb-4">
+                <a href="learn.html" class="font-semibold text-indigo-700 hover:text-indigo-800">🧭 Learn the Bible</a>
+                <a href="memorize.html" class="font-semibold text-indigo-700 hover:text-indigo-800">📖 Memorize Scripture</a>
+                <a href="bible-books-game.html" class="font-semibold text-indigo-700 hover:text-indigo-800">🎮 Bible Books Game</a>
+                <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">← Back to Bible Progress</a>
+            </div>
+            <p class="italic text-slate-500">"Thy word have I hid in mine heart, that I might not sin against thee." — Psalm 119:11</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+    "use strict";
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    /* ---------- Dark mode (shares the main app's setting) ---------- */
+    function syncDarkIcon() {
+        const icon = document.getElementById('dark-toggle-icon');
+        if (icon) icon.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    }
+    function toggleDark() {
+        const on = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', on ? 'enabled' : 'disabled');
+        syncDarkIcon();
+    }
+    window.toggleDark = toggleDark;
+
+    /* ---------- Canonical order ---------- */
+    const BOOK_ORDER = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
+    const bookIndex = Object.fromEntries(BOOK_ORDER.map((b, i) => [b, i]));
+
+    /* ---------- Anchor chapters: the famous ones, each with a memory hook ---------- */
+    const ANCHORS = [
+        ['genesis-1', 'Creation'],
+        ['genesis-3', 'The Fall'],
+        ['genesis-7', 'The Flood'],
+        ['genesis-11', 'Tower of Babel'],
+        ['genesis-12', 'Abram called'],
+        ['genesis-22', 'Isaac offered on Moriah'],
+        ['genesis-37', "Joseph's dreams & coat"],
+        ['genesis-50', '"God meant it unto good"'],
+        ['exodus-3', 'The burning bush'],
+        ['exodus-12', 'The Passover'],
+        ['exodus-14', 'Red Sea crossing'],
+        ['exodus-20', 'The Ten Commandments'],
+        ['exodus-32', 'The golden calf'],
+        ['leviticus-16', 'Day of Atonement'],
+        ['numbers-13', 'The twelve spies'],
+        ['numbers-21', 'The bronze serpent'],
+        ['deuteronomy-6', 'The Shema'],
+        ['deuteronomy-28', 'Blessings & curses'],
+        ['joshua-2', 'Rahab & the spies'],
+        ['joshua-6', 'The walls of Jericho'],
+        ['judges-7', "Gideon's 300"],
+        ['judges-16', 'Samson & Delilah'],
+        ['ruth-1', '"Whither thou goest, I will go"'],
+        ['1-samuel-3', '"Speak, LORD" — Samuel called'],
+        ['1-samuel-17', 'David & Goliath'],
+        ['2-samuel-7', 'The Davidic covenant'],
+        ['2-samuel-11', 'David & Bathsheba'],
+        ['2-samuel-12', '"Thou art the man"'],
+        ['1-kings-3', "Solomon's wisdom — split the baby"],
+        ['1-kings-18', 'Elijah vs. Baal on Carmel'],
+        ['2-kings-2', "Elijah's chariot of fire"],
+        ['esther-4', '"For such a time as this"'],
+        ['job-1', 'Job tested'],
+        ['job-38', 'God answers from the whirlwind'],
+        ['psalms-1', 'Two ways: tree vs. chaff'],
+        ['psalms-22', 'The cross psalm — "My God, my God"'],
+        ['psalms-23', 'The Shepherd Psalm'],
+        ['psalms-51', "David's repentance"],
+        ['psalms-119', "Longest chapter — loving God's law"],
+        ['psalms-139', '"Fearfully and wonderfully made"'],
+        ['proverbs-3', '"Trust in the LORD with all thine heart"'],
+        ['proverbs-31', 'The virtuous woman'],
+        ['ecclesiastes-3', '"A time to every purpose"'],
+        ['ecclesiastes-12', '"Remember now thy Creator"'],
+        ['isaiah-6', '"Holy, holy, holy" — Isaiah sent'],
+        ['isaiah-9', '"Unto us a child is born"'],
+        ['isaiah-40', '"Comfort ye" — wings as eagles'],
+        ['isaiah-53', 'The Suffering Servant'],
+        ['jeremiah-29', 'Letter to the exiles — "thoughts of peace"'],
+        ['jeremiah-31', 'The New Covenant'],
+        ['ezekiel-37', 'The valley of dry bones'],
+        ['daniel-3', 'The fiery furnace'],
+        ['daniel-5', 'The writing on the wall'],
+        ['daniel-6', "The lions' den"],
+        ['jonah-2', 'Prayer from the belly of the fish'],
+        ['micah-6', '"Do justly, love mercy, walk humbly"'],
+        ['malachi-3', 'Tithes & the refiner’s fire'],
+        ['matthew-2', 'The wise men'],
+        ['matthew-5', 'Sermon on the Mount — Beatitudes'],
+        ['matthew-6', "The Lord's Prayer — seek ye first"],
+        ['matthew-28', 'The Great Commission'],
+        ['luke-2', 'The Nativity'],
+        ['luke-10', 'The Good Samaritan'],
+        ['luke-15', 'The Prodigal Son — lost sheep, coin, son'],
+        ['luke-24', 'The road to Emmaus'],
+        ['john-1', '"In the beginning was the Word"'],
+        ['john-3', '"Ye must be born again" — John 3:16'],
+        ['john-11', 'Lazarus raised'],
+        ['john-14', '"I am the way" — many mansions'],
+        ['acts-2', 'Pentecost'],
+        ['acts-5', 'Ananias & Sapphira'],
+        ['acts-9', 'The Damascus road'],
+        ['acts-16', 'The Philippian jailer'],
+        ['romans-3', '"All have sinned"'],
+        ['romans-8', '"No condemnation… nothing can separate"'],
+        ['romans-12', '"A living sacrifice"'],
+        ['1-corinthians-13', 'The Love Chapter'],
+        ['1-corinthians-15', 'The Resurrection Chapter'],
+        ['galatians-5', 'The fruit of the Spirit'],
+        ['ephesians-2', '"By grace are ye saved through faith"'],
+        ['ephesians-6', 'The armor of God'],
+        ['philippians-2', 'Christ’s humility — every knee shall bow'],
+        ['philippians-4', '"Rejoice… I can do all things"'],
+        ['hebrews-11', "Faith's Hall of Fame"],
+        ['hebrews-12', 'Cloud of witnesses — run the race'],
+        ['james-1', 'Trials — be doers of the word'],
+        ['1-john-1', 'Walk in the light — faithful to forgive'],
+        ['revelation-20', 'The Millennium & final judgment'],
+        ['revelation-21', 'New heaven & new earth'],
+        ['revelation-22', 'The river of life — "Come, Lord Jesus"'],
+    ];
+    const hookById = Object.fromEntries(ANCHORS);
+
+    /* ---------- State ---------- */
+    const el = (id) => document.getElementById(id);
+    const STORE_KEY = 'chapterRecallData';
+    const INTERVALS = [0, 1, 3, 7, 16, 35, 75]; // days per Leitner box 0..6
+    const NEW_PER_ROUND = 8;
+
+    let CHAPTERS = [];          // [{id, book, chapter, summary}] canonical order
+    let chapterById = {};
+    let byBook = {};            // book -> [chapters]
+    let store = loadStore();
+    let deck = store.deck || { type: 'anchors', book: 'James' };
+    let direction = store.direction || 'mixed';
+
+    // session state
+    let queue = [], qi = 0, sessionStats = null, revealed = false, answered = false, currentMode = null;
+
+    function loadStore() {
+        try {
+            const s = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+            if (!s.cards) s.cards = {};
+            return s;
+        } catch { return { cards: {} }; }
+    }
+    function saveStore() {
+        store.deck = deck;
+        store.direction = direction;
+        localStorage.setItem(STORE_KEY, JSON.stringify(store));
+    }
+    const todayStr = () => new Date().toISOString().slice(0, 10);
+    function addDays(dateStr, n) {
+        const d = new Date(dateStr + 'T00:00:00');
+        d.setDate(d.getDate() + n);
+        return d.toISOString().slice(0, 10);
+    }
+    const card = (id) => store.cards[id];
+    const isDue = (c) => c && c.d <= todayStr();
+    const statusOf = (id) => {
+        const c = card(id);
+        if (!c) return 'new';
+        if (c.b >= 5) return 'mastered';
+        if (c.b >= 3) return 'known';
+        return 'learning';
+    };
+
+    /* ---------- Stats ---------- */
+    function renderStats() {
+        let mastered = 0, learning = 0, due = 0, started = 0;
+        const t = todayStr();
+        for (const id in store.cards) {
+            const c = store.cards[id];
+            started++;
+            if (c.b >= 5) mastered++; else learning++;
+            if (c.d <= t) due++;
+        }
+        el('stat-mastered').textContent = mastered;
+        el('stat-learning').textContent = learning;
+        el('stat-due').textContent = due;
+        el('stat-coverage').textContent = (CHAPTERS.length ? Math.round((started / CHAPTERS.length) * 100) : 0) + '%';
+    }
+
+    /* ---------- Deck & direction ---------- */
+    function deckChapters() {
+        if (deck.type === 'anchors') return ANCHORS.map(([id]) => chapterById[id]).filter(Boolean);
+        return (byBook[deck.book] || []);
+    }
+    window.setDeck = (type) => {
+        deck = type === 'anchors'
+            ? { type: 'anchors' }
+            : { type: 'book', book: el('book-select').value };
+        el('deck-anchors').classList.toggle('active', type === 'anchors');
+        el('deck-book-chip').classList.toggle('active', type === 'book');
+        saveStore();
+        renderDeckInfo();
+    };
+    window.setDirection = (v) => {
+        direction = v;
+        [['mixed','dir-mixed'],['recall','dir-recall'],['mc','dir-mc']].forEach(([k, bid]) => {
+            const b = el(bid);
+            b.classList.toggle('active', k === v);
+            b.setAttribute('aria-pressed', String(k === v));
+        });
+        saveStore();
+    };
+    function renderDeckInfo() {
+        const chs = deckChapters();
+        const done = chs.filter(c => statusOf(c.id) !== 'new').length;
+        const label = deck.type === 'anchors' ? `${chs.length} famous chapters` : `${deck.book} — ${chs.length} chapters`;
+        el('deck-info').textContent = `${label} · ${done} started, ${chs.length - done} new. Rounds add up to ${NEW_PER_ROUND} new cards on top of everything due.`;
+    }
+
+    /* ---------- Session ---------- */
+    function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+    window.startSession = () => {
+        const t = todayStr();
+        // 1) everything due, across all decks
+        const due = CHAPTERS.filter(c => { const s = card(c.id); return s && s.d <= t; });
+        // 2) new cards from the active deck
+        const fresh = deckChapters().filter(c => !card(c.id)).slice(0, NEW_PER_ROUND);
+        queue = shuffle(due.slice()).concat(fresh);
+        if (!queue.length) {
+            el('summary-panel').classList.remove('hidden');
+            el('summary-panel').innerHTML = `<div class="text-4xl mb-3">🎉</div>
+                <h2 class="text-xl font-black text-slate-900 mb-2">All caught up!</h2>
+                <p class="text-slate-600">Nothing is due and this deck has no new cards left. Pick another book, or come back tomorrow — that's the spaced-repetition rhythm working.</p>`;
+            return;
+        }
+        qi = 0;
+        sessionStats = { total: queue.length, right: 0, wrong: 0 };
+        el('summary-panel').classList.add('hidden');
+        el('deck-panel').classList.add('hidden');
+        el('quiz-panel').classList.remove('hidden');
+        showCard();
+    };
+    window.endSession = () => {
+        el('quiz-panel').classList.add('hidden');
+        el('deck-panel').classList.remove('hidden');
+        if (sessionStats && (sessionStats.right + sessionStats.wrong) > 0) {
+            const s = sessionStats;
+            el('summary-panel').classList.remove('hidden');
+            el('summary-panel').innerHTML = `<div class="text-4xl mb-3">${s.wrong === 0 ? '🏆' : '💪'}</div>
+                <h2 class="text-xl font-black text-slate-900 mb-2">Round complete</h2>
+                <p class="text-slate-600 mb-4">${s.right} solid · ${s.wrong} to see again. ${s.wrong === 0 ? 'Perfect round!' : 'The misses are rescheduled for you.'}</p>
+                <button onclick="startSession()" class="text-white bg-indigo-600 hover:bg-indigo-700 font-black rounded-xl px-6 py-3 transition-colors">Another round ▶</button>`;
+        }
+        sessionStats = null;
+        renderStats();
+        renderDeckInfo();
+    };
+
+    function refLabel(c) { return `${c.book} ${c.chapter}`; }
+
+    function showCard() {
+        if (qi >= queue.length) { endSession(); return; }
+        const c = queue[qi];
+        revealed = false; answered = false;
+        const isNew = !card(c.id);
+        currentMode = direction === 'mixed' ? (isNew ? 'recall' : (Math.random() < 0.5 ? 'recall' : 'mc')) : direction;
+        el('quiz-pos').textContent = `Card ${qi + 1} of ${queue.length}${isNew ? ' · NEW' : ''}`;
+        el('quiz-progress').style.width = Math.round((qi / queue.length) * 100) + '%';
+        const wrap = el('quiz-card');
+        wrap.classList.remove('animate-fade-in'); void wrap.offsetWidth; wrap.classList.add('animate-fade-in');
+
+        if (currentMode === 'recall') {
+            wrap.innerHTML = `
+                <div class="text-center py-4">
+                    <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">What happens in…</p>
+                    <div class="quiz-ref mb-6">${escapeHtml(refLabel(c))}</div>
+                    <div id="answer-area">
+                        <button onclick="revealAnswer()" class="text-white bg-indigo-600 hover:bg-indigo-700 font-black rounded-xl px-8 py-3.5 transition-colors">Reveal <span class="opacity-60 font-bold text-sm">(space)</span></button>
+                    </div>
+                </div>`;
+        } else {
+            const choices = mcChoices(c);
+            wrap.innerHTML = `
+                <div class="py-2">
+                    <p class="text-xs font-black uppercase tracking-widest text-slate-400 mb-3 text-center">Which chapter is this?</p>
+                    <p class="text-lg md:text-xl font-semibold text-slate-800 leading-relaxed text-center max-w-xl mx-auto mb-6">“${escapeHtml(c.summary)}”</p>
+                    <div class="grid sm:grid-cols-2 gap-3 max-w-xl mx-auto" id="mc-area">
+                        ${choices.map((ch, i) => `<button class="mc-btn" data-id="${ch.id}" onclick="pickChoice('${ch.id}')"><span class="mc-key">${i + 1}</span>${escapeHtml(refLabel(ch))}</button>`).join('')}
+                    </div>
+                </div>`;
+        }
+    }
+
+    function mcChoices(correct) {
+        const sameBook = (byBook[correct.book] || []).filter(x => x.id !== correct.id);
+        const sameTestament = CHAPTERS.filter(x => x.id !== correct.id && x.book !== correct.book &&
+            (bookIndex[x.book] < 39) === (bookIndex[correct.book] < 39));
+        const pool = shuffle(sameBook.slice()).slice(0, 2).concat(shuffle(sameTestament.slice()).slice(0, 3));
+        const distractors = [];
+        for (const p of pool) { if (distractors.length < 3 && !distractors.some(d => d.id === p.id)) distractors.push(p); }
+        return shuffle([correct, ...distractors]);
+    }
+
+    window.revealAnswer = () => {
+        if (revealed) return;
+        revealed = true;
+        const c = queue[qi];
+        const hook = hookById[c.id];
+        el('answer-area').innerHTML = `
+            ${hook ? `<div class="mb-3"><span class="hook-pill">💡 ${escapeHtml(hook)}</span></div>` : ''}
+            <p class="text-lg md:text-xl font-semibold text-slate-800 leading-relaxed max-w-xl mx-auto mb-6">${escapeHtml(c.summary)}</p>
+            <p class="text-xs font-bold text-slate-400 mb-3">Did it come to mind before the reveal?</p>
+            <div class="flex gap-3 max-w-md mx-auto">
+                <button class="grade-btn grade-again" onclick="grade(0)">Again <span class="kbd-hint">1</span></button>
+                <button class="grade-btn grade-good" onclick="grade(1)">Got it <span class="kbd-hint">2</span></button>
+                <button class="grade-btn grade-easy" onclick="grade(2)">Easy <span class="kbd-hint">3</span></button>
+            </div>`;
+    };
+
+    window.pickChoice = (id) => {
+        if (answered) return;
+        answered = true;
+        const c = queue[qi];
+        const right = id === c.id;
+        document.querySelectorAll('#mc-area .mc-btn').forEach(b => {
+            b.disabled = true;
+            if (b.dataset.id === c.id) b.classList.add('correct');
+            else if (b.dataset.id === id && !right) b.classList.add('wrong');
+        });
+        const hook = hookById[c.id];
+        el('quiz-card').insertAdjacentHTML('beforeend', `
+            <div class="text-center mt-5">
+                ${hook ? `<div class="mb-3"><span class="hook-pill">💡 ${escapeHtml(hook)}</span></div>` : ''}
+                <button onclick="grade(${right ? 1 : 0})" class="text-white ${right ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700'} font-black rounded-xl px-8 py-3 transition-colors">${right ? 'Correct! Next' : 'Next'} → <span class="opacity-60 font-bold text-sm">(space)</span></button>
+            </div>`);
+    };
+
+    window.grade = (g) => {
+        const c = queue[qi];
+        let s = card(c.id) || { b: 0, d: todayStr(), s: 0, r: 0 };
+        s.s++;
+        if (g === 0) {
+            s.b = 0;
+            // re-queue near the end of this round so it's seen again today
+            queue.push(c);
+            sessionStats.wrong++;
+        } else {
+            s.r++;
+            s.b = Math.min(INTERVALS.length - 1, s.b + (g === 2 ? 2 : 1));
+            sessionStats.right++;
+        }
+        s.d = addDays(todayStr(), INTERVALS[s.b]);
+        store.cards[c.id] = s;
+        saveStore();
+        qi++;
+        renderStats();
+        showCard();
+    };
+
+    /* ---------- Browse ---------- */
+    window.renderBrowse = () => {
+        const book = el('browse-book').value;
+        const q = (el('browse-search').value || '').toLowerCase().trim();
+        let rows = q ? CHAPTERS : (byBook[book] || []);
+        if (q) rows = rows.filter(c => (refLabel(c) + ' ' + c.summary).toLowerCase().includes(q));
+        const wrap = el('browse-list'), empty = el('browse-empty');
+        if (!rows.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+        const hl = (text) => {
+            const safe = escapeHtml(text);
+            if (!q) return safe;
+            const idx = safe.toLowerCase().indexOf(q);
+            if (idx === -1) return safe;
+            return safe.slice(0, idx) + '<mark>' + safe.slice(idx, idx + q.length) + '</mark>' + safe.slice(idx + q.length);
+        };
+        wrap.innerHTML = rows.slice(0, 200).map(c => {
+            const st = statusOf(c.id);
+            return `<div class="browse-row">
+                <span class="status-dot ${st === 'new' ? '' : st}" title="${st}"></span>
+                <span class="browse-ch">${q ? escapeHtml(refLabel(c)) : c.chapter}</span>
+                <span class="text-sm text-slate-600 leading-relaxed">${hl(c.summary)}${hookById[c.id] ? ` <span class="text-amber-600 font-semibold">· ${escapeHtml(hookById[c.id])}</span>` : ''}</span>
+            </div>`;
+        }).join('') + (rows.length > 200 ? `<p class="text-center text-xs text-slate-400 py-3">Showing the first 200 matches — narrow the search to see more.</p>` : '');
+    };
+
+    /* ---------- View switching ---------- */
+    window.setView = (v) => {
+        el('view-train').classList.toggle('hidden', v !== 'train');
+        el('view-browse').classList.toggle('hidden', v !== 'browse');
+        [['train','tab-train'],['browse','tab-browse']].forEach(([k, bid]) => {
+            const b = el(bid);
+            b.classList.toggle('active', k === v);
+            b.setAttribute('aria-pressed', String(k === v));
+        });
+        if (v === 'browse') renderBrowse();
+    };
+
+    /* ---------- Keyboard ---------- */
+    document.addEventListener('keydown', (e) => {
+        if (el('quiz-panel').classList.contains('hidden')) return;
+        const tag = e.target && e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        if (currentMode === 'recall') {
+            if (!revealed && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); revealAnswer(); }
+            else if (revealed && ['1', '2', '3'].includes(e.key)) { e.preventDefault(); grade(+e.key - 1); }
+        } else if (currentMode === 'mc') {
+            if (!answered && ['1', '2', '3', '4'].includes(e.key)) {
+                const btns = document.querySelectorAll('#mc-area .mc-btn');
+                const b = btns[+e.key - 1];
+                if (b) { e.preventDefault(); pickChoice(b.dataset.id); }
+            } else if (answered && (e.key === ' ' || e.key === 'Enter')) {
+                e.preventDefault();
+                const next = el('quiz-card').querySelector('button[onclick^="grade"]');
+                if (next) next.click();
+            }
+        }
+    });
+
+    /* ---------- Init ---------- */
+    async function init() {
+        syncDarkIcon();
+        try {
+            const res = await fetch('bible_chapter_summaries_concise.json');
+            if (!res.ok) throw new Error('fetch failed');
+            const raw = await res.json();
+            CHAPTERS = raw.slice().sort((a, b) =>
+                (bookIndex[a.book] ?? 99) - (bookIndex[b.book] ?? 99) || a.chapter - b.chapter);
+            chapterById = Object.fromEntries(CHAPTERS.map(c => [c.id, c]));
+            byBook = {};
+            for (const c of CHAPTERS) (byBook[c.book] = byBook[c.book] || []).push(c);
+        } catch (err) {
+            el('deck-panel').innerHTML = `<p class="text-slate-500 font-medium text-center py-6">Couldn't load the chapter summaries — check your connection and reload.</p>`;
+            return;
+        }
+        // book selects
+        const opts = BOOK_ORDER.map(b => `<option value="${b}">${b} (${(byBook[b] || []).length})</option>`).join('');
+        el('book-select').innerHTML = opts;
+        el('browse-book').innerHTML = opts;
+        if (deck.type === 'book' && deck.book && byBook[deck.book]) {
+            el('book-select').value = deck.book;
+            el('deck-anchors').classList.remove('active');
+            el('deck-book-chip').classList.add('active');
+        }
+        el('anchors-sub').textContent = `${ANCHORS.filter(([id]) => chapterById[id]).length} famous chapters — the best place to start`;
+        setDirection(direction);
+        renderStats();
+        renderDeckInfo();
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+</script>
+</body>
+</html>
