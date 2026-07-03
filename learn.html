@@ -241,10 +241,10 @@
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
                     <p id="grid-subtitle" class="text-slate-600 mt-1">The whole story, one topic at a time — check off what you've learned.</p>
                 </div>
-                <div class="seg" role="tablist" aria-label="Filter topics by status">
-                    <button id="sf-all" class="active" role="tab" onclick="setStatusFilter('all')">All</button>
-                    <button id="sf-todo" role="tab" onclick="setStatusFilter('todo')">To do</button>
-                    <button id="sf-done" role="tab" onclick="setStatusFilter('done')">Done</button>
+                <div class="seg" role="group" aria-label="Filter topics by status">
+                    <button id="sf-all" class="active" aria-pressed="true" onclick="setStatusFilter('all')">All</button>
+                    <button id="sf-todo" aria-pressed="false" onclick="setStatusFilter('todo')">To do</button>
+                    <button id="sf-done" aria-pressed="false" onclick="setStatusFilter('done')">Done</button>
                 </div>
             </div>
             <div class="relative mb-5">
@@ -450,7 +450,7 @@
     /* ================= TOPICS ================= */
     const LEARN_TOPICS = [
         {
-            id: 'what-is-the-bible', title: 'What the Bible Is', era: 'overview', level: 'foundation', pathOrder: 1,
+            id: 'what-is-the-bible', title: 'What the Bible Is', era: 'overview', level: 'foundation',
             summary: 'One library, two Testaments, one story climaxing in Christ.', maps: [],
             body: `
                 <p>The Bible is not one book but a <b>library of 66 books</b> written by roughly 40 authors across about 1,500 years — kings and shepherds, prophets and fishermen — on three continents and in three languages (Hebrew, Aramaic, Greek). Yet it tells <b>one unified story</b>: the living God creating, a world fallen into sin, and God's relentless plan to redeem a people for Himself, accomplished in <b>Jesus Christ</b>.</p>
@@ -465,7 +465,7 @@
                 <div class="callout"><div class="callout-label">Where to start</div><p style="margin:0">The Bible was meant to be <i>read</i>, not just talked about. The best first move is simple: open a Gospel — try <b>John</b> — and let the story do its work.</p></div>`
         },
         {
-            id: 'how-to-read', title: 'How to Read the Bible', era: 'overview', level: 'foundation', pathOrder: 2,
+            id: 'how-to-read', title: 'How to Read the Bible', era: 'overview', level: 'foundation',
             summary: 'Read it as one story that points to Jesus.', maps: [],
             body: `
                 <p>The Bible rewards a few simple habits. First, read it as a <b>story</b>, not a rulebook to dip into at random. Second, read every part in light of the <b>whole</b> — the Old Testament sets up promises that the New Testament fulfills.</p>
@@ -481,7 +481,7 @@
                 <div class="callout"><div class="callout-label">A simple plan</div><p style="margin:0">A great on-ramp: a Gospel (John), then Genesis, then Exodus, then Romans. The main app's reading plans can pace the whole Bible from here.</p></div>`
         },
         {
-            id: 'calendar-bc-ad', title: 'The Calendar: Christ at the Center', era: 'christ', level: 'foundation', pathOrder: 3,
+            id: 'calendar-bc-ad', title: 'The Calendar: Christ at the Center', era: 'christ', level: 'foundation',
             summary: 'BC/AD vs BCE/CE — history still counts from Bethlehem.', maps: [],
             body: `
                 <p>The world's dominant calendar is built around one birth. <b>BC</b> means "Before Christ"; <b>AD</b> is Latin <i>Anno Domini</i>, "in the year of our Lord." The numbering was devised by the monk <b>Dionysius Exiguus</b> in AD 525 and counts forward and backward from the birth of Jesus. History itself is split in two by the manger in Bethlehem.</p>
@@ -491,7 +491,7 @@
                 <div class="callout callout-cool"><div class="callout-label">💡 Worth remembering</div><p style="margin:0">You can rename the hinge, but you cannot move it. Even a determinedly secular calendar still counts all of history from Christ — a quiet witness in every date you write.</p></div>`
         },
         {
-            id: 'covenant-abraham', title: 'Abraham & the Covenant', era: 'patriarchs', level: 'core', pathOrder: 4,
+            id: 'covenant-abraham', title: 'Abraham & the Covenant', era: 'patriarchs', level: 'core',
             summary: 'God’s promise of land, seed, and blessing to all nations.', maps: ['patriarchs'],
             body: `
                 <p>Around 2000 BC, God called <b>Abram</b> out of <b>Ur</b> of the Chaldees, leading him through <b>Haran</b> into <b>Canaan</b> (Genesis 12). He made a covenant with three great promises: a <b>land</b>, a <b>seed</b> (descendants), and a <b>blessing</b> — "in thee shall all families of the earth be blessed" (Genesis 12:3).</p>
@@ -502,7 +502,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Paul says the ultimate "seed" of Abraham is Christ (Galatians 3:16), and that everyone who believes — Jew or Gentile — becomes a child of Abraham by faith. The promise was aimed at all nations all along.</p></div>`
         },
         {
-            id: 'ishmael-isaac', title: 'Ishmael & Isaac', era: 'patriarchs', level: 'core', pathOrder: 5,
+            id: 'ishmael-isaac', title: 'Ishmael & Isaac', era: 'patriarchs', level: 'core',
             summary: 'The child of the flesh vs. the child of promise.', maps: [],
             body: `
                 <p>God promised Abraham a son, but he and Sarah grew impatient. Through Sarah's servant Hagar, Abraham fathered <b>Ishmael</b> (Genesis 16) — a son by human scheming. Years later, when it was humanly impossible, God gave the promised son <b>Isaac</b> ("he laughs") to Sarah in her old age (Genesis 21).</p>
@@ -514,7 +514,7 @@
                 <div class="callout"><div class="callout-label">Note</div><p style="margin:0">God still blessed Ishmael and made him a great nation (Genesis 21:13). But the covenant line — the line of the Messiah — ran through Isaac.</p></div>`
         },
         {
-            id: 'esau-jacob', title: 'Esau, Jacob & Israel', era: 'patriarchs', level: 'core', pathOrder: 6,
+            id: 'esau-jacob', title: 'Esau, Jacob & Israel', era: 'patriarchs', level: 'core',
             summary: 'Grace chooses the younger; Jacob becomes Israel.', maps: [],
             body: `
                 <p>Isaac's twins, <b>Esau</b> and <b>Jacob</b>, struggled even in the womb. Esau, the elder, despised his birthright and sold it for a bowl of stew (Genesis 25:29–34). Jacob ("heel-grabber, supplanter") schemed to obtain both birthright and blessing.</p>
@@ -525,7 +525,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">"Israel" is now the name of the covenant people and, later, the land. Every later mention of Israel reaches back to this transformed man.</p></div>`
         },
         {
-            id: 'twelve-tribes', title: 'The Twelve Tribes', era: 'conquest', level: 'core', pathOrder: 7,
+            id: 'twelve-tribes', title: 'The Twelve Tribes', era: 'conquest', level: 'core',
             summary: 'Jacob’s twelve sons become the nation — and its map.', maps: ['twelve-tribes'],
             body: `
                 <p>Jacob (Israel) had twelve sons, who became the <b>twelve tribes of Israel</b>: Reuben, Simeon, Levi, Judah, Dan, Naphtali, Gad, Asher, Issachar, Zebulun, Joseph, and Benjamin. After the Exodus and conquest, the land of Canaan was divided among them by lot (Joshua 13–19).</p>
@@ -539,7 +539,7 @@
                 <div class="callout"><div class="callout-label">Full circle</div><p style="margin:0">Jesus chose <b>twelve apostles</b>, deliberately echoing the twelve tribes — the foundation of a renewed people of God (Matthew 19:28).</p></div>`
         },
         {
-            id: 'exodus-journey', title: 'The Exodus', era: 'exodus', level: 'core', pathOrder: 8,
+            id: 'exodus-journey', title: 'The Exodus', era: 'exodus', level: 'core',
             summary: 'Redemption from Egypt through the Passover lamb.', maps: ['exodus'],
             body: `
                 <p>Israel grew into a nation while enslaved in <b>Egypt</b>. God raised up <b>Moses</b>, sent ten plagues, and delivered His people — the defining act of redemption in the Old Testament (Exodus 1–15).</p>
@@ -551,7 +551,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Jesus died at Passover. John the Baptist called Him "the Lamb of God, which taketh away the sin of the world" (John 1:29). The Exodus is the pattern; the cross is the fulfillment.</p></div>`
         },
         {
-            id: 'tabernacle', title: 'The Tabernacle', era: 'exodus', level: 'core', pathOrder: 9,
+            id: 'tabernacle', title: 'The Tabernacle', era: 'exodus', level: 'core',
             summary: 'God’s portable dwelling — a tent shaped by grace.', maps: ['tabernacle-plan'],
             body: `
                 <p>At Sinai, God gave detailed plans for the <b>Tabernacle</b> — a portable tent where He would dwell among His people as they traveled (Exodus 25–40). "Let them make me a sanctuary; that I may dwell among them" (Exodus 25:8).</p>
@@ -565,7 +565,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">"The Word was made flesh, and dwelt [literally <i>tabernacled</i>] among us" (John 1:14). The tent was always pointing to a Person.</p></div>`
         },
         {
-            id: 'solomon-temple', title: 'Solomon’s Temple', era: 'united', level: 'core', pathOrder: 10,
+            id: 'solomon-temple', title: 'Solomon’s Temple', era: 'united', level: 'core',
             summary: 'The tent becomes a permanent house in Jerusalem.', maps: ['solomon-temple-plan', 'jerusalem-temple'],
             body: `
                 <p>Once Israel was settled and at peace under King David, his son <b>Solomon</b> built the first <b>Temple</b> in <b>Jerusalem</b> (~960 BC) on Mount Moriah — the same hill where Abraham had offered Isaac (2 Chronicles 3:1). It followed the tabernacle's pattern but in permanent stone and gold (1 Kings 6–8).</p>
@@ -576,7 +576,7 @@
                 <div class="callout"><div class="callout-label">A sobering note</div><p style="margin:0">Solomon's later idolatry began the cracks that would split the kingdom and, centuries on, see this glorious Temple destroyed in 586 BC.</p></div>`
         },
         {
-            id: 'sacrifice-origin', title: 'Sacrifice: Origin & Purpose', era: 'exodus', level: 'core', pathOrder: 11,
+            id: 'sacrifice-origin', title: 'Sacrifice: Origin & Purpose', era: 'exodus', level: 'core',
             summary: 'Why blood? Sin, substitution, and covering.', maps: [],
             body: `
                 <p>The principle of sacrifice runs from the Bible's first pages. After Adam and Eve sinned, God clothed them with <b>animal skins</b> (Genesis 3:21) — the first death to cover human shame. <b>Abel</b> brought an acceptable offering by faith (Genesis 4:4; Hebrews 11:4).</p>
@@ -587,7 +587,7 @@
                 <div class="callout"><div class="callout-label">Why it never "ran out"</div><p style="margin:0">"It is not possible that the blood of bulls and of goats should take away sins" (Hebrews 10:4). The endless repetition was the point: these sacrifices pointed forward to one final, sufficient sacrifice.</p></div>`
         },
         {
-            id: 'united-divided-kingdom', title: 'United & Divided Kingdom', era: 'divided', level: 'core', pathOrder: 12,
+            id: 'united-divided-kingdom', title: 'United & Divided Kingdom', era: 'divided', level: 'core',
             summary: 'From Saul, David, Solomon to a nation split in two.', maps: ['united-kingdom', 'divided-kingdom'],
             body: `
                 <p>Israel's monarchy began with <b>Saul</b>, then <b>David</b> (who made Jerusalem the capital), then <b>Solomon</b> — the golden age of a <b>united kingdom</b> "from Dan to Beersheba."</p>
@@ -602,7 +602,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">The throne of David seemed to end in ruins. But the prophets insisted a greater Son of David was still coming (Isaiah 9:6–7).</p></div>`
         },
         {
-            id: 'exile-and-return', title: 'Exile & Return', era: 'exile', level: 'core', pathOrder: 13,
+            id: 'exile-and-return', title: 'Exile & Return', era: 'exile', level: 'core',
             summary: 'Judah carried to Babylon — then brought home.', maps: ['exile-return'],
             body: `
                 <p>In 586 BC <b>Babylon</b> destroyed Jerusalem and the Temple and carried Judah into <b>exile</b> — the great trauma of the Old Testament. Yet even there God preserved His people (Daniel, Ezekiel) and kept His promises.</p>
@@ -613,7 +613,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Exile and return became the Bible's great picture of judgment and restoration — ultimately the story of every sinner brought home to God through Christ.</p></div>`
         },
         {
-            id: 'second-temple', title: 'The Second Temple', era: 'exile', level: 'core', pathOrder: 14,
+            id: 'second-temple', title: 'The Second Temple', era: 'exile', level: 'core',
             summary: 'Rebuilt after exile, expanded by Herod — and Jesus’ world.', maps: ['herod-temple-courts', 'jerusalem-temple'],
             body: `
                 <p>The returning exiles rebuilt the Temple around <b>516 BC</b>. It was humbler than Solomon's — older men who remembered the first wept (Ezra 3:12). Then came the <b>400 "silent years"</b> between the Testaments, when no prophet spoke, but God was arranging the world stage (Greek language, Roman roads and peace) for the Messiah.</p>
@@ -624,7 +624,7 @@
                 <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">With the Temple gone, the entire sacrificial system stopped — a fitting end, since the once-for-all sacrifice had already been made at the cross.</p></div>`
         },
         {
-            id: 'nt-holy-land', title: 'The Holy Land of Jesus', era: 'christ', level: 'core', pathOrder: 15,
+            id: 'nt-holy-land', title: 'The Holy Land of Jesus', era: 'christ', level: 'core',
             summary: 'Galilee, Samaria, Judea — the geography of the Gospels.', maps: ['nt-holyland'],
             body: `
                 <p>The Gospels unfold across a surprisingly small land. Knowing the map makes the story come alive.</p>
@@ -637,7 +637,7 @@
                 <div class="callout"><div class="callout-label">Read it with the map</div><p style="margin:0">Keep this map open while reading a Gospel. Tracing Jesus' movements — north in Galilee, the journeys up to Jerusalem — turns abstract names into a real, walkable world.</p></div>`
         },
         {
-            id: 'christ-true-temple', title: 'Christ, the True Temple', era: 'christ', level: 'advanced', pathOrder: 16,
+            id: 'christ-true-temple', title: 'Christ, the True Temple', era: 'christ', level: 'advanced',
             summary: 'The dwelling of God moves from a building to a Person — and His people.', maps: [],
             body: `
                 <p>The whole temple story was always pointing beyond stone. When challenged for a sign, Jesus said, "Destroy this temple, and in three days I will raise it up." John explains: "he spake of the temple of his body" (John 2:19–21). Jesus is the place where God and humanity truly meet.</p>
@@ -648,7 +648,7 @@
                 <div class="callout"><div class="callout-label">The big picture</div><p style="margin:0">Tabernacle → Temple → Christ → the Church → the new creation. God's project was never a building. It was always <i>"I will dwell among them."</i></p></div>`
         },
         {
-            id: 'sacrifice-fulfilled', title: 'Sacrifice Fulfilled in Christ', era: 'christ', level: 'advanced', pathOrder: 17,
+            id: 'sacrifice-fulfilled', title: 'Sacrifice Fulfilled in Christ', era: 'christ', level: 'advanced',
             summary: 'One offering, once for all — the system’s true goal.', maps: [],
             body: `
                 <p>Every lamb, every altar, every Day of Atonement was a signpost. The book of Hebrews drives it home: the old sacrifices could never actually <b>take away</b> sin — their endless repetition proved it (Hebrews 10:1–4). They were a shadow; Christ is the substance.</p>
@@ -659,7 +659,7 @@
                 <div class="callout"><div class="callout-label">The "so what"</div><p style="margin:0">This is the point of the whole Old Testament. All that blood was teaching one lesson the human heart resists: we cannot pay for ourselves — but Someone already did, completely.</p></div>`
         },
         {
-            id: 'pauls-journeys', title: 'Paul’s Missionary Journeys', era: 'church', level: 'core', pathOrder: 18,
+            id: 'pauls-journeys', title: 'Paul’s Missionary Journeys', era: 'church', level: 'core',
             summary: 'The gospel spreads across the Roman world.', maps: ['paul-journeys'],
             body: `
                 <p>After Pentecost, the gospel exploded outward from Jerusalem. The book of <b>Acts</b> follows the apostle <b>Paul</b> on three great missionary journeys (plus a final voyage to Rome), planting churches across the Roman Empire from <b>Antioch</b> through <b>Asia Minor</b> and <b>Greece</b>.</p>
@@ -673,7 +673,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Abraham's promise — "all families of the earth blessed" — is being fulfilled before our eyes as the gospel reaches the Gentiles.</p></div>`
         },
         {
-            id: 'saul-paul-conversion', title: 'Saul’s Conversion', era: 'church', level: 'core', pathOrder: 19,
+            id: 'saul-paul-conversion', title: 'Saul’s Conversion', era: 'church', level: 'core',
             summary: 'The persecutor meets the risen Christ on the Damascus road.', maps: [],
             body: `
                 <p><b>Saul of Tarsus</b> was a brilliant, zealous Pharisee who violently persecuted the early church, even approving the stoning of Stephen (Acts 7–8). He was the last man anyone expected God to use.</p>
@@ -684,7 +684,7 @@
                 <div class="callout"><div class="callout-label">The point</div><p style="margin:0">No one is too far gone. If grace could conquer Christianity's fiercest enemy and make him its boldest preacher, it can reach anyone.</p></div>`
         },
         {
-            id: 'third-temple-attempts', title: 'Third-Temple Attempts', era: 'temple-after', level: 'advanced', pathOrder: 20,
+            id: 'third-temple-attempts', title: 'Third-Temple Attempts', era: 'temple-after', level: 'advanced',
             summary: 'Rebuilding efforts repeatedly fail — once stopped by fire.', maps: [],
             body: `
                 <p>Since AD 70 the Temple has lain in ruins, and repeated attempts to rebuild it have come to nothing. The most striking is the case of the Roman emperor <b>Julian the Apostate</b>.</p>
@@ -696,7 +696,7 @@
                 <div class="callout"><div class="callout-label">The Christian reading</div><p style="margin:0">For Christians the deepest point is theological, not political: the sacrificial system was <i>fulfilled</i> at the cross. The true Temple is the risen Christ. The empty Mount is, in a sense, a fitting monument to a finished work.</p></div>`
         },
         {
-            id: 'hostile-witnesses', title: 'Hostile Witnesses', era: 'temple-after', level: 'advanced', pathOrder: 21,
+            id: 'hostile-witnesses', title: 'Hostile Witnesses', era: 'temple-after', level: 'advanced',
             summary: 'Odd signs at the Temple’s end — recorded by Jewish and pagan sources, not Christians.', maps: [],
             body: `
                 <p>Some of the strangest claims surrounding the cross and the Temple's fall come not from Christians at all, but from <b>hostile or indifferent witnesses</b> — Jewish rabbis and pagan Romans who had no interest in proving the gospel. That is exactly what makes them worth weighing.</p>
@@ -712,7 +712,7 @@
                 <div class="callout"><div class="callout-label">Why hostile witnesses matter</div><p style="margin:0">A friendly source can be dismissed as wishful thinking. But when a nation's own rabbis, a Jewish general, and pagan Romans all record signs pointing the same direction — the end of the old order of sacrifice — the testimony is harder to wave away. For the Christian the thread runs straight to the cross: when the real offering was made, the shadows began to fade.</p></div>`
         },
         {
-            id: 'resurrection', title: 'The Resurrection', era: 'christ', level: 'core', pathOrder: 17,
+            id: 'resurrection', title: 'The Resurrection', era: 'christ', level: 'core',
             summary: 'The empty tomb — the event the whole faith stands or falls on.', maps: [],
             body: `
                 <p>On the third day after the crucifixion, Jesus' followers found the <b>tomb empty</b> and claimed He had risen and appeared to them alive (Luke 24; John 20). The resurrection is not a footnote to the gospel — it is the hinge: "if Christ be not raised... ye are yet in your sins" (1 Corinthians 15:17).</p>
@@ -723,7 +723,7 @@
                 <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">The resurrection is God's public receipt that the cross was accepted — Jesus "declared to be the Son of God with power... by the resurrection from the dead" (Romans 1:4). It is the down-payment that everyone who trusts Him will rise too (1 Corinthians 15:20–23).</p></div>`
         },
         {
-            id: 'messianic-prophecy', title: 'Prophecy Fulfilled in Christ', era: 'christ', level: 'advanced', pathOrder: 18,
+            id: 'messianic-prophecy', title: 'Prophecy Fulfilled in Christ', era: 'christ', level: 'advanced',
             summary: 'Centuries-old predictions converging on one life.', maps: [],
             body: `
                 <p>Long before Jesus was born, the Old Testament had sketched the coming Messiah in startling detail. Jesus said the Scriptures "testified of" Him (John 5:39), and after rising He showed how "all the prophets" had pointed to Him (Luke 24:27).</p>
@@ -740,7 +740,7 @@
                 <div class="callout"><div class="callout-label">Go deeper</div><p style="margin:0">These read as signposts, not coincidences — many were wholly outside any one person's control. For a fuller treatment, see the site's <a href="prophecy.html" class="font-semibold text-indigo-700 hover:text-indigo-800">Prophecy</a> page.</p></div>`
         },
         {
-            id: 'pentecost-church', title: 'Pentecost & the Early Church', era: 'church', level: 'core', pathOrder: 19,
+            id: 'pentecost-church', title: 'Pentecost & the Early Church', era: 'church', level: 'core',
             summary: 'The Spirit comes, 3,000 believe, and the Church is born.', maps: [],
             body: `
                 <p>Before ascending, Jesus told the disciples to wait in Jerusalem for power from on high (Acts 1:8). At <b>Pentecost</b> — fifty days after Passover — the <b>Holy Spirit</b> came with the sound of a rushing wind and tongues of fire, and the believers spoke in languages they had never learned (Acts 2:1–4).</p>
@@ -751,7 +751,7 @@
                 <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Pentecost answers <b>Babel</b> (Genesis 11): where God once scattered humanity by confusing its language, He now gathers people of every tongue to hear "the wonderful works of God."</p></div>`
         },
         {
-            id: 'biblical-archaeology', title: 'The Stones Cry Out', era: 'overview', level: 'advanced', pathOrder: 22,
+            id: 'biblical-archaeology', title: 'The Stones Cry Out', era: 'overview', level: 'advanced',
             summary: 'Bible people and places, turned up by the spade.', maps: [],
             body: `
                 <p>The Bible names real kings, cities, and officials — and again and again the spade has turned them up. None of this by itself "proves" the faith, but it shows the story is anchored in real history, not myth.</p>
@@ -829,6 +829,67 @@
                 <p>It ends where the Bible's story was always heading — a <b>new heaven and new earth</b>, every tear wiped away, God dwelling with His people. Strikingly, the New Jerusalem has no temple, "for the Lord God Almighty and the Lamb are the temple of it" (Revelation 21:22).</p>
                 <div class="callout"><div class="callout-label">Full circle</div><p style="margin:0">The story that began in a garden (Eden) ends in a garden-city, with the tree of life restored and humanity finally home with God. Paradise lost becomes paradise regained.</p></div>`
         },
+        {
+            id: 'judges-ruth', title: 'Judges & Ruth', era: 'conquest', level: 'core',
+            summary: 'The dark spiral after Joshua — and a love story that leads to David.', maps: [],
+            body: `
+                <p>After Joshua's generation died, Israel entered roughly <b>300 dark years</b> with no king and no capital. The book of Judges turns on one repeating cycle: Israel <b>sins</b> → an enemy <b>oppresses</b> → the people <b>cry out</b> → God raises a <b>deliverer</b> ("judge") → the land rests → and the whole spiral begins again, each time a little lower.</p>
+                <h4>The judges</h4>
+                <p>Twelve judges rise in the book — not courtroom figures but military deliverers. The most famous: <b>Deborah</b>, who led Israel to victory over a Canaanite army; <b>Gideon</b>, whose 300 men routed Midian so no one could credit the sword; and <b>Samson</b>, the strongman whose private compromises cost him his strength, his eyes, and finally his life.</p>
+                <p class="verse">"In those days there was no king in Israel: every man did that which was right in his own eyes" (Judges 21:25) — the book's closing verdict, and its argument for the King to come.</p>
+                <h4>Ruth: light in the darkness</h4>
+                <p>Set "in the days when the judges ruled," Ruth is the counterpoint: a <b>Moabite widow</b> who binds herself to Israel's God — "thy people shall be my people, and thy God my God" (Ruth 1:16) — and is redeemed by <b>Boaz</b>, a relative who buys back her family's land and marries her.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Boaz acts as the <b>kinsman-redeemer</b> (Hebrew <i>goel</i>) — a relative with the right to buy a family member out of loss. It is a living picture of Christ, who became our kinsman to redeem us. And the book's last word is a genealogy: Ruth's great-grandson is <b>David</b> (Ruth 4:17) — a Gentile grafted straight into the Messiah's line (Matthew 1:5).</p></div>`
+        },
+        {
+            id: 'wisdom-literature', title: 'Psalms & the Wisdom Books', era: 'united', level: 'core',
+            summary: 'Five poetic books: how to pray, how to live, how to suffer, how to love.', maps: [],
+            body: `
+                <p>In the middle of the Bible sit five <b>poetic books</b>, most of them flowing from the golden age of David and Solomon. They slow the story down and teach God's people how to <i>live</i> inside it.</p>
+                <ul>
+                    <li><b>Job</b> — why do the righteous suffer? A man loses everything and meets God in the whirlwind.</li>
+                    <li><b>Psalms</b> — 150 songs and prayers for every condition: praise, grief, guilt, thanksgiving, rage, hope. Israel's hymnbook — and Jesus' own prayer book.</li>
+                    <li><b>Proverbs</b> — skill for everyday living: money, speech, work, friendship, family. Its motto: "The fear of the LORD is the beginning of knowledge" (Proverbs 1:7).</li>
+                    <li><b>Ecclesiastes</b> — life "under the sun" without God is vapour; a relentless honest look at meaning, wealth, and death.</li>
+                    <li><b>Song of Solomon</b> — a celebration of covenant love between bride and groom.</li>
+                </ul>
+                <h4>Poetry that survives translation</h4>
+                <p>Hebrew poetry rhymes <b>ideas, not sounds</b> — a line is echoed, sharpened, or reversed by the next ("The heavens declare the glory of God; and the firmament sheweth his handywork," Psalm 19:1). Because the art lives in the <i>parallelism</i>, it keeps its power in any language.</p>
+                <div class="callout callout-cool"><div class="callout-label">Cool fact</div><p style="margin:0">Psalms is the Old Testament book the New Testament quotes most. Jesus died with psalms on His lips — "My God, my God, why hast thou forsaken me?" is the opening of Psalm 22, which goes on to describe pierced hands and feet and lots cast for clothing, a millennium before the cross.</p></div>`
+        },
+        {
+            id: 'the-prophets', title: 'The Prophets', era: 'divided', level: 'core',
+            summary: 'Covenant prosecutors: sin named, judgment warned, a Messiah promised.', maps: [],
+            body: `
+                <p>The prophets were not primarily fortune-tellers. They were <b>covenant prosecutors</b> — messengers sent to a nation that had signed on to God's law and then broken it. Their pattern is remarkably consistent: <b>name the sin</b> (idolatry, injustice, empty ritual), <b>warn of judgment</b> (exile), and <b>promise hope</b> beyond it (a remnant, a New Covenant, a coming King).</p>
+                <h4>Major and minor</h4>
+                <p>The writing prophets fill 17 books: 4 "major" (Isaiah, Jeremiah + Lamentations, Ezekiel, Daniel) and 12 "minor" (Hosea through Malachi). The labels measure <b>length, not importance</b>.</p>
+                <h4>Where they fit on the timeline</h4>
+                <ul>
+                    <li><b>To Israel (north), before 722 BC:</b> Amos and Hosea plead with the northern kingdom before Assyria destroys it.</li>
+                    <li><b>To Judah (south), before 586 BC:</b> Isaiah, Micah, Jeremiah and others warn Jerusalem that Babylon is coming.</li>
+                    <li><b>In exile:</b> Ezekiel and Daniel minister among the captives in Babylon.</li>
+                    <li><b>After the return:</b> Haggai, Zechariah, and Malachi stir the struggling remnant to rebuild — then the prophetic voice falls silent for 400 years.</li>
+                </ul>
+                <p class="verse">"Behold, the days come, saith the LORD, that I will make a new covenant with the house of Israel" (Jeremiah 31:31) — the promise that gives the New Testament its name.</p>
+                <div class="callout"><div class="callout-label">The thread</div><p style="margin:0">Woven through the warnings is an ever-sharper portrait of the Messiah: born of a virgin (Isaiah 7:14), in Bethlehem (Micah 5:2), suffering for others' sins (Isaiah 53), a King on David's throne forever (Isaiah 9:6–7). The prophets are the Old Testament leaning hardest toward Christ.</p></div>`
+        },
+        {
+            id: 'gospels-four-portraits', title: 'The Gospels: Four Portraits', era: 'christ', level: 'core',
+            summary: 'Matthew, Mark, Luke, John — four witnesses, one Jesus.', maps: [],
+            body: `
+                <p>The life of Jesus comes to us through <b>four books, not one</b> — the same way a trustworthy case rests on multiple witnesses. Each Gospel paints the same Jesus for a different audience, with a different emphasis:</p>
+                <ul>
+                    <li><b>Matthew</b> — Jesus the promised <b>King</b>. Written with Jewish readers in view; quotes the Old Testament constantly ("that it might be fulfilled…").</li>
+                    <li><b>Mark</b> — Jesus the <b>Servant</b> in action. The shortest and fastest Gospel; a favourite word is "immediately."</li>
+                    <li><b>Luke</b> — Jesus the <b>Son of man</b>. A physician-historian who interviewed eyewitnesses (Luke 1:1–4) and highlights outsiders: the poor, women, Samaritans, Gentiles.</li>
+                    <li><b>John</b> — Jesus the <b>Son of God</b>. Written "that ye might believe" (John 20:31); built around seven miracle-signs and the great "I am" sayings.</li>
+                </ul>
+                <p>Matthew, Mark, and Luke share so much material they are called the <b>Synoptics</b> ("seeing together"); John stands apart, supplying what the others leave out.</p>
+                <h4>The shape of the ministry</h4>
+                <p>All four trace the same arc: baptism by John → teaching and miracles in <b>Galilee</b> → a final journey to <b>Jerusalem</b> → cross and empty tomb. Jesus taught in <b>parables</b> — everyday stories with a kingdom edge — and His miracles were <b>signs</b>, samples of what His kingdom restores: sight, wholeness, bread, calm, life.</p>
+                <div class="callout callout-cool"><div class="callout-label">Cool fact</div><p style="margin:0">The Gospels are biographies with a wildly lopsided design: roughly a <b>third</b> of their pages cover a single week — the last one. No other ancient biography does this. The writers are telling you where the point lies: the story exists for the cross and the resurrection.</p></div>`
+        },
     ];
 
     const topicById = Object.fromEntries(LEARN_TOPICS.map(t => [t.id, t]));
@@ -837,9 +898,9 @@
         'what-is-the-bible', 'how-to-read', 'calendar-bc-ad',
         'creation-fall', 'flood-babel',
         'covenant-abraham', 'ishmael-isaac', 'esau-jacob', 'twelve-tribes',
-        'exodus-journey', 'tabernacle', 'sacrifice-origin', 'joshua-conquest',
-        'united-divided-kingdom', 'solomon-temple', 'exile-and-return', 'between-testaments', 'second-temple',
-        'nt-holy-land', 'christ-true-temple', 'sacrifice-fulfilled', 'resurrection', 'messianic-prophecy',
+        'exodus-journey', 'tabernacle', 'sacrifice-origin', 'joshua-conquest', 'judges-ruth',
+        'united-divided-kingdom', 'solomon-temple', 'wisdom-literature', 'the-prophets', 'exile-and-return', 'between-testaments', 'second-temple',
+        'nt-holy-land', 'gospels-four-portraits', 'christ-true-temple', 'sacrifice-fulfilled', 'resurrection', 'messianic-prophecy',
         'pentecost-church', 'pauls-journeys', 'saul-paul-conversion', 'revelation-seven-churches',
         'third-temple-attempts', 'hostile-witnesses', 'biblical-archaeology',
     ];
@@ -865,15 +926,20 @@
         { name: 'Gideon', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'Defeated the Midianites with just 300 men.' },
         { name: 'Samson', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'A Nazirite of great strength, undone by compromise.' },
         { name: 'Ruth', era: 'conquest', testament: 'OT', role: 'Faithful convert', relation: 'Great-grandmother of David', blurb: 'A Moabite who clung to Israel’s God — and entered the Messiah’s line.' },
+        { name: 'Boaz', era: 'conquest', testament: 'OT', role: 'Kinsman-redeemer', relation: 'Husband of Ruth · great-grandfather of David', blurb: 'Bought back a widow’s future — a living picture of the Redeemer to come.' },
         { name: 'Samuel', era: 'conquest', testament: 'OT', role: 'Last judge, first prophet', relation: '', blurb: 'Anointed both Saul and David as king.' },
         { name: 'Saul (King)', era: 'united', testament: 'OT', role: 'Israel’s first king', relation: '', blurb: 'Tall and promising, but disobedient and rejected. (Not Saul of Tarsus!)' },
         { name: 'David', era: 'united', testament: 'OT', role: 'Shepherd-king', relation: 'Father of Solomon · ancestor of Jesus', blurb: '“A man after God’s own heart,” promised an everlasting throne.' },
         { name: 'Solomon', era: 'united', testament: 'OT', role: 'Wise king', relation: 'Son of David & Bathsheba', blurb: 'Built the first Temple; his later idolatry split the kingdom.' },
         { name: 'Elijah', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'Confronted the prophets of Baal on Mt. Carmel; taken up in a whirlwind.' },
         { name: 'Elisha', era: 'divided', testament: 'OT', role: 'Prophet', relation: 'Successor of Elijah', blurb: 'Worked many miracles in the northern kingdom.' },
+        { name: 'Jonah', era: 'divided', testament: 'OT', role: 'Reluctant prophet', relation: '', blurb: 'Ran from God and was swallowed by a great fish; preached to Nineveh — and it repented.' },
+        { name: 'Hosea', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'His broken marriage became a living picture of Israel’s unfaithfulness — and God’s relentless love.' },
         { name: 'Isaiah', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'Foretold the virgin birth and the suffering Servant (Isaiah 53).' },
         { name: 'Jeremiah', era: 'divided', testament: 'OT', role: 'The weeping prophet', relation: '', blurb: 'Warned Judah of Babylon and promised a New Covenant.' },
+        { name: 'Ezekiel', era: 'exile', testament: 'OT', role: 'Prophet among the exiles', relation: '', blurb: 'Saw God’s glory leave the Temple — and a valley of dry bones brought to life.' },
         { name: 'Daniel', era: 'exile', testament: 'OT', role: 'Exile & seer', relation: '', blurb: 'Faithful in Babylon; the lions’ den; visions of coming kingdoms.' },
+        { name: 'Esther', era: 'exile', testament: 'OT', role: 'Queen of Persia', relation: 'Cousin & ward of Mordecai', blurb: 'Risked her life “for such a time as this” to save her people from destruction.' },
         { name: 'Ezra', era: 'exile', testament: 'OT', role: 'Priest-scribe', relation: '', blurb: 'Restored the Law among the returned exiles.' },
         { name: 'Nehemiah', era: 'exile', testament: 'OT', role: 'Governor', relation: '', blurb: 'Rebuilt the walls of Jerusalem in just 52 days.' },
         { name: 'Cyrus', era: 'exile', testament: 'OT', role: 'Persian king', relation: '', blurb: 'Freed the Jews to return — named by Isaiah ~150 years beforehand (Isaiah 44–45).' },
@@ -884,6 +950,9 @@
         { name: 'Peter', era: 'church', testament: 'NT', role: 'Apostle', relation: 'Brother of Andrew', blurb: 'Impulsive fisherman who preached at Pentecost; a leader of the Twelve.' },
         { name: 'John (Apostle)', era: 'church', testament: 'NT', role: 'Apostle', relation: 'Brother of James', blurb: '“The disciple Jesus loved”; wrote a Gospel, three letters, and Revelation.' },
         { name: 'James', era: 'church', testament: 'NT', role: 'Leader in Jerusalem', relation: 'Brother of Jesus', blurb: 'Led the Jerusalem church and wrote the epistle of James.' },
+        { name: 'Matthew', era: 'christ', testament: 'NT', role: 'Apostle & evangelist', relation: 'One of the Twelve', blurb: 'A tax collector who left his booth to follow Jesus — and wrote the first Gospel.' },
+        { name: 'Thomas', era: 'christ', testament: 'NT', role: 'Apostle', relation: 'One of the Twelve', blurb: 'Doubted the resurrection until he saw — then confessed, “My Lord and my God.”' },
+        { name: 'Mary Magdalene', era: 'christ', testament: 'NT', role: 'Follower of Jesus', relation: '', blurb: 'Delivered from seven demons; the first witness of the risen Christ.' },
         { name: 'Judas Iscariot', era: 'christ', testament: 'NT', role: 'The betrayer', relation: 'One of the Twelve', blurb: 'Betrayed Jesus for thirty pieces of silver.' },
         { name: 'Paul (Saul of Tarsus)', era: 'church', testament: 'NT', role: 'Apostle to the Gentiles', relation: '', blurb: 'A persecutor turned missionary who wrote much of the New Testament. (Not King Saul!)' },
         { name: 'Barnabas', era: 'church', testament: 'NT', role: 'Encourager', relation: 'Paul’s first partner', blurb: 'The “son of consolation” who vouched for the new convert Saul.' },
@@ -924,7 +993,11 @@
 
     window.setStatusFilter = (v) => {
         statusFilter = v;
-        ['all', 'todo', 'done'].forEach(k => el('sf-' + k).classList.toggle('active', k === v));
+        ['all', 'todo', 'done'].forEach(k => {
+            const b = el('sf-' + k);
+            b.classList.toggle('active', k === v);
+            b.setAttribute('aria-pressed', String(k === v));
+        });
         renderGrid();
     };
     window.openNextUnfinished = () => {
@@ -951,17 +1024,21 @@
         'exodus-journey': ['sacrifice-origin', 'tabernacle', 'joshua-conquest', 'sacrifice-fulfilled'],
         'tabernacle': ['exodus-journey', 'solomon-temple', 'christ-true-temple', 'sacrifice-origin'],
         'sacrifice-origin': ['exodus-journey', 'sacrifice-fulfilled', 'tabernacle'],
-        'joshua-conquest': ['twelve-tribes', 'exodus-journey', 'united-divided-kingdom'],
-        'united-divided-kingdom': ['solomon-temple', 'exile-and-return', 'twelve-tribes'],
+        'joshua-conquest': ['twelve-tribes', 'judges-ruth', 'united-divided-kingdom'],
+        'judges-ruth': ['joshua-conquest', 'twelve-tribes', 'united-divided-kingdom'],
+        'united-divided-kingdom': ['solomon-temple', 'the-prophets', 'exile-and-return'],
+        'wisdom-literature': ['united-divided-kingdom', 'the-prophets', 'how-to-read'],
+        'the-prophets': ['united-divided-kingdom', 'exile-and-return', 'messianic-prophecy'],
         'solomon-temple': ['tabernacle', 'second-temple', 'united-divided-kingdom', 'christ-true-temple'],
         'exile-and-return': ['united-divided-kingdom', 'second-temple', 'between-testaments'],
         'between-testaments': ['exile-and-return', 'second-temple', 'nt-holy-land'],
         'second-temple': ['solomon-temple', 'exile-and-return', 'christ-true-temple', 'nt-holy-land'],
-        'nt-holy-land': ['between-testaments', 'pauls-journeys', 'christ-true-temple'],
+        'nt-holy-land': ['between-testaments', 'gospels-four-portraits', 'christ-true-temple'],
+        'gospels-four-portraits': ['nt-holy-land', 'resurrection', 'messianic-prophecy'],
         'christ-true-temple': ['tabernacle', 'solomon-temple', 'second-temple', 'sacrifice-fulfilled'],
         'sacrifice-fulfilled': ['sacrifice-origin', 'christ-true-temple', 'resurrection', 'messianic-prophecy'],
-        'resurrection': ['sacrifice-fulfilled', 'messianic-prophecy', 'pentecost-church'],
-        'messianic-prophecy': ['resurrection', 'sacrifice-fulfilled', 'christ-true-temple'],
+        'resurrection': ['gospels-four-portraits', 'sacrifice-fulfilled', 'messianic-prophecy', 'pentecost-church'],
+        'messianic-prophecy': ['the-prophets', 'resurrection', 'sacrifice-fulfilled'],
         'pentecost-church': ['resurrection', 'pauls-journeys', 'flood-babel'],
         'pauls-journeys': ['saul-paul-conversion', 'pentecost-church', 'revelation-seven-churches'],
         'saul-paul-conversion': ['pauls-journeys', 'resurrection', 'revelation-seven-churches'],
@@ -1096,6 +1173,7 @@
         if (total && !learnCelebrated) { learnCelebrated = true; fireConfetti(); }
     }
     function fireConfetti() {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const layer = document.createElement('div');
         layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden';
         const bits = ['🎉', '✨', '📖', '✝️', '🙌', '⭐', '🕊️'];
@@ -1167,7 +1245,7 @@
 
     function eraBadge(eraId) {
         const e = eraById[eraId];
-        if (!e) return '';
+        if (!e) return `<span class="era-badge" style="background:#64748b">Overview</span>`;
         return `<span class="era-badge" style="background:${e.color}">${e.label}</span>`;
     }
     const mapIcon = `<svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>`;
@@ -1284,7 +1362,10 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                         Back to topics
                     </button>
-                    <span id="detail-done-area">${detailDoneHtml(id)}</span>
+                    <span class="inline-flex items-center gap-2">
+                        <button onclick="copyTopicLink('${id}', this)" class="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:border-indigo-300 hover:text-indigo-700 transition-colors" title="Copy a link to this topic">🔗 <span>Copy link</span></button>
+                        <span id="detail-done-area">${detailDoneHtml(id)}</span>
+                    </span>
                 </div>
                 <div class="mb-3">${eraBadge(t.era)}</div>
                 <h2 id="detail-heading" tabindex="-1" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3 focus:outline-none">${t.title}</h2>
@@ -1293,7 +1374,7 @@
                     <span>~${mins} min read</span>
                     ${t.maps && t.maps.length ? `<span class="text-slate-400">· ${t.maps.length} map${t.maps.length > 1 ? 's' : ''}</span>` : ''}
                 </div>
-                <p class="text-xs text-slate-400 mb-4">💡 Tap any <span class="scripture-ref" style="cursor:default">verse reference</span> to read it in the KJV.</p>
+                <p class="text-xs text-slate-400 mb-4">💡 Tap any <span class="scripture-ref" style="cursor:default">verse reference</span> to read it in the KJV.<span class="hidden md:inline"> Use ← → to move between topics.</span></p>
                 <div class="prose-learn max-w-3xl">${t.body}</div>
                 ${mapsHtml}
                 <div class="mt-8 pt-5 border-t border-slate-200 space-y-5">
@@ -1319,6 +1400,14 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    window.copyTopicLink = async (id, btn) => {
+        const url = location.origin + location.pathname + '#' + encodeURIComponent(id);
+        try { await navigator.clipboard.writeText(url); }
+        catch { window.prompt('Copy this link:', url); return; }
+        const label = btn.querySelector('span');
+        if (label) { label.textContent = 'Copied ✓'; setTimeout(() => { label.textContent = 'Copy link'; }, 1600); }
+    };
+
     window.openLearnTopic = (id) => {
         if (!topicById[id]) return;
         const enc = '#' + encodeURIComponent(id);
@@ -1334,12 +1423,15 @@
         currentDetailId = null;
         const card = prev && el('learn-topics') ? el('learn-topics').querySelector(`[data-topic-id="${prev}"]`) : null;
         if (card) card.focus({ preventScroll: true });
+        return card;
     }
 
     window.closeLearnTopic = () => {
-        doCloseDetail();
+        const card = doCloseDetail();
         if (location.hash) history.pushState({}, '', location.pathname + location.search);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Return the reader to where they were in the grid, not the top of the page
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     function syncFromHash() {
@@ -1414,6 +1506,18 @@
         { term: 'Incarnation', def: 'God the Son becoming fully human in Jesus, without ceasing to be God (John 1:14).' },
         { term: 'Resurrection', def: 'Rising bodily from death to a new, deathless life — as Jesus did, and as His people are promised.' },
         { term: 'Salvation', def: 'God’s rescue of people from sin and its penalty into forgiveness, new life, and eternal life with Him.' },
+        { term: 'Parable', def: 'A short story from everyday life with a kingdom edge — Jesus’ favourite way of teaching, revealing truth to seekers while veiling it from scoffers.' },
+        { term: 'Kingdom of God', def: 'God’s rule breaking into the world — begun in Jesus’ ministry, growing now, complete when He returns.' },
+        { term: 'Baptism', def: 'A washing with water marking union with Christ — picturing His death, burial, and resurrection (Romans 6:4).' },
+        { term: 'Passover', def: 'The feast recalling the night God spared every house in Egypt marked with a lamb’s blood (Exodus 12). Jesus died at Passover — “Christ our passover” (1 Corinthians 5:7).' },
+        { term: 'Sabbath', def: 'The seventh day of rest, patterned on creation — a weekly sign of trust that God, not endless work, provides.' },
+        { term: 'Law / Torah', def: 'God’s instruction given through Moses — moral, civil, and ceremonial. A guardian leading to Christ (Galatians 3:24).' },
+        { term: 'Exile', def: 'Israel’s deportation from the land — Judah’s seventy years in Babylon — the covenant’s ultimate penalty for persistent idolatry.' },
+        { term: 'Synagogue', def: 'A local house of teaching and prayer that arose during the exile, when the Temple was far away. Jesus and Paul both taught in them.' },
+        { term: 'Pharisees & Sadducees', def: 'Two rival parties in Jesus’ day: strict law-keepers who added their own traditions (Pharisees), and the priestly elite who denied resurrection (Sadducees).' },
+        { term: 'Epistle', def: 'Simply, a letter. Twenty-one New Testament books are epistles — written to young churches and leaders working out the gospel in practice.' },
+        { term: 'Canon', def: 'The recognized list of books that belong in the Bible — literally a “measuring rod.”' },
+        { term: 'Hallelujah & Amen', def: 'Two Hebrew words carried untranslated into nearly every language on earth: “Praise the LORD!” and “so be it — it stands true.”' },
     ];
     window.renderGlossary = () => {
         const q = (el('glossary-search')?.value || '').toLowerCase().trim();
@@ -1438,7 +1542,17 @@
         window.renderPeople();
         window.renderGlossary();
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !el('learn-detail').classList.contains('hidden') && !document.getElementById('scripture-modal')) closeLearnTopic();
+            if (el('learn-detail').classList.contains('hidden') || document.getElementById('scripture-modal')) return;
+            if (e.key === 'Escape') { closeLearnTopic(); return; }
+            // ← / → step through the reading path from within a topic
+            if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.altKey && !e.metaKey && !e.ctrlKey) {
+                const tag = e.target && e.target.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+                const idx = LEARN_PATH.indexOf(currentDetailId);
+                if (idx === -1) return;
+                const tid = e.key === 'ArrowLeft' ? LEARN_PATH[idx - 1] : LEARN_PATH[idx + 1];
+                if (tid) { e.preventDefault(); openLearnTopic(tid); }
+            }
         });
         syncFromHash(); // open a topic if the URL has #topic-id
     }
