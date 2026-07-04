@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bible Progress</title>
+    <title>Bible Progress — Word-Weighted Bible Reading Tracker</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="icon-192.png">
     <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
@@ -43,7 +43,7 @@
 
     <!-- Security Headers (Content Security Policy would be better implemented at server level) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <!-- X-Frame-Options only works as an HTTP header (browsers reject it in <meta> with a console error); framing protection would need host-level headers. -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1470,6 +1470,25 @@
                                     <p class="text-slate-700 leading-relaxed mb-3">Explore the biblical pattern of seven days pointing to 6,000 years of history followed by Christ's 1,000-year Sabbath reign.</p>
                                     <div class="flex items-center gap-2 text-cyan-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
                                         <span>Explore the Theory</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="prophecy.html" class="block group mt-4">
+                        <div class="bg-gradient-to-br from-violet-50 to-purple-50 p-8 rounded-3xl border-2 border-violet-200 hover:border-violet-400 transition-all hover:shadow-lg relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-violet-200/25 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <div class="flex items-start gap-4 relative z-10">
+                                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-violet-200">
+                                    <span class="text-3xl">🔭</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-xl font-black text-violet-900 mb-2 group-hover:text-violet-700 transition-colors">Biblical Prophecy</h4>
+                                    <p class="text-slate-700 leading-relaxed mb-3">Explore fulfilled and future prophecy — messianic predictions, the fall of empires foretold, and what Scripture says is still to come.</p>
+                                    <div class="flex items-center gap-2 text-violet-700 font-bold text-sm group-hover:translate-x-2 transition-transform">
+                                        <span>Explore Prophecy</span>
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                                     </div>
                                 </div>
@@ -4215,7 +4234,7 @@
 			// Unblock cloud sync after 2 seconds
 			setTimeout(() => {
 				userIsEditing = false;
-				console.log('✅ Edit complete');
+				log('✅ Edit complete');
 				if (pendingSnapshot) {
 					const snap = pendingSnapshot;
 					pendingSnapshot = null;
@@ -9055,7 +9074,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Log backup details for debugging
             const profileCount = Object.keys(appData.profiles).length;
-            console.log(`✅ Backed up ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
+            log(`✅ Backed up ${profileCount} profile(s):`, Object.keys(appData.profiles).join(', '));
         };
 
         window.exportProgressCSV = async () => {
@@ -14433,40 +14452,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			window.closeCalibrationModal();
 		};
 
-		console.log('🥚 Easter eggs loaded! Try: Konami Code, click profile dot 7x, complete Psalm 119, finish the Bible, type SHANE/MOM/DAD/SETH, triple-click logo, or visit on Christmas/Easter!');
-
-		// --- COOKIE CONSENT FUNCTIONS (Temporarily Disabled) ---
-		/*
-		window.showCookieConsent = () => {
-			const cookieConsentDismissed = localStorage.getItem('cookieConsentDismissed');
-			if (!cookieConsentDismissed) {
-				const banner = document.getElementById('cookie-consent-banner');
-				if (banner) {
-					setTimeout(() => {
-						banner.classList.remove('hidden');
-					}, 2000); // Show after 2 seconds
-				}
-			}
-		};
-
-		window.dismissCookieConsent = () => {
-			const banner = document.getElementById('cookie-consent-banner');
-			if (banner) {
-				banner.classList.add('hidden');
-				localStorage.setItem('cookieConsentDismissed', 'true');
-			}
-		};
-
-		// Show cookie consent banner on page load
-		window.showCookieConsent();
-		*/
+		log('🥚 Easter eggs loaded! Try: Konami Code, click profile dot 7x, complete Psalm 119, finish the Bible, type SHANE/MOM/DAD/SETH, triple-click logo, or visit on Christmas/Easter!');
 
 		// --- SERVICE WORKER REGISTRATION FOR PWA ---
 		if ('serviceWorker' in navigator) {
 			window.addEventListener('load', () => {
 				navigator.serviceWorker.register('./service-worker.js')
 					.then(registration => {
-						console.log('✅ Service Worker registered successfully:', registration.scope);
+						log('✅ Service Worker registered successfully:', registration.scope);
 
 						// Check for updates periodically
 						setInterval(() => {
@@ -14479,14 +14472,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 							newWorker.addEventListener('statechange', () => {
 								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
 									// New service worker available, show update notification
-									console.log('📦 New version available! Refresh to update.');
+									log('📦 New version available! Refresh to update.');
 									showToast('New version available! Refresh to update.', 'info');
 								}
 							});
 						});
 					})
 					.catch(error => {
-						console.log('❌ Service Worker registration failed:', error);
+						logError('❌ Service Worker registration failed:', error);
 					});
 			});
 		}
