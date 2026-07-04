@@ -7,12 +7,19 @@
     <!-- Main Application -->
     <url>
         <loc>https://bibleprogress.com/</loc>
-        <lastmod>2026-01-17</lastmod>
+        <lastmod>2026-07-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
 
     <!-- Study Tools -->
+    <url>
+        <loc>https://bibleprogress.com/learn.html</loc>
+        <lastmod>2026-07-04</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
     <url>
         <loc>https://bibleprogress.com/chapter-recall.html</loc>
         <lastmod>2026-07-03</lastmod>

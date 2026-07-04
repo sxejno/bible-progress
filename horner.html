@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professor Horner's Bible Reading System - Analytics</title>
+    <title>Professor Horner's Bible Reading System - Analytics | Bible Progress</title>
 
     <meta name="description" content="Interactive analytics for Professor Grant Horner's 10-list Bible reading system — word counts, daily reading time, and the interweaving effect of 10 chapters a day.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bibleprogress.com/horner.html">
+    <link rel="icon" type="image/png" href="favicon.png">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Bible Progress">
@@ -1601,8 +1602,6 @@ Revelation,22,573,2,51,2.9`;
                 WORD_COUNTS[key] = parseInt(cols[2].trim());
                 loadedCount++;
             }
-
-            console.log(`✅ Loaded ${loadedCount} chapters`);
 
             // Build Lists
             flatLists = LIST_DEFINITIONS.map(list => {

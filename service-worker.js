@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v10';
+const CACHE_NAME = 'bible-progress-v11';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -8,6 +8,11 @@ const ASSETS_TO_CACHE = [
     '/cause-of-god-and-truth.html',
     '/memorize.html',
     '/horner.html',
+    '/prophecy.html',
+    '/millennial-day-theory.html',
+    '/biblical-language-insights.html',
+    '/biblical-name-meanings.html',
+    '/biblical-number-meanings.html',
     '/accessibility.html',
     '/privacy.html',
     '/terms.html',

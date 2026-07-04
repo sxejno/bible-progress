@@ -3,10 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Foundations — Learn the Bible Fast</title>
-    <meta name="description" content="The whole Bible as one story — fast, clear, and built to remember. Covenant lineage, the Temple, sacrifice fulfilled in Christ, the BC/AD calendar, and maps of the biblical world. Check off what you learn as you go.">
-    <meta name="robots" content="noindex, nofollow">
+    <title>Learn the Bible — The Whole Story, One Topic at a Time | Bible Progress</title>
+    <meta name="description" content="The whole Bible as one story — fast, clear, and built to remember. Guided topics with maps, timelines, quizzes, a Who's Who, and a glossary. Covenant lineage, the Temple, sacrifice fulfilled in Christ, and more. Check off what you learn as you go.">
     <link rel="canonical" href="https://bibleprogress.com/learn.html">
+    <meta property="og:title" content="Learn the Bible — The Whole Story, One Topic at a Time">
+    <meta property="og:description" content="The whole Bible as one story — guided topics with maps, timelines, quizzes, and progress tracking. Free, fast, built to remember.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bibleprogress.com/learn.html">
+    <meta property="og:image" content="https://bibleprogress.com/icon-512.png">
+    <meta name="twitter:card" content="summary">
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -133,6 +138,27 @@
         /* Maps */
         .learn-map { display:block; width:100%; height:auto; border-radius: 1rem; border: 1px solid #dbe3ef; }
         mark { background:#fef08a; color:#1e293b; padding:0 0.2em; border-radius:0.25rem; }
+
+        /* Did-you-know strip */
+        .dyk { background: linear-gradient(100deg, #fffbeb 0%, #fef3c7 60%, #fde68a 130%); border: 1px solid #fcd34d; }
+        .dyk-fact { min-height: 3.2em; }
+
+        /* Check-yourself quiz */
+        .quiz-q { background:#fff; border:1px solid #e2e8f0; border-radius: 1rem; padding: 1rem 1.1rem; }
+        .quiz-opt { display:block; width:100%; text-align:left; font-weight:600; color:#334155; background:#f8fafc; border:1px solid #e2e8f0; border-radius:0.75rem; padding:0.6rem 0.9rem; margin-top:0.5rem; transition:all .15s ease; cursor:pointer; }
+        .quiz-opt:hover { border-color:#a5b4fc; background:#eef2ff; }
+        .quiz-q.answered .quiz-opt { cursor:default; pointer-events:none; opacity:0.75; }
+        .quiz-q.answered .quiz-opt.correct { background:#d1fae5; border-color:#10b981; color:#065f46; opacity:1; font-weight:700; }
+        .quiz-q.answered .quiz-opt.wrong { background:#ffe4e6; border-color:#fb7185; color:#9f1239; opacity:1; }
+        .quiz-why { display:none; margin-top:0.7rem; font-size:0.9rem; line-height:1.55; color:#475569; background:#f8fafc; border-left:3px solid #10b981; border-radius:0 0.5rem 0.5rem 0; padding:0.55rem 0.8rem; }
+        .quiz-q.answered .quiz-why { display:block; }
+        .quiz-score { display:none; }
+        .quiz-score.show { display:flex; }
+
+        /* Go-deeper tool cards */
+        .tool-card { display:flex; align-items:flex-start; gap:0.8rem; background:#fff; border:1px solid #e2e8f0; border-radius:1rem; padding:0.9rem 1rem; transition:all .18s ease; }
+        .tool-card:hover { transform:translateY(-2px); border-color:rgba(99,102,241,0.45); box-shadow:0 12px 26px rgba(79,70,229,0.14); }
+        .tool-card .tool-emoji { font-size:1.5rem; line-height:1; margin-top:2px; }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -185,6 +211,23 @@
                 <div class="text-xs font-black uppercase tracking-wider text-amber-500">The thread to watch</div>
                 <p class="mt-2 text-slate-700">Promise → lineage → law → temple → sacrifice → exile → Messiah. Every line runs toward Christ (Luke 24:27).</p>
             </article>
+        </section>
+
+        <!-- Did you know? -->
+        <section class="dyk rounded-3xl p-5 md:p-6" aria-label="Did you know">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+                <div class="flex items-start gap-3 flex-1 min-w-[260px]">
+                    <div class="w-10 h-10 rounded-xl bg-amber-200/70 text-amber-700 flex items-center justify-center text-lg flex-shrink-0">💡</div>
+                    <div>
+                        <div class="text-xs font-black uppercase tracking-wider text-amber-700">Did you know?</div>
+                        <p id="dyk-fact" class="dyk-fact mt-1 text-slate-800 font-medium leading-relaxed"></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button id="dyk-open" onclick="openDykTopic()" class="text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-xl px-4 py-2 transition-colors">Read the story →</button>
+                    <button onclick="nextDykFact()" class="text-sm font-bold text-amber-800 bg-white/70 border border-amber-300 rounded-xl px-3 py-2 hover:bg-white transition-colors" aria-label="Show another fact">Another ↻</button>
+                </div>
+            </div>
         </section>
 
         <!-- Progress -->
@@ -291,6 +334,29 @@
             </div>
             <div id="learn-glossary" class="grid sm:grid-cols-2 gap-3"></div>
             <p id="glossary-empty" class="hidden text-center text-slate-500 py-8 font-medium">No term matches that search.</p>
+        </section>
+
+        <!-- Go deeper: the site's training tools -->
+        <section class="glass rounded-3xl p-6 md:p-8">
+            <div class="flex items-center gap-3 mb-1">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-lg">🚀</div>
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-900">Go Deeper</h2>
+                    <p class="text-sm text-slate-600">Reading builds the map; these tools make it stick. Every one is free and works offline.</p>
+                </div>
+            </div>
+            <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-5">
+                <a href="chapter-recall.html" class="tool-card"><span class="tool-emoji">⚡</span><span><span class="block font-black text-slate-900">Chapter Recall</span><span class="block text-sm text-slate-600 mt-0.5">Hear "Acts 5" and instantly know what happens there — all 1,189 chapters, spaced repetition.</span></span></a>
+                <a href="memorize.html" class="tool-card"><span class="tool-emoji">🧠</span><span><span class="block font-black text-slate-900">Scripture Memorization</span><span class="block text-sm text-slate-600 mt-0.5">Learn verses, chapters, or whole books with first-letter hints and review scheduling.</span></span></a>
+                <a href="bible-books-game.html" class="tool-card"><span class="tool-emoji">📖</span><span><span class="block font-black text-slate-900">Bible Books Game</span><span class="block text-sm text-slate-600 mt-0.5">How many of the 66 books can you name in five minutes?</span></span></a>
+                <a href="biblical-languages-trainer.html" class="tool-card"><span class="tool-emoji">📜</span><span><span class="block font-black text-slate-900">Greek &amp; Hebrew Trainer</span><span class="block text-sm text-slate-600 mt-0.5">Read the Bible in its original languages — most frequent words first.</span></span></a>
+                <a href="biblical-name-meanings.html" class="tool-card"><span class="tool-emoji">🪪</span><span><span class="block font-black text-slate-900">Name Meanings</span><span class="block text-sm text-slate-600 mt-0.5">What biblical names mean — and the story context hiding inside them.</span></span></a>
+                <a href="biblical-number-meanings.html" class="tool-card"><span class="tool-emoji">🔢</span><span><span class="block font-black text-slate-900">Number Meanings</span><span class="block text-sm text-slate-600 mt-0.5">Seven, twelve, forty, 70×7 — the patterns behind the Bible's numbers.</span></span></a>
+                <a href="biblical-language-insights.html" class="tool-card"><span class="tool-emoji">💬</span><span><span class="block font-black text-slate-900">Language Insights</span><span class="block text-sm text-slate-600 mt-0.5">Puns and wordplay ancient readers heard that translations lose.</span></span></a>
+                <a href="prophecy.html" class="tool-card"><span class="tool-emoji">🔭</span><span><span class="block font-black text-slate-900">Prophecy</span><span class="block text-sm text-slate-600 mt-0.5">A fuller treatment of fulfilled and future biblical prophecy.</span></span></a>
+                <a href="cause-of-god-and-truth.html" class="tool-card"><span class="tool-emoji">⚖️</span><span><span class="block font-black text-slate-900">The Cause of God &amp; Truth</span><span class="block text-sm text-slate-600 mt-0.5">Navigate John Gill's classic defense of the doctrines of grace.</span></span></a>
+            </div>
+            <p class="text-xs text-slate-400 mt-4">Tracking your reading? The <a href="index.html" class="font-semibold text-indigo-700 hover:text-indigo-800">main app</a> paces the whole Bible with word-weighted progress and reading plans.</p>
         </section>
     </div>
 
@@ -890,6 +956,54 @@
                 <p>All four trace the same arc: baptism by John → teaching and miracles in <b>Galilee</b> → a final journey to <b>Jerusalem</b> → cross and empty tomb. Jesus taught in <b>parables</b> — everyday stories with a kingdom edge — and His miracles were <b>signs</b>, samples of what His kingdom restores: sight, wholeness, bread, calm, life.</p>
                 <div class="callout callout-cool"><div class="callout-label">Cool fact</div><p style="margin:0">The Gospels are biographies with a wildly lopsided design: roughly a <b>third</b> of their pages cover a single week — the last one. No other ancient biography does this. The writers are telling you where the point lies: the story exists for the cross and the resurrection.</p></div>`
         },
+        {
+            id: 'feasts-of-israel', title: 'The Feasts of Israel', era: 'exodus', level: 'core',
+            summary: 'Seven appointed feasts — a calendar that preaches the gospel.', maps: [],
+            body: `
+                <p>At Sinai, God gave Israel more than laws — He gave them a <b>calendar</b>. Leviticus 23 lays out seven annual "feasts of the LORD," appointed times that rehearsed the story of redemption year after year. Read in order, they trace an astonishing arc.</p>
+                <h4>The spring feasts</h4>
+                <ul>
+                    <li><b>Passover</b> — the lamb slain, blood on the doorposts, death passing over (Exodus 12).</li>
+                    <li><b>Unleavened Bread</b> — seven days with all leaven (a picture of sin) swept out of the house.</li>
+                    <li><b>Firstfruits</b> — the first sheaf of the barley harvest lifted up to God, the pledge that the full harvest would follow.</li>
+                    <li><b>Weeks (Pentecost)</b> — fifty days later, the wheat harvest celebrated with loaves baked <i>with</i> leaven — ordinary people, gathered in.</li>
+                </ul>
+                <h4>Fulfilled to the day</h4>
+                <p>The New Testament writers saw what happened at the cross through this calendar. Jesus was crucified at <b>Passover</b> — "Christ our passover is sacrificed for us" (1 Corinthians 5:7). He lay in the tomb during <b>Unleavened Bread</b>. He rose as the <b>Firstfruits</b> — "now is Christ risen from the dead, and become the firstfruits of them that slept" (1 Corinthians 15:20). And the Spirit fell on the church at <b>Pentecost</b> itself (Acts 2:1), gathering the first three thousand of the harvest.</p>
+                <h4>The autumn feasts</h4>
+                <p>After a long summer gap come <b>Trumpets</b> (a nation summoned awake), the <b>Day of Atonement</b> (the one day the high priest entered the Holy of Holies with blood, Leviticus 16), and <b>Tabernacles</b> — a week of living in booths, remembering the wilderness years when God dwelt among His people. Many readers see in this second cluster the pattern of what is still to come: the summons, the reckoning, and God dwelling with His people forever (Revelation 21:3).</p>
+                <div class="callout callout-cool"><div class="callout-label">💡 Worth remembering</div><p style="margin:0">The spring feasts were fulfilled <b>in sequence, on the very days</b> — cross at Passover, resurrection at Firstfruits, Spirit at Pentecost. The calendar Israel kept for 1,400 years turned out to be a prophecy in disguise.</p></div>`
+        },
+        {
+            id: 'epistles-overview', title: 'The Epistles: Letters to the Churches', era: 'church', level: 'core',
+            summary: '21 letters that turn the gospel into a way of life.', maps: [],
+            body: `
+                <p>Nearly half the New Testament's books — <b>21 of 27</b> — are <b>letters</b> (epistles), written to young churches and leaders scattered across the Roman world. They are the story's "now what?": the gospel of the cross and resurrection worked out in real congregations with real problems — division, false teaching, persecution, money, marriage.</p>
+                <h4>Who wrote them</h4>
+                <ul>
+                    <li><b>Paul</b> wrote thirteen: nine to churches (Romans through 2 Thessalonians) and four to individuals (Timothy, Titus, Philemon). Most were fired off to congregations he had just planted — you can often read the crisis between the lines.</li>
+                    <li><b>Hebrews</b> (author unnamed) argues from the Old Testament that Christ is the better priest, better sacrifice, and better covenant.</li>
+                    <li>The <b>general epistles</b> — James, 1–2 Peter, 1–3 John, Jude — speak to believers everywhere: faith that works, hope under fire, love that tells the truth.</li>
+                </ul>
+                <h4>The shape to notice</h4>
+                <p>Paul's letters tend to run <b>doctrine first, practice second</b>: Ephesians spends three chapters on what God has done, then three on how to live in light of it — "walk worthy of the vocation wherewith ye are called" (Ephesians 4:1). Grace comes before demands; the gospel powers the ethics, never the reverse.</p>
+                <div class="callout callout-cool"><div class="callout-label">Cool fact</div><p style="margin:0">The oldest books in the New Testament are almost certainly <b>letters, not Gospels</b> — Galatians and 1 Thessalonians were likely written within about twenty years of the cross, while thousands of eyewitnesses were still alive. The gospel was being preached, argued, and lived long before it was bound.</p></div>`
+        },
+        {
+            id: 'how-we-got-the-bible', title: 'How We Got the Bible', era: 'overview', level: 'advanced',
+            summary: 'From scrolls and scribes to the book on your shelf.', maps: [],
+            body: `
+                <p>The Bible on your shelf crossed three thousand years, three languages, and several empires to reach you. Knowing how strengthens, rather than shakes, confidence in what you're reading.</p>
+                <h4>Copied with fear and trembling</h4>
+                <p>The Old Testament was preserved by professional scribes — later the <b>Masoretes</b> — who counted letters, words, and mid-points of books to catch a single slip. When the <b>Dead Sea Scrolls</b> surfaced in 1947 with manuscripts a thousand years older than any then known, the text of Isaiah proved essentially the same as the one being read in synagogues and churches all along.</p>
+                <h4>An embarrassment of riches</h4>
+                <p>The New Testament is the best-attested text of the ancient world — nothing else is close. Around <b>5,800 Greek manuscripts</b> survive, plus tens of thousands of early translations and quotations; the earliest fragment (a piece of John, called <b>P52</b>) is dated to roughly <b>AD 125</b>, within living memory of the apostle's death. Most ancient classics survive in a few dozen copies made a thousand years after composition.</p>
+                <h4>The canon: recognized, not invented</h4>
+                <p>The church did not vote books into being; it <b>recognized</b> the writings that carried apostolic authority — written by apostles or their close companions, consistent with the faith delivered, and received by churches everywhere from the start. The core (Gospels, Acts, Paul) was functioning as Scripture within a generation (see 2 Peter 3:16, which already ranks Paul's letters with "the other scriptures").</p>
+                <h4>Into English</h4>
+                <p>The Old Testament had been translated into Greek (the <b>Septuagint</b>) centuries before Christ; Jerome's Latin <b>Vulgate</b> served the West for a millennium. <b>Wycliffe</b> produced the first full English Bible (1382); <b>Tyndale</b>, working from the original languages, was strangled and burned in 1536 for translating it — and the <b>King James Version</b> of 1611 stands on his shoulders.</p>
+                <div class="callout callout-cool"><div class="callout-label">💡 Worth remembering</div><p style="margin:0">Roughly <b>eight in ten words</b> of the King James New Testament are Tyndale's. Phrases he coined — "let there be light," "the powers that be," "my brother's keeper," "the salt of the earth" — are so woven into English that people quote the Bible daily without knowing it.</p></div>`
+        },
     ];
 
     const topicById = Object.fromEntries(LEARN_TOPICS.map(t => [t.id, t]));
@@ -898,11 +1012,11 @@
         'what-is-the-bible', 'how-to-read', 'calendar-bc-ad',
         'creation-fall', 'flood-babel',
         'covenant-abraham', 'ishmael-isaac', 'esau-jacob', 'twelve-tribes',
-        'exodus-journey', 'tabernacle', 'sacrifice-origin', 'joshua-conquest', 'judges-ruth',
+        'exodus-journey', 'tabernacle', 'sacrifice-origin', 'feasts-of-israel', 'joshua-conquest', 'judges-ruth',
         'united-divided-kingdom', 'solomon-temple', 'wisdom-literature', 'the-prophets', 'exile-and-return', 'between-testaments', 'second-temple',
         'nt-holy-land', 'gospels-four-portraits', 'christ-true-temple', 'sacrifice-fulfilled', 'resurrection', 'messianic-prophecy',
-        'pentecost-church', 'pauls-journeys', 'saul-paul-conversion', 'revelation-seven-churches',
-        'third-temple-attempts', 'hostile-witnesses', 'biblical-archaeology',
+        'pentecost-church', 'pauls-journeys', 'saul-paul-conversion', 'epistles-overview', 'revelation-seven-churches',
+        'third-temple-attempts', 'hostile-witnesses', 'biblical-archaeology', 'how-we-got-the-bible',
     ];
 
     /* ================= WHO'S WHO ================= */
@@ -910,7 +1024,9 @@
         { name: 'Adam', era: 'beginnings', testament: 'OT', role: 'First man', relation: 'Husband of Eve', blurb: 'Made in God’s image; through his sin, death entered the world (Romans 5).' },
         { name: 'Eve', era: 'beginnings', testament: 'OT', role: 'First woman', relation: 'Wife of Adam · “mother of all living”', blurb: 'Deceived in the garden — yet given the first promise of a Redeemer.' },
         { name: 'Noah', era: 'beginnings', testament: 'OT', role: 'Builder of the ark', relation: 'Father of Shem, Ham & Japheth', blurb: 'Walked with God; preserved through the Flood; received the rainbow covenant.' },
+        { name: 'Job', era: 'patriarchs', testament: 'OT', role: 'Righteous sufferer', relation: '', blurb: 'Lost everything, refused to curse God, and met Him in the whirlwind — the Bible’s great book on suffering.' },
         { name: 'Abraham', era: 'patriarchs', testament: 'OT', role: 'Father of the faithful', relation: 'Husband of Sarah · father of Ishmael & Isaac', blurb: 'Called from Ur; promised land, descendants, and blessing for all nations.' },
+        { name: 'Melchizedek', era: 'patriarchs', testament: 'OT', role: 'King-priest of Salem', relation: '', blurb: 'Blessed Abraham with bread and wine; Hebrews 7 sees in him a picture of Christ’s eternal priesthood.' },
         { name: 'Sarah', era: 'patriarchs', testament: 'OT', role: 'Matriarch', relation: 'Wife of Abraham · mother of Isaac', blurb: 'Bore the child of promise in her old age.' },
         { name: 'Hagar', era: 'patriarchs', testament: 'OT', role: 'Servant', relation: 'Mother of Ishmael', blurb: 'Sarah’s Egyptian maid; met and comforted by God in the wilderness.' },
         { name: 'Ishmael', era: 'patriarchs', testament: 'OT', role: 'Abraham’s son', relation: 'Son of Abraham & Hagar', blurb: 'Blessed into a great nation, but not the covenant line.' },
@@ -922,6 +1038,8 @@
         { name: 'Moses', era: 'exodus', testament: 'OT', role: 'Deliverer & lawgiver', relation: 'Brother of Aaron & Miriam', blurb: 'Led Israel out of Egypt and received the Law at Sinai.' },
         { name: 'Aaron', era: 'exodus', testament: 'OT', role: 'First high priest', relation: 'Brother of Moses', blurb: 'Spoke for Moses; his descendants became Israel’s priests.' },
         { name: 'Joshua', era: 'conquest', testament: 'OT', role: 'Successor of Moses', relation: '', blurb: 'Led Israel across the Jordan to take the Promised Land.' },
+        { name: 'Caleb', era: 'conquest', testament: 'OT', role: 'Faithful spy', relation: '', blurb: 'One of only two spies who trusted God’s promise — still claiming his mountain at eighty-five.' },
+        { name: 'Rahab', era: 'conquest', testament: 'OT', role: 'Convert of Jericho', relation: 'Ancestor of David & Jesus', blurb: 'Hid the Israelite spies and was spared — a Canaanite woman welcomed into the Messiah’s own line (Matthew 1:5).' },
         { name: 'Deborah', era: 'conquest', testament: 'OT', role: 'Judge & prophetess', relation: '', blurb: 'Led Israel to victory over Sisera’s army.' },
         { name: 'Gideon', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'Defeated the Midianites with just 300 men.' },
         { name: 'Samson', era: 'conquest', testament: 'OT', role: 'Judge', relation: '', blurb: 'A Nazirite of great strength, undone by compromise.' },
@@ -937,7 +1055,9 @@
         { name: 'Hosea', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'His broken marriage became a living picture of Israel’s unfaithfulness — and God’s relentless love.' },
         { name: 'Isaiah', era: 'divided', testament: 'OT', role: 'Prophet', relation: '', blurb: 'Foretold the virgin birth and the suffering Servant (Isaiah 53).' },
         { name: 'Jeremiah', era: 'divided', testament: 'OT', role: 'The weeping prophet', relation: '', blurb: 'Warned Judah of Babylon and promised a New Covenant.' },
+        { name: 'Nebuchadnezzar', era: 'exile', testament: 'OT', role: 'King of Babylon', relation: '', blurb: 'Destroyed Jerusalem and carried Judah captive — then was humbled to madness until he honoured the Most High (Daniel 4).' },
         { name: 'Ezekiel', era: 'exile', testament: 'OT', role: 'Prophet among the exiles', relation: '', blurb: 'Saw God’s glory leave the Temple — and a valley of dry bones brought to life.' },
+        { name: 'Zerubbabel', era: 'exile', testament: 'OT', role: 'Governor of the return', relation: 'Grandson of Judah’s last kings', blurb: 'Led the first wave home from Babylon and rebuilt the Temple’s foundation — a Davidic heir in the Messiah’s line.' },
         { name: 'Daniel', era: 'exile', testament: 'OT', role: 'Exile & seer', relation: '', blurb: 'Faithful in Babylon; the lions’ den; visions of coming kingdoms.' },
         { name: 'Esther', era: 'exile', testament: 'OT', role: 'Queen of Persia', relation: 'Cousin & ward of Mordecai', blurb: 'Risked her life “for such a time as this” to save her people from destruction.' },
         { name: 'Ezra', era: 'exile', testament: 'OT', role: 'Priest-scribe', relation: '', blurb: 'Restored the Law among the returned exiles.' },
@@ -953,12 +1073,18 @@
         { name: 'Matthew', era: 'christ', testament: 'NT', role: 'Apostle & evangelist', relation: 'One of the Twelve', blurb: 'A tax collector who left his booth to follow Jesus — and wrote the first Gospel.' },
         { name: 'Thomas', era: 'christ', testament: 'NT', role: 'Apostle', relation: 'One of the Twelve', blurb: 'Doubted the resurrection until he saw — then confessed, “My Lord and my God.”' },
         { name: 'Mary Magdalene', era: 'christ', testament: 'NT', role: 'Follower of Jesus', relation: '', blurb: 'Delivered from seven demons; the first witness of the risen Christ.' },
+        { name: 'Andrew', era: 'christ', testament: 'NT', role: 'Apostle', relation: 'Brother of Peter', blurb: 'Among the first called — and always bringing someone to Jesus: his brother, a boy with loaves, seeking Greeks.' },
         { name: 'Judas Iscariot', era: 'christ', testament: 'NT', role: 'The betrayer', relation: 'One of the Twelve', blurb: 'Betrayed Jesus for thirty pieces of silver.' },
+        { name: 'Caiaphas', era: 'christ', testament: 'NT', role: 'High priest', relation: 'Son-in-law of Annas', blurb: 'Presided over the trial that condemned Jesus; his ornate ossuary was unearthed in 1990.' },
         { name: 'Paul (Saul of Tarsus)', era: 'church', testament: 'NT', role: 'Apostle to the Gentiles', relation: '', blurb: 'A persecutor turned missionary who wrote much of the New Testament. (Not King Saul!)' },
         { name: 'Barnabas', era: 'church', testament: 'NT', role: 'Encourager', relation: 'Paul’s first partner', blurb: 'The “son of consolation” who vouched for the new convert Saul.' },
         { name: 'Stephen', era: 'church', testament: 'NT', role: 'First martyr', relation: '', blurb: 'Stoned for his bold witness while Saul looked on approving.' },
+        { name: 'Silas', era: 'church', testament: 'NT', role: 'Missionary partner', relation: 'Companion of Paul', blurb: 'Beaten and jailed with Paul in Philippi — where the two sang hymns at midnight until the earthquake came.' },
         { name: 'Timothy', era: 'church', testament: 'NT', role: 'Young pastor', relation: 'Paul’s protégé', blurb: 'Mentored by Paul, who wrote him two letters.' },
         { name: 'Luke', era: 'church', testament: 'NT', role: 'Physician & historian', relation: '', blurb: 'A Gentile doctor who wrote the Gospel of Luke and the book of Acts.' },
+        { name: 'John Mark', era: 'church', testament: 'NT', role: 'Evangelist', relation: 'Cousin of Barnabas', blurb: 'Deserted Paul’s first journey, was restored — "profitable to me for the ministry" — and wrote the Gospel of Mark from Peter’s preaching.' },
+        { name: 'Priscilla & Aquila', era: 'church', testament: 'NT', role: 'Tentmaking teachers', relation: 'Wife & husband', blurb: 'Hosted churches in their home and privately taught the eloquent Apollos "the way of God more perfectly."' },
+        { name: 'Apollos', era: 'church', testament: 'NT', role: 'Eloquent preacher', relation: '', blurb: 'An Alexandrian "mighty in the scriptures" who watered where Paul had planted (1 Corinthians 3:6).' },
         { name: 'Pontius Pilate', era: 'christ', testament: 'NT', role: 'Roman governor', relation: '', blurb: 'Sentenced Jesus to crucifixion while “washing his hands” of it.' },
         { name: 'Herod the Great', era: 'christ', testament: 'NT', role: 'Client king', relation: '', blurb: 'Lavishly rebuilt the Temple; tried to kill the infant Jesus.' },
     ];
@@ -1021,9 +1147,10 @@
         'ishmael-isaac': ['covenant-abraham', 'esau-jacob', 'sacrifice-origin'],
         'esau-jacob': ['ishmael-isaac', 'twelve-tribes', 'covenant-abraham'],
         'twelve-tribes': ['esau-jacob', 'joshua-conquest', 'united-divided-kingdom'],
-        'exodus-journey': ['sacrifice-origin', 'tabernacle', 'joshua-conquest', 'sacrifice-fulfilled'],
+        'exodus-journey': ['sacrifice-origin', 'feasts-of-israel', 'tabernacle', 'joshua-conquest'],
         'tabernacle': ['exodus-journey', 'solomon-temple', 'christ-true-temple', 'sacrifice-origin'],
-        'sacrifice-origin': ['exodus-journey', 'sacrifice-fulfilled', 'tabernacle'],
+        'sacrifice-origin': ['exodus-journey', 'sacrifice-fulfilled', 'feasts-of-israel', 'tabernacle'],
+        'feasts-of-israel': ['exodus-journey', 'sacrifice-origin', 'pentecost-church', 'sacrifice-fulfilled'],
         'joshua-conquest': ['twelve-tribes', 'judges-ruth', 'united-divided-kingdom'],
         'judges-ruth': ['joshua-conquest', 'twelve-tribes', 'united-divided-kingdom'],
         'united-divided-kingdom': ['solomon-temple', 'the-prophets', 'exile-and-return'],
@@ -1040,11 +1167,13 @@
         'resurrection': ['gospels-four-portraits', 'sacrifice-fulfilled', 'messianic-prophecy', 'pentecost-church'],
         'messianic-prophecy': ['the-prophets', 'resurrection', 'sacrifice-fulfilled'],
         'pentecost-church': ['resurrection', 'pauls-journeys', 'flood-babel'],
-        'pauls-journeys': ['saul-paul-conversion', 'pentecost-church', 'revelation-seven-churches'],
-        'saul-paul-conversion': ['pauls-journeys', 'resurrection', 'revelation-seven-churches'],
+        'pauls-journeys': ['saul-paul-conversion', 'epistles-overview', 'pentecost-church', 'revelation-seven-churches'],
+        'saul-paul-conversion': ['pauls-journeys', 'epistles-overview', 'resurrection'],
+        'epistles-overview': ['pauls-journeys', 'gospels-four-portraits', 'revelation-seven-churches', 'how-we-got-the-bible'],
         'third-temple-attempts': ['second-temple', 'christ-true-temple', 'sacrifice-fulfilled', 'hostile-witnesses'],
         'hostile-witnesses': ['third-temple-attempts', 'biblical-archaeology', 'resurrection'],
-        'biblical-archaeology': ['hostile-witnesses', 'second-temple', 'what-is-the-bible'],
+        'biblical-archaeology': ['hostile-witnesses', 'how-we-got-the-bible', 'second-temple'],
+        'how-we-got-the-bible': ['what-is-the-bible', 'biblical-archaeology', 'between-testaments'],
         'revelation-seven-churches': ['pauls-journeys', 'christ-true-temple', 'creation-fall'],
     };
     function relatedFor(id) {
@@ -1053,6 +1182,192 @@
         if (!list.length && t) list = LEARN_TOPICS.filter(x => x.id !== id && x.era === t.era).map(x => x.id).slice(0, 3);
         return list;
     }
+
+    /* ---------- Check-yourself quizzes (2–3 quick questions per topic) ---------- */
+    const LEARN_QUIZ = {
+        'what-is-the-bible': [
+            { q: 'How many books make up the Bible?', opts: ['39', '66', '73'], a: 1, why: '39 in the Old Testament + 27 in the New = 66 books — one library telling one story.' },
+            { q: 'Over roughly how long a span was it written?', opts: ['About 1,500 years', 'About 150 years', 'About 400 years'], a: 0, why: 'Roughly 40 authors across about 1,500 years — yet one unfolding storyline.' },
+            { q: 'In which languages was the Bible originally written?', opts: ['Latin and Greek', 'Hebrew only', 'Hebrew, Aramaic, and Greek'], a: 2, why: 'Hebrew (most of the OT), Aramaic (portions of Daniel and Ezra), and Greek (the NT).' },
+        ],
+        'how-to-read': [
+            { q: 'The Bible’s storyline advances through what?', opts: ['Covenants — binding promises God makes', 'Genealogies', 'Miracles'], a: 0, why: 'Noah, Abraham, Sinai, David, and the New Covenant in Christ’s blood — track the promises and you track the plot.' },
+            { q: 'After His resurrection, Jesus showed two disciples that the Scriptures spoke of whom?', opts: ['The apostles', 'Himself', 'Israel’s kings'], a: 1, why: 'Luke 24:27 — "he expounded unto them in all the scriptures the things concerning himself."' },
+        ],
+        'calendar-bc-ad': [
+            { q: 'What does AD actually stand for?', opts: ['After Death', 'Anno Domini — "in the year of our Lord"', 'Ancient Days'], a: 1, why: 'A common myth says "After Death" — but AD is Latin for "in the year of our Lord," counting from Jesus’ birth.' },
+            { q: 'Who devised the BC/AD numbering?', opts: ['The emperor Constantine', 'The King James translators', 'The monk Dionysius Exiguus'], a: 2, why: 'Dionysius Exiguus worked it out in AD 525 — and the world still counts by it.' },
+            { q: 'Switching the labels to BCE/CE changes what about the count?', opts: ['Nothing — the pivot year is the same', 'It moves year zero to Rome’s founding', 'It adds 33 years'], a: 0, why: 'The name changes; the hinge doesn’t. History still counts from Bethlehem.' },
+        ],
+        'creation-fall': [
+            { q: 'What makes humanity unique in the creation account?', opts: ['Being made last', 'Being made in the image of God', 'Living in a garden'], a: 1, why: 'Genesis 1:27 — the source of human dignity: every person bears God’s image.' },
+            { q: 'Where is the Bible’s first promise of a Redeemer?', opts: ['In the middle of the curse (Genesis 3:15)', 'At the call of Abraham', 'At Sinai'], a: 0, why: 'The seed of the woman would crush the serpent’s head — the "first gospel," promised the very day of the Fall.' },
+        ],
+        'flood-babel': [
+            { q: 'What sign sealed God’s covenant after the Flood?', opts: ['A dove', 'An altar', 'The rainbow'], a: 2, why: 'Genesis 9 — the rainbow, God’s pledge never again to destroy the earth by flood.' },
+            { q: 'What happened at Babel?', opts: ['God confused human language and scattered the nations', 'The first city was blessed', 'A famine struck the earth'], a: 0, why: 'United in pride, humanity built a tower "to make us a name" — God scattered them into the nations (Genesis 11).' },
+            { q: 'Which New Testament event previews Babel’s reversal?', opts: ['The transfiguration', 'Pentecost', 'The wedding at Cana'], a: 1, why: 'At Pentecost every nation heard "the wonderful works of God" in its own tongue — what pride scattered, grace gathers.' },
+        ],
+        'covenant-abraham': [
+            { q: 'God’s covenant with Abraham carried three great promises. Which set is right?', opts: ['Land, seed, and blessing for all nations', 'Wealth, health, and long life', 'A temple, a law, and a king'], a: 0, why: 'Genesis 12 — a land, descendants, and "in thee shall all families of the earth be blessed."' },
+            { q: 'Abraham "believed in the LORD; and he counted it to him for…"', opts: ['wisdom', 'righteousness', 'wealth'], a: 1, why: 'Genesis 15:6 — the backbone verse for justification by faith (Romans 4; Galatians 3).' },
+            { q: 'From which city was Abram originally called?', opts: ['Babylon', 'Damascus', 'Ur of the Chaldees'], a: 2, why: 'God led him from Ur through Haran into Canaan (Genesis 12).' },
+        ],
+        'ishmael-isaac': [
+            { q: 'What does the name Isaac mean?', opts: ['"He laughs"', '"Child of promise"', '"God hears"'], a: 0, why: 'Sarah laughed at the promise — then named her miracle son "he laughs" (Genesis 21).' },
+            { q: 'Mount Moriah, where Isaac was spared, later became the site of what?', opts: ['Jacob’s ladder', 'Solomon’s Temple', 'The giving of the Law'], a: 1, why: '2 Chronicles 3:1 — the hill where God provided a substitute became the hill of a thousand years of sacrifice.' },
+            { q: 'Paul contrasts Ishmael and Isaac as pictures of what?', opts: ['War and peace', 'Law and prophets', 'Human effort and God’s promise'], a: 2, why: 'Galatians 4 — the child of the flesh vs. the child of promise: God’s people are born of grace, not scheming.' },
+        ],
+        'esau-jacob': [
+            { q: 'What did Esau trade his birthright for?', opts: ['A bowl of stew', 'Thirty pieces of silver', 'A flock of sheep'], a: 0, why: 'Genesis 25 — he despised his birthright and sold it for one meal.' },
+            { q: 'What does Jacob’s new name "Israel" mean?', opts: ['"Father of nations"', '"He strives with God"', '"The LORD saves"'], a: 1, why: 'Given after he wrestled all night at the Jabbok and would not let go without a blessing (Genesis 32:28).' },
+        ],
+        'twelve-tribes': [
+            { q: 'Which tribe received no land allotment?', opts: ['Benjamin', 'Dan', 'Levi'], a: 2, why: 'The priestly tribe’s inheritance was the LORD Himself and service at His house (Joshua 13:33).' },
+            { q: 'How did the count stay at twelve without Levi?', opts: ['Joseph became two tribes — Ephraim and Manasseh', 'Judah was counted twice', 'A thirteenth tribe was adopted'], a: 0, why: 'Joseph received the double portion through his two sons — restoring the number to twelve.' },
+            { q: 'Jacob prophesied the ruler’s sceptre would belong to which tribe?', opts: ['Reuben, the firstborn', 'Judah', 'Ephraim'], a: 1, why: 'Genesis 49:10 — fulfilled in David and ultimately in "the Lion of the tribe of Juda" (Revelation 5:5).' },
+        ],
+        'exodus-journey': [
+            { q: 'On the night of the first Passover, what protected each household?', opts: ['A lamb’s blood on the doorposts', 'A burning lamp in the window', 'Unleavened bread on the table'], a: 0, why: 'Exodus 12 — death "passed over" every house covered by the blood of the lamb.' },
+            { q: 'Where did God give Israel the Law?', opts: ['Mount Moriah', 'Mount Sinai', 'Mount Carmel'], a: 1, why: 'At Sinai, Israel was formally constituted as God’s covenant nation.' },
+            { q: '"Christ our ______ is sacrificed for us" (1 Corinthians 5:7).', opts: ['shepherd', 'high priest', 'passover'], a: 2, why: 'The Exodus is the pattern; the cross is the fulfillment — Jesus died at Passover as the true Lamb.' },
+        ],
+        'tabernacle': [
+            { q: 'What stood in the Most Holy Place?', opts: ['The Ark of the Covenant', 'The bronze altar', 'The golden lampstand'], a: 0, why: 'God’s presence dwelt above the mercy seat of the Ark — behind the veil.' },
+            { q: 'How often could anyone enter the Holy of Holies?', opts: ['Every Sabbath', 'Once a year — the high priest, with blood', 'Never'], a: 1, why: 'Only on the Day of Atonement (Leviticus 16) — a yearly reminder that sin bars the way to a holy God.' },
+            { q: 'John 1:14 says the Word "dwelt among us." The Greek literally means…', opts: ['reigned', 'walked', 'tabernacled'], a: 2, why: 'The tent was always pointing to a Person — God pitching His tent among His people.' },
+        ],
+        'solomon-temple': [
+            { q: 'On which hill was Solomon’s Temple built?', opts: ['Mount Sinai', 'Mount of Olives', 'Mount Moriah'], a: 2, why: 'The same ridge where Abraham had offered Isaac (2 Chronicles 3:1).' },
+            { q: 'What happened when the Temple was dedicated?', opts: ['The glory of the LORD filled the house', 'Fire consumed the city', 'The ark was lost'], a: 0, why: '1 Kings 8:11 — the priests could not even stand to minister because of the glory.' },
+            { q: 'What began the cracks that would split the kingdom?', opts: ['A foreign invasion', 'Solomon’s idolatry', 'A famine'], a: 1, why: 'Solomon’s later idolatry set up the split of 930 BC — and, centuries on, the Temple’s destruction.' },
+        ],
+        'sacrifice-origin': [
+            { q: 'What was the first death in the Bible’s story?', opts: ['Abel’s murder', 'The animals whose skins clothed Adam and Eve', 'The Passover lamb'], a: 1, why: 'Genesis 3:21 — God Himself provided a covering for human shame, at the cost of a life.' },
+            { q: 'On the Day of Atonement, what carried the people’s sins away?', opts: ['The scapegoat, sent into the wilderness', 'A dove released at the altar', 'The high priest’s robe'], a: 0, why: 'Leviticus 16 — one goat’s blood paid; the other carried sin away. Payment and removal.' },
+            { q: 'Why did the sacrifices have to repeat endlessly?', opts: ['The priests demanded income', 'Israel kept losing the instructions', 'Animal blood could never actually take away sins'], a: 2, why: 'Hebrews 10:4 — the repetition was the sermon: these all pointed forward to one final, sufficient sacrifice.' },
+        ],
+        'feasts-of-israel': [
+            { q: 'On which feast did Jesus rise from the dead?', opts: ['Firstfruits', 'Trumpets', 'Tabernacles'], a: 0, why: '1 Corinthians 15:20 — "the firstfruits of them that slept": the first sheaf, pledging the full harvest to come.' },
+            { q: 'Pentecost falls how long after Passover?', opts: ['Seven days', 'Fifty days', 'Six months'], a: 1, why: '"Weeks" = seven sevens + one day = 50. The Spirit fell on the church on Pentecost itself (Acts 2).' },
+            { q: 'Which feast took the high priest into the Holy of Holies?', opts: ['Passover', 'Unleavened Bread', 'The Day of Atonement'], a: 2, why: 'Leviticus 16 — once a year, with blood, for the sins of the nation.' },
+        ],
+        'joshua-conquest': [
+            { q: 'Which city fell first, after Israel marched around it?', opts: ['Jericho', 'Ai', 'Hazor'], a: 0, why: 'Joshua 6 — the walls fell flat; the victory was plainly God’s, not the army’s.' },
+            { q: '"Joshua" is the same Hebrew name as…', opts: ['John', 'Jesus', 'Job'], a: 1, why: 'Yeshua — "the LORD saves." The man who led Israel into the land carries the name of the One who leads His people into true rest (Hebrews 4).' },
+            { q: 'What repeated verdict closes the era after Joshua?', opts: ['"The land had rest forty years"', '"There was peace from Dan to Beersheba"', '"Every man did that which was right in his own eyes"'], a: 2, why: 'Judges 21:25 — the book’s closing line, and its argument for the King to come.' },
+        ],
+        'judges-ruth': [
+            { q: 'What is the repeating cycle of the book of Judges?', opts: ['Sin → oppression → crying out → deliverance', 'War → treaty → prosperity → decline', 'Famine → exodus → return → feast'], a: 0, why: 'Each turn of the spiral sinks a little lower — Israel needs more than temporary deliverers.' },
+            { q: 'Boaz redeemed Ruth in what role?', opts: ['As a judge', 'As kinsman-redeemer (goel)', 'As high priest'], a: 1, why: 'A relative with the right to buy back a family member’s loss — a living picture of Christ, who became our kinsman to redeem us.' },
+            { q: 'Ruth, a Moabite, became the great-grandmother of whom?', opts: ['Samuel', 'Solomon', 'David'], a: 2, why: 'Ruth 4:17 — a Gentile grafted straight into the Messiah’s line (Matthew 1:5).' },
+        ],
+        'united-divided-kingdom': [
+            { q: 'When and why did the kingdom split?', opts: ['930 BC, after Solomon — Rehoboam’s harshness', '722 BC, when Assyria invaded', '586 BC, when Babylon burned Jerusalem'], a: 0, why: '1 Kings 12 — ten tribes broke north (Israel); Judah and Benjamin stayed with David’s line in the south.' },
+            { q: 'The northern kingdom fell in 722 BC to which empire?', opts: ['Babylon', 'Assyria', 'Persia'], a: 1, why: 'Every northern king had led the people into idolatry; Assyria ended the kingdom of Israel.' },
+        ],
+        'wisdom-literature': [
+            { q: 'Which book wrestles with why the righteous suffer?', opts: ['Job', 'Proverbs', 'Ecclesiastes'], a: 0, why: 'A blameless man loses everything — and meets God in the whirlwind.' },
+            { q: 'Hebrew poetry "rhymes" what?', opts: ['Sounds and syllables', 'Ideas — each line echoed or sharpened by the next', 'Every third word'], a: 1, why: 'Because the art is parallelism, not sound, it survives translation into any language.' },
+            { q: 'Which Old Testament book does the New Testament quote most?', opts: ['Genesis', 'Isaiah', 'Psalms'], a: 2, why: 'Jesus died with psalms on His lips — Psalm 22 opens with "My God, my God, why hast thou forsaken me?"' },
+        ],
+        'the-prophets': [
+            { q: 'The prophets are best described as…', opts: ['Covenant prosecutors', 'Fortune tellers', 'Temple architects'], a: 0, why: 'They pressed God’s lawsuit against a covenant-breaking nation: name the sin, warn of judgment, promise hope.' },
+            { q: '"Major" and "minor" prophets are labels of…', opts: ['Importance', 'Length', 'Date'], a: 1, why: 'Isaiah is long; Obadiah is one chapter. The labels measure size, never significance.' },
+            { q: 'Jeremiah 31:31 promises what?', opts: ['A rebuilt temple', 'A return of the ark', 'A new covenant'], a: 2, why: 'The promise that gives the New Testament ("New Covenant") its very name.' },
+        ],
+        'exile-and-return': [
+            { q: 'Who destroyed Jerusalem and the first Temple in 586 BC?', opts: ['Babylon', 'Assyria', 'Rome'], a: 0, why: 'The great trauma of the Old Testament — yet even in Babylon, God preserved His people.' },
+            { q: 'Which king decreed the Jews could return home?', opts: ['Nebuchadnezzar', 'Cyrus of Persia', 'Alexander the Great'], a: 1, why: '538 BC (Ezra 1) — and Isaiah had named Cyrus about 150 years in advance (Isaiah 44–45).' },
+            { q: 'How long an exile had Jeremiah foretold?', opts: ['Forty years', 'A hundred years', 'Seventy years'], a: 2, why: 'Jeremiah 29:10 — and seventy years it was.' },
+        ],
+        'between-testaments': [
+            { q: 'What is the Septuagint?', opts: ['The Greek translation of the Old Testament', 'A Roman tax census', 'The Jewish ruling council'], a: 0, why: 'Made under Greek rule, it put the Scriptures into the common tongue — ready for the gospel age.' },
+            { q: 'Which family won a brief Jewish independence, remembered at Hanukkah?', opts: ['The Herodians', 'The Maccabees', 'The Hasmonean Romans'], a: 1, why: 'They retook and cleansed the Temple after its desecration under Greek rule.' },
+            { q: 'What order did the empires actually come in?', opts: ['Greece → Persia → Rome', 'Rome → Greece → Persia', 'Persia → Greece → Rome'], a: 2, why: 'Exactly the sequence Daniel had foreseen — each one unknowingly setting the stage for Christ.' },
+        ],
+        'second-temple': [
+            { q: 'Who massively expanded the Second Temple?', opts: ['Herod the Great', 'Solomon', 'Cyrus'], a: 0, why: 'From about 20 BC — this magnificent complex was the Temple Jesus knew.' },
+            { q: 'What did Jesus predict about it?', opts: ['It would stand forever', 'Not one stone would be left upon another', 'It would be converted to a palace'], a: 1, why: 'Matthew 24:2 — fulfilled to the letter when Rome destroyed it in AD 70.' },
+            { q: 'Why did some old men weep when the Second Temple was founded?', opts: ['It was built on the wrong hill', 'It was taxed by Persia', 'They remembered the glory of the first'], a: 2, why: 'Ezra 3:12 — the rebuilt house was humbler than Solomon’s. The true glory would arrive centuries later, walking through its gates.' },
+        ],
+        'nt-holy-land': [
+            { q: 'Where was Jesus’ ministry mainly based?', opts: ['Around the Sea of Galilee', 'In Jerusalem', 'In the desert of Judea'], a: 0, why: 'Towns like Capernaum on the northern lake — far from the capital.' },
+            { q: 'Which region did most Jews detour around — and Jesus deliberately entered?', opts: ['Phoenicia', 'Samaria', 'Decapolis'], a: 1, why: 'John 4 — the woman at the well. The despised region gets some of the Gospels’ warmest scenes.' },
+            { q: 'The Jordan River ends in…', opts: ['The Mediterranean', 'The Sea of Galilee', 'The Dead Sea — the lowest point on earth'], a: 2, why: 'From the freshwater lake in the north down to the lifeless salt sea — the geography of the whole Gospel story.' },
+        ],
+        'gospels-four-portraits': [
+            { q: 'Which Gospel is the shortest and fastest, fond of the word "immediately"?', opts: ['Mark', 'Matthew', 'John'], a: 0, why: 'Mark paints Jesus the Servant in relentless action.' },
+            { q: 'The "Synoptic" Gospels are…', opts: ['Matthew, Mark, and John', 'Matthew, Mark, and Luke', 'Mark, Luke, and John'], a: 1, why: '"Seeing together" — they share much material. John stands apart, supplying what the others leave out.' },
+            { q: 'Roughly a third of each Gospel covers…', opts: ['Jesus’ childhood', 'The parables', 'A single week — the last one'], a: 2, why: 'No other ancient biography is shaped like this. The story exists for the cross and the resurrection.' },
+        ],
+        'christ-true-temple': [
+            { q: '"Destroy this temple, and in three days I will raise it up" — Jesus meant…', opts: ['The temple of His body', 'Herod’s sanctuary', 'The synagogue at Capernaum'], a: 0, why: 'John 2:21 — He is the true meeting place of God and man.' },
+            { q: 'What happened to the Temple veil when Jesus died?', opts: ['It was stolen', 'It was torn in two, from top to bottom', 'It caught fire'], a: 1, why: 'Matthew 27:51 — torn from the top, heaven’s side. The way into the holiest is open (Hebrews 10:19–20).' },
+            { q: 'Why does the New Jerusalem have no temple?', opts: ['It was destroyed', 'Temples are forbidden there', 'The Lord God Almighty and the Lamb are its temple'], a: 2, why: 'Revelation 21:22 — God’s project was never a building. It was always "I will dwell among them."' },
+        ],
+        'sacrifice-fulfilled': [
+            { q: 'According to Hebrews, what could the blood of bulls and goats never do?', opts: ['Take away sins', 'Be offered lawfully', 'Please the priests'], a: 0, why: 'Hebrews 10:4 — the old sacrifices were a shadow pointing to the substance: Christ.' },
+            { q: 'Jesus is at once the perfect ______ and the spotless ______.', opts: ['prophet … dove', 'High Priest … Lamb', 'king … temple'], a: 1, why: 'He both offers the sacrifice and is the sacrifice — "once for all" (Hebrews 10:10).' },
+            { q: '"It is finished" (John 19:30) means…', opts: ['His strength had failed', 'The Passover meal had ended', 'The debt was paid in full — no further sacrifice possible'], a: 2, why: 'Because the real offering has been made, "there is no more offering for sin" (Hebrews 10:18).' },
+        ],
+        'resurrection': [
+            { q: 'The creed Paul "received" in 1 Corinthians 15 dates to…', opts: ['Within a few years of the cross', 'About AD 300', 'The Middle Ages'], a: 0, why: 'It was being preached at once, while eyewitnesses were alive to confirm or deny it — not a legend that grew for centuries.' },
+            { q: 'According to that creed, how many saw the risen Christ at once?', opts: ['Twelve', 'Above five hundred', 'Three'], a: 1, why: '1 Corinthians 15:6 — "of whom the greater part remain unto this present," i.e., go ask them.' },
+            { q: 'Which two famous skeptics were converted by appearances of the risen Jesus?', opts: ['Pilate and Herod', 'Caiaphas and Annas', 'James (Jesus’ brother) and Saul of Tarsus'], a: 2, why: 'A doubting brother and the church’s fiercest persecutor — both upended by what they were convinced they saw.' },
+        ],
+        'messianic-prophecy': [
+            { q: 'Micah 5:2 named the Messiah’s birthplace as…', opts: ['Bethlehem', 'Nazareth', 'Jerusalem'], a: 0, why: 'Written some seven centuries before the manger.' },
+            { q: 'Zechariah foretold the betrayal price as…', opts: ['A hundred shekels', 'Thirty pieces of silver', 'A king’s ransom'], a: 1, why: 'Zechariah 11:12–13 → Matthew 26:15 — down to the sum.' },
+            { q: 'What is striking about Psalm 22’s description of pierced hands and feet?', opts: ['It quotes the Gospels', 'It was written in Greek', 'It was written centuries before crucifixion existed'], a: 2, why: 'David described an execution his world didn’t practice — and lots cast for clothing (John 19:23–24).' },
+        ],
+        'pentecost-church': [
+            { q: 'How many believed and were baptized at Pentecost?', opts: ['About three thousand', 'A hundred and twenty', 'Five hundred'], a: 0, why: 'Acts 2:41 — the Church was born in a single day.' },
+            { q: 'Whose promise did Peter say the outpoured Spirit fulfilled?', opts: ['Moses’', 'Joel’s', 'Elijah’s'], a: 1, why: 'Acts 2:16 — "this is that which was spoken by the prophet Joel."' },
+            { q: 'Pentecost answers which ancient event?', opts: ['The Flood', 'The golden calf', 'Babel'], a: 2, why: 'Where God once scattered by confusing language, He now gathers every tongue to hear His works.' },
+        ],
+        'pauls-journeys': [
+            { q: 'Paul’s long third-journey ministry centered on which city?', opts: ['Ephesus', 'Athens', 'Rome'], a: 0, why: 'Acts 18–21 — years of teaching that made Ephesus a hub for all Asia Minor.' },
+            { q: 'How did Paul finally reach Rome?', opts: ['As a tourist', 'As a prisoner who appealed to Caesar — shipwreck included', 'Leading a caravan of churches'], a: 1, why: 'Acts 27–28 — even chains and storms carried the gospel to the empire’s heart.' },
+            { q: 'Many of Paul’s letters were written to…', opts: ['Roman governors', 'The Jerusalem priests', 'The very churches he planted on these journeys'], a: 2, why: 'Romans, Corinthians, Galatians, Philippians… the epistles are the journeys’ follow-up mail.' },
+        ],
+        'saul-paul-conversion': [
+            { q: 'On the Damascus road, the risen Jesus asked Saul…', opts: ['"Why persecutest thou me?"', '"Where art thou going?"', '"Who gave thee authority?"'], a: 0, why: 'Acts 9:4 — to persecute the church is to persecute Christ Himself.' },
+            { q: 'Whose execution had Saul approvingly watched?', opts: ['James the apostle', 'Stephen, the first martyr', 'John the Baptist'], a: 1, why: 'Acts 7–8 — the witnesses laid their clothes at Saul’s feet.' },
+            { q: 'Saul of Tarsus should not be confused with…', opts: ['Saul of Damascus', 'King Saul, Israel’s first king', 'Silas'], a: 1, why: 'Same Hebrew name, a thousand years apart — one lost a kingdom, the other gained the world for the gospel.' },
+        ],
+        'epistles-overview': [
+            { q: 'How many of the New Testament’s 27 books are letters?', opts: ['21', '13', '7'], a: 0, why: 'Nearly half the New Testament is correspondence — the gospel worked out in real congregations.' },
+            { q: 'How many epistles did Paul write?', opts: ['Seven', 'Thirteen', 'Twenty-one'], a: 1, why: 'Nine to churches, four to individuals (Timothy ×2, Titus, Philemon).' },
+            { q: 'The typical shape of Paul’s letters is…', opts: ['Practice first, doctrine later', 'Greetings only', 'Doctrine first, practice second'], a: 2, why: 'Ephesians: three chapters of what God has done, then three of how to live in light of it. Grace powers the ethics.' },
+        ],
+        'revelation-seven-churches': [
+            { q: 'Where was John when he received the Revelation?', opts: ['Exiled on the island of Patmos', 'In prison in Rome', 'In Jerusalem'], a: 0, why: 'Revelation 1:9 — exiled "for the word of God, and for the testimony of Jesus Christ."' },
+            { q: 'The word "revelation" (apocalypse) literally means…', opts: ['Catastrophe', 'An unveiling', 'A prophecy'], a: 1, why: 'It pulls back the curtain on history to show one thing clearly: the Lamb wins.' },
+            { q: 'The Bible’s story begins in a garden and ends in…', opts: ['A wilderness', 'A temple', 'A garden-city, with the tree of life restored'], a: 2, why: 'Revelation 21–22 — paradise lost becomes paradise regained, and God dwells with His people.' },
+        ],
+        'third-temple-attempts': [
+            { q: 'What stopped Julian the Apostate’s attempt to rebuild the Temple in AD 363?', opts: ['"Fearful balls of fire" bursting from the foundations', 'An earthquake in Rome', 'A shortage of stone'], a: 0, why: 'So reports Ammianus Marcellinus — a pagan historian with no reason to help the Christians’ case.' },
+            { q: 'What has stood on the Temple Mount since AD 691?', opts: ['A Roman basilica', 'The Dome of the Rock', 'Herod’s tower'], a: 1, why: 'Which is what makes any rebuilding politically explosive to this day.' },
+            { q: 'For Christians, the deepest point about the empty Mount is…', opts: ['It must be rebuilt soon', 'It was all coincidence', 'The sacrificial system was fulfilled at the cross'], a: 2, why: 'The true Temple is the risen Christ; the empty Mount is a monument to a finished work.' },
+        ],
+        'hostile-witnesses': [
+            { q: 'The Talmud says the crimson thread stopped turning white for the last…', opts: ['Forty years before the Temple fell', 'Seven days of its history', 'Hundred years of the Second Temple'], a: 0, why: 'Yoma 39b — counting back from AD 70 lands at roughly AD 30. The sign of forgiveness failed just when the final sacrifice had been made.' },
+            { q: 'Why can’t the darkness at the crucifixion have been a solar eclipse?', opts: ['It lasted too briefly', 'Passover falls at full moon, when a solar eclipse is impossible', 'It happened at night'], a: 1, why: 'Which is exactly what tripped up Thallus’ "eclipse" explanation — whatever it was, it was no ordinary eclipse.' },
+            { q: 'What makes these testimonies hard to dismiss?', opts: ['They were written by apostles', 'They are recent discoveries', 'They come from hostile or indifferent sources — rabbis and pagans'], a: 2, why: 'A friendly witness can be waved away as wishful thinking. Enemies conceding your point is another matter.' },
+        ],
+        'biblical-archaeology': [
+            { q: 'The Tel Dan Stele (found 1993) names what?', opts: ['The "House of David"', 'Solomon’s mines', 'The ark of Noah'], a: 0, why: 'A 9th-century-BC victory inscription — the earliest mention of David’s dynasty outside the Bible.' },
+            { q: 'The Pilate Stone confirms…', opts: ['Pilate’s letter to Rome', 'Pontius Pilate as Prefect of Judea', 'The site of the crucifixion'], a: 1, why: 'Found at Caesarea in 1961 — physical evidence for the governor who tried Jesus.' },
+            { q: 'What did the Dead Sea Scrolls show about the Old Testament text?', opts: ['It had drifted badly', 'Whole books had been lost', 'A thousand years of copying had preserved it faithfully'], a: 2, why: 'Including a near-complete Isaiah scroll, strikingly the same text we still read.' },
+        ],
+        'how-we-got-the-bible': [
+            { q: 'Who were the Masoretes?', opts: ['Scribes who copied the Old Testament with letter-counting precision', 'Greek translators in Alexandria', 'Roman librarians'], a: 0, why: 'They counted letters, words, and midpoints of books to catch a single slip.' },
+            { q: 'Roughly how many Greek New Testament manuscripts survive?', opts: ['About 58', 'About 5,800', 'About 200'], a: 1, why: 'Plus tens of thousands of early translations and quotations — no ancient text is close.' },
+            { q: 'How did books enter the canon?', opts: ['A vote at a medieval council created them', 'Kings decreed the list', 'The church recognized writings that carried apostolic authority from the start'], a: 2, why: '2 Peter 3:16 already ranks Paul’s letters with "the other scriptures" — within the apostles’ own lifetime.' },
+        ],
+    };
+    const quizFor = (id) => LEARN_QUIZ[id] || [];
 
     /* ---------- Clickable Scripture → in-page KJV passage ---------- */
     const KJV_BOOKS = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"];
@@ -1223,7 +1538,10 @@
         const pct = total ? Math.round((done / total) * 100) : 0;
         el('progress-fill').style.width = pct + '%';
         el('progress-count').textContent = `${done} of ${total} done`;
-        el('progress-pct').textContent = pct === 100 ? '100% — you’ve covered the whole story! 🎉' : pct + '% complete';
+        const minsLeft = LEARN_TOPICS.reduce((n, t) => n + (isDone(t.id) ? 0 : readMins(t)), 0);
+        el('progress-pct').textContent = pct === 100
+            ? '100% — you’ve covered the whole story! 🎉'
+            : `${pct}% complete · ~${minsLeft} min of reading left`;
         const nb = el('next-unfinished');
         if (nb) {
             const next = LEARN_PATH.find(id => !isDone(id));
@@ -1355,6 +1673,24 @@
                 <div class="text-xs font-black uppercase tracking-wider text-slate-400 mb-2">Related topics</div>
                 <div class="flex flex-wrap gap-2">${rel.map(rid => `<button onclick="openLearnTopic('${rid}')" class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1.5 hover:bg-indigo-100 transition-colors">${topicById[rid].title} →</button>`).join('')}</div>
             </div>` : '';
+        const quiz = quizFor(id);
+        const quizHtml = quiz.length ? `
+            <div class="mt-8 pt-6 border-t border-slate-200 max-w-3xl">
+                <div class="flex items-center gap-2.5 mb-1">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">✏️</div>
+                    <h3 class="text-xl font-black text-slate-900">Check yourself</h3>
+                </div>
+                <p class="text-sm text-slate-500 mb-4">${quiz.length} quick question${quiz.length > 1 ? 's' : ''} — no grades, just glue for the memory.</p>
+                <div class="space-y-3">
+                    ${quiz.map((qq, qi) => `
+                    <div class="quiz-q" data-q="${qi}">
+                        <div class="font-bold text-slate-800">${qi + 1}. ${qq.q}</div>
+                        ${qq.opts.map((o, oi) => `<button type="button" class="quiz-opt" data-opt="${oi}" onclick="answerQuiz(this, '${id}', ${qi}, ${oi})">${o}</button>`).join('')}
+                        <div class="quiz-why"></div>
+                    </div>`).join('')}
+                </div>
+                <div id="quiz-score" class="quiz-score items-center gap-2 mt-4 text-sm font-bold text-slate-600" aria-live="polite"></div>
+            </div>` : '';
         el('learn-detail').innerHTML = `
             <article class="glass rounded-3xl p-6 md:p-9">
                 <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
@@ -1377,6 +1713,7 @@
                 <p class="text-xs text-slate-400 mb-4">💡 Tap any <span class="scripture-ref" style="cursor:default">verse reference</span> to read it in the KJV.<span class="hidden md:inline"> Use ← → to move between topics.</span></p>
                 <div class="prose-learn max-w-3xl">${t.body}</div>
                 ${mapsHtml}
+                ${quizHtml}
                 <div class="mt-8 pt-5 border-t border-slate-200 space-y-5">
                     ${relHtml}
                     ${nextId
@@ -1399,6 +1736,73 @@
         const h = document.getElementById('detail-heading'); if (h) h.focus({ preventScroll: true });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    window.answerQuiz = (btn, topicId, qi, oi) => {
+        const qq = (LEARN_QUIZ[topicId] || [])[qi];
+        const box = btn.closest('.quiz-q');
+        if (!qq || !box || box.classList.contains('answered')) return;
+        box.classList.add('answered');
+        const correct = oi === qq.a;
+        box.dataset.correct = correct ? '1' : '0';
+        box.querySelectorAll('.quiz-opt').forEach(b => {
+            const i = +b.dataset.opt;
+            if (i === qq.a) b.classList.add('correct');
+            else if (i === oi) b.classList.add('wrong');
+        });
+        const why = box.querySelector('.quiz-why');
+        why.innerHTML = (correct ? '<b class="text-emerald-700">Right!</b> ' : '<b class="text-rose-600">Not quite.</b> ') + qq.why;
+        linkifyScripture(why);
+        const wrap = box.parentElement;
+        const total = wrap.querySelectorAll('.quiz-q').length;
+        if (wrap.querySelectorAll('.quiz-q.answered').length === total) {
+            const right = [...wrap.querySelectorAll('.quiz-q')].filter(x => x.dataset.correct === '1').length;
+            const score = el('quiz-score');
+            if (score) {
+                score.classList.add('show');
+                score.innerHTML = right === total
+                    ? `🎉 <span>${right} of ${total} — perfect. Mark the topic done below.</span>`
+                    : `<span>You got ${right} of ${total}. The explanations above are the glue — one more read and you own it.</span>`;
+            }
+        }
+    };
+
+    /* ---------- "Did you know?" fact strip ---------- */
+    const LEARN_FACTS = [
+        { text: 'The hill where Abraham’s knife was stopped — Mount Moriah — is the same hill where Solomon later built the Temple.', topic: 'ishmael-isaac' },
+        { text: '“Joshua” and “Jesus” are the very same Hebrew name: Yeshua, “the LORD saves.”', topic: 'joshua-conquest' },
+        { text: 'Roughly a third of each Gospel covers a single week. No other ancient biography is shaped like that.', topic: 'gospels-four-portraits' },
+        { text: 'Even the secular BCE/CE calendar still counts every date from the same pivot year — the birth of Christ.', topic: 'calendar-bc-ad' },
+        { text: 'Passover falls at full moon — when a solar eclipse is astronomically impossible. Whatever darkened the sky at the crucifixion, it was no eclipse.', topic: 'hostile-witnesses' },
+        { text: 'The Talmud records that the Temple’s crimson thread stopped turning white about forty years before AD 70 — right around AD 30.', topic: 'hostile-witnesses' },
+        { text: 'Isaiah named King Cyrus — the man who would send the exiles home — about 150 years before he was born.', topic: 'exile-and-return' },
+        { text: 'Psalm 22 describes pierced hands and feet and lots cast for clothing — written centuries before crucifixion existed.', topic: 'messianic-prophecy' },
+        { text: 'Hebrew poetry rhymes ideas, not sounds — which is why the Psalms keep their power in every language on earth.', topic: 'wisdom-literature' },
+        { text: 'A 9th-century-BC stone found in 1993 names the “House of David” — answering skeptics who doubted David existed at all.', topic: 'biblical-archaeology' },
+        { text: 'You can still walk through Hezekiah’s water tunnel under Jerusalem — the one 2 Kings 20:20 describes.', topic: 'biblical-archaeology' },
+        { text: 'Pentecost reverses Babel: where God once scattered the nations by language, every nation heard the gospel in its own tongue.', topic: 'pentecost-church' },
+        { text: 'Jesus died at Passover, rose on the feast of Firstfruits, and sent the Spirit at Pentecost — Israel’s calendar was a prophecy in disguise.', topic: 'feasts-of-israel' },
+        { text: 'The oldest New Testament books are probably letters, not Gospels — some written within about twenty years of the cross.', topic: 'epistles-overview' },
+        { text: 'Roughly eight in ten words of the King James New Testament come from William Tyndale — who was executed for translating it.', topic: 'how-we-got-the-bible' },
+        { text: 'A pagan Roman historian records that “fearful balls of fire” stopped the emperor Julian’s attempt to rebuild the Temple in AD 363.', topic: 'third-temple-attempts' },
+        { text: 'The earliest surviving New Testament fragment — a scrap of John — dates to about 25 years after the apostle’s death.', topic: 'how-we-got-the-bible' },
+        { text: 'Ruth the Moabite — a foreigner — is one of the women named in the family line of Jesus.', topic: 'judges-ruth' },
+        { text: 'When the Dead Sea Scrolls surfaced in 1947, the book of Isaiah proved essentially unchanged across a thousand years of copying.', topic: 'how-we-got-the-bible' },
+        { text: 'Jesus chose twelve apostles on purpose — echoing the twelve tribes, the foundation of a renewed people of God.', topic: 'twelve-tribes' },
+    ];
+    let dykIndex = 0;
+    function renderDyk() {
+        const f = LEARN_FACTS[dykIndex % LEARN_FACTS.length];
+        const p = el('dyk-fact');
+        if (!p || !f) return;
+        p.textContent = f.text;
+        const btn = el('dyk-open');
+        if (btn) btn.classList.toggle('hidden', !topicById[f.topic]);
+    }
+    window.nextDykFact = () => { dykIndex = (dykIndex + 1) % LEARN_FACTS.length; renderDyk(); };
+    window.openDykTopic = () => {
+        const f = LEARN_FACTS[dykIndex % LEARN_FACTS.length];
+        if (f && topicById[f.topic]) openLearnTopic(f.topic);
+    };
 
     window.copyTopicLink = async (id, btn) => {
         const url = location.origin + location.pathname + '#' + encodeURIComponent(id);
@@ -1518,6 +1922,17 @@
         { term: 'Epistle', def: 'Simply, a letter. Twenty-one New Testament books are epistles — written to young churches and leaders working out the gospel in practice.' },
         { term: 'Canon', def: 'The recognized list of books that belong in the Bible — literally a “measuring rod.”' },
         { term: 'Hallelujah & Amen', def: 'Two Hebrew words carried untranslated into nearly every language on earth: “Praise the LORD!” and “so be it — it stands true.”' },
+        { term: 'Trinity', def: 'One God in three persons — Father, Son, and Holy Spirit. The word isn’t in the Bible, but the truth is woven through it (Matthew 28:19; 2 Corinthians 13:14).' },
+        { term: 'Immanuel', def: 'Hebrew for “God with us” — the name Isaiah promised (Isaiah 7:14) and Matthew declares fulfilled in Jesus (Matthew 1:23).' },
+        { term: 'Abba', def: 'Aramaic for “Father” — the intimate address Jesus used in prayer, and gave to everyone adopted in Him (Romans 8:15).' },
+        { term: 'Hosanna', def: '“Save now!” (Psalm 118:25) — the crowd’s cry as Jesus rode into Jerusalem. A prayer for rescue that became a shout of praise.' },
+        { term: 'Maranatha', def: 'Aramaic, “Our Lord, come!” (1 Corinthians 16:22) — one of the church’s oldest prayers, preserved untranslated.' },
+        { term: 'Selah', def: 'A marker appearing 74 times in the Psalms — likely a musical pause. Best guess at its force: stop, and weigh what was just sung.' },
+        { term: 'Scapegoat', def: 'The Day of Atonement goat sent into the wilderness bearing the people’s sins (Leviticus 16) — a word Tyndale coined in English for this very verse.' },
+        { term: 'Firstfruits', def: 'The first sheaf of harvest, given to God as pledge of the whole. Christ risen is “the firstfruits of them that slept” (1 Corinthians 15:20).' },
+        { term: 'Jubilee', def: 'Every fiftieth year: debts released, slaves freed, land returned (Leviticus 25). Jesus announced His ministry in its language — “to set at liberty them that are bruised” (Luke 4:18).' },
+        { term: 'Sheol / Hades', def: 'The Hebrew and Greek names for the realm of the dead — the grave. Christ holds its keys (Revelation 1:18).' },
+        { term: 'Manna', def: 'Literally “What is it?” — the bread from heaven that fed Israel in the wilderness. Jesus took the title it pointed to: “I am the bread of life” (John 6:35).' },
     ];
     window.renderGlossary = () => {
         const q = (el('glossary-search')?.value || '').toLowerCase().trim();
@@ -1535,6 +1950,10 @@
     /* ================= INIT ================= */
     function initLearn() {
         syncDarkIcon();
+        // A different opening fact each day; "Another" cycles from there
+        const now = new Date();
+        dykIndex = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000) % LEARN_FACTS.length;
+        renderDyk();
         renderPath();
         renderTimeline();
         renderGrid();
