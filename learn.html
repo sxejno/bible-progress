@@ -73,10 +73,15 @@
         .tl-christ .tl-label { color:#4f46e5; }
         .tl-pivot { font-size:10px; font-weight:900; letter-spacing:0.12em; color:#4f46e5; margin-bottom:3px; }
 
-        /* Who's who */
-        .person-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-        .person-card:hover { transform: translateY(-2px); border-color: rgba(99,102,241,0.4); box-shadow: 0 12px 26px rgba(79,70,229,0.14); }
-        .role-pill { font-size:10px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border-radius:999px; padding:0.15rem 0.55rem; background:#eef2ff; color:#4338ca; }
+        /* Who's who + glossary — dense reference lists (not cards) */
+        .person-row { padding: 0.65rem 0.25rem; border-bottom: 1px solid #eef2f7; }
+        .person-row:hover { background: #f8fafc; }
+        .era-dot { width: 9px; height: 9px; border-radius: 999px; display: inline-block; flex: 0 0 auto; }
+        .gloss-row { padding: 0.6rem 0.25rem; border-bottom: 1px solid #eef2f7; font-size: 0.9rem; line-height: 1.55; color: #475569; }
+        .gloss-row:hover { background: #f8fafc; }
+        .gloss-row b { color: #0f172a; }
+        .show-more-btn { font-size: 0.85rem; font-weight: 700; color: #4338ca; background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 999px; padding: 0.5rem 1.1rem; transition: all .15s ease; }
+        .show-more-btn:hover { background: #e0e7ff; }
 
 
         /* Deep-dive prose */
@@ -315,7 +320,8 @@
                     <option value="NT">New Testament</option>
                 </select>
             </div>
-            <div id="learn-people" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+            <div id="learn-people" class="grid sm:grid-cols-2 gap-x-10" role="list"></div>
+            <div class="text-center mt-4"><button id="people-more" class="show-more-btn hidden" onclick="togglePeopleAll()"></button></div>
             <p id="people-empty" class="hidden text-center text-slate-500 py-8 font-medium">No one matches that search.</p>
         </section>
 
@@ -332,7 +338,8 @@
                 <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
                 <input id="glossary-search" type="search" placeholder="Search a term — try “grace”, “covenant”, “Gentile”…" oninput="renderGlossary()" aria-label="Search glossary" class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
             </div>
-            <div id="learn-glossary" class="grid sm:grid-cols-2 gap-3"></div>
+            <div id="learn-glossary" class="grid sm:grid-cols-2 gap-x-10" role="list"></div>
+            <div class="text-center mt-4"><button id="gloss-more" class="show-more-btn hidden" onclick="toggleGlossAll()"></button></div>
             <p id="glossary-empty" class="hidden text-center text-slate-500 py-8 font-medium">No term matches that search.</p>
         </section>
 
@@ -711,7 +718,7 @@
                 <p>At the moment Jesus died, "the veil of the temple was rent in twain from the top to the bottom" (Matthew 27:51). The barrier that kept sinners out of God's presence was torn open — from heaven's side. Through Christ, we now have "boldness to enter into the holiest" (Hebrews 10:19–20).</p>
                 <h4>His people, a temple</h4>
                 <p>Astonishingly, the New Testament then calls believers themselves God's temple: "ye are the temple of God, and ... the Spirit of God dwelleth in you" (1 Corinthians 3:16). And the final vision needs no temple at all — "for the Lord God Almighty and the Lamb are the temple of it" (Revelation 21:22).</p>
-                <div class="callout"><div class="callout-label">The big picture</div><p style="margin:0">Tabernacle → Temple → Christ → the Church → the new creation. God's project was never a building. It was always <i>"I will dwell among them."</i></p></div>`
+                <div class="callout"><div class="callout-label">The big picture</div><p style="margin:0">Tabernacle → Temple → Christ → the Church → the new creation. God's project was never a building. It was always <i>"that I may dwell among them"</i> (Exodus 25:8).</p></div>`
         },
         {
             id: 'sacrifice-fulfilled', title: 'Sacrifice Fulfilled in Christ', era: 'christ', level: 'advanced',
@@ -783,7 +790,7 @@
             body: `
                 <p>On the third day after the crucifixion, Jesus' followers found the <b>tomb empty</b> and claimed He had risen and appeared to them alive (Luke 24; John 20). The resurrection is not a footnote to the gospel — it is the hinge: "if Christ be not raised... ye are yet in your sins" (1 Corinthians 15:17).</p>
                 <h4>An early, public claim</h4>
-                <p>Paul hands on what he calls a tradition he himself "received" — a creed most scholars date to within a few years of the cross: "Christ died for our sins... he was buried... he rose again the third day... and was seen of Cephas, then of the twelve... after that, of above five hundred brethren at once" (1 Corinthians 15:3–6). This was not a legend that slowly grew over centuries; it was being preached at once, while eyewitnesses were alive to confirm or deny it.</p>
+                <p>Paul hands on what he calls a tradition he himself "received" — a creed most scholars date to within a few years of the cross: "Christ died for our sins... he was buried... he rose again the third day... he was seen of Cephas, then of the twelve... he was seen of above five hundred brethren at once" (1 Corinthians 15:3–6). This was not a legend that slowly grew over centuries; it was being preached at once, while eyewitnesses were alive to confirm or deny it.</p>
                 <h4>The turn-around</h4>
                 <p>Something turned terrified, scattered disciples into bold witnesses who would rather die than recant. The skeptic <b>James</b>, Jesus' own brother, and the persecutor <b>Saul of Tarsus</b> were both upended by what they were convinced were appearances of the risen Christ. Even many who reject the miracle concede the first Christians sincerely believed they had seen Him alive.</p>
                 <div class="callout"><div class="callout-label">Why it matters</div><p style="margin:0">The resurrection is God's public receipt that the cross was accepted — Jesus "declared to be the Son of God with power... by the resurrection from the dead" (Romans 1:4). It is the down-payment that everyone who trusts Him will rise too (1 Corinthians 15:20–23).</p></div>`
@@ -792,7 +799,7 @@
             id: 'messianic-prophecy', title: 'Prophecy Fulfilled in Christ', era: 'christ', level: 'advanced',
             summary: 'Centuries-old predictions converging on one life.', maps: [],
             body: `
-                <p>Long before Jesus was born, the Old Testament had sketched the coming Messiah in startling detail. Jesus said the Scriptures "testified of" Him (John 5:39), and after rising He showed how "all the prophets" had pointed to Him (Luke 24:27).</p>
+                <p>Long before Jesus was born, the Old Testament had sketched the coming Messiah in startling detail. Jesus said the Scriptures "testify of me" (John 5:39), and after rising He showed how "all the prophets" had pointed to Him (Luke 24:27).</p>
                 <h4>A few of the threads</h4>
                 <ul>
                     <li>Born in <b>Bethlehem</b> (Micah 5:2 → Matthew 2:1).</li>
@@ -809,7 +816,7 @@
             id: 'pentecost-church', title: 'Pentecost & the Early Church', era: 'church', level: 'core',
             summary: 'The Spirit comes, 3,000 believe, and the Church is born.', maps: [],
             body: `
-                <p>Before ascending, Jesus told the disciples to wait in Jerusalem for power from on high (Acts 1:8). At <b>Pentecost</b> — fifty days after Passover — the <b>Holy Spirit</b> came with the sound of a rushing wind and tongues of fire, and the believers spoke in languages they had never learned (Acts 2:1–4).</p>
+                <p>Before ascending, Jesus told the disciples to wait in Jerusalem for power from on high (Acts 1:8). At <b>Pentecost</b> — fifty days after the resurrection — the <b>Holy Spirit</b> came with the sound of a rushing wind and tongues of fire, and the believers spoke in languages they had never learned (Acts 2:1–4).</p>
                 <h4>The first sermon</h4>
                 <p>Peter stood and preached that the crucified and risen Jesus is "both Lord and Christ," fulfilling Joel's promise that God would pour out His Spirit (Acts 2:16–17, 36). <b>Three thousand</b> were baptized that day (Acts 2:41) — the Church was born.</p>
                 <h4>A new kind of community</h4>
@@ -1057,7 +1064,7 @@
         { name: 'Jeremiah', era: 'divided', testament: 'OT', role: 'The weeping prophet', relation: '', blurb: 'Warned Judah of Babylon and promised a New Covenant.' },
         { name: 'Nebuchadnezzar', era: 'exile', testament: 'OT', role: 'King of Babylon', relation: '', blurb: 'Destroyed Jerusalem and carried Judah captive — then was humbled to madness until he honoured the Most High (Daniel 4).' },
         { name: 'Ezekiel', era: 'exile', testament: 'OT', role: 'Prophet among the exiles', relation: '', blurb: 'Saw God’s glory leave the Temple — and a valley of dry bones brought to life.' },
-        { name: 'Zerubbabel', era: 'exile', testament: 'OT', role: 'Governor of the return', relation: 'Grandson of Judah’s last kings', blurb: 'Led the first wave home from Babylon and rebuilt the Temple’s foundation — a Davidic heir in the Messiah’s line.' },
+        { name: 'Zerubbabel', era: 'exile', testament: 'OT', role: 'Governor of the return', relation: 'Grandson of King Jehoiachin', blurb: 'Led the first wave home from Babylon and rebuilt the Temple’s foundation — a Davidic heir in the Messiah’s line.' },
         { name: 'Daniel', era: 'exile', testament: 'OT', role: 'Exile & seer', relation: '', blurb: 'Faithful in Babylon; the lions’ den; visions of coming kingdoms.' },
         { name: 'Esther', era: 'exile', testament: 'OT', role: 'Queen of Persia', relation: 'Cousin & ward of Mordecai', blurb: 'Risked her life “for such a time as this” to save her people from destruction.' },
         { name: 'Ezra', era: 'exile', testament: 'OT', role: 'Priest-scribe', relation: '', blurb: 'Restored the Law among the returned exiles.' },
@@ -1193,6 +1200,7 @@
         'how-to-read': [
             { q: 'The Bible’s storyline advances through what?', opts: ['Covenants — binding promises God makes', 'Genealogies', 'Miracles'], a: 0, why: 'Noah, Abraham, Sinai, David, and the New Covenant in Christ’s blood — track the promises and you track the plot.' },
             { q: 'After His resurrection, Jesus showed two disciples that the Scriptures spoke of whom?', opts: ['The apostles', 'Himself', 'Israel’s kings'], a: 1, why: 'Luke 24:27 — "he expounded unto them in all the scriptures the things concerning himself."' },
+            { q: 'Reading "genre-aware" means…', opts: ['Reading every text as a direct command to you', 'Reading the books in chronological order', 'Reading poetry as poetry, history as history, letters as letters'], a: 2, why: 'Each kind of writing asks a different kind of reading — that is how the Bible was given to us.' },
         ],
         'calendar-bc-ad': [
             { q: 'What does AD actually stand for?', opts: ['After Death', 'Anno Domini — "in the year of our Lord"', 'Ancient Days'], a: 1, why: 'A common myth says "After Death" — but AD is Latin for "in the year of our Lord," counting from Jesus’ birth.' },
@@ -1202,6 +1210,7 @@
         'creation-fall': [
             { q: 'What makes humanity unique in the creation account?', opts: ['Being made last', 'Being made in the image of God', 'Living in a garden'], a: 1, why: 'Genesis 1:27 — the source of human dignity: every person bears God’s image.' },
             { q: 'Where is the Bible’s first promise of a Redeemer?', opts: ['In the middle of the curse (Genesis 3:15)', 'At the call of Abraham', 'At Sinai'], a: 0, why: 'The seed of the woman would crush the serpent’s head — the "first gospel," promised the very day of the Fall.' },
+            { q: 'What did God do on the seventh day?', opts: ['Created the stars', 'Rested — and blessed the day', 'Planted Eden'], a: 1, why: 'Genesis 2:2–3 — the pattern behind the Sabbath, and a rest Hebrews 4 says still remains for God’s people.' },
         ],
         'flood-babel': [
             { q: 'What sign sealed God’s covenant after the Flood?', opts: ['A dove', 'An altar', 'The rainbow'], a: 2, why: 'Genesis 9 — the rainbow, God’s pledge never again to destroy the earth by flood.' },
@@ -1221,6 +1230,7 @@
         'esau-jacob': [
             { q: 'What did Esau trade his birthright for?', opts: ['A bowl of stew', 'Thirty pieces of silver', 'A flock of sheep'], a: 0, why: 'Genesis 25 — he despised his birthright and sold it for one meal.' },
             { q: 'What does Jacob’s new name "Israel" mean?', opts: ['"Father of nations"', '"He strives with God"', '"The LORD saves"'], a: 1, why: 'Given after he wrestled all night at the Jabbok and would not let go without a blessing (Genesis 32:28).' },
+            { q: 'Who cites "the elder shall serve the younger" — and to teach what?', opts: ['Peter — church order', 'Paul — God’s sovereign, gracious choice', 'James — patience in trials'], a: 1, why: 'Romans 9 — the covenant runs by grace, not by merit or birth order.' },
         ],
         'twelve-tribes': [
             { q: 'Which tribe received no land allotment?', opts: ['Benjamin', 'Dan', 'Levi'], a: 2, why: 'The priestly tribe’s inheritance was the LORD Himself and service at His house (Joshua 13:33).' },
@@ -1249,7 +1259,7 @@
         ],
         'feasts-of-israel': [
             { q: 'On which feast did Jesus rise from the dead?', opts: ['Firstfruits', 'Trumpets', 'Tabernacles'], a: 0, why: '1 Corinthians 15:20 — "the firstfruits of them that slept": the first sheaf, pledging the full harvest to come.' },
-            { q: 'Pentecost falls how long after Passover?', opts: ['Seven days', 'Fifty days', 'Six months'], a: 1, why: '"Weeks" = seven sevens + one day = 50. The Spirit fell on the church on Pentecost itself (Acts 2).' },
+            { q: 'Pentecost is counted as fifty days from which feast?', opts: ['Trumpets', 'Firstfruits', 'Tabernacles'], a: 1, why: 'Seven sabbaths plus one day, counted from Firstfruits (Leviticus 23:15–16). Christ rose at Firstfruits — and exactly fifty days on, the Spirit fell at Pentecost (Acts 2:1).' },
             { q: 'Which feast took the high priest into the Holy of Holies?', opts: ['Passover', 'Unleavened Bread', 'The Day of Atonement'], a: 2, why: 'Leviticus 16 — once a year, with blood, for the sins of the nation.' },
         ],
         'joshua-conquest': [
@@ -1265,6 +1275,7 @@
         'united-divided-kingdom': [
             { q: 'When and why did the kingdom split?', opts: ['930 BC, after Solomon — Rehoboam’s harshness', '722 BC, when Assyria invaded', '586 BC, when Babylon burned Jerusalem'], a: 0, why: '1 Kings 12 — ten tribes broke north (Israel); Judah and Benjamin stayed with David’s line in the south.' },
             { q: 'The northern kingdom fell in 722 BC to which empire?', opts: ['Babylon', 'Assyria', 'Persia'], a: 1, why: 'Every northern king had led the people into idolatry; Assyria ended the kingdom of Israel.' },
+            { q: 'Which dynasty ruled Judah right up to the exile?', opts: ['David’s line', 'A new house every few generations', 'The house of Omri'], a: 0, why: 'God had promised David an enduring throne (2 Samuel 7) — the line the Messiah would come from.' },
         ],
         'wisdom-literature': [
             { q: 'Which book wrestles with why the righteous suffer?', opts: ['Job', 'Proverbs', 'Ecclesiastes'], a: 0, why: 'A blameless man loses everything — and meets God in the whirlwind.' },
@@ -1774,7 +1785,7 @@
         { text: 'Even the secular BCE/CE calendar still counts every date from the same pivot year — the birth of Christ.', topic: 'calendar-bc-ad' },
         { text: 'Passover falls at full moon — when a solar eclipse is astronomically impossible. Whatever darkened the sky at the crucifixion, it was no eclipse.', topic: 'hostile-witnesses' },
         { text: 'The Talmud records that the Temple’s crimson thread stopped turning white about forty years before AD 70 — right around AD 30.', topic: 'hostile-witnesses' },
-        { text: 'Isaiah named King Cyrus — the man who would send the exiles home — about 150 years before he was born.', topic: 'exile-and-return' },
+        { text: 'Isaiah named King Cyrus — the man who would send the exiles home — about 150 years in advance.', topic: 'exile-and-return' },
         { text: 'Psalm 22 describes pierced hands and feet and lots cast for clothing — written centuries before crucifixion existed.', topic: 'messianic-prophecy' },
         { text: 'Hebrew poetry rhymes ideas, not sounds — which is why the Psalms keep their power in every language on earth.', topic: 'wisdom-literature' },
         { text: 'A 9th-century-BC stone found in 1993 names the “House of David” — answering skeptics who doubted David existed at all.', topic: 'biblical-archaeology' },
@@ -1858,6 +1869,9 @@
     }
 
     /* ================= WHO'S WHO ================= */
+    const PEOPLE_PREVIEW = 12;
+    let peopleShowAll = false;
+    window.togglePeopleAll = () => { peopleShowAll = !peopleShowAll; window.renderPeople(); if (!peopleShowAll) el('learn-people').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     window.renderPeople = () => {
         const q = (el('people-search').value || '').toLowerCase().trim();
         const test = el('people-testament').value;
@@ -1866,22 +1880,27 @@
             if (!q) return true;
             return (p.name + ' ' + p.role + ' ' + p.relation + ' ' + p.blurb).toLowerCase().includes(q);
         });
-        const wrap = el('learn-people'), empty = el('people-empty');
-        if (!people.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        const wrap = el('learn-people'), empty = el('people-empty'), more = el('people-more');
+        if (!people.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); more.classList.add('hidden'); return; }
         empty.classList.add('hidden');
-        wrap.innerHTML = people.map(p => {
-            const era = eraById[p.era] || { color: '#64748b', label: '' };
+        // Keep the hub short: preview a dozen until expanded. Searching or filtering shows every match.
+        const pristine = !q && test === 'all';
+        const capped = pristine && !peopleShowAll;
+        const shown = capped ? people.slice(0, PEOPLE_PREVIEW) : people;
+        wrap.innerHTML = shown.map(p => {
+            const era = eraById[p.era] || { color: '#64748b', label: 'Overview' };
             const shortEra = era.label.split('—')[0].trim();
-            return `<article class="person-card glass rounded-2xl p-4">
-                <div class="flex items-start justify-between gap-2 mb-1.5">
-                    <h3 class="text-base font-black text-slate-900 leading-tight">${p.name}</h3>
-                    <span class="era-badge flex-shrink-0" style="background:${era.color}">${shortEra}</span>
+            return `<div class="person-row" role="listitem">
+                <div class="flex items-baseline gap-2 flex-wrap">
+                    <span class="era-dot" style="background:${era.color}" title="${shortEra}"></span>
+                    <span class="font-bold text-slate-900">${p.name}</span>
+                    <span class="text-xs font-semibold text-slate-500">${p.role}</span>
                 </div>
-                <div class="mb-2"><span class="role-pill">${p.role}</span></div>
-                ${p.relation ? `<p class="text-xs text-slate-500 mb-1.5">${p.relation}</p>` : ''}
-                <p class="text-sm text-slate-600">${p.blurb}</p>
-            </article>`;
+                <p class="text-sm text-slate-600 mt-0.5">${p.relation ? `<span class="text-slate-400">${p.relation} — </span>` : ''}${p.blurb}</p>
+            </div>`;
         }).join('');
+        more.classList.toggle('hidden', !pristine);
+        if (pristine) more.textContent = peopleShowAll ? 'Show fewer ↑' : `Show all ${people.length} people ↓`;
     };
 
     /* ================= GLOSSARY ================= */
@@ -1927,24 +1946,28 @@
         { term: 'Abba', def: 'Aramaic for “Father” — the intimate address Jesus used in prayer, and gave to everyone adopted in Him (Romans 8:15).' },
         { term: 'Hosanna', def: '“Save now!” (Psalm 118:25) — the crowd’s cry as Jesus rode into Jerusalem. A prayer for rescue that became a shout of praise.' },
         { term: 'Maranatha', def: 'Aramaic, “Our Lord, come!” (1 Corinthians 16:22) — one of the church’s oldest prayers, preserved untranslated.' },
-        { term: 'Selah', def: 'A marker appearing 74 times in the Psalms — likely a musical pause. Best guess at its force: stop, and weigh what was just sung.' },
+        { term: 'Selah', def: 'A marker appearing 71 times in the Psalms (and three more in Habakkuk) — likely a musical pause. Best guess at its force: stop, and weigh what was just sung.' },
         { term: 'Scapegoat', def: 'The Day of Atonement goat sent into the wilderness bearing the people’s sins (Leviticus 16) — a word Tyndale coined in English for this very verse.' },
         { term: 'Firstfruits', def: 'The first sheaf of harvest, given to God as pledge of the whole. Christ risen is “the firstfruits of them that slept” (1 Corinthians 15:20).' },
         { term: 'Jubilee', def: 'Every fiftieth year: debts released, slaves freed, land returned (Leviticus 25). Jesus announced His ministry in its language — “to set at liberty them that are bruised” (Luke 4:18).' },
         { term: 'Sheol / Hades', def: 'The Hebrew and Greek names for the realm of the dead — the grave. Christ holds its keys (Revelation 1:18).' },
         { term: 'Manna', def: 'Literally “What is it?” — the bread from heaven that fed Israel in the wilderness. Jesus took the title it pointed to: “I am the bread of life” (John 6:35).' },
     ];
+    const GLOSS_PREVIEW = 10;
+    let glossShowAll = false;
+    window.toggleGlossAll = () => { glossShowAll = !glossShowAll; window.renderGlossary(); if (!glossShowAll) el('learn-glossary').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     window.renderGlossary = () => {
         const q = (el('glossary-search')?.value || '').toLowerCase().trim();
         let terms = LEARN_GLOSSARY.slice().sort((a, b) => a.term.localeCompare(b.term));
         if (q) terms = terms.filter(t => (t.term + ' ' + t.def).toLowerCase().includes(q));
-        const wrap = el('learn-glossary'), empty = el('glossary-empty');
-        if (!terms.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        const wrap = el('learn-glossary'), empty = el('glossary-empty'), more = el('gloss-more');
+        if (!terms.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); more.classList.add('hidden'); return; }
         empty.classList.add('hidden');
-        wrap.innerHTML = terms.map(t => `<article class="glass rounded-2xl p-4">
-            <h3 class="text-base font-black text-slate-900">${t.term}</h3>
-            <p class="text-sm text-slate-600 mt-1">${t.def}</p>
-        </article>`).join('');
+        const capped = !q && !glossShowAll;
+        const shown = capped ? terms.slice(0, GLOSS_PREVIEW) : terms;
+        wrap.innerHTML = shown.map(t => `<div class="gloss-row" role="listitem"><b>${t.term}</b> — ${t.def}</div>`).join('');
+        more.classList.toggle('hidden', !!q);
+        if (!q) more.textContent = glossShowAll ? 'Show fewer ↑' : `Show all ${terms.length} terms ↓`;
     };
 
     /* ================= INIT ================= */
