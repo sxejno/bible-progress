@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bible Explorer — KJV</title>
+<style>
+:root{
+  --bg:#0d0e12; --panel:#14161f; --panel2:#1b1e2b; --line:#272b3d; --line2:#333850;
+  --ink:#e9e7de; --mut:#9095a8; --dim:#6b7085;
+  --gold:#d8ab4e; --gold2:#f0c96c; --blue:#7aa2f7; --teal:#4fd6be; --red:#f7768e; --orange:#e0876a; --violet:#b48ead;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html,body{height:100%}
+body{background:var(--bg); color:var(--ink); font:14px/1.45 system-ui,'Segoe UI',Roboto,sans-serif; overflow:hidden}
+button{font:inherit; color:inherit; background:none; border:none; cursor:pointer}
+input{font:inherit}
+::-webkit-scrollbar{width:10px;height:10px} ::-webkit-scrollbar-thumb{background:#2c3145;border-radius:5px} ::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- header ---------- */
+header{position:fixed; inset:0 0 auto 0; height:52px; display:flex; align-items:center; gap:6px;
+  padding:0 14px; background:rgba(13,14,18,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); z-index:50}
+.brand{font-size:13px; letter-spacing:.22em; color:var(--gold); font-weight:600; margin-right:14px; white-space:nowrap; user-select:none}
+.brand small{color:var(--dim); letter-spacing:.1em; font-weight:400}
+.tab{padding:15px 13px; color:var(--mut); border-bottom:2px solid transparent; letter-spacing:.02em}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--gold2); border-bottom-color:var(--gold)}
+#sbox{margin-left:auto; width:min(300px,30vw); background:var(--panel2); border:1px solid var(--line2); color:var(--ink);
+  border-radius:8px; padding:7px 12px; outline:none}
+#sbox:focus{border-color:var(--gold)}
+#sbox::placeholder{color:var(--dim)}
+
+main{position:fixed; inset:52px 0 0 0}
+.view{position:absolute; inset:0; display:none}
+.view.on{display:block}
+
+/* ---------- loading ---------- */
+#loader{position:fixed; inset:0; background:var(--bg); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px}
+#loader .lw{font-size:15px; letter-spacing:.34em; color:var(--gold)}
+#loader .ls{color:var(--mut); font-size:12.5px; min-height:18px}
+#lbar{width:220px; height:3px; background:var(--line); border-radius:2px; overflow:hidden}
+#lbar i{display:block; height:100%; width:0%; background:var(--gold); transition:width .2s}
+#loader .err{color:var(--red); max-width:420px; text-align:center}
+
+/* ---------- arcs ---------- */
+#view-arcs canvas{position:absolute; inset:0; width:100%; height:100%}
+.hud{position:absolute; pointer-events:none; z-index:5}
+#arcHint{top:18px; left:50%; transform:translateX(-50%); color:var(--mut); font-size:12.5px; letter-spacing:.06em;
+  background:rgba(20,22,31,.8); padding:6px 14px; border-radius:20px; border:1px solid var(--line); transition:opacity .6s}
+#arcLegend{right:16px; top:14px; color:var(--dim); font-size:11px; text-align:right}
+#arcLegend .bar{width:150px; height:6px; border-radius:3px; margin-top:4px;
+  background:linear-gradient(90deg,hsl(258,72%,62%),hsl(200,72%,58%),hsl(130,62%,52%),hsl(55,80%,55%),hsl(20,85%,58%),hsl(0,80%,60%))}
+#arcStatus{left:16px; bottom:12px; color:var(--dim); font-size:11.5px}
+.tip{position:absolute; display:none; background:#1c1f2d; border:1px solid var(--line2); border-radius:8px; padding:8px 11px;
+  font-size:12.5px; pointer-events:none; z-index:30; box-shadow:0 6px 24px rgba(0,0,0,.5); max-width:260px}
+.tip b{color:var(--gold2)} .tip .m{color:var(--mut); font-size:11.5px}
+
+/* ---------- network ---------- */
+#view-net canvas{position:absolute; inset:0; width:100%; height:100%}
+.fpanel{position:absolute; background:rgba(20,22,31,.93); border:1px solid var(--line); border-radius:12px; padding:12px 14px; z-index:10}
+#netCtl{left:14px; top:14px; width:224px; font-size:12.5px}
+#netCtl h4, #pcard h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
+#netCtl label{display:flex; align-items:center; gap:7px; margin:5px 0; color:var(--mut); cursor:pointer}
+#netCtl input[type=range]{width:100%; accent-color:var(--gold)}
+#netCtl input[type=checkbox]{accent-color:var(--gold)}
+#npFind{width:100%; background:var(--panel2); border:1px solid var(--line2); color:var(--ink); border-radius:6px; padding:5px 9px; outline:none; margin-top:2px}
+.eleg{display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:8px}
+.eleg span{display:flex; align-items:center; gap:5px; color:var(--mut); font-size:11px}
+.eleg i{width:9px; height:9px; border-radius:50%; display:inline-block}
+#pcard{right:14px; top:14px; width:294px; max-height:calc(100% - 28px); overflow-y:auto; display:none; font-size:13px}
+#pcard .pname{font-size:19px; font-family:Georgia,serif; color:var(--gold2)}
+#pcard .psub{color:var(--mut); font-size:12px; margin:2px 0 8px}
+#pcard .sec{margin-top:10px; padding-top:8px; border-top:1px solid var(--line)}
+#pcard .sec b{font-size:11px; letter-spacing:.14em; color:var(--dim); display:block; margin-bottom:5px; font-weight:600}
+.chip{display:inline-block; background:var(--panel2); border:1px solid var(--line2); border-radius:6px;
+  padding:2px 8px; margin:2px 3px 2px 0; font-size:12px; color:var(--ink); cursor:pointer}
+.chip:hover{border-color:var(--gold); color:var(--gold2)}
+.chip.gold{color:var(--gold2)}
+#pcard .x, #spanel .x{position:absolute; top:8px; right:10px; color:var(--dim); font-size:16px; padding:2px 6px}
+#pcard .x:hover, #spanel .x:hover{color:var(--ink)}
+
+/* ---------- dashboard ---------- */
+#view-dash{overflow-y:auto}
+.dwrap{max-width:1080px; margin:0 auto; padding:30px 26px 80px}
+.dwrap h2{font-family:Georgia,serif; font-weight:500; font-size:22px; margin:38px 0 6px; color:var(--ink)}
+.dwrap h2:first-child{margin-top:0}
+.dwrap .sub{color:var(--mut); font-size:12.5px; margin-bottom:16px}
+.cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.card .n{font-size:22px; color:var(--gold2); font-family:Georgia,serif}
+.card .c{color:var(--mut); font-size:11.5px; letter-spacing:.06em; margin-top:3px}
+.rcards{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px}
+.rcard{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; cursor:pointer}
+.rcard:hover{border-color:var(--gold)}
+.rcard .t{font-size:11px; letter-spacing:.14em; color:var(--dim); margin-bottom:6px}
+.rcard .q{font-family:Georgia,serif; font-size:13.5px; color:var(--ink); font-style:italic}
+.rcard .r{color:var(--gold2); font-size:12px; margin-top:7px}
+.chart{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; overflow-x:auto}
+.chart svg{display:block}
+.wordbars .wb{display:flex; align-items:center; gap:10px; margin:4px 0}
+.wordbars .ww{width:110px; text-align:right; color:var(--ink); font-size:13px}
+.wordbars .wt{flex:1; height:15px; background:var(--panel2); border-radius:4px; overflow:hidden}
+.wordbars .wf{height:100%; background:linear-gradient(90deg,#8a6d2f,var(--gold)); border-radius:4px}
+.wordbars .wc{width:70px; color:var(--mut); font-size:12px}
+.hxwrap{display:flex; flex-wrap:wrap; gap:6px}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; color:var(--mut)}
+.legend i{width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:-1px}
+.note{color:var(--dim); font-size:11.5px; margin-top:10px}
+
+/* ---------- reader ---------- */
+#view-read{display:none}
+#view-read.on{display:grid; grid-template-columns:252px 1fr; height:100%}
+#rnav{border-right:1px solid var(--line); overflow-y:auto; padding:12px; background:var(--panel)}
+#rnav .bh{font-size:10.5px; letter-spacing:.18em; color:var(--dim); margin:12px 4px 5px}
+#rnav .bk{display:block; width:100%; text-align:left; padding:4px 9px; border-radius:7px; color:var(--mut); font-size:13px}
+#rnav .bk:hover{background:var(--panel2); color:var(--ink)}
+#rnav .bk.on{background:var(--panel2); color:var(--gold2)}
+#chgrid{display:flex; flex-wrap:wrap; gap:4px; padding:6px 2px}
+#chgrid button{width:34px; height:28px; background:var(--panel2); border:1px solid var(--line); border-radius:6px; color:var(--mut); font-size:12px}
+#chgrid button:hover{border-color:var(--gold); color:var(--ink)}
+#chgrid button.on{background:var(--gold); color:#14161f; font-weight:600}
+#rmain{overflow-y:auto; padding:26px 34px 120px; scroll-behavior:smooth}
+.rhead{max-width:730px; margin:0 auto 4px; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.rhead h1{font-family:Georgia,serif; font-weight:500; font-size:27px}
+.rhead .nav button{color:var(--mut); font-size:17px; padding:2px 8px; border-radius:6px}
+.rhead .nav button:hover{color:var(--gold2); background:var(--panel2)}
+.iltog{margin-left:auto; display:flex; align-items:center; gap:8px; color:var(--mut); font-size:12.5px; cursor:pointer; user-select:none}
+.iltog .sw{width:34px; height:18px; border-radius:9px; background:var(--line2); position:relative; transition:.2s}
+.iltog .sw::after{content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:var(--mut); transition:.2s}
+.iltog.on .sw{background:var(--gold)} .iltog.on .sw::after{left:18px; background:#14161f}
+.iltog.on{color:var(--gold2)}
+#verses{max-width:730px; margin:14px auto 0}
+.vrow{display:flex; gap:12px; padding:7px 10px; border-radius:9px; align-items:baseline}
+.vrow:hover{background:rgba(27,30,43,.55)}
+.vn{color:var(--dim); font-size:11px; min-width:22px; text-align:right; user-select:none; padding-top:4px}
+.vtext{font-family:Georgia,'Iowan Old Style',serif; font-size:16.5px; line-height:1.62; flex:1}
+.vtext em{color:#a9aec5}
+.vrow.flash{animation:vf 2.4s ease-out}
+@keyframes vf{0%{background:rgba(216,171,78,.32)} 100%{background:transparent}}
+.tw{border-bottom:1px dotted rgba(216,171,78,.55); cursor:pointer}
+.tw:hover{color:var(--gold2)}
+.xb{color:var(--dim); font-size:11px; white-space:nowrap; padding:3px 7px; border-radius:6px; border:1px solid transparent}
+.xb:hover{color:var(--teal); border-color:var(--line2)}
+.xlist{margin:2px 0 8px 34px; padding:9px 12px; background:var(--panel); border:1px solid var(--line); border-radius:10px}
+.xitem{display:block; width:100%; text-align:left; padding:4px 6px; border-radius:6px; font-size:13px; color:var(--mut)}
+.xitem:hover{background:var(--panel2); color:var(--ink)}
+.xitem b{color:var(--teal); font-weight:600; margin-right:7px}
+#spanel{position:fixed; right:18px; bottom:18px; width:340px; max-height:54vh; overflow-y:auto; display:none; z-index:40;
+  background:var(--panel); border:1px solid var(--line2); border-radius:14px; padding:16px; box-shadow:0 10px 40px rgba(0,0,0,.55)}
+#spanel .snum{color:var(--dim); font-size:11px; letter-spacing:.1em}
+#spanel .slem{font-size:24px; margin:4px 0 1px}
+#spanel .strn{color:var(--gold2); font-style:italic; margin-bottom:8px}
+#spanel .sdef{color:var(--ink); font-size:13px; margin:7px 0}
+#spanel .skjv{color:var(--mut); font-size:12.5px}
+#spanel .skjv b{color:var(--dim); font-weight:600}
+#spanel .occ{margin-top:10px; color:var(--teal); font-size:12.5px; padding:5px 0}
+#spanel .occ:hover{text-decoration:underline}
+#spanel hr{border:none; border-top:1px solid var(--line); margin:12px 0}
+
+/* ---------- search results ---------- */
+#sres{position:fixed; top:56px; right:12px; width:min(480px,94vw); max-height:72vh; display:none; z-index:60;
+  background:var(--panel); border:1px solid var(--line2); border-radius:14px; box-shadow:0 14px 50px rgba(0,0,0,.6); overflow:hidden}
+#sres .shead{padding:12px 16px 8px; border-bottom:1px solid var(--line)}
+#sres .shead b{color:var(--gold2)}
+#sres .shead .m{color:var(--mut); font-size:12px}
+#sdist{display:flex; align-items:flex-end; gap:1px; height:26px; padding:6px 16px 8px; border-bottom:1px solid var(--line)}
+#sdist i{flex:1; background:var(--gold); opacity:.75; border-radius:1px 1px 0 0; min-height:1px}
+#slist{overflow-y:auto; max-height:calc(72vh - 110px); padding:6px}
+.sitem{display:block; width:100%; text-align:left; padding:7px 11px; border-radius:8px; font-size:13px; color:var(--mut); line-height:1.5}
+.sitem:hover{background:var(--panel2)}
+.sitem b{color:var(--teal); font-weight:600; margin-right:8px}
+.sitem mark{background:none; color:var(--gold2); font-weight:600}
+/* ---------- map ---------- */
+#view-map canvas{position:absolute; inset:0; width:100%; height:100%}
+#mapCtl{left:14px; top:14px; width:236px; font-size:12.5px}
+#mapCtl h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
+.mhint{color:var(--dim); font-size:11px; margin-top:9px; line-height:1.5}
+.jchip{display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:6px 9px; margin:3px 0;
+  border-radius:8px; border:1px solid var(--line); color:var(--mut); font-size:12.5px; background:var(--panel2)}
+.jchip:hover{color:var(--ink); border-color:var(--line2)}
+.jchip.on{color:var(--ink); border-color:var(--gold)}
+.jchip i{width:9px; height:9px; border-radius:50%; flex:none}
+#mcard{right:14px; top:14px; width:280px; max-height:calc(100% - 28px); overflow-y:auto; display:none; font-size:13px}
+#mcard .pname{font-size:18px; font-family:Georgia,serif; color:var(--gold2)}
+#mcard .psub{color:var(--mut); font-size:12px; margin:3px 0 8px}
+#jinfo{position:absolute; left:50%; transform:translateX(-50%); bottom:16px; width:min(640px,92%);
+  background:rgba(20,22,31,.94); border:1px solid var(--line2); border-radius:14px; padding:12px 16px;
+  display:none; align-items:center; gap:14px; z-index:12}
+#jPlay{font-size:16px; color:var(--gold2); width:34px; height:34px; border:1px solid var(--line2); border-radius:50%; flex:none}
+#jPlay:hover{border-color:var(--gold)}
+#jSlider{flex:1; accent-color:var(--gold)}
+#jStation{width:46%; flex:none}
+#jStation b{color:var(--gold2); font-size:13.5px}
+#jRef{color:var(--teal); font-size:12px; margin-left:8px}
+#jRef:hover{text-decoration:underline}
+#jSnip{color:var(--mut); font-size:11.5px; line-height:1.45; margin-top:3px; font-family:Georgia,serif; font-style:italic;
+  max-height:48px; overflow:hidden}
+/* ---------- timeline ---------- */
+#view-time{overflow-y:auto}
+.tl-scroll{overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px}
+.tl-scroll svg{display:block}
+.tlbar{cursor:pointer}
+.tlbar:hover{filter:brightness(1.35)}
+@media (max-width:820px){ #view-read.on{grid-template-columns:1fr} #rnav{display:none} .brand small{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✦ BIBLE EXPLORER <small>· KJV</small></div>
+  <button class="tab on" data-v="arcs">Arcs</button>
+  <button class="tab" data-v="net">People</button>
+  <button class="tab" data-v="map">Map</button>
+  <button class="tab" data-v="time">Timeline</button>
+  <button class="tab" data-v="dash">Dashboard</button>
+  <button class="tab" data-v="read">Reader</button>
+  <input id="sbox" placeholder='Search — "living water", John 3:16, H3068 …' spellcheck="false" autocomplete="off">
+</header>
+<main>
+  <div id="view-arcs" class="view on">
+    <canvas id="arcCv"></canvas>
+    <div id="arcHint" class="hud">hover a chapter to trace its connections · click to read</div>
+    <div id="arcLegend" class="hud">arc color = distance between chapters<div class="bar"></div></div>
+    <div id="arcStatus" class="hud"></div>
+    <div id="arcTip" class="tip"></div>
+  </div>
+  <div id="view-net" class="view">
+    <canvas id="netCv"></canvas>
+    <div id="netCtl" class="fpanel">
+      <h4>PEOPLE OF THE BIBLE</h4>
+      <input id="npFind" placeholder="find a person…" spellcheck="false">
+      <label style="margin-top:9px">show top <b id="npNv" style="color:var(--gold2)">&nbsp;</b></label>
+      <input type="range" id="npN" min="40" max="3067" step="10" value="240">
+      <label><input type="checkbox" id="npFam" checked> family lines</label>
+      <label><input type="checkbox" id="npCo" checked> shared scenes</label>
+      <label><input type="checkbox" id="npGod"> include God</label>
+      <div class="eleg" id="npLeg"></div>
+    </div>
+    <div id="pcard" class="fpanel"><button class="x">✕</button><div id="pbody"></div></div>
+    <div id="netTip" class="tip"></div>
+  </div>
+  <div id="view-map" class="view">
+    <canvas id="mapCv"></canvas>
+    <div id="mapCtl" class="fpanel">
+      <h4>THE BIBLICAL WORLD</h4>
+      <div id="jchips"></div>
+      <div class="mhint">scroll to zoom · drag to pan<br>dots sized by mentions</div>
+    </div>
+    <div id="mcard" class="fpanel"><button class="x">✕</button><div id="mbody"></div></div>
+    <div id="jinfo">
+      <button id="jPlay">▶</button>
+      <input type="range" id="jSlider" min="0" max="100" step="0.1" value="0">
+      <div id="jStation"><b id="jName"></b><button id="jRef"></button><div id="jSnip"></div></div>
+    </div>
+    <div id="mapTip" class="tip"></div>
+  </div>
+  <div id="view-time" class="view"><div class="dwrap" id="twrap"></div></div>
+  <div id="view-dash" class="view"><div class="dwrap" id="dwrap"></div></div>
+  <div id="view-read" class="view">
+    <div id="rnav"></div>
+    <div id="rmain">
+      <div class="rhead">
+        <span class="nav"><button id="rPrev">‹</button><button id="rNext">›</button></span>
+        <h1 id="rTitle"></h1>
+        <span class="iltog" id="ilTog"><span class="sw"></span> interlinear</span>
+      </div>
+      <div id="verses"></div>
+    </div>
+  </div>
+</main>
+<div id="spanel"><button class="x">✕</button><div id="sbody"></div></div>
+<div id="sres"></div>
+<div id="loader">
+  <div class="lw">✦ BIBLE EXPLORER</div>
+  <div id="lbar"><i></i></div>
+  <div class="ls" id="lstat">unpacking scripture…</div>
+</div>
+<script id="BXDATA" type="application/octet-stream">__DATA__</script>
+<script>
+__JS__
+</script>
+</body>
+</html>
+<!--EOF:shell-v2-->
