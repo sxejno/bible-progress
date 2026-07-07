@@ -3,7 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bible Explorer — KJV</title>
+<title>Bible Explorer — KJV | Bible Progress</title>
+<meta name="description" content="Explore the KJV Bible visually — cross-reference arcs spanning all 1,189 chapters, an interactive network of Bible people, maps, timelines, and a full reader with Strong's numbers. Part of Bible Progress.">
+<link rel="canonical" href="https://bibleprogress.com/bible-explorer.html">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0d0e12">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Bible Progress">
+<meta property="og:url" content="https://bibleprogress.com/bible-explorer.html">
+<meta property="og:title" content="Bible Explorer — KJV">
+<meta property="og:description" content="Explore the KJV Bible visually — cross-reference arcs, a people network, maps, timelines, and a full reader with Strong's numbers.">
+<meta property="og:image" content="https://bibleprogress.com/icon-512.png">
 <style>
 :root{
   --bg:#0d0e12; --panel:#14161f; --panel2:#1b1e2b; --line:#272b3d; --line2:#333850;
@@ -20,6 +31,8 @@ input{font:inherit}
 /* ---------- header ---------- */
 header{position:fixed; inset:0 0 auto 0; height:52px; display:flex; align-items:center; gap:6px;
   padding:0 14px; background:rgba(13,14,18,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); z-index:50}
+.home{display:flex; align-items:center; justify-content:center; width:30px; height:30px; margin-right:2px; border-radius:8px; color:var(--mut); font-size:16px; text-decoration:none; flex-shrink:0}
+.home:hover{color:var(--gold2); background:var(--panel2)}
 .brand{font-size:13px; letter-spacing:.22em; color:var(--gold); font-weight:600; margin-right:14px; white-space:nowrap; user-select:none}
 .brand small{color:var(--dim); letter-spacing:.1em; font-weight:400}
 .tab{padding:15px 13px; color:var(--mut); border-bottom:2px solid transparent; letter-spacing:.02em}
@@ -206,6 +219,7 @@ main{position:fixed; inset:52px 0 0 0}
 </head>
 <body>
 <header>
+  <a class="home" href="index.html" title="Back to Bible Progress" aria-label="Back to Bible Progress">←</a>
   <div class="brand">✦ BIBLE EXPLORER <small>· KJV</small></div>
   <button class="tab on" data-v="arcs">Arcs</button>
   <button class="tab" data-v="net">People</button>

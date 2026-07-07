@@ -31,7 +31,8 @@ const ASSETS_TO_CACHE = [
 const LARGE_DATA_ASSETS = [
     '/kjv_bible.json',
     '/bsb.txt',
-    '/biblical-languages-trainer.html'
+    '/biblical-languages-trainer.html',
+    '/bible-explorer.html'
 ];
 
 // CDN resources to cache for offline use
