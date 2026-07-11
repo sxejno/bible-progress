@@ -41,15 +41,38 @@
     <meta name="twitter:image" content="https://bibleprogress.com/icon-512.png">
     <meta name="twitter:image:alt" content="Bible Progress App Icon">
 
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Bible Progress",
+        "url": "https://bibleprogress.com",
+        "description": "Word-weighted KJV Bible reading tracker with reading plans, streak tracking, goals, memorization and multi-profile support.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+
     <!-- Security Headers (Content Security Policy would be better implemented at server level) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- X-Frame-Options only works as an HTTP header (browsers reject it in <meta> with a console error); framing protection would need host-level headers. -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
+    <!-- Resource hints: shave connection setup off the render-blocking CDN fetches -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+
+    <!-- Tailwind stays render-blocking on purpose: deferring it causes a flash of unstyled content.
+         SRI is not possible for the Tailwind JIT CDN; for Chart.js add an integrity hash at deploy time if desired. -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
         .tab-active {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
@@ -474,23 +497,23 @@
                     <h2 id="intro-modal-title" class="text-2xl font-black text-slate-900 tracking-tight mb-2 text-center">Welcome to Bible Progress</h2>
                     <p class="text-center text-slate-500 text-sm mb-6">Pick a reading plan to get started.</p>
                     <div class="space-y-2 mb-6 max-h-[45vh] overflow-y-auto pr-1">
-                        <button onclick="window.selectIntroPlan('SEQUENTIAL')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
+                        <button onclick="window.selectIntroPlan('SEQUENTIAL', event)" data-plan="SEQUENTIAL" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
                             <div class="font-bold text-slate-900 text-sm">Canonical</div>
                             <div class="text-xs text-slate-500">Genesis to Revelation, 3 chapters at a time</div>
                         </button>
-                        <button onclick="window.selectIntroPlan('ONE_YEAR')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
+                        <button onclick="window.selectIntroPlan('ONE_YEAR', event)" data-plan="ONE_YEAR" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
                             <div class="font-bold text-slate-900 text-sm">One Year (OT + NT Daily)</div>
                             <div class="text-xs text-slate-500">3 OT + 1 NT chapter daily</div>
                         </button>
-                        <button onclick="window.selectIntroPlan('FIVE_DAY')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
+                        <button onclick="window.selectIntroPlan('FIVE_DAY', event)" data-plan="FIVE_DAY" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
                             <div class="font-bold text-slate-900 text-sm">Five-Day Plan</div>
                             <div class="text-xs text-slate-500">Whole Bible in a year, weekends off</div>
                         </button>
-                        <button onclick="window.selectIntroPlan('MCHEYNE')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
+                        <button onclick="window.selectIntroPlan('MCHEYNE', event)" data-plan="MCHEYNE" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
                             <div class="font-bold text-slate-900 text-sm">M'Cheyne</div>
                             <div class="text-xs text-slate-500">4 chapters daily, NT twice per year</div>
                         </button>
-                        <button onclick="window.selectIntroPlan('HORNER')" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
+                        <button onclick="window.selectIntroPlan('HORNER', event)" data-plan="HORNER" class="intro-plan-btn w-full text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-400 transition-all bg-white">
                             <div class="font-bold text-slate-900 text-sm">Prof. Horner</div>
                             <div class="text-xs text-slate-500">10 rotating lists, 1 chapter from each daily</div>
                         </button>
@@ -2069,6 +2092,17 @@
                         Add Sync Rule
                     </button>
                 </div>
+
+                <!-- About link: the About tab isn't in the mobile bottom nav, so keep it reachable here -->
+                <div class="pt-6 border-t border-slate-100">
+                    <button onclick="window.setTab('ABOUT')" class="w-full flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 transition-colors group" aria-label="About Bible Progress">
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span class="text-sm font-bold text-slate-700 group-hover:text-indigo-700">About Bible Progress</span>
+                        </span>
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -2346,6 +2380,25 @@
                 if (previouslyFocused && typeof previouslyFocused.focus === 'function') previouslyFocused.focus();
             };
         }
+
+        // Focus trap + Escape-to-close for dynamically created modals (memorized
+        // verses, easter eggs, celebrations) — the same treatment showCustomModal
+        // gives its modals. Stores the close function on modal._close so inline
+        // close buttons can call it and release the trap properly.
+        window.enhanceDynamicModal = (modal) => {
+            const release = createFocusTrap(modal);
+            const onKey = (e) => { if (e.key === 'Escape') close(); };
+            const close = () => {
+                document.removeEventListener('keydown', onKey);
+                release();
+                modal.remove();
+            };
+            document.addEventListener('keydown', onKey);
+            modal._close = close;
+            const firstButton = modal.querySelector('button');
+            if (firstButton) firstButton.focus();
+            return close;
+        };
 
         window.showCustomModal = (title, message, type = 'info', options = {}) => {
             return new Promise((resolve) => {
@@ -2693,6 +2746,70 @@
             return true;
         }
 
+        // Recursively strip prototype-pollution keys (validateAppData only checks the top levels)
+        function stripForbiddenKeysDeep(obj, depth = 0) {
+            if(depth > 4 || !obj || typeof obj !== 'object') return;
+            FORBIDDEN_KEYS.forEach(k => {
+                if(Object.prototype.hasOwnProperty.call(obj, k)) delete obj[k];
+            });
+            Object.keys(obj).forEach(k => {
+                if(obj[k] && typeof obj[k] === 'object') stripForbiddenKeysDeep(obj[k], depth + 1);
+            });
+        }
+
+        // Sanitize the fields validateAppData doesn't cover. Coerces or strips bad
+        // entries instead of rejecting so existing local/cloud data keeps loading.
+        // Runs on every load path: localStorage, JSON import, and cloud snapshots.
+        function normalizeAppData(data) {
+            if(!data || typeof data !== 'object') return data;
+            stripForbiddenKeysDeep(data);
+
+            if(data.memorizedVerses && typeof data.memorizedVerses === 'object') {
+                Object.keys(data.memorizedVerses).forEach(profileName => {
+                    const list = data.memorizedVerses[profileName];
+                    if(!Array.isArray(list)) { data.memorizedVerses[profileName] = []; return; }
+                    data.memorizedVerses[profileName] = list
+                        .filter(v => v && typeof v === 'object' &&
+                            typeof v.id === 'string' && typeof v.ref === 'string' && typeof v.text === 'string')
+                        .map(v => ({
+                            id: v.id.slice(0, 100),
+                            ref: v.ref.slice(0, 100),
+                            text: v.text.slice(0, 1000),
+                            addedDate: typeof v.addedDate === 'number' ? v.addedDate : Date.now()
+                        }));
+                });
+            }
+
+            const VALID_GOAL_TYPES = ['wholeBible', 'testament', 'books', 'category'];
+            if(data.goals && typeof data.goals === 'object') {
+                Object.keys(data.goals).forEach(profileName => {
+                    const list = data.goals[profileName];
+                    if(!Array.isArray(list)) { data.goals[profileName] = []; return; }
+                    data.goals[profileName] = list.filter(g =>
+                        g && typeof g === 'object' &&
+                        typeof g.name === 'string' && VALID_GOAL_TYPES.includes(g.type));
+                    data.goals[profileName].forEach(g => { g.name = g.name.slice(0, 100); });
+                });
+            }
+
+            if(data.customPlans && typeof data.customPlans === 'object') {
+                Object.keys(data.customPlans).forEach(profileName => {
+                    const plans = data.customPlans[profileName];
+                    if(!Array.isArray(plans)) { data.customPlans[profileName] = []; return; }
+                    data.customPlans[profileName] = plans.filter(p =>
+                        p && typeof p === 'object' && typeof p.name === 'string' && p.config &&
+                        typeof p.config.ot === 'number' && typeof p.config.nt === 'number');
+                    data.customPlans[profileName].forEach(p => {
+                        p.name = p.name.slice(0, 100);
+                        // Default optional fields older backups may lack (rendered directly in the plan list)
+                        if(typeof p.config.psalms !== 'number') p.config.psalms = 0;
+                        if(typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
+                    });
+                });
+            }
+            return data;
+        }
+
         // --- APP STATE & MIGRATION ---
         let savedData = null;
         try {
@@ -2703,6 +2820,7 @@
                     warn('Invalid saved data, resetting to defaults');
                     savedData = null;
                 }
+                if(savedData) normalizeAppData(savedData);
             }
         } catch (e) {
             logError('Failed to parse saved data:', e);
@@ -2897,21 +3015,20 @@
             });
 
         // --- UTILITY FUNCTIONS ---
-        // Helper function to get Eastern Time date string (YYYY-MM-DD) from timestamp
+        // Device-local date string (YYYY-MM-DD) from a timestamp. Day boundaries
+        // follow the reader's own midnight — previously this was hardcoded to
+        // US Eastern, shifting streaks/heatmap/daily-reset for everyone else.
         function getLocalDateString(timestamp) {
-            // Convert to Eastern Time (handles both EST and EDT automatically)
             const date = new Date(timestamp);
-            const easternDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-            const year = easternDate.getFullYear();
-            const month = String(easternDate.getMonth() + 1).padStart(2, '0');
-            const day = String(easternDate.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
-        // Day of week (0=Sun..6=Sat) for "today" in Eastern Time, matching getLocalDateString's day boundary
-        function getEasternDayOfWeek() {
-            const easternDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-            return easternDate.getDay();
+        // Day of week (0=Sun..6=Sat) for "today", matching getLocalDateString's day boundary
+        function getLocalDayOfWeek() {
+            return new Date().getDay();
         }
 
         // Day of week for a "YYYY-MM-DD" string. Avoids new Date(dateStr).getDay(),
@@ -3106,6 +3223,23 @@
             appData.profiles[appData.activeProfileId] = newProg;
         }
 
+        // --- CHAPTER DELETION TOMBSTONES ---
+        // Un-marking deletes the chapter key locally, but the cloud merge unions
+        // timestamps from both sides, so without a deletion record another device
+        // (or a stale snapshot) resurrects the chapter. Tombstones record the
+        // unmark time so the merge can tell "deleted after being read" apart from
+        // "not synced yet". Cleared on re-mark; purged after 30 days.
+        function recordChapterDeletion(profileId, chapterKey) {
+            if(!appData.deletedChapters) appData.deletedChapters = {};
+            if(!appData.deletedChapters[profileId]) appData.deletedChapters[profileId] = {};
+            appData.deletedChapters[profileId][chapterKey] = Date.now();
+        }
+        function clearChapterDeletion(profileId, chapterKey) {
+            if(appData.deletedChapters && appData.deletedChapters[profileId]) {
+                delete appData.deletedChapters[profileId][chapterKey];
+            }
+        }
+
         // --- AUTH LOGIC ---
         window.toggleAuthModal = (show) => {
             const modal = document.getElementById('auth-modal');
@@ -3247,6 +3381,7 @@
 
                 syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
                 syncStatus.title = "Cloud Synced";
+                syncStatus.setAttribute('aria-label', "Cloud Synced");
                 syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M9 16.2L5.5 12.7l1.4-1.4L9 13.4l4.1-4.1 1.4 1.4z" fill="white"/></svg>';
                 initCloudSync(user.uid);
             } else {
@@ -3256,6 +3391,7 @@
                 if (profileSyncNotice) profileSyncNotice.classList.remove('hidden');
                 syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-400 border border-slate-200";
                 syncStatus.title = "Local Only";
+                syncStatus.setAttribute('aria-label', "Local Only");
                 syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>';
                 if(unsubscribe) unsubscribe();
             }
@@ -3275,6 +3411,7 @@
                 }
                 return;
             }
+            normalizeAppData(cloudData);
 
             // Conflict guard: if the snapshot is older than local state (e.g. a stale
             // queued snapshot arriving after newer local edits), don't apply it —
@@ -3303,7 +3440,24 @@
             const localCustomPlans = appData.customPlans
             const localProfileSyncRules = appData.profileSyncRules
             const localProfileColors = appData.profileColors
+            const localDeletedChapters = appData.deletedChapters
             appData = cloudData;
+            // Union deletion tombstones from both sides, newest per chapter wins
+            if (!appData.deletedChapters) appData.deletedChapters = {}
+            if (localDeletedChapters) {
+                Object.keys(localDeletedChapters).forEach(pid => {
+                    const localDels = localDeletedChapters[pid]
+                    if (!localDels || typeof localDels !== 'object') return
+                    if (!appData.deletedChapters[pid]) appData.deletedChapters[pid] = {}
+                    const merged = appData.deletedChapters[pid]
+                    Object.keys(localDels).forEach(chKey => {
+                        const ts = localDels[chKey]
+                        if (typeof ts === 'number' && (!merged[chKey] || ts > merged[chKey])) {
+                            merged[chKey] = ts
+                        }
+                    })
+                })
+            }
             // Merge back any local daily plan entries that are current (today's date)
             // but absent or stale in the cloud snapshot
             if (localDailyProgress) {
@@ -3333,13 +3487,40 @@
                         return
                     }
                     const cloudProg = appData.profiles[profileId]
+                    const deleted = appData.deletedChapters[profileId] || {}
                     Object.keys(localProg).forEach(chKey => {
                         const localTs = localProg[chKey]
                         const cloudTs = cloudProg[chKey]
-                        if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs)) {
+                        // A local timestamp only survives if it postdates any deletion
+                        // tombstone for the chapter (i.e. it was re-marked after the unmark)
+                        if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs) &&
+                            (!deleted[chKey] || localTs > deleted[chKey])) {
                             cloudProg[chKey] = localTs
                         }
                     })
+                })
+            }
+
+            // Apply deletion tombstones to the merged result: drop any read
+            // timestamp at or before its tombstone (deleted on some device after
+            // it was read), and purge tombstones older than 30 days to bound growth
+            {
+                const TOMBSTONE_TTL_MS = 30 * 24 * 60 * 60 * 1000
+                const tombstoneCutoff = Date.now() - TOMBSTONE_TTL_MS
+                Object.keys(appData.deletedChapters).forEach(pid => {
+                    const dels = appData.deletedChapters[pid]
+                    if (!dels || typeof dels !== 'object') { delete appData.deletedChapters[pid]; return }
+                    const prof = appData.profiles && appData.profiles[pid]
+                    Object.keys(dels).forEach(chKey => {
+                        if (typeof dels[chKey] !== 'number' || dels[chKey] < tombstoneCutoff) {
+                            delete dels[chKey]
+                            return
+                        }
+                        if (prof && typeof prof[chKey] === 'number' && prof[chKey] <= dels[chKey]) {
+                            delete prof[chKey]
+                        }
+                    })
+                    if (Object.keys(dels).length === 0) delete appData.deletedChapters[pid]
                 })
             }
 
@@ -3520,6 +3701,16 @@
                     return;
                 }
                 processCloudSnapshot(docSnap);
+            }, (error) => {
+                // Without this callback a listen failure (permission change, quota,
+                // network) silently stops sync while the pill still says "synced"
+                warn('⚠️ Cloud sync listener error:', error.message);
+                if(syncStatus) {
+                    syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
+                    syncStatus.title = "⚠️ Sync Issue";
+                    syncStatus.setAttribute('aria-label', "⚠️ Sync Issue");
+                    syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+                }
             });
         }
 
@@ -3542,7 +3733,8 @@
         }
 
         // --- TOAST NOTIFICATIONS (ENHANCED) ---
-        window.showToast = function(message, type = 'info', duration = CONFIG.TOAST_DURATION_MS) {
+        // Pass action {label, onAction} to render an action button (e.g. Refresh)
+        window.showToast = function(message, type = 'info', duration = CONFIG.TOAST_DURATION_MS, action = null) {
             // Remove any existing toasts
             const existingToast = document.getElementById('connection-toast');
             if(existingToast) existingToast.remove();
@@ -3550,6 +3742,9 @@
             const toast = document.createElement('div');
             toast.id = 'connection-toast';
             toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[150] transition-all duration-300';
+            // Announce to screen readers; errors interrupt, the rest wait politely
+            toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+            toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
 
             const bgColors = {
                 'offline': 'bg-amber-50 border-amber-200',
@@ -3581,9 +3776,20 @@
             toast.innerHTML = `
                 <div class="${bgColors[type] || bgColors.info} ${textColors[type] || textColors.info} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
                     <span class="text-2xl">${icons[type] || icons.info}</span>
-                    <p class="text-sm font-bold leading-relaxed">${message}</p>
+                    <p class="text-sm font-bold leading-relaxed">${escapeHtml(message)}</p>
                 </div>
             `;
+
+            if(action && action.label && typeof action.onAction === 'function') {
+                const actionBtn = document.createElement('button');
+                actionBtn.textContent = action.label;
+                actionBtn.className = 'text-sm font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-wide underline underline-offset-2 flex-shrink-0';
+                actionBtn.addEventListener('click', () => {
+                    toast.remove();
+                    action.onAction();
+                });
+                toast.firstElementChild.appendChild(actionBtn);
+            }
 
             document.body.appendChild(toast);
 
@@ -3596,8 +3802,9 @@
             }, duration);
         };
 
-        // Convenience function for micro-toasts (shorter, less intrusive)
-        window.showMicroToast = function(message, duration = 2000) {
+        // Convenience function for micro-toasts (shorter, less intrusive).
+        // Pass action {label, onAction} to render an action button (e.g. Undo).
+        window.showMicroToast = function(message, duration = 2000, action = null) {
             const existingMicroToast = document.getElementById('micro-toast');
             if(existingMicroToast) existingMicroToast.remove();
 
@@ -3605,12 +3812,25 @@
             toast.id = 'micro-toast';
             toast.className = 'fixed top-20 right-6 z-[150] transition-all duration-300';
             toast.style.animation = 'fadeIn 0.2s ease-out';
+            toast.setAttribute('role', 'status');
+            toast.setAttribute('aria-live', 'polite');
 
             toast.innerHTML = `
                 <div class="bg-slate-800/90 text-white px-4 py-2 rounded-lg shadow-xl border border-slate-700 flex items-center gap-2">
-                    <p class="text-xs font-bold">${message}</p>
+                    <p class="text-xs font-bold">${escapeHtml(message)}</p>
                 </div>
             `;
+
+            if(action && action.label && typeof action.onAction === 'function') {
+                const actionBtn = document.createElement('button');
+                actionBtn.textContent = action.label;
+                actionBtn.className = 'text-xs font-black text-indigo-300 hover:text-white uppercase tracking-wide underline underline-offset-2';
+                actionBtn.addEventListener('click', () => {
+                    toast.remove();
+                    action.onAction();
+                });
+                toast.firstElementChild.appendChild(actionBtn);
+            }
 
             document.body.appendChild(toast);
 
@@ -3627,18 +3847,21 @@
                 if(syncStatus) {
                     syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
                     syncStatus.title = "Offline Mode";
+                    syncStatus.setAttribute('aria-label', "Offline Mode");
                     syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 5v8l5.5 3.5-1 1.5-6.5-4V5z" fill="white" opacity="0.6"/></svg>';
                 }
             } else if(currentUser) {
                 if(syncStatus) {
                     syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
                     syncStatus.title = "Cloud Synced";
+                    syncStatus.setAttribute('aria-label', "Cloud Synced");
                     syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M9 16.2L5.5 12.7l1.4-1.4L9 13.4l4.1-4.1 1.4 1.4z" fill="white"/></svg>';
                 }
             } else {
                 if(syncStatus) {
                     syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-400 border border-slate-200";
                     syncStatus.title = "Local Only";
+                    syncStatus.setAttribute('aria-label', "Local Only");
                     syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>';
                 }
             }
@@ -3711,6 +3934,7 @@
 						if(syncStatus) {
 							syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200";
 							syncStatus.title = "Cloud Synced";
+							syncStatus.setAttribute('aria-label', "Cloud Synced");
 							syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M9 16.2L5.5 12.7l1.4-1.4L9 13.4l4.1-4.1 1.4 1.4z" fill="white"/></svg>';
 						}
 					})
@@ -3719,6 +3943,7 @@
 						if(syncStatus) {
 							syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
 							syncStatus.title = "⚠️ Sync Issue";
+							syncStatus.setAttribute('aria-label', "⚠️ Sync Issue");
 							syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
 						}
 					});
@@ -3852,7 +4077,7 @@
             // Validate that the profile exists
             if (!appData.profiles[name]) {
                 logError(`❌ Profile "${name}" does not exist`);
-                await window.showAlert('Profile Not Found', `The profile "${name}" no longer exists. Switching to default profile.`, 'warning');
+                await window.showAlert('Profile Not Found', `The profile "${escapeHtml(name)}" no longer exists. Switching to default profile.`, 'warning');
                 // Switch to first available profile
                 const firstProfile = Object.keys(appData.profiles)[0];
                 if (firstProfile) {
@@ -3932,7 +4157,7 @@
             }
 
             if(appData.profiles[sanitized]) {
-                await window.showAlert('Profile Exists', `Profile "${sanitized}" already exists!`, 'warning');
+                await window.showAlert('Profile Exists', `Profile "${escapeHtml(sanitized)}" already exists!`, 'warning');
                 return;
             }
 
@@ -4037,7 +4262,7 @@
             }
 
             if(appData.profiles[newName]) {
-                await window.showAlert('Profile Exists', `Profile "${newName}" already exists!`, 'warning');
+                await window.showAlert('Profile Exists', `Profile "${escapeHtml(newName)}" already exists!`, 'warning');
                 return;
             }
 
@@ -8644,6 +8869,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         };
 
+        // Remove a memorized verse by id (removal needs no ref/text, so none is embedded in handlers)
+        window.removeMemorizedVerse = (verseId) => {
+            const memorizedList = (appData.memorizedVerses && appData.memorizedVerses[appData.activeProfileId]) || [];
+            const idx = memorizedList.findIndex(v => v.id === verseId);
+            if(idx === -1) return;
+            memorizedList.splice(idx, 1);
+            window.saveProgress(true);
+            if(currentReaderBook && currentReaderChapter) {
+                renderBibleChapter(currentReaderBook, currentReaderChapter);
+            }
+            window.showMicroToast('Removed from memorization');
+        };
+
         window.toggleVerseSelection = (verseId, element) => {
             // Toggle selection styling
             element.classList.toggle('selected-verse');
@@ -8674,7 +8912,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             <h2 class="text-2xl font-black text-slate-900 tracking-tight">Memorized Verses ⭐</h2>
                             <p class="text-sm text-slate-500 mt-1">${memorizedList.length} verse${memorizedList.length !== 1 ? 's' : ''}</p>
                         </div>
-                        <button onclick="this.closest('.fixed').remove()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close">
+                        <button onclick="this.closest('.fixed')._close()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
                     </div>
@@ -8683,14 +8921,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             ${memorizedList.map(verse => `
                                 <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <div class="flex justify-between items-start mb-2">
-                                        <h3 class="font-bold text-indigo-900">${verse.ref}</h3>
-                                        <button onclick="window.toggleMemorizeVerse('${verse.id}', '${verse.ref}', \`${verse.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`); this.closest('.fixed').remove(); window.showMemorizedVerses();"
+                                        <h3 class="font-bold text-indigo-900">${escapeHtml(verse.ref)}</h3>
+                                        <button data-remove-verse="${escapeHtml(verse.id)}"
                                                 class="text-amber-500 hover:text-amber-700 transition-colors"
                                                 title="Remove from memorization">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                         </button>
                                     </div>
-                                    <p class="text-slate-700 leading-relaxed">${verse.text}</p>
+                                    <p class="text-slate-700 leading-relaxed">${escapeHtml(verse.text)}</p>
                                 </div>
                             `).join('')}
                         </div>
@@ -8698,6 +8936,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>
             `;
             document.body.appendChild(modal);
+            // Attach remove handlers via data attribute so user text never lands in inline JS
+            modal.querySelectorAll('[data-remove-verse]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modal._close();
+                    window.removeMemorizedVerse(btn.dataset.removeVerse);
+                    window.showMemorizedVerses();
+                });
+            });
+            window.enhanceDynamicModal(modal);
         };
 
         const OT_CATS = [
@@ -8981,8 +9228,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const timestamp = wasRead ? null : Date.now();
             if (wasRead) {
                 delete prog[id];
+                recordChapterDeletion(appData.activeProfileId, id);
             } else {
                 prog[id] = timestamp;
+                clearChapterDeletion(appData.activeProfileId, id);
             }
             setProgress(prog);
 
@@ -9000,8 +9249,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if(appData.profiles[targetProfile]) {
                     if (timestamp) {
                         appData.profiles[targetProfile][id] = timestamp;
+                        clearChapterDeletion(targetProfile, id);
                     } else {
                         delete appData.profiles[targetProfile][id];
+                        recordChapterDeletion(targetProfile, id);
                     }
                 }
             }
@@ -9027,14 +9278,33 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true);
             window.renderChapterGrid();
-            if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-            if (typeof window.renderDashboard === 'function') window.renderDashboard();
+            // saveProgress → refreshUI already rendered the active tab; only render
+            // the others if we're elsewhere (avoids a duplicate full rebuild per tap)
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
         };
 
         // Mark multiple chapters as read (for daily plans with chapter ranges)
         window.markChaptersAsRead = (bookName, chapters, event, buttonEl = null) => {
             const prog = getProgress();
             const timestamp = Date.now();
+
+            // Snapshot the state this tap will change so the toast can offer Undo
+            const undoProfileId = appData.activeProfileId;
+            const undoSyncTarget = appData.profileSyncRules && appData.profileSyncRules[undoProfileId] &&
+                appData.profiles[appData.profileSyncRules[undoProfileId]]
+                ? appData.profileSyncRules[undoProfileId] : null;
+            const undoPrev = {};
+            const undoPrevTarget = {};
+            chapters.forEach(chapterNum => {
+                const chapterId = `${bookName}-${chapterNum}`;
+                undoPrev[chapterId] = prog[chapterId];
+                if (undoSyncTarget) undoPrevTarget[chapterId] = appData.profiles[undoSyncTarget][chapterId];
+            });
+            const undoHornerDaily = activePlan === 'HORNER' && appData.hornerDailyProgress && appData.hornerDailyProgress[undoProfileId]
+                ? JSON.parse(JSON.stringify(appData.hornerDailyProgress[undoProfileId])) : null;
+            const undoHornerCycles = activePlan === 'HORNER' && appData.hornerCycleCount && Array.isArray(appData.hornerCycleCount[undoProfileId])
+                ? [...appData.hornerCycleCount[undoProfileId]] : null;
 
             // Reset comeback card flag so dashboard re-evaluates fresh
             if (typeof comebackCardActive !== 'undefined') comebackCardActive = false;
@@ -9043,12 +9313,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             chapters.forEach(chapterNum => {
                 const chapterId = `${bookName}-${chapterNum}`;
                 prog[chapterId] = timestamp;
+                clearChapterDeletion(appData.activeProfileId, chapterId);
 
                 // Apply cross-profile sync if rule exists
                 if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
                     const targetProfile = appData.profileSyncRules[appData.activeProfileId];
                     if(appData.profiles[targetProfile]) {
                         appData.profiles[targetProfile][chapterId] = timestamp;
+                        clearChapterDeletion(targetProfile, chapterId);
                     }
                 }
 
@@ -9082,10 +9354,36 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             if (window.showMicroToast) {
-                window.showMicroToast(`Marked ${chapters.length} chapter${chapters.length !== 1 ? 's' : ''} as read ✅`);
+                window.showMicroToast(`Marked ${chapters.length} chapter${chapters.length !== 1 ? 's' : ''} as read ✅`, 6000, {
+                    label: 'Undo',
+                    onAction: () => {
+                        const restore = (profileId, prev) => {
+                            const p = appData.profiles[profileId];
+                            if (!p) return;
+                            Object.keys(prev).forEach(chapterId => {
+                                if (prev[chapterId] === undefined) {
+                                    delete p[chapterId];
+                                    recordChapterDeletion(profileId, chapterId);
+                                } else {
+                                    p[chapterId] = prev[chapterId];
+                                    clearChapterDeletion(profileId, chapterId);
+                                }
+                            });
+                        };
+                        restore(undoProfileId, undoPrev);
+                        if (undoSyncTarget) restore(undoSyncTarget, undoPrevTarget);
+                        if (undoHornerDaily) appData.hornerDailyProgress[undoProfileId] = undoHornerDaily;
+                        if (undoHornerCycles) appData.hornerCycleCount[undoProfileId] = undoHornerCycles;
+                        window.saveProgress(true);
+                        window.renderChapterGrid();
+                        if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+                        if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
+                        window.showMicroToast('Reading unmarked');
+                    }
+                });
             }
 
-            if (typeof window.renderDailyPlan === 'function') {
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') {
                 window.renderDailyPlan();
             }
         };
@@ -9105,12 +9403,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if (!next) return;
                 const chapterId = `${next.book}-${next.chapter}`;
                 prog[chapterId] = timestamp;
+                clearChapterDeletion(profileId, chapterId);
 
                 // Apply cross-profile sync if rule exists
                 if(appData.profileSyncRules && appData.profileSyncRules[profileId]) {
                     const targetProfile = appData.profileSyncRules[profileId];
                     if(appData.profiles[targetProfile]) {
                         appData.profiles[targetProfile][chapterId] = timestamp;
+                        clearChapterDeletion(targetProfile, chapterId);
                     }
                 }
 
@@ -9133,8 +9433,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             window.renderChapterGrid();
-            if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-            if (typeof window.renderDashboard === 'function') window.renderDashboard();
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
         };
 
         window.toggleAllInBook = async (val) => {
@@ -9162,16 +9462,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const chapterId = `${book.name}-${i+1}`;
                 if (val) {
                     prog[chapterId] = timestamp;
+                    clearChapterDeletion(appData.activeProfileId, chapterId);
                 } else {
                     delete prog[chapterId];
+                    recordChapterDeletion(appData.activeProfileId, chapterId);
                 }
 
                 // Apply cross-profile sync if rule exists
                 if(syncTarget && appData.profiles[syncTarget]) {
                     if (val) {
                         appData.profiles[syncTarget][chapterId] = timestamp;
+                        clearChapterDeletion(syncTarget, chapterId);
                     } else {
                         delete appData.profiles[syncTarget][chapterId];
+                        recordChapterDeletion(syncTarget, chapterId);
                     }
                 }
             });
@@ -9997,7 +10301,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     const data = JSON.parse(e.target.result);
                     if (typeof data === 'object' && data !== null) {
                         if(data.profiles && validateAppData(data)) {
-                            appData = data;
+                            appData = normalizeAppData(data);
 
                             // Ensure profilePlans exists for all profiles
                             if(!appData.profilePlans) {
@@ -10023,27 +10327,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
 
                             // Ensure customPlans exists (migration for existing backups)
+                            // Per-plan structure validation happens in normalizeAppData above
                             if(!appData.customPlans) {
                                 appData.customPlans = {};
                             }
-                            // Validate custom plan structure for each profile
-                            Object.keys(appData.customPlans).forEach(profileName => {
-                                const plans = appData.customPlans[profileName];
-                                if (!Array.isArray(plans)) {
-                                    appData.customPlans[profileName] = [];
-                                    return;
-                                }
-                                // Ensure each plan has required fields
-                                appData.customPlans[profileName] = plans.filter(p =>
-                                    p && typeof p === 'object' && p.name && p.config &&
-                                    typeof p.config.ot === 'number' && typeof p.config.nt === 'number'
-                                );
-                                // Default optional fields older backups may lack (rendered directly in the plan list)
-                                appData.customPlans[profileName].forEach(p => {
-                                    if (typeof p.config.psalms !== 'number') p.config.psalms = 0;
-                                    if (typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
-                                });
-                            });
 
                             // Ensure hornerCycleCount exists (migration for existing backups)
                             if(!appData.hornerCycleCount) {
@@ -10423,6 +10710,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>`;
 
             document.body.appendChild(modal);
+            window.enhanceDynamicModal(modal);
             window.updateGoalTypeUI();
         };
 
@@ -10462,7 +10750,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.closeGoalModal = () => {
             const modal = document.getElementById('goal-modal');
-            if(modal) modal.remove();
+            if(modal) (modal._close || (() => modal.remove()))();
         };
 
         window.addPresetGoal = (presetIdx) => {
@@ -10532,14 +10820,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         // Check for newly completed goals and celebrate
         function checkGoalCompletions() {
             const goals = getGoalsForProfile();
+            let completedAny = false;
             goals.forEach(goal => {
                 if(goal.completedAt) return;
                 const { percent } = calculateGoalProgress(goal);
                 if(percent >= 99.999) {
                     goal.completedAt = Date.now();
+                    completedAny = true;
                     window.showToast(`Goal complete: ${goal.name}`, 'success', 4000);
                 }
             });
+            // saveProgress runs before this, so persist the new completedAt or the
+            // goal re-completes (and re-toasts) on next load. No recursion: the
+            // nested checkGoalCompletions finds nothing new and stops.
+            if(completedAny) window.saveProgress();
         }
 
         // Helper: Get or create pinned daily chapters for plans that show "next N unread"
@@ -10886,8 +11180,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             else if (activePlan === 'FIVE_DAY') {
                 descText = "<strong>Five-Day Plan:</strong> Read the entire Bible in one year, 5 days a week (weekends off!). <span class='inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold ml-2'>✨ Sustainable Pace</span><br><span class='text-xs opacity-90 mt-1 block'>Old Testament in chronological order • New Testament spread throughout the year</span>";
 
-                // Get current day of week in Eastern Time (matches the app's day boundary)
-                const dayOfWeek = getEasternDayOfWeek();
+                // Get current day of week in local time (matches the app's day boundary)
+                const dayOfWeek = getLocalDayOfWeek();
                 const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                 let planDay = dayOfWeek;
                 if(dayOfWeek === 0) planDay = 1;
@@ -11382,18 +11676,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         }
 
+        // Precomputed chapter word counts. getWordCountForChapter runs inside
+        // O(chapters) loops (streaks, heatmap, activity, reports); the previous
+        // bible.find per call made those loops O(chapters × books).
+        let chapterWordCounts = null;
         function getWordCountForChapter(chapterKey) {
-            // Returns word count for a given chapter key (e.g., "Genesis-1")
-            const parts = chapterKey.split('-');
-            if (parts.length !== 2) return 0;
-
-            const bookName = parts[0];
-            const chapterNum = parseInt(parts[1], 10) - 1; // 0-indexed
-
-            const book = bible.find(b => b.name === bookName);
-            if (!book || !book.ch || !book.ch[chapterNum]) return 0;
-
-            return book.ch[chapterNum];
+            if (!chapterWordCounts) {
+                chapterWordCounts = new Map();
+                bible.forEach(b => b.ch.forEach((words, i) => chapterWordCounts.set(`${b.name}-${i + 1}`, words)));
+            }
+            return chapterWordCounts.get(chapterKey) || 0;
         }
 
         function getReadingActivity(progressOverride) {
@@ -11498,9 +11790,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             let daysToShow = 365; // Default to 365 days
 
             if(activityDates.length > 0) {
-                // Find earliest date
-                const earliestDate = new Date(Math.min(...activityDates.map(d => new Date(d))));
-                earliestDate.setHours(0, 0, 0, 0);
+                // Find earliest date. Parse "YYYY-MM-DD" as local midnight —
+                // new Date(str) parses UTC and shifts the day west of Greenwich
+                const earliestDate = new Date(Math.min(...activityDates.map(d => {
+                    const [y, m, dd] = d.split('-').map(Number);
+                    return new Date(y, m - 1, dd).getTime();
+                })));
 
                 // Calculate days between earliest and today
                 const daysSinceFirst = Math.floor((today - earliestDate) / (1000 * 60 * 60 * 24)) + 1;
@@ -11885,10 +12180,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         <p class="text-sm text-indigo-800 font-medium italic leading-relaxed">${getMilestoneVerseDisplay(milestone.verse)}</p>
                     </div>
                     <div class="text-4xl font-black text-indigo-600 mb-4">${milestone.days} DAYS</div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg">Glory to God! 🙏</button>
+                    <button onclick="this.closest('.fixed')._close()" class="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg">Glory to God! 🙏</button>
                 </div>
             `;
             document.body.appendChild(modal);
+            window.enhanceDynamicModal(modal);
         }
 
         // --- CUSTOM PLAN BUILDER ---
@@ -12043,7 +12339,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true)
             window.closePlanBuilder()
-            window.showToast(`"${escapeHtml(name)}" plan saved and activated!`, 'success')
+            window.showToast(`"${name}" plan saved and activated!`, 'success')
 
             // Track plan change
             trackPlanChange('CUSTOM')
@@ -12070,7 +12366,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true)
             cpbRenderSavedPlans()
-            window.showToast(`Switched to "${escapeHtml(plans[idx].name)}"`, 'success')
+            window.showToast(`Switched to "${plans[idx].name}"`, 'success')
             trackPlanChange('CUSTOM')
         }
 
@@ -12396,7 +12692,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 })
                 return chapters
             } else if (activePlan === 'FIVE_DAY' && typeof PLAN_FIVE_DAY !== 'undefined') {
-                let dayOfWeek = getEasternDayOfWeek()
+                let dayOfWeek = getLocalDayOfWeek()
                 let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
 
                 const computeFn = () => {
@@ -13009,7 +13305,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         // --- ONBOARDING PLAN SELECTOR ---
-        window.selectIntroPlan = (planId) => {
+        window.selectIntroPlan = (planId, evt) => {
             appData.profilePlans[appData.activeProfileId] = planId
             activePlan = planId
             const planSelector = document.getElementById('plan-selector')
@@ -13021,8 +13317,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 btn.classList.remove('border-indigo-500', 'bg-indigo-50')
                 btn.classList.add('border-slate-200', 'bg-white')
             })
-            event.currentTarget.classList.remove('border-slate-200', 'bg-white')
-            event.currentTarget.classList.add('border-indigo-500', 'bg-indigo-50')
+            const selectedBtn = (evt && evt.currentTarget) || document.querySelector(`.intro-plan-btn[data-plan="${planId}"]`)
+            if (selectedBtn) {
+                selectedBtn.classList.remove('border-slate-200', 'bg-white')
+                selectedBtn.classList.add('border-indigo-500', 'bg-indigo-50')
+            }
 
             // Generate first reading preview
             const chapters = getDashboardPlanChapters()
@@ -13203,7 +13502,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         // This Week / This Month report card with deltas vs the previous period
         function renderPeriodReport() {
             const progress = getProgress()
-            // Bucket read chapters by Eastern day: { 'YYYY-MM-DD': { words, chapters } }
+            // Bucket read chapters by local day: { 'YYYY-MM-DD': { words, chapters } }
             const daily = {}
             Object.keys(progress).forEach(chapterKey => {
                 const ts = progress[chapterKey]
@@ -13214,7 +13513,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 daily[dateStr].chapters++
             })
 
-            // Anchor from the Eastern "today" string; build dates from parts to avoid
+            // Anchor from the local "today" string; build dates from parts to avoid
             // the new Date('YYYY-MM-DD') UTC-midnight pitfall
             const todayStr = getTodaysDate()
             const [ty, tm, td] = todayStr.split('-').map(Number)
@@ -13706,25 +14005,28 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         // --- INITIALIZE DARK MODE FROM LOCALSTORAGE ---
+        // Shared dark-mode stylesheet. Canvases (Chart.js) need the same
+        // re-invert as images, or every chart renders in inverted colors.
+        function ensureDarkModeStyles() {
+            if(document.getElementById('dark-mode-style')) return;
+            const style = document.createElement('style');
+            style.id = 'dark-mode-style';
+            style.textContent = `
+                .dark-mode {
+                    filter: invert(0.9) hue-rotate(180deg);
+                    background: #1a1a1a !important;
+                }
+                .dark-mode img, .dark-mode canvas, .dark-mode [data-no-invert] { filter: invert(1) hue-rotate(180deg); }
+            `;
+            document.head.appendChild(style);
+        }
+
         // Restore user's dark mode preference on page load
         const darkModePreference = localStorage.getItem('darkMode');
         if (darkModePreference === 'enabled') {
             document.body.classList.add('dark-mode');
             updateDarkModeToggleUI(true);
-
-            // Add dark mode styles if not already present
-            if(!document.getElementById('dark-mode-style')) {
-                const style = document.createElement('style');
-                style.id = 'dark-mode-style';
-                style.textContent = `
-                    .dark-mode {
-                        filter: invert(0.9) hue-rotate(180deg);
-                        background: #1a1a1a !important;
-                    }
-                    .dark-mode img { filter: invert(1) hue-rotate(180deg); }
-                `;
-                document.head.appendChild(style);
-            }
+            ensureDarkModeStyles();
         }
 
         // --- TAB SCROLL INDICATOR ---
@@ -13780,10 +14082,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 					<h2 class="text-2xl font-black text-indigo-900 mb-2">SECRET UNLOCKED!</h2>
 					<p class="text-slate-600 mb-4">"For nothing is secret, that shall not be made manifest" - Luke 8:17</p>
 					<p class="text-sm text-indigo-600 font-bold">You've discovered the Konami Code blessing!</p>
-					<button onclick="this.parentElement.parentElement.remove()" class="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">Amen! ✨</button>
+					<button onclick="this.closest('.fixed')._close()" class="mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700">Amen! ✨</button>
 				</div>
 			`;
 			document.body.appendChild(modal);
+			window.enhanceDynamicModal(modal);
 		}
 
 		// --- EASTER EGG 2: Rainbow Mode (Click profile dot 7 times) ---
@@ -13826,11 +14129,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				</div>
 			`;
 			document.body.appendChild(modal);
-			
+			window.enhanceDynamicModal(modal);
+
 			setTimeout(() => {
 				document.body.style.animation = '';
 				style.remove();
-				modal.remove();
+				if (document.body.contains(modal)) modal._close();
 			}, 10000);
 		}
 
@@ -13858,10 +14162,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 					<p class="text-lg font-bold text-amber-800 mb-4">You've conquered Psalm 119!</p>
 					<p class="text-sm text-slate-600 leading-relaxed mb-2">The longest chapter in the Bible with 2,423 words across 176 verses.</p>
 					<p class="text-xs text-amber-600 italic">"Thy word is a lamp unto my feet, and a light unto my path" - Psalm 119:105</p>
-					<button onclick="this.parentElement.parentElement.remove()" class="mt-6 px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 shadow-lg">Glory to God! 🙏</button>
+					<button onclick="this.closest('.fixed')._close()" class="mt-6 px-8 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 shadow-lg">Glory to God! 🙏</button>
 				</div>
 			`;
 			document.body.appendChild(modal);
+			window.enhanceDynamicModal(modal);
 		}
 
 		// --- EASTER EGG 4: Bible Completion Celebration ---
@@ -13912,10 +14217,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 						<p class="text-2xl font-bold text-slate-700 mb-6">All 66 books. 789,634 words. One amazing accomplishment!</p>
 						<p class="text-lg text-slate-600 mb-4">"Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."</p>
 						<p class="text-sm font-bold text-indigo-600 mb-8">- 2 Timothy 2:15</p>
-						<button onclick="this.parentElement.parentElement.remove()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg text-lg">Continue in the Word 📖</button>
+						<button onclick="this.closest('.fixed')._close()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg text-lg">Continue in the Word 📖</button>
 					</div>
 				`;
 				document.body.appendChild(modal);
+				window.enhanceDynamicModal(modal);
 			}, 500);
 			
 			setTimeout(() => confetti.remove(), 6000);
@@ -14026,12 +14332,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 		  `;
 
 		  // Close on button click or backdrop click
-		  modal.querySelector('.creator-close')?.addEventListener('click', () => modal.remove());
+		  modal.querySelector('.creator-close')?.addEventListener('click', () => modal._close());
 		  modal.addEventListener('click', (ev) => {
-			if (ev.target === modal) modal.remove();
+			if (ev.target === modal) modal._close();
 		  });
 
 		  document.body.appendChild(modal);
+		  window.enhanceDynamicModal(modal);
 		}
 
 		function escapeHtml(s) {
@@ -14091,11 +14398,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 					<p class="text-lg font-black text-red-900 mb-2">Merry Christmas!</p>
 					<p class="text-sm text-slate-700 italic">"For unto you is born this day in the city of David a Saviour, which is Christ the Lord."</p>
 					<p class="text-xs text-slate-500 mt-2">- Luke 2:11</p>
-					<button onclick="this.parentElement.parentElement.remove()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700">Amen! 🎅</button>
+					<button onclick="this.closest('.fixed')._close()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700">Amen! 🎅</button>
 				</div>
 			`;
 			document.body.appendChild(modal);
-			setTimeout(() => modal.remove(), 10000);
+			window.enhanceDynamicModal(modal);
+			setTimeout(() => { if (document.body.contains(modal)) modal._close() }, 10000);
 		}
 
 		function showEasterMessage() {
@@ -14107,11 +14415,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 					<p class="text-lg font-black text-purple-900 mb-2">He is Risen!</p>
 					<p class="text-sm text-slate-700 italic">"Why seek ye the living among the dead? He is not here, but is risen!"</p>
 					<p class="text-xs text-slate-500 mt-2">- Luke 24:5-6</p>
-					<button onclick="this.parentElement.parentElement.remove()" class="mt-4 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700">Hallelujah! 🙏</button>
+					<button onclick="this.closest('.fixed')._close()" class="mt-4 px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-bold hover:bg-purple-700">Hallelujah! 🙏</button>
 				</div>
 			`;
 			document.body.appendChild(modal);
-			setTimeout(() => modal.remove(), 10000);
+			window.enhanceDynamicModal(modal);
+			setTimeout(() => { if (document.body.contains(modal)) modal._close() }, 10000);
 		}
 
 		// --- DARK MODE FEATURE ---
@@ -14152,18 +14461,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 			updateDarkModeToggleUI(isDark);
 
 			// Inject dark mode styles if not already present
-			if(!document.getElementById('dark-mode-style')) {
-				const style = document.createElement('style');
-				style.id = 'dark-mode-style';
-				style.textContent = `
-					.dark-mode {
-						filter: invert(0.9) hue-rotate(180deg);
-						background: #1a1a1a !important;
-					}
-					.dark-mode img { filter: invert(1) hue-rotate(180deg); }
-				`;
-				document.head.appendChild(style);
-			}
+			ensureDarkModeStyles();
 
 			// Show celebration notification for easter egg activation
 			if(showNotification) {
@@ -14636,9 +14934,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 							const newWorker = registration.installing;
 							newWorker.addEventListener('statechange', () => {
 								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-									// New service worker available, show update notification
+									// New service worker available; it already called skipWaiting,
+									// so a reload activates it — offer that as a one-click action
 									log('📦 New version available! Refresh to update.');
-									showToast('New version available! Refresh to update.', 'info');
+									showToast('New version available!', 'info', 15000, {
+										label: 'Refresh',
+										onAction: () => window.location.reload()
+									});
 								}
 							});
 						});

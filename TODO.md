@@ -218,9 +218,9 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 #### PWA Improvements
 - [ ] **Service worker enhancements**
-  - [ ] Version CDN resource caching (prevent stale Tailwind/Chart.js)
+  - [x] Version CDN resource caching (prevent stale Tailwind/Chart.js) ✅ **COMPLETED 2026-07-11** — CDN copies moved to a version-independent `bible-progress-cdn-v1` cache with network-first runtime refresh; Chart.js pinned to an exact version
   - [ ] Network-first strategy for index.html
-  - [ ] "New version available" notification with refresh button
+  - [x] "New version available" notification with refresh button ✅ **COMPLETED 2026-07-11** — update toast now has a one-click Refresh action
   - [ ] Handle update failures gracefully
 
 #### Developer Experience
@@ -351,11 +351,9 @@ These issues significantly impact user experience and should be addressed ASAP.
 
 ### Active Bugs (Need Fixes)
 
-- [ ] **🔴 HIGH: Service worker caches stale CDN resources**
+- [x] **🔴 HIGH: Service worker caches stale CDN resources** ✅ **FIXED 2026-07-11**
   - **Location**: `service-worker.js`
-  - **Impact**: Users may see outdated Tailwind/Chart.js after CDN updates
-  - **Solution**: Version cache name or use network-first for CDNs
-  - **Priority**: High (affects all users on update)
+  - **Fix**: CDN responses now live in a version-independent `bible-progress-cdn-v1` cache refreshed network-first at runtime, so cache-name bumps no longer wipe offline CDN copies; Chart.js pinned to `chart.js@4.5.1`
 
 - [ ] **🟡 MEDIUM: Blue Letter Bible links may break**
   - **Location**: External reading links

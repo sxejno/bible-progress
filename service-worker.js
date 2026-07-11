@@ -1,7 +1,11 @@
-const CACHE_NAME = 'bible-progress-v11';
+const CACHE_NAME = 'bible-progress-v12';
+// CDN copies live in their own version-independent cache so bumping
+// CACHE_NAME no longer wipes offline CDN resources (old HIGH-priority bug)
+const CDN_CACHE = 'bible-progress-cdn-v1';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
+    '/404.html',
     '/learn.html',
     '/chapter-recall.html',
     '/bible-books-game.html',
@@ -35,16 +39,19 @@ const LARGE_DATA_ASSETS = [
     '/bible-explorer.html'
 ];
 
-// CDN resources to cache for offline use
+// CDN resources to cache for offline use (keep URLs in sync with index.html)
 const CDN_RESOURCES = [
     'https://cdn.tailwindcss.com',
-    'https://cdn.jsdelivr.net/npm/chart.js@4',
+    'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js',
     'https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js'
 ];
+
+// Hosts whose responses are kept in the CDN cache by the runtime fetch handler
+const CDN_HOSTS = ['cdn.tailwindcss.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com', 'www.gstatic.com'];
 
 // Install Event: Cache files immediately and skip waiting
 self.addEventListener('install', (event) => {
@@ -60,13 +67,26 @@ self.addEventListener('install', (event) => {
 
 // Fetch Event: Network first for HTML, cache first for everything else
 self.addEventListener('fetch', (event) => {
-    // Skip cross-origin requests (CDN resources will be fetched normally)
+    // Cross-origin: network first; keep a fresh copy of known CDN resources in
+    // the version-independent CDN cache and fall back to any cached copy offline
     if (!event.request.url.startsWith(self.location.origin)) {
+        const isCdn = CDN_HOSTS.includes(new URL(event.request.url).hostname);
         event.respondWith(
-            fetch(event.request).catch(() => {
-                // If CDN fails and it's cached, serve from cache
-                return caches.match(event.request);
-            })
+            fetch(event.request)
+                .then((response) => {
+                    // Opaque responses (no-cors script/style fetches) are cacheable too
+                    if (isCdn && response && (response.ok || response.type === 'opaque')) {
+                        const responseClone = response.clone();
+                        caches.open(CDN_CACHE).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    // If CDN fails and it's cached (either cache), serve from cache
+                    return caches.match(event.request);
+                })
         );
         return;
     }
@@ -140,7 +160,7 @@ self.addEventListener('activate', (event) => {
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames.map((cache) => {
-                        if (cache !== CACHE_NAME) {
+                        if (cache !== CACHE_NAME && cache !== CDN_CACHE) {
                             return caches.delete(cache);
                         }
                     })
@@ -195,12 +215,13 @@ async function downloadOfflineResources(client) {
         sendProgress('Downloading external resources...',
             Math.floor((downloaded / totalResources) * 100));
 
-        // Cache CDN resources
+        // Cache CDN resources into the version-independent CDN cache
+        const cdnCache = await caches.open(CDN_CACHE);
         for (const url of CDN_RESOURCES) {
             try {
                 const response = await fetch(url, { mode: 'cors' });
                 if (response.ok) {
-                    await cache.put(url, response);
+                    await cdnCache.put(url, response);
                     downloaded++;
                     sendProgress(`Downloading external resources... (${downloaded - localAssets.length}/${CDN_RESOURCES.length})`,
                         Math.floor((downloaded / totalResources) * 100));
