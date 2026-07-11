@@ -3152,6 +3152,23 @@
             appData.profiles[appData.activeProfileId] = newProg;
         }
 
+        // --- CHAPTER DELETION TOMBSTONES ---
+        // Un-marking deletes the chapter key locally, but the cloud merge unions
+        // timestamps from both sides, so without a deletion record another device
+        // (or a stale snapshot) resurrects the chapter. Tombstones record the
+        // unmark time so the merge can tell "deleted after being read" apart from
+        // "not synced yet". Cleared on re-mark; purged after 30 days.
+        function recordChapterDeletion(profileId, chapterKey) {
+            if(!appData.deletedChapters) appData.deletedChapters = {};
+            if(!appData.deletedChapters[profileId]) appData.deletedChapters[profileId] = {};
+            appData.deletedChapters[profileId][chapterKey] = Date.now();
+        }
+        function clearChapterDeletion(profileId, chapterKey) {
+            if(appData.deletedChapters && appData.deletedChapters[profileId]) {
+                delete appData.deletedChapters[profileId][chapterKey];
+            }
+        }
+
         // --- AUTH LOGIC ---
         window.toggleAuthModal = (show) => {
             const modal = document.getElementById('auth-modal');
@@ -3349,7 +3366,24 @@
             const localCustomPlans = appData.customPlans
             const localProfileSyncRules = appData.profileSyncRules
             const localProfileColors = appData.profileColors
+            const localDeletedChapters = appData.deletedChapters
             appData = cloudData;
+            // Union deletion tombstones from both sides, newest per chapter wins
+            if (!appData.deletedChapters) appData.deletedChapters = {}
+            if (localDeletedChapters) {
+                Object.keys(localDeletedChapters).forEach(pid => {
+                    const localDels = localDeletedChapters[pid]
+                    if (!localDels || typeof localDels !== 'object') return
+                    if (!appData.deletedChapters[pid]) appData.deletedChapters[pid] = {}
+                    const merged = appData.deletedChapters[pid]
+                    Object.keys(localDels).forEach(chKey => {
+                        const ts = localDels[chKey]
+                        if (typeof ts === 'number' && (!merged[chKey] || ts > merged[chKey])) {
+                            merged[chKey] = ts
+                        }
+                    })
+                })
+            }
             // Merge back any local daily plan entries that are current (today's date)
             // but absent or stale in the cloud snapshot
             if (localDailyProgress) {
@@ -3379,13 +3413,40 @@
                         return
                     }
                     const cloudProg = appData.profiles[profileId]
+                    const deleted = appData.deletedChapters[profileId] || {}
                     Object.keys(localProg).forEach(chKey => {
                         const localTs = localProg[chKey]
                         const cloudTs = cloudProg[chKey]
-                        if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs)) {
+                        // A local timestamp only survives if it postdates any deletion
+                        // tombstone for the chapter (i.e. it was re-marked after the unmark)
+                        if (typeof localTs === 'number' && localTs > 0 && (!cloudTs || localTs > cloudTs) &&
+                            (!deleted[chKey] || localTs > deleted[chKey])) {
                             cloudProg[chKey] = localTs
                         }
                     })
+                })
+            }
+
+            // Apply deletion tombstones to the merged result: drop any read
+            // timestamp at or before its tombstone (deleted on some device after
+            // it was read), and purge tombstones older than 30 days to bound growth
+            {
+                const TOMBSTONE_TTL_MS = 30 * 24 * 60 * 60 * 1000
+                const tombstoneCutoff = Date.now() - TOMBSTONE_TTL_MS
+                Object.keys(appData.deletedChapters).forEach(pid => {
+                    const dels = appData.deletedChapters[pid]
+                    if (!dels || typeof dels !== 'object') { delete appData.deletedChapters[pid]; return }
+                    const prof = appData.profiles && appData.profiles[pid]
+                    Object.keys(dels).forEach(chKey => {
+                        if (typeof dels[chKey] !== 'number' || dels[chKey] < tombstoneCutoff) {
+                            delete dels[chKey]
+                            return
+                        }
+                        if (prof && typeof prof[chKey] === 'number' && prof[chKey] <= dels[chKey]) {
+                            delete prof[chKey]
+                        }
+                    })
+                    if (Object.keys(dels).length === 0) delete appData.deletedChapters[pid]
                 })
             }
 
@@ -3552,6 +3613,15 @@
                     return;
                 }
                 processCloudSnapshot(docSnap);
+            }, (error) => {
+                // Without this callback a listen failure (permission change, quota,
+                // network) silently stops sync while the pill still says "synced"
+                warn('⚠️ Cloud sync listener error:', error.message);
+                if(syncStatus) {
+                    syncStatus.className = "flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-amber-600 border border-amber-200";
+                    syncStatus.title = "⚠️ Sync Issue";
+                    syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/><path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+                }
             });
         }
 
@@ -9027,8 +9097,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const timestamp = wasRead ? null : Date.now();
             if (wasRead) {
                 delete prog[id];
+                recordChapterDeletion(appData.activeProfileId, id);
             } else {
                 prog[id] = timestamp;
+                clearChapterDeletion(appData.activeProfileId, id);
             }
             setProgress(prog);
 
@@ -9046,8 +9118,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if(appData.profiles[targetProfile]) {
                     if (timestamp) {
                         appData.profiles[targetProfile][id] = timestamp;
+                        clearChapterDeletion(targetProfile, id);
                     } else {
                         delete appData.profiles[targetProfile][id];
+                        recordChapterDeletion(targetProfile, id);
                     }
                 }
             }
@@ -9089,12 +9163,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             chapters.forEach(chapterNum => {
                 const chapterId = `${bookName}-${chapterNum}`;
                 prog[chapterId] = timestamp;
+                clearChapterDeletion(appData.activeProfileId, chapterId);
 
                 // Apply cross-profile sync if rule exists
                 if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
                     const targetProfile = appData.profileSyncRules[appData.activeProfileId];
                     if(appData.profiles[targetProfile]) {
                         appData.profiles[targetProfile][chapterId] = timestamp;
+                        clearChapterDeletion(targetProfile, chapterId);
                     }
                 }
 
@@ -9151,12 +9227,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if (!next) return;
                 const chapterId = `${next.book}-${next.chapter}`;
                 prog[chapterId] = timestamp;
+                clearChapterDeletion(profileId, chapterId);
 
                 // Apply cross-profile sync if rule exists
                 if(appData.profileSyncRules && appData.profileSyncRules[profileId]) {
                     const targetProfile = appData.profileSyncRules[profileId];
                     if(appData.profiles[targetProfile]) {
                         appData.profiles[targetProfile][chapterId] = timestamp;
+                        clearChapterDeletion(targetProfile, chapterId);
                     }
                 }
 
@@ -9208,16 +9286,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const chapterId = `${book.name}-${i+1}`;
                 if (val) {
                     prog[chapterId] = timestamp;
+                    clearChapterDeletion(appData.activeProfileId, chapterId);
                 } else {
                     delete prog[chapterId];
+                    recordChapterDeletion(appData.activeProfileId, chapterId);
                 }
 
                 // Apply cross-profile sync if rule exists
                 if(syncTarget && appData.profiles[syncTarget]) {
                     if (val) {
                         appData.profiles[syncTarget][chapterId] = timestamp;
+                        clearChapterDeletion(syncTarget, chapterId);
                     } else {
                         delete appData.profiles[syncTarget][chapterId];
+                        recordChapterDeletion(syncTarget, chapterId);
                     }
                 }
             });
