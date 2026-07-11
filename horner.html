@@ -145,7 +145,7 @@
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Read 1 chapter from each of 10 lists • Complete the Bible every 119 days</span>
+                    <span>Read 1 chapter from each of 10 lists • <span id="paceSummary">~6,000 words ≈ 24 min a day</span></span>
                 </div>
 
                 <!-- Reading Milestones -->
@@ -160,7 +160,7 @@
                             You'll also be well into the <strong>Gospels</strong> and <strong>General Epistles</strong>.
                         </p>
                         <div class="text-xs font-semibold text-indigo-600 bg-white rounded-lg px-3 py-2 border border-indigo-200">
-                            ⏱️ Average: 24 minutes/day (at 250 WPM)
+                            ⏱️ Average: <span id="avg30chip">24 minutes/day (at 250 WPM)</span>
                         </div>
                     </div>
 
@@ -171,10 +171,10 @@
                         </div>
                         <p class="text-sm text-slate-700 leading-relaxed mb-2">
                             You'll read <strong>Acts 13 times</strong> and <strong>Proverbs 11 times</strong>.
-                            You'll complete the <strong>Gospels 4 times</strong> and read through the entire Bible <strong>over 3 times</strong>!
+                            You'll complete the <strong>Gospels 4 times</strong> and take in <strong><span id="yearTotal">~2.2 million words — nearly 3 Bibles' worth</span></strong>.
                         </p>
                         <div class="text-xs font-semibold text-emerald-600 bg-white rounded-lg px-3 py-2 border border-emerald-200">
-                            ⏱️ Average: 25 minutes/day (at 250 WPM)
+                            ⏱️ Average: <span id="avg365chip">25 minutes/day (at 250 WPM)</span>
                         </div>
                     </div>
                 </div>
@@ -185,21 +185,25 @@
         <div class="glass rounded-2xl p-6 shadow-xl mb-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
                 <div>
-                    <label class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
+                    <label for="dayInput" class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
                         Current Day Number
                     </label>
-                    <input
-                        type="number"
-                        id="dayInput"
-                        value="1"
-                        min="1"
-                        class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 focus:outline-none text-lg font-semibold transition-colors"
-                        placeholder="Enter day..."
-                    >
+                    <div class="flex items-stretch gap-2">
+                        <button type="button" onclick="stepDay(-1)" aria-label="Previous day" class="px-4 rounded-xl border-2 border-indigo-200 text-indigo-600 font-black text-xl hover:bg-indigo-50 hover:border-indigo-400 transition-colors">−</button>
+                        <input
+                            type="number"
+                            id="dayInput"
+                            value="1"
+                            min="1"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 focus:outline-none text-lg font-semibold text-center transition-colors"
+                            placeholder="Enter day..."
+                        >
+                        <button type="button" onclick="stepDay(1)" aria-label="Next day" class="px-4 rounded-xl border-2 border-indigo-200 text-indigo-600 font-black text-xl hover:bg-indigo-50 hover:border-indigo-400 transition-colors">+</button>
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
+                    <label for="wpmInput" class="block text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2">
                         Reading Speed (WPM)
                     </label>
                     <input
@@ -220,6 +224,19 @@
                     🔍 Analyze Day
                 </button>
             </div>
+            <p class="text-xs text-slate-500 mt-3">Everything below updates live as you type — the URL keeps your day number, so you can bookmark or share it.</p>
+        </div>
+
+        <!-- Your Horner Progress (populated from the main app's local data when available) -->
+        <div id="personalPanel" class="hidden glass rounded-2xl p-6 shadow-xl mb-8">
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">📊 Your Horner Progress</h2>
+                    <p class="text-sm text-slate-600">Live from your <a href="index.html" class="text-indigo-600 font-semibold hover:underline">Bible Progress tracker</a> on this device.</p>
+                </div>
+                <div id="personalChips" class="flex items-center gap-2 flex-wrap"></div>
+            </div>
+            <div id="personalLists" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
         </div>
 
         <!-- Dashboard Grid -->
@@ -296,11 +313,47 @@
             </div>
         </div>
 
+        <!-- The 10 Lists at a Glance -->
+        <div class="glass rounded-2xl p-6 shadow-xl mb-8">
+            <h2 class="text-2xl font-black text-slate-800 mb-1">🗂️ The 10 Lists at a Glance</h2>
+            <p class="text-sm text-slate-600 mb-5">Each list loops back to its own start when it finishes — the bar shows how far through its cycle each list is on day <span id="listsDay" class="font-bold text-indigo-600">1</span>.</p>
+            <div id="listsOverview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+        </div>
+
         <!-- Reading Time Trends Chart -->
         <div class="glass rounded-2xl p-6 shadow-xl mb-8">
-            <h2 class="text-2xl font-black text-slate-800 mb-4">📈 Reading Time Trends (Next 60 Days)</h2>
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+                <h2 class="text-2xl font-black text-slate-800">📈 Reading Time Trends</h2>
+                <label for="trendRange" class="text-xs font-bold text-indigo-600 uppercase tracking-wide">
+                    Window
+                    <select id="trendRange" onchange="updateDashboard()" class="ml-2 px-3 py-2 rounded-xl border-2 border-indigo-200 text-sm font-semibold text-slate-700 focus:border-indigo-500 focus:outline-none bg-white">
+                        <option value="30">30 days</option>
+                        <option value="60" selected>60 days</option>
+                        <option value="90">90 days</option>
+                        <option value="180">180 days</option>
+                    </select>
+                </label>
+            </div>
             <div class="chart-container">
                 <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Composition + Cycle Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="glass rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-black text-slate-800 mb-1">🥧 Today's Words by List</h2>
+                <p class="text-sm text-slate-600 mb-4">Where day <span id="mixDay" class="font-bold text-indigo-600">1</span>'s reading time actually goes.</p>
+                <div class="chart-container">
+                    <canvas id="mixChart"></canvas>
+                </div>
+            </div>
+            <div class="glass rounded-2xl p-6 shadow-xl">
+                <h2 class="text-2xl font-black text-slate-800 mb-1">🔁 Days per Cycle</h2>
+                <p class="text-sm text-slate-600 mb-4">How many days each list takes to loop back to its first chapter.</p>
+                <div class="chart-container">
+                    <canvas id="cycleChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -1577,17 +1630,21 @@ Revelation,22,573,2,51,2.9`;
         let flatLists = [];
 
         const LIST_DEFINITIONS = [
-            { id: 1, name: "Gospels", color: "from-blue-500 to-cyan-500", books: ["Matthew", "Mark", "Luke", "John"] },
-            { id: 2, name: "Pentateuch", color: "from-emerald-500 to-teal-500", books: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"] },
-            { id: 3, name: "Paul's Epistles", color: "from-purple-500 to-pink-500", books: ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "Hebrews"] },
-            { id: 4, name: "General Epistles", color: "from-amber-500 to-orange-500", books: ["1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"] },
-            { id: 5, name: "Wisdom Literature", color: "from-indigo-500 to-purple-500", books: ["Job", "Ecclesiastes", "Song of Solomon"] },
-            { id: 6, name: "Psalms", color: "from-rose-500 to-pink-500", books: ["Psalm"] },
-            { id: 7, name: "Proverbs", color: "from-violet-500 to-purple-500", books: ["Proverbs"] },
-            { id: 8, name: "History", color: "from-sky-500 to-blue-500", books: ["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"] },
-            { id: 9, name: "Prophets", color: "from-red-500 to-rose-500", books: ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"] },
-            { id: 10, name: "Acts", color: "from-teal-500 to-emerald-500", books: ["Acts"] }
+            { id: 1, name: "Gospels", color: "from-blue-500 to-cyan-500", hex: "#3b82f6", books: ["Matthew", "Mark", "Luke", "John"] },
+            { id: 2, name: "Pentateuch", color: "from-emerald-500 to-teal-500", hex: "#10b981", books: ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"] },
+            { id: 3, name: "Paul's Epistles", color: "from-purple-500 to-pink-500", hex: "#a855f7", books: ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "Hebrews"] },
+            { id: 4, name: "General Epistles", color: "from-amber-500 to-orange-500", hex: "#f59e0b", books: ["1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"] },
+            { id: 5, name: "Wisdom Literature", color: "from-indigo-500 to-purple-500", hex: "#6366f1", books: ["Job", "Ecclesiastes", "Song of Solomon"] },
+            { id: 6, name: "Psalms", color: "from-rose-500 to-pink-500", hex: "#f43f5e", books: ["Psalm"] },
+            { id: 7, name: "Proverbs", color: "from-violet-500 to-purple-500", hex: "#8b5cf6", books: ["Proverbs"] },
+            { id: 8, name: "History", color: "from-sky-500 to-blue-500", hex: "#0ea5e9", books: ["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"] },
+            { id: 9, name: "Prophets", color: "from-red-500 to-rose-500", hex: "#ef4444", books: ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"] },
+            { id: 10, name: "Acts", color: "from-teal-500 to-emerald-500", hex: "#14b8a6", books: ["Acts"] }
         ];
+
+        // The main app stores progress keyed by its own book names ("Psalms-23");
+        // this page's word-count data uses "Psalm". Map where they differ.
+        const APP_BOOK_NAME = { 'Psalm': 'Psalms' };
 
         // --- INITIALIZATION ---
         function initSystem() {
@@ -1631,15 +1688,63 @@ Revelation,22,573,2,51,2.9`;
             document.getElementById('loader').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
 
-            // Check for URL parameter (day number from main app)
+            // Prefill reading speed from the main app's setting, if present
+            try {
+                const appData = JSON.parse(localStorage.getItem('kjv_v6_data'));
+                if(appData && Number.isFinite(appData.wordsPerMinute) && appData.wordsPerMinute >= 50) {
+                    document.getElementById('wpmInput').value = appData.wordsPerMinute;
+                }
+            } catch(e) { /* corrupt or missing local data — keep defaults */ }
+
+            // URL parameters (day number from the main app, optional wpm) win over defaults
             const urlParams = new URLSearchParams(window.location.search);
-            const dayParam = urlParams.get('day');
-            if(dayParam && !isNaN(dayParam)) {
-                document.getElementById('dayInput').value = parseInt(dayParam);
+            const dayParam = parseInt(urlParams.get('day'), 10);
+            if(Number.isFinite(dayParam) && dayParam >= 1) {
+                document.getElementById('dayInput').value = dayParam;
+            }
+            const wpmParam = parseInt(urlParams.get('wpm'), 10);
+            if(Number.isFinite(wpmParam) && wpmParam >= 50) {
+                document.getElementById('wpmInput').value = wpmParam;
             }
 
-            analyzeExtremes();
+            // Live updates while typing
+            document.getElementById('dayInput').addEventListener('input', scheduleUpdate);
+            document.getElementById('wpmInput').addEventListener('input', scheduleUpdate);
+
             updateDashboard();
+        }
+
+        // --- INPUT HELPERS ---
+        let updateTimer = null;
+        function scheduleUpdate() {
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(updateDashboard, 150);
+        }
+
+        function getDay() {
+            const day = parseInt(document.getElementById('dayInput').value, 10);
+            return (Number.isFinite(day) && day >= 1) ? day : 1;
+        }
+
+        function getWpm() {
+            const wpm = parseInt(document.getElementById('wpmInput').value, 10);
+            return (Number.isFinite(wpm) && wpm >= 50) ? wpm : 250;
+        }
+
+        function stepDay(delta) {
+            const next = Math.max(1, getDay() + delta);
+            document.getElementById('dayInput').value = next;
+            updateDashboard();
+        }
+
+        function syncUrl(day) {
+            try {
+                const url = new URL(window.location.href);
+                if(url.searchParams.get('day') !== String(day)) {
+                    url.searchParams.set('day', day);
+                    history.replaceState(null, '', url);
+                }
+            } catch(e) { /* e.g. file:// — shareable URLs just won't update */ }
         }
 
         // --- CORE LOGIC ---
@@ -1648,9 +1753,24 @@ Revelation,22,573,2,51,2.9`;
             flatLists.forEach((list, index) => {
                 let rawIndex = (day - 1) % list.length;
                 let item = list[rawIndex];
-                reading.push({ ...item, listId: index + 1 });
+                reading.push({ ...item, listId: index + 1, position: rawIndex + 1, total: list.length });
             });
             return reading;
+        }
+
+        function wordsForDay(day) {
+            return getReadingForDay(day).reduce((a, b) => a + b.words, 0);
+        }
+
+        // Exact long-run daily average: each list contributes its average chapter length every day
+        function avgDailyWords() {
+            return flatLists.reduce((sum, list) =>
+                sum + list.reduce((a, b) => a + b.words, 0) / list.length, 0);
+        }
+
+        function listTotals(list) {
+            const words = list.reduce((a, b) => a + b.words, 0);
+            return { words, len: list.length, avg: Math.round(words / list.length) };
         }
 
         // --- ANALYTICS ---
@@ -1703,12 +1823,16 @@ Revelation,22,573,2,51,2.9`;
 
         // --- UI UPDATES ---
         let chartInstance = null;
+        let mixChartInstance = null;
+        let cycleChartInstance = null;
 
         function updateDashboard() {
-            const day = parseInt(document.getElementById('dayInput').value);
-            const wpm = parseInt(document.getElementById('wpmInput').value);
+            const day = getDay();
+            const wpm = getWpm();
 
             document.getElementById('displayDay').innerText = day;
+            document.getElementById('listsDay').innerText = day;
+            document.getElementById('mixDay').innerText = day;
 
             const todaysReading = getReadingForDay(day);
             const totalWords = todaysReading.reduce((a,b) => a + b.words, 0);
@@ -1722,34 +1846,92 @@ Revelation,22,573,2,51,2.9`;
             listContainer.innerHTML = '';
             todaysReading.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'list-item-card bg-white rounded-xl p-4 border-l-4 border-indigo-400 shadow-sm';
+                div.className = 'list-item-card bg-white rounded-xl p-4 border-l-4 shadow-sm';
+                div.style.borderLeftColor = item.listDef.hex;
                 div.innerHTML = `
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wide">List ${item.listId}</span>
-                        <span class="text-xs text-slate-500">${item.words} words</span>
+                    <div class="flex items-center justify-between mb-1 gap-2">
+                        <span class="text-xs font-bold uppercase tracking-wide" style="color:${item.listDef.hex}">List ${item.listId} · ${item.listDef.name}</span>
+                        <span class="text-xs text-slate-500 whitespace-nowrap">${item.words} words · ~${(item.words / wpm).toFixed(1)} min</span>
                     </div>
-                    <div class="text-lg font-black text-slate-800">${item.book} ${item.chapter}</div>
+                    <div class="flex items-baseline justify-between gap-2">
+                        <span class="text-lg font-black text-slate-800">${item.book} ${item.chapter}</span>
+                        <span class="text-[11px] font-semibold text-slate-400 whitespace-nowrap">${item.position} of ${item.total} in cycle</span>
+                    </div>
                 `;
                 listContainer.appendChild(div);
             });
 
+            renderPaceSummary(wpm);
+            renderListsOverview(day, wpm);
             updateChart(day, wpm);
+            renderMixChart(day, wpm);
+            renderCycleChart();
             analyzeExtremes();
+            renderPersonalPanel(wpm);
+            syncUrl(day);
+        }
+
+        function renderPaceSummary(wpm) {
+            const avg = avgDailyWords();
+            document.getElementById('paceSummary').innerText =
+                `~${Math.round(avg).toLocaleString()} words ≈ ${Math.round(avg / wpm)} min a day at ${wpm} WPM`;
+
+            let w30 = 0, w365 = 0;
+            for(let d = 1; d <= 365; d++) {
+                const w = wordsForDay(d);
+                if(d <= 30) w30 += w;
+                w365 += w;
+            }
+            document.getElementById('avg30chip').innerText = `${Math.round(w30 / 30 / wpm)} minutes/day (at ${wpm} WPM)`;
+            document.getElementById('avg365chip').innerText = `${Math.round(w365 / 365 / wpm)} minutes/day (at ${wpm} WPM)`;
+            document.getElementById('yearTotal').innerText =
+                `~${(w365 / 1e6).toFixed(1)} million words — ${(w365 / 789634).toFixed(1)}× the whole Bible's word count`;
+        }
+
+        function renderListsOverview(day, wpm) {
+            const container = document.getElementById('listsOverview');
+            container.innerHTML = flatLists.map((list, idx) => {
+                const def = LIST_DEFINITIONS[idx];
+                const stats = listTotals(list);
+                const pos = (day - 1) % stats.len + 1;
+                const cyclesDone = Math.floor((day - 1) / stats.len);
+                const pct = Math.round(pos / stats.len * 100);
+                return `
+                <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="w-6 h-6 rounded-lg bg-gradient-to-br ${def.color} text-white text-[11px] font-black flex items-center justify-center flex-shrink-0">${def.id}</span>
+                        <span class="text-sm font-black text-slate-800 leading-tight">${def.name}</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 leading-relaxed mb-2">
+                        ${stats.len} chapters · ${stats.words.toLocaleString()} words<br>
+                        avg ${stats.avg.toLocaleString()} words/ch ≈ ${(stats.avg / wpm).toFixed(1)} min/day
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden" role="progressbar" aria-valuenow="${pos}" aria-valuemin="1" aria-valuemax="${stats.len}" aria-label="${def.name} cycle position">
+                        <div class="h-full rounded-full" style="width:${pct}%;background:${def.hex}"></div>
+                    </div>
+                    <div class="mt-1.5 flex items-center justify-between text-[10px] font-bold text-slate-400">
+                        <span>Ch ${pos} of ${stats.len}</span>
+                        <span>${cyclesDone > 0 ? `↻ ${cyclesDone} cycle${cyclesDone > 1 ? 's' : ''} done` : '1st cycle'}</span>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         function updateChart(startDay, wpm) {
             const ctx = document.getElementById('trendChart').getContext('2d');
-            const range = 60;
+            const range = parseInt(document.getElementById('trendRange').value, 10) || 60;
             const labels = [];
             const data = [];
+            const wordData = [];
 
             for(let i=0; i<range; i++) {
                 let d = startDay + i;
-                let reading = getReadingForDay(d);
-                let words = reading.reduce((a,b) => a + b.words, 0);
+                let words = wordsForDay(d);
                 labels.push(`Day ${d}`);
                 data.push(words / wpm);
+                wordData.push(words);
             }
+            const avg = data.reduce((a,b) => a + b, 0) / range;
 
             if(chartInstance) chartInstance.destroy();
 
@@ -1770,6 +1952,15 @@ Revelation,22,573,2,51,2.9`;
                         pointHoverBackgroundColor: 'rgba(99, 102, 241, 1)',
                         pointHoverBorderColor: 'white',
                         pointHoverBorderWidth: 2
+                    }, {
+                        label: `${range}-day average`,
+                        data: Array(range).fill(avg),
+                        borderColor: 'rgba(100, 116, 139, 0.7)',
+                        borderDash: [6, 6],
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0,
+                        pointHoverRadius: 0
                     }]
                 },
                 options: {
@@ -1808,11 +1999,187 @@ Revelation,22,573,2,51,2.9`;
                             padding: 12,
                             titleFont: { size: 14, weight: 'bold' },
                             bodyFont: { size: 13 },
-                            cornerRadius: 8
+                            cornerRadius: 8,
+                            filter: (item) => item.datasetIndex === 0,
+                            callbacks: {
+                                label: (item) => ` ~${item.parsed.y.toFixed(1)} min · ${wordData[item.dataIndex].toLocaleString()} words`,
+                                afterLabel: () => `${range}-day average: ~${avg.toFixed(1)} min`
+                            }
                         }
                     }
                 }
             });
+        }
+
+        function renderMixChart(day, wpm) {
+            const ctx = document.getElementById('mixChart').getContext('2d');
+            const reading = getReadingForDay(day);
+
+            if(mixChartInstance) mixChartInstance.destroy();
+
+            mixChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: reading.map(r => `${r.listDef.name} — ${r.book} ${r.chapter}`),
+                    datasets: [{
+                        data: reading.map(r => r.words),
+                        backgroundColor: reading.map(r => r.listDef.hex),
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '55%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 10 }, color: '#475569' }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (item) => {
+                                    const words = item.parsed;
+                                    const total = reading.reduce((a, b) => a + b.words, 0);
+                                    return ` ${words.toLocaleString()} words · ~${(words / wpm).toFixed(1)} min · ${Math.round(words / total * 100)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCycleChart() {
+            const ctx = document.getElementById('cycleChart').getContext('2d');
+
+            if(cycleChartInstance) return; // static data — draw once
+
+            const stats = flatLists.map(listTotals);
+            cycleChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: LIST_DEFINITIONS.map(d => d.name),
+                    datasets: [{
+                        label: 'Days per cycle',
+                        data: stats.map(s => s.len),
+                        backgroundColor: LIST_DEFINITIONS.map(d => d.hex),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Days', font: { weight: 'bold', size: 12 }, color: '#475569' },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 11 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: (item) => {
+                                    const s = stats[item.dataIndex];
+                                    return ` ${s.len} days · ${s.words.toLocaleString()} words · avg ${s.avg.toLocaleString()}/chapter`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- PERSONAL PROGRESS (from the main app's local data) ---
+        function localTodayString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // Mirrors the main app's getNextHornerChapter: first unread chapter wins;
+        // once a list is fully read, advance from the most recently read chapter
+        function nextChapterForList(listIdx, prog) {
+            const flat = flatLists[listIdx];
+            if(!flat.length) return null;
+            let firstUnread = -1, lastReadIdx = -1, lastReadTs = -1;
+            flat.forEach((ch, i) => {
+                const appBook = APP_BOOK_NAME[ch.book] || ch.book;
+                const ts = prog[`${appBook}-${ch.chapter}`];
+                if(!ts && firstUnread === -1) firstUnread = i;
+                if(ts && ts >= lastReadTs) { lastReadTs = ts; lastReadIdx = i; }
+            });
+            const idx = firstUnread !== -1 ? firstUnread : (lastReadIdx + 1) % flat.length;
+            const ch = flat[idx];
+            return {
+                book: APP_BOOK_NAME[ch.book] || ch.book,
+                chapter: ch.chapter,
+                words: ch.words,
+                position: idx + 1,
+                listLength: flat.length,
+                isNewCycle: firstUnread === -1
+            };
+        }
+
+        function renderPersonalPanel(wpm) {
+            const panel = document.getElementById('personalPanel');
+            let appData = null;
+            try { appData = JSON.parse(localStorage.getItem('kjv_v6_data')); } catch(e) { /* ignore */ }
+
+            const pid = appData && appData.activeProfileId;
+            const onHorner = pid && appData.profilePlans && appData.profilePlans[pid] === 'HORNER';
+            if(!onHorner) { panel.classList.add('hidden'); return; }
+
+            const prog = (appData.profiles && appData.profiles[pid]) || {};
+            const daily = appData.hornerDailyProgress && appData.hornerDailyProgress[pid];
+            const completedToday = (daily && daily.date === localTodayString() && Array.isArray(daily.completedLists))
+                ? daily.completedLists : [];
+            const cycleCounts = (appData.hornerCycleCount && Array.isArray(appData.hornerCycleCount[pid]))
+                ? appData.hornerCycleCount[pid] : [];
+
+            let wordsLeftToday = 0;
+            const rows = LIST_DEFINITIONS.map((def, idx) => {
+                const next = nextChapterForList(idx, prog);
+                if(!next) return '';
+                const doneToday = completedToday.includes(idx);
+                if(!doneToday) wordsLeftToday += next.words;
+                const cycles = cycleCounts[idx] || 0;
+                return `
+                <div class="bg-white rounded-xl p-3.5 border-l-4 shadow-sm flex items-center justify-between gap-3 ${doneToday ? 'opacity-70' : ''}" style="border-left-color:${def.hex}">
+                    <div class="min-w-0">
+                        <div class="text-[11px] font-bold uppercase tracking-wide" style="color:${def.hex}">List ${def.id} · ${def.name}${cycles > 0 ? ` <span class="text-slate-400 normal-case">×${cycles} read-through${cycles > 1 ? 's' : ''}</span>` : ''}</div>
+                        <div class="text-base font-black text-slate-800 truncate">${doneToday ? '' : 'Next: '}${next.book} ${next.chapter}${next.isNewCycle ? ' ↻' : ''}</div>
+                        <div class="text-[11px] text-slate-400 font-semibold">${next.position} of ${next.listLength} in list · ${next.words.toLocaleString()} words ≈ ${(next.words / wpm).toFixed(1)} min</div>
+                    </div>
+                    <span class="flex-shrink-0 text-xs font-black rounded-full px-2.5 py-1 ${doneToday ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">${doneToday ? '✓ Done today' : 'To read'}</span>
+                </div>`;
+            }).join('');
+
+            const doneCount = completedToday.length;
+            const totalCycles = cycleCounts.reduce((a, b) => a + (b || 0), 0);
+            const chip = (txt, cls) => `<span class="text-xs font-black rounded-full px-3 py-1.5 ${cls}">${txt}</span>`;
+            document.getElementById('personalChips').innerHTML =
+                chip(`Today: ${doneCount}/10 lists`, doneCount === 10 ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700') +
+                (doneCount === 10
+                    ? chip('🎉 All done today', 'bg-emerald-100 text-emerald-700')
+                    : chip(`≈ ${Math.round(wordsLeftToday / wpm)} min left today`, 'bg-amber-100 text-amber-700')) +
+                (totalCycles > 0 ? chip(`↻ ${totalCycles} read-through${totalCycles !== 1 ? 's' : ''}`, 'bg-purple-100 text-purple-700') : '');
+
+            document.getElementById('personalLists').innerHTML = rows;
+            panel.classList.remove('hidden');
         }
 
         // Start the app

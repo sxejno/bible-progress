@@ -72,6 +72,12 @@
         .tl-christ .tl-bar { background:linear-gradient(90deg,#4f46e5,#818cf8); height:24px; box-shadow:0 6px 16px -6px #4f46e5; }
         .tl-christ .tl-label { color:#4f46e5; }
         .tl-pivot { font-size:10px; font-weight:900; letter-spacing:0.12em; color:#4f46e5; margin-bottom:3px; }
+        .tl-count { display:block; font-size:10px; font-weight:700; color:#94a3b8; margin-top:2px; }
+        .tl-count.done-all { color:#059669; }
+
+        /* Quiz best-score badge (topic cards + quiz header) */
+        .quiz-badge { font-size:10px; font-weight:800; border-radius:999px; padding:0.1rem 0.45rem; background:#fef3c7; color:#b45309; white-space:nowrap; }
+        .quiz-badge.perfect { background:#d1fae5; color:#047857; }
 
         /* Who's who + glossary — dense reference lists (not cards) */
         .person-row { padding: 0.65rem 0.25rem; border-bottom: 1px solid #eef2f7; }
@@ -252,6 +258,7 @@
             </div>
             <div class="progress-track"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
             <p id="progress-pct" class="text-right text-xs font-bold text-slate-500 mt-1.5">0% complete</p>
+            <div id="progress-levels" class="flex flex-wrap items-center gap-2 mt-2" aria-label="Progress by difficulty level"></div>
         </section>
 
         <!-- Start Here path -->
@@ -289,15 +296,18 @@
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900">Topics</h2>
                     <p id="grid-subtitle" class="text-slate-600 mt-1">The whole story, one topic at a time — check off what you've learned.</p>
                 </div>
-                <div class="seg" role="group" aria-label="Filter topics by status">
-                    <button id="sf-all" class="active" aria-pressed="true" onclick="setStatusFilter('all')">All</button>
-                    <button id="sf-todo" aria-pressed="false" onclick="setStatusFilter('todo')">To do</button>
-                    <button id="sf-done" aria-pressed="false" onclick="setStatusFilter('done')">Done</button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="openRandomTopic()" class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3.5 py-1.5 hover:bg-indigo-100 transition-colors" title="Open a random topic you haven't finished yet">🎲 Random</button>
+                    <div class="seg" role="group" aria-label="Filter topics by status">
+                        <button id="sf-all" class="active" aria-pressed="true" onclick="setStatusFilter('all')">All</button>
+                        <button id="sf-todo" aria-pressed="false" onclick="setStatusFilter('todo')">To do</button>
+                        <button id="sf-done" aria-pressed="false" onclick="setStatusFilter('done')">Done</button>
+                    </div>
                 </div>
             </div>
             <div class="relative mb-5">
                 <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
-                <input id="topic-search" type="search" placeholder="Search topics — try “temple”, “Abraham”, “Passover”, “Babylon”…" oninput="setTopicSearch(this.value)" aria-label="Search topics" class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
+                <input id="topic-search" type="search" placeholder="Search topics (press “/”) — try “temple”, “Abraham”, “Passover”, “Babylon”…" oninput="setTopicSearch(this.value)" aria-label="Search topics, keyboard shortcut: slash" class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300">
             </div>
             <div id="learn-topics" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
             <p id="grid-empty" class="hidden text-center text-slate-500 py-10 font-medium"></p>
@@ -1183,6 +1193,26 @@
     const isDone = (id) => doneSet.has(id);
     function saveDone() { localStorage.setItem(LEARN_PROGRESS_KEY, JSON.stringify([...doneSet])); }
 
+    /* Quiz best scores, persisted per topic: { [topicId]: { best, total } } */
+    const QUIZ_SCORE_KEY = 'bibleLearnQuizScores';
+    function loadQuizScores() {
+        try { const v = JSON.parse(localStorage.getItem(QUIZ_SCORE_KEY)); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+        catch { return {}; }
+    }
+    let quizScores = loadQuizScores();
+    function saveQuizScores() { localStorage.setItem(QUIZ_SCORE_KEY, JSON.stringify(quizScores)); }
+    function quizBest(id) {
+        const s = quizScores[id];
+        return s && Number.isFinite(s.best) && Number.isFinite(s.total) && s.total > 0 ? s : null;
+    }
+    function recordQuizScore(id, right, total) {
+        const prev = quizBest(id);
+        // A changed question count means the quiz was revised — start fresh
+        const best = prev && prev.total === total ? Math.max(prev.best, right) : right;
+        quizScores[id] = { best, total };
+        saveQuizScores();
+    }
+
     const checkIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
     const circleIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>`;
     const checkIconSm = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`;
@@ -1211,8 +1241,15 @@
     };
     window.markDoneAndNext = (id, nextId) => {
         doneSet.add(id); saveDone();
-        renderPath(); renderGrid(); renderProgress(); maybeCelebrate();
+        renderPath(); renderTimeline(); renderGrid(); renderProgress(); maybeCelebrate();
         if (nextId) openLearnTopic(nextId); else closeLearnTopic();
+    };
+
+    window.openRandomTopic = () => {
+        const pool = LEARN_TOPICS.filter(t => !isDone(t.id) && t.id !== currentDetailId);
+        const pickFrom = pool.length ? pool : LEARN_TOPICS.filter(t => t.id !== currentDetailId);
+        if (!pickFrom.length) return;
+        openLearnTopic(pickFrom[Math.floor(Math.random() * pickFrom.length)].id);
     };
 
     /* ---------- Related topics (curated threads) ---------- */
@@ -1598,6 +1635,7 @@
         if (doneSet.has(id)) doneSet.delete(id); else doneSet.add(id);
         saveDone();
         renderPath();
+        renderTimeline();
         renderGrid();
         renderProgress();
         refreshDetailButtons();
@@ -1605,11 +1643,14 @@
     };
 
     window.resetLearnProgress = () => {
-        if (!doneSet.size) return;
-        if (!confirm('Clear all checked-off topics? This cannot be undone.')) return;
+        if (!doneSet.size && !Object.keys(quizScores).length) return;
+        if (!confirm('Clear all checked-off topics and saved quiz scores? This cannot be undone.')) return;
         doneSet.clear();
         saveDone();
+        quizScores = {};
+        saveQuizScores();
         renderPath();
+        renderTimeline();
         renderGrid();
         renderProgress();
         refreshDetailButtons();
@@ -1634,6 +1675,18 @@
                 nb.textContent = (done === 0 ? 'Start' : 'Continue') + ' ▶';
                 nb.title = nt ? 'Next: ' + nt.title : 'Continue';
             }
+        }
+        const lv = el('progress-levels');
+        if (lv) {
+            const per = { foundation: { d: 0, t: 0 }, core: { d: 0, t: 0 }, advanced: { d: 0, t: 0 } };
+            LEARN_TOPICS.forEach(t => {
+                const k = per[t.level] ? t.level : 'core';
+                per[k].t++;
+                if (isDone(t.id)) per[k].d++;
+            });
+            lv.innerHTML = Object.keys(per).filter(k => per[k].t).map(k =>
+                `<span class="level-pill level-${k}" title="${LEVELS[k]} topics you've completed">${LEVELS[k]} ${per[k].d}/${per[k].t}</span>`
+            ).join('');
         }
     }
 
@@ -1664,14 +1717,22 @@
     }
 
     function renderTimeline() {
+        const counts = {};
+        LEARN_TOPICS.forEach(t => {
+            const c = counts[t.era] || (counts[t.era] = { total: 0, done: 0 });
+            c.total++;
+            if (isDone(t.id)) c.done++;
+        });
         el('learn-timeline').innerHTML = LEARN_ERAS.map(e => {
             const isChrist = e.id === 'christ';
             const evs = (e.events || []).map(ev => `<div class="tl-ev">${ev.y ? `<b>${ev.y}</b>` : ''}${ev.t}</div>`).join('')
                 + (isChrist ? '<div class="tl-pivot">✝ BC ┃ AD</div>' : '');
-            return `<button class="tl-era ${isChrist ? 'tl-christ' : ''} ${e.id === activeEra ? 'active' : ''}" style="--era:${e.color}" onclick="filterLearnByEra('${e.id}')" aria-label="Filter to era: ${e.label}">
+            const c = counts[e.id];
+            const countHtml = c ? `<span class="tl-count ${c.done === c.total ? 'done-all' : ''}">${c.done}/${c.total} topic${c.total === 1 ? '' : 's'}${c.done === c.total ? ' ✓' : ''}</span>` : '';
+            return `<button class="tl-era ${isChrist ? 'tl-christ' : ''} ${e.id === activeEra ? 'active' : ''}" style="--era:${e.color}" onclick="filterLearnByEra('${e.id}')" aria-label="Filter to era: ${e.label}${c ? `, ${c.done} of ${c.total} topics done` : ''}">
                 <div class="tl-evwrap">${evs}</div>
                 <div class="tl-bar"></div>
-                <div class="tl-meta"><span class="tl-label">${e.label}</span><span class="tl-range">${e.range}</span></div>
+                <div class="tl-meta"><span class="tl-label">${e.label}</span><span class="tl-range">${e.range}</span>${countHtml}</div>
             </button>`;
         }).join('');
         el('clear-era').classList.toggle('hidden', !activeEra);
@@ -1713,6 +1774,8 @@
             const done = isDone(t.id);
             const lvl = t.level || 'core';
             const mins = readMins(t);
+            const qBest = quizFor(t.id).length ? quizBest(t.id) : null;
+            const quizChip = qBest ? `<span class="quiz-badge ${qBest.best === qBest.total ? 'perfect' : ''}" title="Your best quiz score">✏️ ${qBest.best}/${qBest.total}</span>` : '';
             return `
             <article class="topic-card glass rounded-2xl p-5 flex flex-col ${done ? 'done' : ''}" data-topic-id="${t.id}" onclick="openLearnTopic('${t.id}')" role="button" tabindex="0" aria-label="Open: ${t.title}${done ? ' (completed)' : ''}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLearnTopic('${t.id}')}">
                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -1725,7 +1788,7 @@
                 <h3 class="text-lg font-black text-slate-900 leading-snug">${t.title}</h3>
                 <p class="card-summary text-sm text-slate-600 mt-1.5 flex-1">${t.summary}</p>
                 <div class="flex items-center justify-between gap-2 mt-3">
-                    <span class="card-meta inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400"><span class="level-pill level-${lvl}">${LEVELS[lvl] || 'Core'}</span> ~${mins} min</span>
+                    <span class="card-meta inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400"><span class="level-pill level-${lvl}">${LEVELS[lvl] || 'Core'}</span> ~${mins} min ${quizChip}</span>
                     <span class="open-label text-xs font-bold text-indigo-600">${done ? 'Reviewed ✓' : 'Open →'}</span>
                 </div>
             </article>`;
@@ -1757,13 +1820,14 @@
                 <div class="flex flex-wrap gap-2">${rel.map(rid => `<button onclick="openLearnTopic('${rid}')" class="text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1.5 hover:bg-indigo-100 transition-colors">${topicById[rid].title} →</button>`).join('')}</div>
             </div>` : '';
         const quiz = quizFor(id);
+        const qBest = quiz.length ? quizBest(id) : null;
         const quizHtml = quiz.length ? `
             <div class="mt-8 pt-6 border-t border-slate-200 max-w-3xl">
                 <button id="quiz-toggle" onclick="toggleQuiz(this)" aria-expanded="false" aria-controls="quiz-body" class="w-full flex items-center justify-between gap-3 bg-indigo-50/70 border border-indigo-100 hover:border-indigo-300 rounded-2xl px-4 py-3.5 transition-colors text-left">
                     <span class="flex items-center gap-3">
                         <span class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">✏️</span>
                         <span>
-                            <span class="block font-black text-slate-900">Check yourself</span>
+                            <span class="block font-black text-slate-900">Check yourself${qBest ? ` <span class="quiz-badge ${qBest.best === qBest.total ? 'perfect' : ''} align-middle ml-1">best ${qBest.best}/${qBest.total}</span>` : ''}</span>
                             <span class="block text-xs text-slate-500 font-semibold">${quiz.length} quick question${quiz.length > 1 ? 's' : ''} — no grades, just glue for the memory</span>
                         </span>
                     </span>
@@ -1855,14 +1919,32 @@
         const total = wrap.querySelectorAll('.quiz-q').length;
         if (wrap.querySelectorAll('.quiz-q.answered').length === total) {
             const right = [...wrap.querySelectorAll('.quiz-q')].filter(x => x.dataset.correct === '1').length;
+            recordQuizScore(topicId, right, total);
+            const best = quizBest(topicId);
             const score = el('quiz-score');
             if (score) {
+                const bestNote = best && best.best > right ? ` Your best so far is ${best.best}/${best.total}.` : '';
                 score.classList.add('show');
-                score.innerHTML = right === total
+                score.innerHTML = (right === total
                     ? `🎉 <span>${right} of ${total} — perfect. Mark the topic done below.</span>`
-                    : `<span>You got ${right} of ${total}. The explanations above are the glue — one more read and you own it.</span>`;
+                    : `<span>You got ${right} of ${total}.${bestNote} The explanations above are the glue — one more read and you own it.</span>`)
+                    + `<button onclick="retakeQuiz()" class="ml-auto flex-shrink-0 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-3 py-1.5 hover:bg-indigo-100 transition-colors">Retake ↺</button>`;
             }
+            renderGrid(); // keep the topic cards' quiz badges current
         }
+    };
+
+    window.retakeQuiz = () => {
+        document.querySelectorAll('#quiz-body .quiz-q').forEach(q => {
+            q.classList.remove('answered');
+            delete q.dataset.correct;
+            q.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('correct', 'wrong'));
+            const w = q.querySelector('.quiz-why'); if (w) w.innerHTML = '';
+        });
+        const s = el('quiz-score');
+        if (s) { s.classList.remove('show'); s.innerHTML = ''; }
+        const body = el('quiz-body');
+        if (body) body.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     /* ---------- "Did you know?" fact strip ---------- */
@@ -2077,6 +2159,17 @@
         window.renderPeople();
         window.renderGlossary();
         document.addEventListener('keydown', (e) => {
+            // "/" jumps to the topic search from anywhere in the hub
+            if (e.key === '/' && !e.altKey && !e.metaKey && !e.ctrlKey
+                && el('learn-detail').classList.contains('hidden') && !document.getElementById('scripture-modal')) {
+                const tag = e.target && e.target.tagName;
+                if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                    e.preventDefault();
+                    const s = el('topic-search');
+                    if (s) { s.focus(); s.select(); s.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                }
+                return;
+            }
             if (el('learn-detail').classList.contains('hidden') || document.getElementById('scripture-modal')) return;
             if (e.key === 'Escape') { closeLearnTopic(); return; }
             // ← / → step through the reading path from within a topic
