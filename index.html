@@ -2693,6 +2693,70 @@
             return true;
         }
 
+        // Recursively strip prototype-pollution keys (validateAppData only checks the top levels)
+        function stripForbiddenKeysDeep(obj, depth = 0) {
+            if(depth > 4 || !obj || typeof obj !== 'object') return;
+            FORBIDDEN_KEYS.forEach(k => {
+                if(Object.prototype.hasOwnProperty.call(obj, k)) delete obj[k];
+            });
+            Object.keys(obj).forEach(k => {
+                if(obj[k] && typeof obj[k] === 'object') stripForbiddenKeysDeep(obj[k], depth + 1);
+            });
+        }
+
+        // Sanitize the fields validateAppData doesn't cover. Coerces or strips bad
+        // entries instead of rejecting so existing local/cloud data keeps loading.
+        // Runs on every load path: localStorage, JSON import, and cloud snapshots.
+        function normalizeAppData(data) {
+            if(!data || typeof data !== 'object') return data;
+            stripForbiddenKeysDeep(data);
+
+            if(data.memorizedVerses && typeof data.memorizedVerses === 'object') {
+                Object.keys(data.memorizedVerses).forEach(profileName => {
+                    const list = data.memorizedVerses[profileName];
+                    if(!Array.isArray(list)) { data.memorizedVerses[profileName] = []; return; }
+                    data.memorizedVerses[profileName] = list
+                        .filter(v => v && typeof v === 'object' &&
+                            typeof v.id === 'string' && typeof v.ref === 'string' && typeof v.text === 'string')
+                        .map(v => ({
+                            id: v.id.slice(0, 100),
+                            ref: v.ref.slice(0, 100),
+                            text: v.text.slice(0, 1000),
+                            addedDate: typeof v.addedDate === 'number' ? v.addedDate : Date.now()
+                        }));
+                });
+            }
+
+            const VALID_GOAL_TYPES = ['wholeBible', 'testament', 'books', 'category'];
+            if(data.goals && typeof data.goals === 'object') {
+                Object.keys(data.goals).forEach(profileName => {
+                    const list = data.goals[profileName];
+                    if(!Array.isArray(list)) { data.goals[profileName] = []; return; }
+                    data.goals[profileName] = list.filter(g =>
+                        g && typeof g === 'object' &&
+                        typeof g.name === 'string' && VALID_GOAL_TYPES.includes(g.type));
+                    data.goals[profileName].forEach(g => { g.name = g.name.slice(0, 100); });
+                });
+            }
+
+            if(data.customPlans && typeof data.customPlans === 'object') {
+                Object.keys(data.customPlans).forEach(profileName => {
+                    const plans = data.customPlans[profileName];
+                    if(!Array.isArray(plans)) { data.customPlans[profileName] = []; return; }
+                    data.customPlans[profileName] = plans.filter(p =>
+                        p && typeof p === 'object' && typeof p.name === 'string' && p.config &&
+                        typeof p.config.ot === 'number' && typeof p.config.nt === 'number');
+                    data.customPlans[profileName].forEach(p => {
+                        p.name = p.name.slice(0, 100);
+                        // Default optional fields older backups may lack (rendered directly in the plan list)
+                        if(typeof p.config.psalms !== 'number') p.config.psalms = 0;
+                        if(typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
+                    });
+                });
+            }
+            return data;
+        }
+
         // --- APP STATE & MIGRATION ---
         let savedData = null;
         try {
@@ -2703,6 +2767,7 @@
                     warn('Invalid saved data, resetting to defaults');
                     savedData = null;
                 }
+                if(savedData) normalizeAppData(savedData);
             }
         } catch (e) {
             logError('Failed to parse saved data:', e);
@@ -3256,6 +3321,7 @@
                 }
                 return;
             }
+            normalizeAppData(cloudData);
 
             // Conflict guard: if the snapshot is older than local state (e.g. a stale
             // queued snapshot arriving after newer local edits), don't apply it —
@@ -3547,7 +3613,7 @@
             toast.innerHTML = `
                 <div class="${bgColors[type] || bgColors.info} ${textColors[type] || textColors.info} px-6 py-4 rounded-2xl shadow-2xl border-2 flex items-center gap-3 modal-in max-w-md">
                     <span class="text-2xl">${icons[type] || icons.info}</span>
-                    <p class="text-sm font-bold leading-relaxed">${message}</p>
+                    <p class="text-sm font-bold leading-relaxed">${escapeHtml(message)}</p>
                 </div>
             `;
 
@@ -3574,7 +3640,7 @@
 
             toast.innerHTML = `
                 <div class="bg-slate-800/90 text-white px-4 py-2 rounded-lg shadow-xl border border-slate-700 flex items-center gap-2">
-                    <p class="text-xs font-bold">${message}</p>
+                    <p class="text-xs font-bold">${escapeHtml(message)}</p>
                 </div>
             `;
 
@@ -3818,7 +3884,7 @@
             // Validate that the profile exists
             if (!appData.profiles[name]) {
                 logError(`❌ Profile "${name}" does not exist`);
-                await window.showAlert('Profile Not Found', `The profile "${name}" no longer exists. Switching to default profile.`, 'warning');
+                await window.showAlert('Profile Not Found', `The profile "${escapeHtml(name)}" no longer exists. Switching to default profile.`, 'warning');
                 // Switch to first available profile
                 const firstProfile = Object.keys(appData.profiles)[0];
                 if (firstProfile) {
@@ -3898,7 +3964,7 @@
             }
 
             if(appData.profiles[sanitized]) {
-                await window.showAlert('Profile Exists', `Profile "${sanitized}" already exists!`, 'warning');
+                await window.showAlert('Profile Exists', `Profile "${escapeHtml(sanitized)}" already exists!`, 'warning');
                 return;
             }
 
@@ -4002,7 +4068,7 @@
             }
 
             if(appData.profiles[newName]) {
-                await window.showAlert('Profile Exists', `Profile "${newName}" already exists!`, 'warning');
+                await window.showAlert('Profile Exists', `Profile "${escapeHtml(newName)}" already exists!`, 'warning');
                 return;
             }
 
@@ -8603,6 +8669,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         };
 
+        // Remove a memorized verse by id (removal needs no ref/text, so none is embedded in handlers)
+        window.removeMemorizedVerse = (verseId) => {
+            const memorizedList = (appData.memorizedVerses && appData.memorizedVerses[appData.activeProfileId]) || [];
+            const idx = memorizedList.findIndex(v => v.id === verseId);
+            if(idx === -1) return;
+            memorizedList.splice(idx, 1);
+            window.saveProgress(true);
+            if(currentReaderBook && currentReaderChapter) {
+                renderBibleChapter(currentReaderBook, currentReaderChapter);
+            }
+            window.showMicroToast('Removed from memorization');
+        };
+
         window.toggleVerseSelection = (verseId, element) => {
             // Toggle selection styling
             element.classList.toggle('selected-verse');
@@ -8642,14 +8721,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             ${memorizedList.map(verse => `
                                 <div class="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <div class="flex justify-between items-start mb-2">
-                                        <h3 class="font-bold text-indigo-900">${verse.ref}</h3>
-                                        <button onclick="window.toggleMemorizeVerse('${verse.id}', '${verse.ref}', \`${verse.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`); this.closest('.fixed').remove(); window.showMemorizedVerses();"
+                                        <h3 class="font-bold text-indigo-900">${escapeHtml(verse.ref)}</h3>
+                                        <button data-remove-verse="${escapeHtml(verse.id)}"
                                                 class="text-amber-500 hover:text-amber-700 transition-colors"
                                                 title="Remove from memorization">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
                                         </button>
                                     </div>
-                                    <p class="text-slate-700 leading-relaxed">${verse.text}</p>
+                                    <p class="text-slate-700 leading-relaxed">${escapeHtml(verse.text)}</p>
                                 </div>
                             `).join('')}
                         </div>
@@ -8657,6 +8736,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>
             `;
             document.body.appendChild(modal);
+            // Attach remove handlers via data attribute so user text never lands in inline JS
+            modal.querySelectorAll('[data-remove-verse]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modal.remove();
+                    window.removeMemorizedVerse(btn.dataset.removeVerse);
+                    window.showMemorizedVerses();
+                });
+            });
         };
 
         const OT_CATS = [
@@ -9956,7 +10043,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     const data = JSON.parse(e.target.result);
                     if (typeof data === 'object' && data !== null) {
                         if(data.profiles && validateAppData(data)) {
-                            appData = data;
+                            appData = normalizeAppData(data);
 
                             // Ensure profilePlans exists for all profiles
                             if(!appData.profilePlans) {
@@ -9982,27 +10069,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             }
 
                             // Ensure customPlans exists (migration for existing backups)
+                            // Per-plan structure validation happens in normalizeAppData above
                             if(!appData.customPlans) {
                                 appData.customPlans = {};
                             }
-                            // Validate custom plan structure for each profile
-                            Object.keys(appData.customPlans).forEach(profileName => {
-                                const plans = appData.customPlans[profileName];
-                                if (!Array.isArray(plans)) {
-                                    appData.customPlans[profileName] = [];
-                                    return;
-                                }
-                                // Ensure each plan has required fields
-                                appData.customPlans[profileName] = plans.filter(p =>
-                                    p && typeof p === 'object' && p.name && p.config &&
-                                    typeof p.config.ot === 'number' && typeof p.config.nt === 'number'
-                                );
-                                // Default optional fields older backups may lack (rendered directly in the plan list)
-                                appData.customPlans[profileName].forEach(p => {
-                                    if (typeof p.config.psalms !== 'number') p.config.psalms = 0;
-                                    if (typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
-                                });
-                            });
 
                             // Ensure hornerCycleCount exists (migration for existing backups)
                             if(!appData.hornerCycleCount) {
@@ -10491,14 +10561,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         // Check for newly completed goals and celebrate
         function checkGoalCompletions() {
             const goals = getGoalsForProfile();
+            let completedAny = false;
             goals.forEach(goal => {
                 if(goal.completedAt) return;
                 const { percent } = calculateGoalProgress(goal);
                 if(percent >= 99.999) {
                     goal.completedAt = Date.now();
+                    completedAny = true;
                     window.showToast(`Goal complete: ${goal.name}`, 'success', 4000);
                 }
             });
+            // saveProgress runs before this, so persist the new completedAt or the
+            // goal re-completes (and re-toasts) on next load. No recursion: the
+            // nested checkGoalCompletions finds nothing new and stops.
+            if(completedAny) window.saveProgress();
         }
 
         // Helper: Get or create pinned daily chapters for plans that show "next N unread"
@@ -12002,7 +12078,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true)
             window.closePlanBuilder()
-            window.showToast(`"${escapeHtml(name)}" plan saved and activated!`, 'success')
+            window.showToast(`"${name}" plan saved and activated!`, 'success')
 
             // Track plan change
             trackPlanChange('CUSTOM')
@@ -12029,7 +12105,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true)
             cpbRenderSavedPlans()
-            window.showToast(`Switched to "${escapeHtml(plans[idx].name)}"`, 'success')
+            window.showToast(`Switched to "${plans[idx].name}"`, 'success')
             trackPlanChange('CUSTOM')
         }
 
