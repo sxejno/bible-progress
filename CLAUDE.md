@@ -5,7 +5,7 @@
 Word-weighted KJV Bible reading tracker. Progress by word count, not just chapters.
 
 - **Site**: [bibleprogress.com](https://bibleprogress.com)
-- **Architecture**: Single-file PWA (`index.html` ~13,000 lines). No build process.
+- **Architecture**: Single-file PWA (`index.html` ~15,000 lines). No build process.
 - **Stack**: HTML5, Tailwind CSS (CDN), Chart.js (CDN), Vanilla JS (ES6), Firebase Auth + Firestore
 - **Storage**: localStorage (`kjv_v6_data`) is primary; Firestore is secondary backup
 - **Total Words**: 789,634 (OT: 609,252 | NT: 180,382)
@@ -23,12 +23,15 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
     memorizedVerses: { [id]: [{ id, ref, text, addedDate }] },
     goals: { [id]: [{ name, type, target, deadline, createdDate }] },
     customPlans: { [id]: { name, ot_chapters, nt_chapters } },
+    deletedChapters: { [id]: { "Genesis-1": deletion_timestamp_ms } },  // unmark tombstones for multi-device sync
     showReadingTime: boolean,
     wordsPerMinute: number
 }
 ```
 
 Progress values are **timestamps** (not booleans). Auto-migrated on load.
+Day boundaries (streaks, heatmap, daily plan reset) use the **device-local timezone**, computed at render time via `getLocalDateString()`.
+Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mark, purged after 30 days) so cloud sync can propagate deletions instead of resurrecting them.
 
 ## Key Features
 
@@ -62,9 +65,9 @@ Progress values are **timestamps** (not booleans). Auto-migrated on load.
 
 ## Quick Reference
 
-- **Firebase**: Project `bible-reading-d9286`, Firestore per-user docs
+- **Firebase**: Project `bibleprogress-48cfd`, Firestore per-user docs
 - **Bible data**: Minified array near top of JS section (66 books with word counts per chapter)
 - **Chapter key format**: `"BookName-ChapterNumber"` (e.g., `"Genesis-1"`, `"Psalms-119"`)
-- **Security functions**: `escapeHtml()`, `isValidHttpsUrl()`, `validateAppData()`
+- **Security functions**: `escapeHtml()`, `isValidHttpsUrl()`, `validateAppData()`, `normalizeAppData()` (deep sanitation of imported/cloud data; toasts escape messages centrally)
 - **Deployment**: GitHub Pages from main branch, domain via CNAME
 - **See also**: `SECURITY.md`, `TODO.md`

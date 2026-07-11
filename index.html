@@ -41,15 +41,38 @@
     <meta name="twitter:image" content="https://bibleprogress.com/icon-512.png">
     <meta name="twitter:image:alt" content="Bible Progress App Icon">
 
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Bible Progress",
+        "url": "https://bibleprogress.com",
+        "description": "Word-weighted KJV Bible reading tracker with reading plans, streak tracking, goals, memorization and multi-profile support.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Any",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+    </script>
+
     <!-- Security Headers (Content Security Policy would be better implemented at server level) -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- X-Frame-Options only works as an HTTP header (browsers reject it in <meta> with a console error); framing protection would need host-level headers. -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
 
+    <!-- Resource hints: shave connection setup off the render-blocking CDN fetches -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com">
+
+    <!-- Tailwind stays render-blocking on purpose: deferring it causes a flash of unstyled content.
+         SRI is not possible for the Tailwind JIT CDN; for Chart.js add an integrity hash at deploy time if desired. -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
         .tab-active {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
@@ -3676,7 +3699,8 @@
         }
 
         // --- TOAST NOTIFICATIONS (ENHANCED) ---
-        window.showToast = function(message, type = 'info', duration = CONFIG.TOAST_DURATION_MS) {
+        // Pass action {label, onAction} to render an action button (e.g. Refresh)
+        window.showToast = function(message, type = 'info', duration = CONFIG.TOAST_DURATION_MS, action = null) {
             // Remove any existing toasts
             const existingToast = document.getElementById('connection-toast');
             if(existingToast) existingToast.remove();
@@ -3721,6 +3745,17 @@
                     <p class="text-sm font-bold leading-relaxed">${escapeHtml(message)}</p>
                 </div>
             `;
+
+            if(action && action.label && typeof action.onAction === 'function') {
+                const actionBtn = document.createElement('button');
+                actionBtn.textContent = action.label;
+                actionBtn.className = 'text-sm font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-wide underline underline-offset-2 flex-shrink-0';
+                actionBtn.addEventListener('click', () => {
+                    toast.remove();
+                    action.onAction();
+                });
+                toast.firstElementChild.appendChild(actionBtn);
+            }
 
             document.body.appendChild(toast);
 
@@ -14858,9 +14893,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 							const newWorker = registration.installing;
 							newWorker.addEventListener('statechange', () => {
 								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-									// New service worker available, show update notification
+									// New service worker available; it already called skipWaiting,
+									// so a reload activates it — offer that as a one-click action
 									log('📦 New version available! Refresh to update.');
-									showToast('New version available! Refresh to update.', 'info');
+									showToast('New version available!', 'info', 15000, {
+										label: 'Refresh',
+										onAction: () => window.location.reload()
+									});
 								}
 							});
 						});
