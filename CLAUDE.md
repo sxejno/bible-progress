@@ -20,6 +20,7 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
     defaultProfileId: string,
     hornerDailyProgress: { [id]: { date: "YYYY-MM-DD", completedLists: [0,1,...] } },
     hornerCycleCount: { [id]: [0,0,0,0,0,0,0,0,0,0] },  // read-throughs per Horner list
+    hornerCycleLastAt: { [id]: [timestamp_ms x10] },  // watermark: when each list's read-through was last counted
     memorizedVerses: { [id]: [{ id, ref, text, addedDate }] },
     goals: { [id]: [{ name, type, target, deadline, createdDate }] },
     customPlans: { [id]: { name, ot_chapters, nt_chapters } },

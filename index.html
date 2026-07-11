@@ -2976,39 +2976,58 @@
             if (!appData.hornerCycleCount[profileId]) {
                 appData.hornerCycleCount[profileId] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }
+            if (!appData.hornerCycleLastAt) appData.hornerCycleLastAt = {}
+            if (!appData.hornerCycleLastAt[profileId]) {
+                // Watermark per list: when the last counted read-through happened.
+                // Seed lists that already have read-throughs with their newest
+                // chapter timestamp so existing users don't get a spurious +1
+                // (delayed credit is safer than overcounting)
+                const counts = appData.hornerCycleCount[profileId]
+                const prog = getProgress()
+                appData.hornerCycleLastAt[profileId] = PLAN_HORNER.map((listBooks, i) => {
+                    if (!counts[i]) return 0
+                    let maxTs = 0
+                    for (const bName of listBooks) {
+                        const appBook = bible.find(b => b.name === bName)
+                        if (!appBook) continue
+                        for (let c = 0; c < appBook.ch.length; c++) {
+                            const ts = prog[`${appBook.name}-${c + 1}`]
+                            if (ts && ts > maxTs) maxTs = ts
+                        }
+                    }
+                    return maxTs
+                })
+            }
         }
 
-        // Check if all chapters in a list are now read (triggers a cycle increment)
+        // Check if marking this chapter completed a read-through of its list
         const checkHornerCycleCompletion = (chapterId) => {
             const listIndex = getHornerListForChapter(chapterId)
             if (listIndex < 0) return
             const listBooks = PLAN_HORNER[listIndex]
             const currentProg = getProgress()
 
-            // Check if every chapter in this list is now read
+            // Every chapter in the list must be read; track the oldest timestamp
+            let minTs = Infinity
             for (const bName of listBooks) {
                 const appBook = bible.find(b => b.name === bName)
                 if (!appBook) continue
                 for (let c = 0; c < appBook.ch.length; c++) {
-                    if (!currentProg[`${appBook.name}-${c + 1}`]) return // still unread chapters
+                    const ts = currentProg[`${appBook.name}-${c + 1}`]
+                    if (!ts) return // still unread chapters
+                    if (ts < minTs) minTs = ts
                 }
             }
-            // All chapters read — completed a full read-through
+            // A read-through counts only when every chapter has been read again
+            // since the last counted one. This is order-independent, so rotations
+            // that resume mid-list (read-ahead, imports) are counted at their true
+            // wrap point, and re-marking a single chapter never inflates the count
             ensureHornerCycleCount()
-            const counts = appData.hornerCycleCount[appData.activeProfileId]
-            if (counts[listIndex] === 0) {
-                // First read-through of this list
-                counts[listIndex]++
-                return
-            }
-            // On later cycles every chapter stays marked read, so only count a
-            // new read-through when the final chapter of the list is re-read
-            // (the rotation wrapping back to the start)
-            const lastBookName = listBooks[listBooks.length - 1]
-            const lastBook = bible.find(b => b.name === lastBookName)
-            if (lastBook && chapterId === `${lastBook.name}-${lastBook.ch.length}`) {
-                counts[listIndex]++
-            }
+            const profileId = appData.activeProfileId
+            const lastAt = appData.hornerCycleLastAt[profileId]
+            if (minTs <= (lastAt[listIndex] || 0)) return
+            appData.hornerCycleCount[profileId][listIndex]++
+            lastAt[listIndex] = Date.now()
         }
 
         // Next chapter to read for a Horner list. Walks the list in order; once
@@ -3278,6 +3297,7 @@
             const localProfilePlans = appData.profilePlans
             const localHornerDaily = appData.hornerDailyProgress
             const localHornerCycles = appData.hornerCycleCount
+            const localHornerLastAt = appData.hornerCycleLastAt
             const localMemorizedVerses = appData.memorizedVerses
             const localGoals = appData.goals
             const localCustomPlans = appData.customPlans
@@ -3352,6 +3372,20 @@
                             appData.hornerCycleCount[pid] = local
                         } else {
                             appData.hornerCycleCount[pid] = local.map((v, i) => Math.max(v || 0, cloud[i] || 0))
+                        }
+                    }
+                })
+            }
+            if (localHornerLastAt) {
+                if (!appData.hornerCycleLastAt) appData.hornerCycleLastAt = {}
+                Object.keys(localHornerLastAt).forEach(pid => {
+                    const local = localHornerLastAt[pid]
+                    const cloud = appData.hornerCycleLastAt?.[pid]
+                    if (local && Array.isArray(local)) {
+                        if (!cloud || !Array.isArray(cloud)) {
+                            appData.hornerCycleLastAt[pid] = local
+                        } else {
+                            appData.hornerCycleLastAt[pid] = local.map((v, i) => Math.max(v || 0, cloud[i] || 0))
                         }
                     }
                 })
@@ -3951,6 +3985,7 @@
                 if(appData.goals) delete appData.goals[name];
                 if(appData.customPlans) delete appData.customPlans[name];
                 if(appData.hornerCycleCount) delete appData.hornerCycleCount[name];
+                if(appData.hornerCycleLastAt) delete appData.hornerCycleLastAt[name];
                 if(appData.profileColors) delete appData.profileColors[name];
 
                 // If this was the default profile, set default to the active profile
@@ -4078,6 +4113,12 @@
             if(appData.hornerCycleCount && appData.hornerCycleCount[oldName]) {
                 appData.hornerCycleCount[newName] = appData.hornerCycleCount[oldName];
                 delete appData.hornerCycleCount[oldName];
+            }
+
+            // Update hornerCycleLastAt if exists
+            if(appData.hornerCycleLastAt && appData.hornerCycleLastAt[oldName]) {
+                appData.hornerCycleLastAt[newName] = appData.hornerCycleLastAt[oldName];
+                delete appData.hornerCycleLastAt[oldName];
             }
 
             // Update profileColors if exists
