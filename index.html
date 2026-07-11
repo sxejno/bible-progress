@@ -9202,8 +9202,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             window.saveProgress(true);
             window.renderChapterGrid();
-            if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-            if (typeof window.renderDashboard === 'function') window.renderDashboard();
+            // saveProgress → refreshUI already rendered the active tab; only render
+            // the others if we're elsewhere (avoids a duplicate full rebuild per tap)
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
         };
 
         // Mark multiple chapters as read (for daily plans with chapter ranges)
@@ -9298,14 +9300,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         if (undoHornerCycles) appData.hornerCycleCount[undoProfileId] = undoHornerCycles;
                         window.saveProgress(true);
                         window.renderChapterGrid();
-                        if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-                        if (typeof window.renderDashboard === 'function') window.renderDashboard();
+                        if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+                        if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
                         window.showMicroToast('Reading unmarked');
                     }
                 });
             }
 
-            if (typeof window.renderDailyPlan === 'function') {
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') {
                 window.renderDailyPlan();
             }
         };
@@ -9355,8 +9357,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
 
             window.renderChapterGrid();
-            if (typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-            if (typeof window.renderDashboard === 'function') window.renderDashboard();
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
         };
 
         window.toggleAllInBook = async (val) => {
@@ -11598,18 +11600,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         }
 
+        // Precomputed chapter word counts. getWordCountForChapter runs inside
+        // O(chapters) loops (streaks, heatmap, activity, reports); the previous
+        // bible.find per call made those loops O(chapters × books).
+        let chapterWordCounts = null;
         function getWordCountForChapter(chapterKey) {
-            // Returns word count for a given chapter key (e.g., "Genesis-1")
-            const parts = chapterKey.split('-');
-            if (parts.length !== 2) return 0;
-
-            const bookName = parts[0];
-            const chapterNum = parseInt(parts[1], 10) - 1; // 0-indexed
-
-            const book = bible.find(b => b.name === bookName);
-            if (!book || !book.ch || !book.ch[chapterNum]) return 0;
-
-            return book.ch[chapterNum];
+            if (!chapterWordCounts) {
+                chapterWordCounts = new Map();
+                bible.forEach(b => b.ch.forEach((words, i) => chapterWordCounts.set(`${b.name}-${i + 1}`, words)));
+            }
+            return chapterWordCounts.get(chapterKey) || 0;
         }
 
         function getReadingActivity(progressOverride) {
