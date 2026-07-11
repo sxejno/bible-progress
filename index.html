@@ -2962,21 +2962,20 @@
             });
 
         // --- UTILITY FUNCTIONS ---
-        // Helper function to get Eastern Time date string (YYYY-MM-DD) from timestamp
+        // Device-local date string (YYYY-MM-DD) from a timestamp. Day boundaries
+        // follow the reader's own midnight — previously this was hardcoded to
+        // US Eastern, shifting streaks/heatmap/daily-reset for everyone else.
         function getLocalDateString(timestamp) {
-            // Convert to Eastern Time (handles both EST and EDT automatically)
             const date = new Date(timestamp);
-            const easternDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-            const year = easternDate.getFullYear();
-            const month = String(easternDate.getMonth() + 1).padStart(2, '0');
-            const day = String(easternDate.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
 
-        // Day of week (0=Sun..6=Sat) for "today" in Eastern Time, matching getLocalDateString's day boundary
-        function getEasternDayOfWeek() {
-            const easternDate = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
-            return easternDate.getDay();
+        // Day of week (0=Sun..6=Sat) for "today", matching getLocalDateString's day boundary
+        function getLocalDayOfWeek() {
+            return new Date().getDay();
         }
 
         // Day of week for a "YYYY-MM-DD" string. Avoids new Date(dateStr).getDay(),
@@ -11003,8 +11002,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             else if (activePlan === 'FIVE_DAY') {
                 descText = "<strong>Five-Day Plan:</strong> Read the entire Bible in one year, 5 days a week (weekends off!). <span class='inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold ml-2'>✨ Sustainable Pace</span><br><span class='text-xs opacity-90 mt-1 block'>Old Testament in chronological order • New Testament spread throughout the year</span>";
 
-                // Get current day of week in Eastern Time (matches the app's day boundary)
-                const dayOfWeek = getEasternDayOfWeek();
+                // Get current day of week in local time (matches the app's day boundary)
+                const dayOfWeek = getLocalDayOfWeek();
                 const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
                 let planDay = dayOfWeek;
                 if(dayOfWeek === 0) planDay = 1;
@@ -11615,9 +11614,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             let daysToShow = 365; // Default to 365 days
 
             if(activityDates.length > 0) {
-                // Find earliest date
-                const earliestDate = new Date(Math.min(...activityDates.map(d => new Date(d))));
-                earliestDate.setHours(0, 0, 0, 0);
+                // Find earliest date. Parse "YYYY-MM-DD" as local midnight —
+                // new Date(str) parses UTC and shifts the day west of Greenwich
+                const earliestDate = new Date(Math.min(...activityDates.map(d => {
+                    const [y, m, dd] = d.split('-').map(Number);
+                    return new Date(y, m - 1, dd).getTime();
+                })));
 
                 // Calculate days between earliest and today
                 const daysSinceFirst = Math.floor((today - earliestDate) / (1000 * 60 * 60 * 24)) + 1;
@@ -12513,7 +12515,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 })
                 return chapters
             } else if (activePlan === 'FIVE_DAY' && typeof PLAN_FIVE_DAY !== 'undefined') {
-                let dayOfWeek = getEasternDayOfWeek()
+                let dayOfWeek = getLocalDayOfWeek()
                 let planDay = (dayOfWeek === 0 || dayOfWeek === 6) ? 1 : dayOfWeek
 
                 const computeFn = () => {
@@ -13320,7 +13322,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         // This Week / This Month report card with deltas vs the previous period
         function renderPeriodReport() {
             const progress = getProgress()
-            // Bucket read chapters by Eastern day: { 'YYYY-MM-DD': { words, chapters } }
+            // Bucket read chapters by local day: { 'YYYY-MM-DD': { words, chapters } }
             const daily = {}
             Object.keys(progress).forEach(chapterKey => {
                 const ts = progress[chapterKey]
@@ -13331,7 +13333,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 daily[dateStr].chapters++
             })
 
-            // Anchor from the Eastern "today" string; build dates from parts to avoid
+            // Anchor from the local "today" string; build dates from parts to avoid
             // the new Date('YYYY-MM-DD') UTC-midnight pitfall
             const todayStr = getTodaysDate()
             const [ty, tm, td] = todayStr.split('-').map(Number)
