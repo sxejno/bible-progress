@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bible Explorer — KJV | Bible Progress</title>
-<meta name="description" content="Explore the KJV Bible visually — cross-reference arcs spanning all 1,189 chapters, an interactive network of Bible people, maps, timelines, and a full reader with Strong's numbers. Part of Bible Progress.">
+<meta name="description" content="Explore the KJV Bible visually — cross-reference arcs spanning all 1,189 chapters, an interactive network of Bible people, connected webs of books, places and words, maps, timelines, and a full reader with Strong's numbers. Part of Bible Progress.">
 <link rel="canonical" href="https://bibleprogress.com/bible-explorer.html">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Bible Progress">
 <meta property="og:url" content="https://bibleprogress.com/bible-explorer.html">
 <meta property="og:title" content="Bible Explorer — KJV">
-<meta property="og:description" content="Explore the KJV Bible visually — cross-reference arcs, a people network, maps, timelines, and a full reader with Strong's numbers.">
+<meta property="og:description" content="Explore the KJV Bible visually — cross-reference arcs, a people network, webs of books, places and words, maps, timelines, and a full reader with Strong's numbers.">
 <meta property="og:image" content="https://bibleprogress.com/icon-512.png">
 <style>
 :root{
@@ -72,7 +72,7 @@ main{position:fixed; inset:52px 0 0 0}
 #view-net canvas{position:absolute; inset:0; width:100%; height:100%}
 .fpanel{position:absolute; background:rgba(20,22,31,.93); border:1px solid var(--line); border-radius:12px; padding:12px 14px; z-index:10}
 #netCtl{left:14px; top:14px; width:224px; font-size:12.5px}
-#netCtl h4, #pcard h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
+#netCtl h4, #pcard h4, #webCtl h4, #wcard h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
 #netCtl label{display:flex; align-items:center; gap:7px; margin:5px 0; color:var(--mut); cursor:pointer}
 #netCtl input[type=range]{width:100%; accent-color:var(--gold)}
 #netCtl input[type=checkbox]{accent-color:var(--gold)}
@@ -89,8 +89,25 @@ main{position:fixed; inset:52px 0 0 0}
   padding:2px 8px; margin:2px 3px 2px 0; font-size:12px; color:var(--ink); cursor:pointer}
 .chip:hover{border-color:var(--gold); color:var(--gold2)}
 .chip.gold{color:var(--gold2)}
-#pcard .x, #spanel .x{position:absolute; top:8px; right:10px; color:var(--dim); font-size:16px; padding:2px 6px}
-#pcard .x:hover, #spanel .x:hover{color:var(--ink)}
+#pcard .x, #spanel .x, #wcard .x{position:absolute; top:8px; right:10px; color:var(--dim); font-size:16px; padding:2px 6px}
+#pcard .x:hover, #spanel .x:hover, #wcard .x:hover{color:var(--ink)}
+
+/* ---------- webs ---------- */
+#view-webs canvas{position:absolute; inset:0; width:100%; height:100%}
+#webCtl{left:14px; top:14px; width:224px; font-size:12.5px}
+#webCtl label{display:flex; align-items:center; gap:7px; margin:8px 0 3px; color:var(--mut)}
+#webCtl input[type=range]{width:100%; accent-color:var(--gold)}
+#wModes{display:flex; gap:4px; margin-bottom:9px}
+.wmode{flex:1; text-align:center; padding:5px 0; border:1px solid var(--line); border-radius:8px; color:var(--mut); font-size:12px; background:var(--panel2)}
+.wmode:hover{color:var(--ink); border-color:var(--line2)}
+.wmode.on{color:var(--gold2); border-color:var(--gold)}
+#wFind{width:100%; background:var(--panel2); border:1px solid var(--line2); color:var(--ink); border-radius:6px; padding:5px 9px; outline:none; margin-top:2px}
+#wHint{color:var(--dim); font-size:11px; margin-top:9px; line-height:1.5}
+#wcard{right:14px; top:14px; width:294px; max-height:calc(100% - 28px); overflow-y:auto; display:none; font-size:13px}
+#wcard .pname{font-size:19px; font-family:Georgia,serif; color:var(--gold2)}
+#wcard .psub{color:var(--mut); font-size:12px; margin:2px 0 8px}
+#wcard .sec{margin-top:10px; padding-top:8px; border-top:1px solid var(--line)}
+#wcard .sec b{font-size:11px; letter-spacing:.14em; color:var(--dim); display:block; margin-bottom:5px; font-weight:600}
 
 /* ---------- dashboard ---------- */
 #view-dash{overflow-y:auto}
@@ -215,6 +232,7 @@ main{position:fixed; inset:52px 0 0 0}
 .tlbar{cursor:pointer}
 .tlbar:hover{filter:brightness(1.35)}
 @media (max-width:820px){ #view-read.on{grid-template-columns:1fr} #rnav{display:none} .brand small{display:none} }
+@media (max-width:760px){ header{overflow-x:auto; overflow-y:hidden} header .tab{padding:15px 10px} #sbox{min-width:130px} }
 </style>
 </head>
 <body>
@@ -223,6 +241,7 @@ main{position:fixed; inset:52px 0 0 0}
   <div class="brand">✦ BIBLE EXPLORER <small>· KJV</small></div>
   <button class="tab on" data-v="arcs">Arcs</button>
   <button class="tab" data-v="net">People</button>
+  <button class="tab" data-v="webs">Webs</button>
   <button class="tab" data-v="map">Map</button>
   <button class="tab" data-v="time">Timeline</button>
   <button class="tab" data-v="dash">Dashboard</button>
@@ -251,6 +270,20 @@ main{position:fixed; inset:52px 0 0 0}
     </div>
     <div id="pcard" class="fpanel"><button class="x">✕</button><div id="pbody"></div></div>
     <div id="netTip" class="tip"></div>
+  </div>
+  <div id="view-webs" class="view">
+    <canvas id="webCv"></canvas>
+    <div id="webCtl" class="fpanel">
+      <h4>CONNECTED WEBS</h4>
+      <div id="wModes"></div>
+      <input id="wFind" placeholder="find a book…" spellcheck="false">
+      <label id="wSlLbl">links per book <b id="wNv" style="color:var(--gold2)">&nbsp;</b></label>
+      <input type="range" id="wN" min="2" max="12" step="1" value="4">
+      <div class="eleg" id="wLeg"></div>
+      <div id="wHint"></div>
+    </div>
+    <div id="wcard" class="fpanel"><button class="x">✕</button><div id="wbody"></div></div>
+    <div id="webTip" class="tip"></div>
   </div>
   <div id="view-map" class="view">
     <canvas id="mapCv"></canvas>
@@ -1088,6 +1121,471 @@ $('#netCv')?.addEventListener('click', function(e){
   if(i>=0) V.select(V.vis[i], false);
 });
 /*EOF:net*/
+
+/* ============ WEBS — books, places & words as connected graphs ============ */
+BX.views.webs = {
+  BSECT:[
+    ['Law',0,4,'#d8ab4e'],['History',5,16,'#4fd6be'],['Poetry & Wisdom',17,21,'#b48ead'],
+    ['Major Prophets',22,26,'#e0876a'],['Minor Prophets',27,38,'#9ece6a'],['Gospels & Acts',39,43,'#f7768e'],
+    ["Paul's Epistles",44,56,'#7aa2f7'],['General Epistles',57,64,'#7dcfff'],['Revelation',65,65,'#bb9af7']],
+  PFT:{City:'#7aa2f7',Region:'#9ece6a',Mountain:'#e0876a',Water:'#4fd6be',Valley:'#b48ead',Island:'#f0c96c',Landmark:'#d8ab4e','':'#5c617a'},
+  // grammar particles, pronouns, numbers and stock narrative verbs kept out of the word web
+  WSTOP:new Set(('H853 H834 H3588 H413 H5921 H3605 H3808 H408 H1961 H854 H4480 H5704 H3651 H1571 H518 H5750 '+
+    'H6440 H8478 H996 H5973 H1115 H2009 H2005 H310 H3541 H1931 H2063 H2088 H428 H1992 H859 H589 H595 H4310 H4100 '+
+    'H559 H1696 H6213 H5414 H935 H3212 H1980 H7725 H3947 H5927 H3318 H7971 H7760 H5975 H7121 H7200 H8085 H4672 '+
+    'H5307 H5375 H5674 H6965 H3427 H1419 H7227 H3966 H6256 H8432 H5439 H8141 '+
+    'H259 H8147 H7969 H702 H2568 H8337 H7651 H8083 H8672 H6235 H6240 H3967 H505 H7239 '+
+    'G2532 G1161 G846 G1722 G1519 G3756 G3361 G3739 G3754 G1063 G3004 G2036 G5346 G3778 G1565 G1096 G4160 G1325 '+
+    'G2064 G1831 G1525 G3956 G5100 G5101 G1473 G4771 G2192 G3767 G1437 G235 G1352 G2443 G3326 G4314 G1223 G1537 '+
+    'G575 G3844 G5259 G302 G686 G3588 G5213 G5216 G3450 G4675 G2076 G2258 G1510 G2071 G1511 G5607 G5613 G2596 '+
+    'G1909 G3708 G1492 G991 G2400 G191 G611 G2983 G3303 G5037 G3745 G3762 G4183 G3173 G1520 G1417 G5140 G2033').split(/\s+/)),
+  MODES:{
+    books:{lbl:'links per book ',min:2,max:12,step:1,val:4,unit:'',find:'find a book…',
+      hint:'line = cross-references between two books, thicker = more · drag, zoom, click a book'},
+    places:{lbl:'show top ',min:40,max:300,step:10,val:120,unit:' places',find:'find a place…',
+      hint:'places linked when named in the same chapter · layout seeded by real geography'},
+    words:{lbl:'show top ',min:60,max:400,step:20,val:200,unit:' words',find:'find a word…',
+      hint:'words linked when they share a verse — Hebrew and Greek weave separate webs'}},
+  mode:'books',
+  init(){
+    this.cv=$('#webCv'); this.ctx=this.cv.getContext('2d'); this.tip=$('#webTip');
+    this.sel=-1; this.hov=-1; this.tx=0; this.ty=0; this.scale=1; this.dragN=-1;
+    $('#wModes').innerHTML=Object.keys(this.MODES).map(m=>
+      `<button class="wmode" data-m="${m}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('');
+    $('#wModes').onclick=e=>{ const b=e.target.closest('.wmode'); if(b) this.setMode(b.dataset.m); };
+    $('#wN').oninput=()=>{ $('#wNv').textContent=$('#wN').value+(this.MODES[this.mode].unit||''); };
+    $('#wN').onchange=()=>{ this.MODES[this.mode].val=+$('#wN').value; this.rebuild(false); };
+    $('#wFind').addEventListener('keydown',e=>{
+      if(e.key!=='Enter') return;
+      const q=e.target.value.trim().toLowerCase(); if(!q) return;
+      let i=this.nodes.findIndex(nd=>nd.l.toLowerCase().startsWith(q));
+      if(i<0) i=this.nodes.findIndex(nd=>(nd.full||'').toLowerCase().startsWith(q));
+      if(i>=0) this.select(i,true);
+    });
+    $('#wcard .x').onclick=()=>{ this.sel=-1; $('#wcard').style.display='none'; this.draw(); };
+    this.cv.addEventListener('mousedown',e=>this.down(e));
+    window.addEventListener('mousemove',e=>this.move(e));
+    window.addEventListener('mouseup',()=>{ this.dragN=-1; this.panning=false; });
+    this.cv.addEventListener('click',e=>{
+      if(this._moved) return;
+      const r=this.cv.getBoundingClientRect();
+      const i=this.pick(e.clientX-r.left,e.clientY-r.top);
+      if(i>=0) this.select(i,false);
+    });
+    this.cv.addEventListener('wheel',e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+      const f=Math.exp(-e.deltaY*0.0012);
+      const ns=Math.min(6,Math.max(.2,this.scale*f));
+      this.tx=mx-(mx-this.tx)*ns/this.scale; this.ty=my-(my-this.ty)*ns/this.scale;
+      this.scale=ns; this.draw();
+    },{passive:false});
+    window.addEventListener('resize',()=>{ clearTimeout(this._rt); this._rt=setTimeout(()=>{ this.size(); this.draw(); },200); });
+    this.size();
+    this.setMode(this.mode,true);
+  },
+  onshow(){ this.size(); this.draw(); },
+  size(){
+    const dpr=window.devicePixelRatio||1;
+    this.W=this.cv.clientWidth; this.H=this.cv.clientHeight;
+    this.cv.width=this.W*dpr; this.cv.height=this.H*dpr; this.dpr=dpr;
+  },
+  setMode(m,force){
+    if(m===this.mode&&!force) return;
+    this.mode=m;
+    document.querySelectorAll('.wmode').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+    const M=this.MODES[m], sl=$('#wN');
+    sl.min=M.min; sl.max=M.max; sl.step=M.step; sl.value=M.val;
+    $('#wSlLbl').firstChild.textContent=M.lbl;
+    $('#wNv').textContent=M.val+(M.unit||'');
+    $('#wHint').textContent=M.hint;
+    $('#wFind').value=''; $('#wFind').placeholder=M.find;
+    this.legend();
+    this.sel=-1; this.hov=-1; $('#wcard').style.display='none';
+    this.tx=0; this.ty=0; this.scale=1;
+    this.rebuild(true);
+  },
+  legend(){
+    let l;
+    if(this.mode==='books') l=this.BSECT.map(s=>[s[0],s[3]]);
+    else if(this.mode==='places') l=[['city','#7aa2f7'],['region','#9ece6a'],['mountain','#e0876a'],['water','#4fd6be'],['island','#f0c96c'],['other','#5c617a']];
+    else l=[['Hebrew (OT)','#d8ab4e'],['Greek (NT)','#7aa2f7']];
+    $('#wLeg').innerHTML=l.map(([n,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('');
+  },
+  /* ---------- datasets ---------- */
+  bsectOf(b){ for(const s of this.BSECT) if(b>=s[1]&&b<=s[2]) return s; return this.BSECT[0]; },
+  prepBooks(){
+    if(this.bkDat) return;
+    const pair=new Map();
+    for(const [a,b,w] of BX.d.arcs){
+      const ba=BX.ch[a].b, bb=BX.ch[b].b;
+      if(ba===bb) continue;
+      const k=ba<bb?ba*66+bb:bb*66+ba;
+      pair.set(k,(pair.get(k)||0)+w);
+    }
+    this.bkDat={pair, verses:BX.d.books.map(bk=>bk.c.reduce((s,v)=>s+v,0))};
+  },
+  buildBooks(){
+    this.prepBooks();
+    const K=this.MODES.books.val, B=BX.d.books, D=this.bkDat;
+    this.nodes=B.map((bk,i)=>{ const s=this.bsectOf(i);
+      return {l:bk.a, full:bk.n, color:s[3], r:Math.min(27,6+Math.sqrt(D.verses[i])*.42), b:i, sect:s[0]}; });
+    const partners=Array.from({length:66},()=>[]);
+    D.pair.forEach((w,k)=>{ const a=k/66|0, b=k%66; partners[a].push([b,w]); partners[b].push([a,w]); });
+    this.partners=partners.map(l=>l.sort((x,y)=>y[1]-x[1]));
+    const keep=new Map();
+    this.partners.forEach((l,a)=>l.slice(0,K).forEach(([b,w])=>{ keep.set(a<b?a*66+b:b*66+a,w); }));
+    this.edges=[]; keep.forEach((w,k)=>this.edges.push([k/66|0,k%66,w]));
+    this.phys={rep:2600,rest:118,grav:.0035};
+  },
+  prepPlaces(){
+    if(this.plDat) return;
+    const P=BX.d.places;
+    const rank=[...P.keys()].sort((a,b)=>P[b].vc-P[a].vc).slice(0,300);
+    const chs=rank.map(i=>{ const s=new Set(); (P[i].vs||[]).forEach(v=>s.add(BX.vidCh[v])); return s; });
+    const edges=[];
+    for(let i=0;i<rank.length;i++) for(let j=i+1;j<rank.length;j++){
+      const A=chs[i].size<=chs[j].size?chs[i]:chs[j], B2=A===chs[i]?chs[j]:chs[i];
+      let w=0; A.forEach(c=>{ if(B2.has(c)) w++; });
+      if(w>=2) edges.push([i,j,w]);
+    }
+    this.plDat={rank,edges};
+  },
+  buildPlaces(){
+    this.prepPlaces();
+    const N=this.MODES.places.val, P=BX.d.places, D=this.plDat;
+    this.nodes=D.rank.slice(0,N).map(gi=>{ const p=P[gi];
+      return {l:p.n, color:this.PFT[p.ft||'']||'#5c617a', r:Math.min(20,3+Math.sqrt(p.vc)*.55), gi, la:p.la, lo:p.lo}; });
+    this.edges=this.capEdges(D.edges.filter(([a,b])=>a<N&&b<N),6);
+    this.phys={rep:1100,rest:62,grav:.0022};
+  },
+  prepWords(){
+    if(this.wdDat) return;
+    const NV=BX.NV, TXT=BX.d.text, RE=/\[([HG]\d+)\]/g;
+    const freq=new Map(), vtags=new Array(NV);
+    for(let i=0;i<NV;i++){
+      let m, set=null; RE.lastIndex=0; const s=TXT[i];
+      while((m=RE.exec(s))){
+        const id=m[1];
+        if(this.WSTOP.has(id)) continue;
+        if(!set) set=new Set();
+        if(!set.has(id)){ set.add(id); freq.set(id,(freq.get(id)||0)+1); }
+      }
+      vtags[i]=set;
+    }
+    let pool=[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,520).map(e=>e[0]);
+    const pidx=new Map(pool.map((id,i)=>[id,i]));
+    let forms=pool.map(()=>new Map()), samples=pool.map(()=>[]);
+    const co=new Map(), WRE=/([A-Za-z'’-]+)\[([HG]\d+)\]/g;
+    for(let i=0;i<NV;i++){
+      const set=vtags[i]; if(!set) continue;
+      const hit=[];
+      set.forEach(id=>{ const p=pidx.get(id); if(p!=null){ hit.push(p); if(samples[p].length<12) samples[p].push(i); } });
+      if(!hit.length) continue;
+      if(hit.length>1){
+        hit.sort((a,b)=>a-b);
+        for(let x=0;x<hit.length;x++) for(let y=x+1;y<hit.length;y++){
+          const k=hit[x]*1024+hit[y]; co.set(k,(co.get(k)||0)+1);
+        }
+      }
+      let m2; WRE.lastIndex=0; const s=TXT[i].replace(EMRE,'');
+      while((m2=WRE.exec(s))){ const p=pidx.get(m2[2]); if(p!=null){ const f=forms[p]; f.set(m2[1],(f.get(m2[1])||0)+1); } }
+    }
+    let label=pool.map((id,i)=>{
+      let best=null, bc=0;
+      forms[i].forEach((c,w)=>{ if(c>bc){ bc=c; best=w; } });
+      return best||(BX.d.dict[id]||{}).t||id;
+    });
+    // second net: drop anything whose KJV rendering is itself a function word or number
+    const ENG=new Set(('of the and a an in to for by with or not is are was were be been am me my mine you ye your our us '+
+      'this that these those he she it they them his her its their i thou thee thy thine him who whom whose which what '+
+      'shall will may might can could would should must do did done have has had also more most much many some any no '+
+      'none yea nay even so than then now when where there here out up down forth away among before after against unto '+
+      'upon over under between without within round about again till until aside apart back thereof therein why how '+
+      'because therefore behold told saith said say come came went gone bring brought take took taken get got let made '+
+      'make put set give gave one two three four five six seven eight nine ten eleven twelve twenty thirty forty fifty '+
+      'sixty seventy eighty ninety hundred thousand first second third both other same own certain like as at on off '+
+      'if himself herself themselves things found asked gathered answered commanded speak spake spoken called').split(/\s+/));
+    const remap=new Map();
+    const keep=[...pool.keys()].filter(i=>!ENG.has(label[i].toLowerCase()));
+    keep.forEach((oi,ni)=>remap.set(oi,ni));
+    const edges=[];
+    co.forEach((w,k)=>{
+      if(w<3) return;
+      const a=remap.get(k/1024|0), b=remap.get(k%1024);
+      if(a!=null && b!=null && a<400 && b<400) edges.push([a,b,w]);
+    });
+    pool=keep.slice(0,400).map(i=>pool[i]);
+    label=keep.slice(0,400).map(i=>label[i]);
+    samples=keep.slice(0,400).map(i=>samples[i]);
+    this.wdDat={pool,label,samples,freq,edges};
+  },
+  buildWords(){
+    this.prepWords();
+    const N=this.MODES.words.val, D=this.wdDat;
+    this.nodes=D.pool.slice(0,N).map((id,i)=>({
+      l:D.label[i], id, wi:i, color:id[0]==='H'?'#d8ab4e':'#7aa2f7',
+      r:Math.min(24,2.6+Math.sqrt(D.freq.get(id))*.3)}));
+    this.edges=this.capEdges(D.edges.filter(([a,b])=>a<N&&b<N),6);
+    this.phys={rep:1050,rest:60,grav:.0022};
+  },
+  capEdges(edges,K){
+    const by=new Map();
+    const add=(n,e)=>{ let l=by.get(n); if(!l){ l=[]; by.set(n,l); } l.push(e); };
+    edges.forEach(e=>{ add(e[0],e); add(e[1],e); });
+    const keep=new Set();
+    by.forEach(l=>{ l.sort((a,b)=>b[2]-a[2]); for(let i=0;i<Math.min(K,l.length);i++) keep.add(l[i]); });
+    return [...keep];
+  },
+  /* ---------- shared force engine ---------- */
+  rebuild(reseed){
+    const m=this.mode;
+    if(m==='books') this.buildBooks(); else if(m==='places') this.buildPlaces(); else this.buildWords();
+    const n=this.nodes.length;
+    this.maxW=this.edges.length?Math.max(...this.edges.map(e=>e[2])):1;
+    this.lw=Math.log(1+this.maxW);
+    const ox=this.px, okey=this.oldKey;
+    const key=nd=> m+':'+(nd.b!=null?nd.b:nd.gi!=null?nd.gi:nd.id);
+    this.px=new Float32Array(n); this.py=new Float32Array(n);
+    this.vx=new Float32Array(n); this.vy=new Float32Array(n);
+    for(let i=0;i<n;i++){
+      const k=key(this.nodes[i]);
+      if(!reseed && okey && okey.has(k)){ const o=okey.get(k); this.px[i]=ox[o]; this.py[i]=this._oy[o]; }
+      else this.seed(i,n);
+    }
+    this.oldKey=new Map(this.nodes.map((nd,i)=>[key(nd),i])); this._oy=this.py;
+    this.deg=new Int32Array(n);
+    this.edges.forEach(([a,b])=>{ this.deg[a]++; this.deg[b]++; });
+    if(this.sel>=n){ this.sel=-1; $('#wcard').style.display='none'; }
+    this.heat(1);
+  },
+  seed(i,n){
+    const nd=this.nodes[i];
+    if(this.mode==='books'){
+      const t=i/n*2*Math.PI-Math.PI/2, R=Math.min(this.W,this.H)*.34;
+      this.px[i]=this.W/2+Math.cos(t)*R; this.py[i]=this.H/2+Math.sin(t)*R;
+    } else if(this.mode==='places'){
+      const tx=Math.min(1,Math.max(0,(nd.lo-24)/24)), ty=Math.min(1,Math.max(0,1-(nd.la-25)/18));
+      this.px[i]=(tx*.72+.14)*this.W+(Math.random()-.5)*30;
+      this.py[i]=(ty*.7+.15)*this.H+(Math.random()-.5)*30;
+    } else {
+      const heb=nd.id[0]==='H';
+      this.px[i]=this.W*(heb?.08+Math.random()*.38:.54+Math.random()*.38);
+      this.py[i]=this.H*(.15+Math.random()*.7);
+    }
+  },
+  wnorm(w){ return Math.log(1+w)/this.lw; },
+  heat(a){ this.alpha=Math.max(this.alpha||0,a); if(!this._anim) this.loop(); },
+  loop(){
+    this._anim=true;
+    const step=()=>{
+      if(this.alpha>0.004 && document.getElementById('view-webs').classList.contains('on')){
+        this.tick(); this.alpha*=0.985;
+        this.draw();
+        requestAnimationFrame(step);
+      } else { this._anim=false; this.draw(); }
+    };
+    requestAnimationFrame(step);
+  },
+  tick(){
+    const n=this.nodes.length, a=this.alpha, ph=this.phys;
+    const cell=Math.max(64,ph.rest*.7), grid=new Map();
+    const key=(x,y)=>((x&0xffff)<<16)|(y&0xffff);
+    for(let i=0;i<n;i++){
+      const k=key(this.px[i]/cell|0,this.py[i]/cell|0);
+      let arr=grid.get(k); if(!arr){ arr=[]; grid.set(k,arr); } arr.push(i);
+    }
+    for(let i=0;i<n;i++){
+      const gx=this.px[i]/cell|0, gy=this.py[i]/cell|0;
+      let fx=0, fy=0;
+      for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){
+        const arr=grid.get(key(gx+dx,gy+dy)); if(!arr) continue;
+        for(const j of arr){
+          if(j===i) continue;
+          let ddx=this.px[i]-this.px[j], ddy=this.py[i]-this.py[j];
+          let d2=ddx*ddx+ddy*ddy;
+          if(d2<1){ ddx=Math.random()-.5; ddy=Math.random()-.5; d2=1; }
+          if(d2>cell*cell*2.3) continue;
+          const f=ph.rep/d2;
+          fx+=ddx*f; fy+=ddy*f;
+        }
+      }
+      this.vx[i]+=fx*a; this.vy[i]+=fy*a;
+    }
+    for(const [a1,b1,w] of this.edges){
+      const wn=this.wnorm(w);
+      const dx=this.px[b1]-this.px[a1], dy=this.py[b1]-this.py[a1];
+      const d=Math.sqrt(dx*dx+dy*dy)||1;
+      const rest=ph.rest*(1-.38*wn)+8*Math.min(6,this.deg[a1]+this.deg[b1])/2;
+      const f=(d-rest)*.012*(.55+wn)*a;
+      this.vx[a1]+=dx/d*f; this.vy[a1]+=dy/d*f;
+      this.vx[b1]-=dx/d*f; this.vy[b1]-=dy/d*f;
+    }
+    const cx=this.W/2, cy=this.H/2;
+    for(let i=0;i<n;i++){
+      if(i===this.dragN){ this.vx[i]=0; this.vy[i]=0; continue; }
+      this.vx[i]+=(cx-this.px[i])*ph.grav*a;
+      this.vy[i]+=(cy-this.py[i])*ph.grav*a;
+      this.vx[i]*=.82; this.vy[i]*=.82;
+      this.px[i]+=Math.max(-14,Math.min(14,this.vx[i]));
+      this.py[i]+=Math.max(-14,Math.min(14,this.vy[i]));
+    }
+  },
+  draw(){
+    if(!this.nodes) return;
+    const ctx=this.ctx, dpr=this.dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle='#0d0e12'; ctx.fillRect(0,0,this.W,this.H);
+    ctx.setTransform(dpr*this.scale,0,0,dpr*this.scale,this.tx*dpr,this.ty*dpr);
+    const sel=this.sel, nbr=new Set();
+    if(sel>=0) this.edges.forEach(([a,b])=>{ if(a===sel)nbr.add(b); if(b===sel)nbr.add(a); });
+    for(const [a,b,w] of this.edges){
+      const wn=this.wnorm(w), on=sel>=0&&(a===sel||b===sel);
+      ctx.strokeStyle=on?'rgba(240,201,108,.9)':`rgba(120,130,160,${.06+.3*wn})`;
+      ctx.lineWidth=on?1+1.6*wn:.5+2*wn;
+      ctx.beginPath(); ctx.moveTo(this.px[a],this.py[a]); ctx.lineTo(this.px[b],this.py[b]); ctx.stroke();
+    }
+    for(let i=0;i<this.nodes.length;i++){
+      const nd=this.nodes[i];
+      ctx.beginPath(); ctx.arc(this.px[i],this.py[i],nd.r,0,7);
+      ctx.fillStyle=nd.color;
+      ctx.globalAlpha = sel>=0 && i!==sel && !nbr.has(i) ? 0.32 : 1;
+      ctx.fill();
+      ctx.globalAlpha=1;
+      if(i===sel){ ctx.strokeStyle='#f0c96c'; ctx.lineWidth=2.4/this.scale; ctx.stroke(); }
+      else if(i===this.hov){ ctx.strokeStyle='#e9e7de'; ctx.lineWidth=1.6/this.scale; ctx.stroke(); }
+      else { ctx.strokeStyle='rgba(13,14,18,.85)'; ctx.lineWidth=1; ctx.stroke(); }
+    }
+    ctx.textAlign='center'; ctx.fillStyle='#d6d9e6';
+    const lblMin=this.mode==='books'?0: this.scale>1.6?0: this.scale>0.9?7:10;
+    for(let i=0;i<this.nodes.length;i++){
+      const nd=this.nodes[i];
+      if(nd.r<lblMin && i!==sel && i!==this.hov && !nbr.has(i)) continue;
+      const fs=Math.max(9,Math.min(15,nd.r*1.15))/Math.sqrt(this.scale);
+      ctx.font=`${fs}px system-ui`;
+      ctx.strokeStyle='rgba(13,14,18,.9)'; ctx.lineWidth=3;
+      ctx.strokeText(nd.l,this.px[i],this.py[i]-nd.r-3);
+      ctx.fillText(nd.l,this.px[i],this.py[i]-nd.r-3);
+    }
+  },
+  /* ---------- interaction ---------- */
+  pick(mx,my){
+    const x=(mx-this.tx)/this.scale, y=(my-this.ty)/this.scale;
+    let best=-1, bd=1e9;
+    for(let i=0;i<this.nodes.length;i++){
+      const r=this.nodes[i].r+4;
+      const dx=this.px[i]-x, dy=this.py[i]-y, d=dx*dx+dy*dy;
+      if(d<r*r && d<bd){ bd=d; best=i; }
+    }
+    return best;
+  },
+  down(e){
+    const r=this.cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+    const i=this.pick(mx,my);
+    if(i>=0){ this.dragN=i; this._moved=false; }
+    else { this.panning=true; this._px=mx; this._py=my; this._moved=false; }
+  },
+  move(e){
+    if(!this.cv.isConnected) return;
+    const r=this.cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+    if(this.dragN>=0 && e.buttons){
+      this._moved=true;
+      this.px[this.dragN]=(mx-this.tx)/this.scale; this.py[this.dragN]=(my-this.ty)/this.scale;
+      this.heat(0.12); this.draw();
+      return;
+    }
+    if(this.panning && e.buttons){
+      this._moved=true;
+      this.tx+=mx-this._px; this.ty+=my-this._py; this._px=mx; this._py=my; this.draw();
+      return;
+    }
+    if(e.target!==this.cv) return;
+    const i=this.pick(mx,my);
+    if(i!==this.hov){ this.hov=i; this.draw(); }
+    if(i>=0){
+      this.tip.innerHTML=this.tipHTML(i);
+      this.tip.style.display='block';
+      this.tip.style.left=Math.min(this.W-200,mx+14)+'px';
+      this.tip.style.top=(my+14)+'px';
+      this.cv.style.cursor='pointer';
+    } else { this.tip.style.display='none'; this.cv.style.cursor='default'; }
+  },
+  tipHTML(i){
+    const nd=this.nodes[i];
+    if(this.mode==='books')
+      return `<b>${esc(nd.full)}</b><div class="m">${esc(nd.sect)} · ${fmt(this.bkDat.verses[nd.b])} verses · ${this.deg[i]} link${this.deg[i]===1?'':'s'} shown</div>`;
+    if(this.mode==='places'){
+      const p=BX.d.places[nd.gi];
+      return `<b>${esc(p.n)}</b><div class="m">${p.ft?esc(p.ft)+' · ':''}${fmt(p.vc)} verse${p.vc===1?'':'s'}</div>`;
+    }
+    const e=BX.d.dict[nd.id]||{};
+    return `<b>${esc(nd.l)}</b><div class="m">${nd.id} ${esc(e.t||'')} · in ${fmt(this.wdDat.freq.get(nd.id))} verses</div>`;
+  },
+  select(i,center){
+    if(i<0) return;
+    this.sel=i;
+    if(center){
+      this.tx=this.W/2-this.px[i]*this.scale; this.ty=this.H/2-this.py[i]*this.scale;
+    }
+    this.card(i);
+    this.draw();
+  },
+  neighbors(i){
+    return this.edges.filter(e=>e[0]===i||e[1]===i)
+      .map(e=>[e[0]===i?e[1]:e[0],e[2]]).sort((a,b)=>b[1]-a[1]);
+  },
+  card(i){
+    const nd=this.nodes[i]; let h='';
+    if(this.mode==='books'){
+      const b=nd.b, bk=BX.d.books[b];
+      h=`<div class="pname">${esc(bk.n)}</div>
+        <div class="psub">${esc(nd.sect)} · ${bk.t?'New':'Old'} Testament · ${bk.c.length} chapter${bk.c.length===1?'':'s'} · ${fmt(this.bkDat.verses[b])} verses</div>
+        <div class="sec"><b>STRONGEST CONNECTIONS</b>${this.partners[b].slice(0,10).map(([o,w])=>
+          `<span class="chip" data-n="${o}">${esc(BX.d.books[o].n)} · ${fmt(w)}</span>`).join('')}
+        <div class="psub" style="margin-top:5px">numbers = summed cross-reference weight between the two books</div></div>
+        <div class="sec"><b>READ</b><span class="chip gold" data-r="${BX.bookCh0[b]}">open ${esc(bk.n)} 1 →</span></div>`;
+    } else if(this.mode==='places'){
+      const p=BX.d.places[nd.gi], nbrs=this.neighbors(i);
+      h=`<div class="pname">${esc(p.n)}</div>
+        <div class="psub">${p.ft?esc(p.ft)+' · ':''}${fmt(p.vc)} verse${p.vc===1?'':'s'} · ${p.la.toFixed(2)}°N ${p.lo.toFixed(2)}°E</div>`;
+      if(nbrs.length) h+=`<div class="sec"><b>NAMED IN THE SAME CHAPTER</b>${nbrs.slice(0,10).map(([o,w])=>
+        `<span class="chip" data-n="${o}">${esc(this.nodes[o].l)} · ${w}</span>`).join('')}</div>`;
+      if(p.vs&&p.vs.length) h+=`<div class="sec"><b>MENTIONED IN</b>${p.vs.slice(0,12).map(v=>
+        `<span class="chip gold" data-v="${v}">${refAbbr(v)}</span>`).join('')}${p.vc>12?`<span class="psub"> +${fmt(p.vc-12)} more</span>`:''}</div>`;
+      h+=`<div class="sec"><b>MAP</b><span class="chip gold" data-map="${nd.gi}">view on map →</span></div>`;
+    } else {
+      const id=nd.id, e=BX.d.dict[id]||{}, nbrs=this.neighbors(i), vc=this.wdDat.freq.get(id);
+      h=`<div class="pname">${esc(nd.l)}</div>
+        <div class="psub">${id[0]==='H'?'Hebrew':'Greek'} ${esc(e.l||'')} <i>${esc(e.t||'')}</i> · ${id} · in ${fmt(vc)} verse${vc===1?'':'s'}</div>`;
+      if(e.d) h+=`<div style="font-size:12.5px; margin:6px 0">${esc(e.d)}</div>`;
+      if(nbrs.length) h+=`<div class="sec"><b>SHARES A VERSE WITH</b>${nbrs.slice(0,10).map(([o,w])=>
+        `<span class="chip" data-n="${o}">${esc(this.nodes[o].l)} · ${w}</span>`).join('')}</div>`;
+      const sm=this.wdDat.samples[nd.wi];
+      if(sm.length) h+=`<div class="sec"><b>FOR EXAMPLE</b>${sm.map(v=>
+        `<span class="chip gold" data-v="${v}">${refAbbr(v)}</span>`).join('')}</div>`;
+      h+=`<div class="sec"><b>STRONG'S</b><span class="chip" data-strong="${id}">dictionary entry →</span><span class="chip" data-occ="${id}">every occurrence →</span></div>`;
+    }
+    $('#wbody').innerHTML=h;
+    $('#wcard').style.display='block';
+    $('#wbody').onclick=e=>{
+      const t=e.target.closest('[data-n],[data-v],[data-r],[data-map],[data-strong],[data-occ]');
+      if(!t) return;
+      if(t.dataset.n!=null) this.select(+t.dataset.n,true);
+      else if(t.dataset.v!=null) gotoVerse(+t.dataset.v);
+      else if(t.dataset.r!=null) gotoChapter(+t.dataset.r);
+      else if(t.dataset.map!=null){
+        const gi=+t.dataset.map, p=BX.d.places[gi];
+        showView('map');
+        const M=BX.views.map;
+        M.fit(p.lo-3,p.la-2.2,p.lo+3,p.la+2.2);
+        M.placeCard(gi);
+      }
+      else if(t.dataset.strong!=null) openStrong([t.dataset.strong], nd.l);
+      else if(t.dataset.occ!=null) strongSearch(t.dataset.occ);
+    };
+  }
+};
+/*EOF:webs*/
 
 /* ============ MAP — the biblical world & journeys ============ */
 BX.views.map = {
