@@ -56,7 +56,7 @@ main{position:fixed; inset:52px 0 0 0}
 #loader .err{color:var(--red); max-width:420px; text-align:center}
 
 /* ---------- arcs ---------- */
-#view-arcs canvas{position:absolute; inset:0; width:100%; height:100%}
+#view-arcs canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none}
 .hud{position:absolute; pointer-events:none; z-index:5}
 #arcHint{top:18px; left:50%; transform:translateX(-50%); color:var(--mut); font-size:12.5px; letter-spacing:.06em;
   background:rgba(20,22,31,.8); padding:6px 14px; border-radius:20px; border:1px solid var(--line); transition:opacity .6s}
@@ -69,8 +69,10 @@ main{position:fixed; inset:52px 0 0 0}
 .tip b{color:var(--gold2)} .tip .m{color:var(--mut); font-size:11.5px}
 
 /* ---------- network ---------- */
-#view-net canvas{position:absolute; inset:0; width:100%; height:100%}
+#view-net canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none}
 .fpanel{position:absolute; background:rgba(20,22,31,.93); border:1px solid var(--line); border-radius:12px; padding:12px 14px; z-index:10}
+.fp-tog{display:none}
+.fp-close{display:none}
 #netCtl{left:14px; top:14px; width:224px; font-size:12.5px}
 #netCtl h4, #pcard h4, #webCtl h4, #wcard h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
 #netCtl label{display:flex; align-items:center; gap:7px; margin:5px 0; color:var(--mut); cursor:pointer}
@@ -93,7 +95,7 @@ main{position:fixed; inset:52px 0 0 0}
 #pcard .x:hover, #spanel .x:hover, #wcard .x:hover{color:var(--ink)}
 
 /* ---------- webs ---------- */
-#view-webs canvas{position:absolute; inset:0; width:100%; height:100%}
+#view-webs canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none}
 #webCtl{left:14px; top:14px; width:224px; font-size:12.5px}
 #webCtl label{display:flex; align-items:center; gap:7px; margin:8px 0 3px; color:var(--mut)}
 #webCtl input[type=range]{width:100%; accent-color:var(--gold)}
@@ -204,7 +206,7 @@ main{position:fixed; inset:52px 0 0 0}
 .sitem b{color:var(--teal); font-weight:600; margin-right:8px}
 .sitem mark{background:none; color:var(--gold2); font-weight:600}
 /* ---------- map ---------- */
-#view-map canvas{position:absolute; inset:0; width:100%; height:100%}
+#view-map canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none}
 #mapCtl{left:14px; top:14px; width:236px; font-size:12.5px}
 #mapCtl h4{font-size:11px; letter-spacing:.16em; color:var(--dim); margin-bottom:8px; font-weight:600}
 .mhint{color:var(--dim); font-size:11px; margin-top:9px; line-height:1.5}
@@ -234,8 +236,57 @@ main{position:fixed; inset:52px 0 0 0}
 .tl-scroll svg{display:block}
 .tlbar{cursor:pointer}
 .tlbar:hover{filter:brightness(1.35)}
-@media (max-width:820px){ #view-read.on{grid-template-columns:1fr} #rnav{display:none} .brand small{display:none} }
-@media (max-width:760px){ header{overflow-x:auto; overflow-y:hidden} header .tab{padding:15px 10px} #sbox{min-width:130px} }
+.nav-mob{display:none}
+#rnav-close{display:none}
+@media (max-width:820px){
+  #view-read.on{grid-template-columns:1fr}
+  #rnav{display:none; position:fixed; inset:52px 0 0 0; z-index:40; width:100%; border:none; background:rgba(20,22,31,.98); backdrop-filter:blur(8px)}
+  #rnav.open{display:block}
+  #rnav-close{display:block; position:absolute; top:8px; right:14px; color:var(--dim); font-size:18px; padding:4px 8px; z-index:2}
+  #rnav-close:hover{color:var(--ink)}
+  .nav-mob{display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px;
+    color:var(--mut); font-size:17px; background:var(--panel2); border:1px solid var(--line); flex-shrink:0}
+  .nav-mob:hover{color:var(--gold2); border-color:var(--gold)}
+  .brand small{display:none}
+}
+@media (max-width:760px){
+  header{overflow-x:auto; overflow-y:hidden; gap:2px; padding:0 8px}
+  header .tab{padding:14px 8px; font-size:13px; white-space:nowrap}
+  .brand{font-size:11px; margin-right:8px; letter-spacing:.15em}
+  #sbox{min-width:110px; width:min(200px,28vw); padding:6px 10px; font-size:13px}
+  .fpanel{max-width:calc(100vw - 28px) !important; width:auto !important}
+  #netCtl,#webCtl,#mapCtl{width:min(224px,calc(100vw - 28px)); left:8px; top:8px; padding:10px 12px; font-size:12px; transition:transform .2s}
+  .fp-tog{display:none; align-items:center; justify-content:center; position:absolute; top:8px; left:8px;
+    width:34px; height:34px; border-radius:10px; background:rgba(20,22,31,.93); border:1px solid var(--line);
+    color:var(--mut); font-size:15px; z-index:12; cursor:pointer}
+  .fp-tog:hover{color:var(--gold2); border-color:var(--gold)}
+  .fp-tog.vis{display:flex}
+  .fpanel.collapsed{transform:translateX(calc(-100% - 16px)); pointer-events:none}
+  .fp-close{display:block; position:absolute; top:6px; right:8px; color:var(--dim); font-size:15px; padding:2px 6px}
+  .fp-close:hover{color:var(--ink)}
+  #pcard,#wcard,#mcard{right:8px; top:8px; width:min(294px,calc(100vw - 16px)); max-height:calc(100% - 16px)}
+  #arcHint{font-size:11.5px; padding:5px 11px; top:10px}
+  #arcLegend{right:10px; top:8px; font-size:10px}
+  #arcLegend .bar{width:110px}
+  #arcStatus{left:10px; bottom:8px; font-size:10.5px}
+  .tip{font-size:12px; max-width:min(240px,80vw)}
+  #spanel{right:10px; bottom:10px; width:min(320px,calc(100vw - 20px)); max-height:60vh}
+  #sres{width:min(480px,calc(100vw - 16px)); right:8px}
+  #jinfo{width:min(640px,calc(100vw - 16px)); padding:10px 12px; gap:10px; bottom:10px}
+  #jStation{width:auto; flex:1; min-width:0}
+  #jSnip{max-height:36px; font-size:11px}
+}
+@media (max-width:480px){
+  .brand{display:none}
+  header .tab{padding:13px 7px; font-size:12.5px}
+  #sbox{width:min(160px,24vw); font-size:12px}
+  #netCtl,#webCtl,#mapCtl{width:min(190px,calc(100vw - 20px)); padding:8px 10px}
+  #pcard,#wcard,#mcard{width:calc(100vw - 12px); right:6px; top:auto; bottom:6px; max-height:50vh; border-radius:14px 14px 14px 14px}
+  #arcHint{font-size:11px; padding:4px 10px}
+  #rmain{padding:18px 16px 100px}
+  .rhead h1{font-size:22px}
+  .vtext{font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -254,14 +305,16 @@ main{position:fixed; inset:52px 0 0 0}
 <main>
   <div id="view-arcs" class="view on">
     <canvas id="arcCv"></canvas>
-    <div id="arcHint" class="hud">hover a chapter to trace its connections · click to read</div>
+    <div id="arcHint" class="hud">tap or hover a chapter to trace its connections · tap again to read</div>
     <div id="arcLegend" class="hud">arc color = distance between chapters<div class="bar"></div><div id="arcProgLeg" style="margin-top:5px"></div></div>
     <div id="arcStatus" class="hud"></div>
     <div id="arcTip" class="tip"></div>
   </div>
   <div id="view-net" class="view">
     <canvas id="netCv"></canvas>
+    <button class="fp-tog" data-panel="netCtl" title="Toggle controls">⚙</button>
     <div id="netCtl" class="fpanel">
+      <button class="fp-close" data-panel="netCtl">✕</button>
       <h4>PEOPLE OF THE BIBLE</h4>
       <input id="npFind" placeholder="find a person…" spellcheck="false">
       <label style="margin-top:9px">show top <b id="npNv" style="color:var(--gold2)">&nbsp;</b></label>
@@ -276,7 +329,9 @@ main{position:fixed; inset:52px 0 0 0}
   </div>
   <div id="view-webs" class="view">
     <canvas id="webCv"></canvas>
+    <button class="fp-tog" data-panel="webCtl" title="Toggle controls">⚙</button>
     <div id="webCtl" class="fpanel">
+      <button class="fp-close" data-panel="webCtl">✕</button>
       <h4>CONNECTED WEBS</h4>
       <div id="wModes"></div>
       <input id="wFind" placeholder="find a book…" spellcheck="false">
@@ -290,10 +345,12 @@ main{position:fixed; inset:52px 0 0 0}
   </div>
   <div id="view-map" class="view">
     <canvas id="mapCv"></canvas>
+    <button class="fp-tog" data-panel="mapCtl" title="Toggle controls">⚙</button>
     <div id="mapCtl" class="fpanel">
+      <button class="fp-close" data-panel="mapCtl">✕</button>
       <h4>THE BIBLICAL WORLD</h4>
       <div id="jchips"></div>
-      <div class="mhint">scroll to zoom · drag to pan<br>dots sized by mentions</div>
+      <div class="mhint">pinch to zoom · drag to pan<br>dots sized by mentions</div>
     </div>
     <div id="mcard" class="fpanel"><button class="x">✕</button><div id="mbody"></div></div>
     <div id="jinfo">
@@ -309,6 +366,7 @@ main{position:fixed; inset:52px 0 0 0}
     <div id="rnav"></div>
     <div id="rmain">
       <div class="rhead">
+        <button id="rNavBtn" class="nav-mob" title="Open book navigator">☰</button>
         <span class="nav"><button id="rPrev">‹</button><button id="rNext">›</button></span>
         <h1 id="rTitle"></h1>
         <span id="rReadBadge"></span>
@@ -459,6 +517,20 @@ function showView(name){
   else if(BX.views[name].onshow) BX.views[name].onshow();
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showView(t.dataset.v)));
+document.querySelectorAll('.fp-tog').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const panel=$('#'+btn.dataset.panel);
+    if(panel){ panel.classList.remove('collapsed'); btn.classList.remove('vis'); }
+  });
+});
+document.querySelectorAll('.fp-close').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const panel=$('#'+btn.dataset.panel);
+    if(panel){ panel.classList.add('collapsed'); }
+    const tog=document.querySelector(`.fp-tog[data-panel="${btn.dataset.panel}"]`);
+    if(tog) tog.classList.add('vis');
+  });
+});
 
 /* ============ READER ============ */
 BX.reader = { b:42, c:3, inter:false, target:null };
@@ -467,6 +539,10 @@ BX.views.read = {
     this.buildNav();
     $('#rPrev').onclick = ()=>BX.views.read.step(-1);
     $('#rNext').onclick = ()=>BX.views.read.step(1);
+    $('#rNavBtn').onclick = ()=>{
+      const nav=$('#rnav');
+      nav.classList.toggle('open');
+    };
     $('#ilTog').onclick = ()=>{
       BX.reader.inter = !BX.reader.inter;
       $('#ilTog').classList.toggle('on', BX.reader.inter);
@@ -478,15 +554,13 @@ BX.views.read = {
   onshow(){},
   buildNav(){
     const nav = $('#rnav'); let h='';
-    const grp = (t0,t1,label)=>{
-      h += `<div class="bh">${label}</div>`;
-      BX.d.books.forEach((bk,i)=>{ if(bk.t===t0) h+=`<button class="bk" data-b="${i}">${bk.n}</button>`; });
-    };
+    h += `<button id="rnav-close">✕</button>`;
     h += `<div class="bh">OLD TESTAMENT</div>`;
     BX.d.books.forEach((bk,i)=>{ if(bk.t===0) h+=`<button class="bk" data-b="${i}">${bk.n}</button>`; });
     h += `<div class="bh">NEW TESTAMENT</div>`;
     BX.d.books.forEach((bk,i)=>{ if(bk.t===1) h+=`<button class="bk" data-b="${i}">${bk.n}</button>`; });
     nav.innerHTML = h;
+    $('#rnav-close').onclick=()=>{ nav.classList.remove('open'); };
     nav.addEventListener('click',e=>{
       const bk = e.target.closest('.bk'); if(!bk) return;
       const b = +bk.dataset.b;
@@ -502,7 +576,7 @@ BX.views.read = {
       const btn=document.createElement('button'); btn.textContent=c;
       if(BX.prog && BX.prog.read[BX.bookCh0[b]+c-1]) btn.classList.add('rd');
       if(BX.reader.b===b && BX.reader.c===c) btn.classList.add('on');
-      btn.onclick=()=>{ BX.reader.b=b; BX.reader.c=c; BX.reader.target=null; this.renderChapter(); };
+      btn.onclick=()=>{ BX.reader.b=b; BX.reader.c=c; BX.reader.target=null; this.renderChapter(); $('#rnav').classList.remove('open'); };
       g.appendChild(btn);
     }
     bkEl.after(g);
@@ -687,6 +761,17 @@ document.addEventListener('click',e=>{
 });
 /*EOF:core*/
 
+/* ============ touch helpers ============ */
+function pinchDist(e){
+  const a=e.touches[0], b=e.touches[1];
+  const dx=a.clientX-b.clientX, dy=a.clientY-b.clientY;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+function pinchCenter(e,r){
+  const a=e.touches[0], b=e.touches[1];
+  return [(a.clientX+b.clientX)/2-r.left, (a.clientY+b.clientY)/2-r.top];
+}
+
 /* ============ ARCS — cross-reference visualization ============ */
 BX.views.arcs = {
   init(){
@@ -703,6 +788,34 @@ BX.views.arcs = {
     this.cv.addEventListener('mousemove', e=>this.onMove(e));
     this.cv.addEventListener('mouseleave', ()=>{ this.hover=-1; this.tip.style.display='none'; this.compose(); });
     this.cv.addEventListener('click', ()=>{ if(this.hover>=0) gotoChapter(this.hover); });
+    this.cv.addEventListener('touchstart', e=>{
+      if(e.touches.length!==1) return;
+      const t=e.touches[0], r=this.cv.getBoundingClientRect();
+      const x=t.clientX-r.left;
+      const ci=this.chapterAt(x);
+      if(ci>=0 && ci===this.hover){
+        e.preventDefault();
+        gotoChapter(ci);
+      } else if(ci>=0){
+        e.preventDefault();
+        this.hover=ci; this.compose();
+        this.showTouchTip(t.clientX-r.left, t.clientY-r.top, ci);
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchmove', e=>{
+      if(e.touches.length!==1) return;
+      const t=e.touches[0], r=this.cv.getBoundingClientRect();
+      const x=t.clientX-r.left, y=t.clientY-r.top;
+      const ci=this.chapterAt(x);
+      if(ci!==this.hover){
+        this.hover=ci; this.compose();
+        $('#arcHint').style.opacity=0;
+      }
+      if(ci>=0) this.showTouchTip(x, y, ci);
+      else this.tip.style.display='none';
+      e.preventDefault();
+    },{passive:false});
+    this.cv.addEventListener('touchend', ()=>{});
     this.layout(true);
   },
   onshow(){ if(this.W!==this.cv.clientWidth) this.layout(true); },
@@ -831,6 +944,16 @@ BX.views.arcs = {
     while(lo<hi){ const mid=(lo+hi+1)>>1; if(this.bounds[mid]<=x) lo=mid; else hi=mid-1; }
     return lo;
   },
+  showTouchTip(x, y, ci){
+    const ch=BX.ch[ci];
+    this.tip.innerHTML=`<b>${BX.d.books[ch.b].n} ${ch.c}</b><div class="m">${ch.nv} verses · ${this.adj[ci].length} linked chapters · weight ${fmt(Math.round(this.deg[ci]))}</div>`
+      +(BX.prog&&BX.prog.read[ci]?`<div class="m" style="color:#d8ab4e">✓ read${progDate(ci)?' '+progDate(ci):''}</div>`:'')
+      +`<div class="m">tap again to read</div>`;
+    this.tip.style.display='block';
+    const tw=this.tip.offsetWidth;
+    this.tip.style.left=Math.min(this.W-tw-10, Math.max(6,x-tw/2))+'px';
+    this.tip.style.top=Math.max(6, y-this.tip.offsetHeight-12)+'px';
+  },
   onMove(e){
     if(!this.base) return;
     const r=this.cv.getBoundingClientRect();
@@ -916,6 +1039,54 @@ BX.views.net = {
       this.tx = mx-(mx-this.tx)*ns/this.scale; this.ty = my-(my-this.ty)*ns/this.scale;
       this.scale=ns; this.draw();
     },{passive:false});
+    this.cv.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect();
+      if(e.touches.length===1){
+        const t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
+        const i=this.pick(mx,my);
+        if(i>=0){ this.dragN=i; this._moved=false; }
+        else { this.panning=true; this._px=mx; this._py=my; this._moved=false; }
+      } else if(e.touches.length===2){
+        this.dragN=-1; this.panning=false;
+        this._pinch=pinchDist(e); this._pinchScale=this.scale;
+        const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect();
+      if(e.touches.length===2 && this._pinch){
+        const d=pinchDist(e), f=d/this._pinch;
+        const ns=Math.min(6,Math.max(.2,this._pinchScale*f));
+        this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.scale;
+        this.ty=this._pinchCy-(this._pinchCy-this.ty)*ns/this.scale;
+        this.scale=ns; this.draw();
+        return;
+      }
+      if(e.touches.length!==1) return;
+      const t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
+      if(this.dragN>=0){
+        this._moved=true;
+        this.px[this.dragN]=(mx-this.tx)/this.scale; this.py[this.dragN]=(my-this.ty)/this.scale;
+        this.heat(0.12); this.draw();
+      } else if(this.panning){
+        this._moved=true;
+        this.tx+=mx-this._px; this.ty+=my-this._py; this._px=mx; this._py=my; this.draw();
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchend', e=>{
+      if(e.touches.length===0){
+        if(!this._moved && this.dragN>=0) this.select(this.vis[this.dragN], false);
+        else if(!this._moved && !this.panning){
+          const t=e.changedTouches[0]; if(!t) return;
+          const r=this.cv.getBoundingClientRect();
+          const i=this.pick(t.clientX-r.left, t.clientY-r.top);
+          if(i>=0) this.select(this.vis[i], false);
+        }
+        this.dragN=-1; this.panning=false; this._pinch=0;
+      }
+    });
     window.addEventListener('resize', ()=>{ clearTimeout(this._rt); this._rt=setTimeout(()=>{ this.size(); this.draw(); },200); });
     this.size();
     this.rebuild(true);
@@ -1235,6 +1406,53 @@ BX.views.webs = {
       this.tx=mx-(mx-this.tx)*ns/this.scale; this.ty=my-(my-this.ty)*ns/this.scale;
       this.scale=ns; this.draw();
     },{passive:false});
+    this.cv.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect();
+      if(e.touches.length===1){
+        const t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
+        const i=this.pick(mx,my);
+        if(i>=0){ this.dragN=i; this._moved=false; }
+        else { this.panning=true; this._px=mx; this._py=my; this._moved=false; }
+      } else if(e.touches.length===2){
+        this.dragN=-1; this.panning=false;
+        this._pinch=pinchDist(e); this._pinchScale=this.scale;
+        const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect();
+      if(e.touches.length===2 && this._pinch){
+        const d=pinchDist(e), f=d/this._pinch;
+        const ns=Math.min(6,Math.max(.2,this._pinchScale*f));
+        this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.scale;
+        this.ty=this._pinchCy-(this._pinchCy-this.ty)*ns/this.scale;
+        this.scale=ns; this.draw();
+        return;
+      }
+      if(e.touches.length!==1) return;
+      const t=e.touches[0], mx=t.clientX-r.left, my=t.clientY-r.top;
+      if(this.dragN>=0){
+        this._moved=true;
+        this.px[this.dragN]=(mx-this.tx)/this.scale; this.py[this.dragN]=(my-this.ty)/this.scale;
+        this.heat(0.12); this.draw();
+      } else if(this.panning){
+        this._moved=true;
+        this.tx+=mx-this._px; this.ty+=my-this._py; this._px=mx; this._py=my; this.draw();
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchend', e=>{
+      if(e.touches.length===0){
+        if(!this._moved){
+          const t=e.changedTouches[0]; if(!t) return;
+          const r=this.cv.getBoundingClientRect();
+          const i=this.pick(t.clientX-r.left, t.clientY-r.top);
+          if(i>=0) this.select(i, false);
+        }
+        this.dragN=-1; this.panning=false; this._pinch=0;
+      }
+    });
     window.addEventListener('resize',()=>{ clearTimeout(this._rt); this._rt=setTimeout(()=>{ this.size(); this.draw(); },200); });
     this.size();
     this.setMode(this.mode,true);
@@ -1691,6 +1909,46 @@ BX.views.map = {
       this.tx=mx-(mx-this.tx)*ns/this.k; this.ty=my-(my-this.ty)*ns/this.k;
       this.k=ns; this.draw();
     },{passive:false});
+    this.cv.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      const r=this.cv.getBoundingClientRect();
+      if(e.touches.length===1){
+        const t=e.touches[0];
+        this.panning=true; this._moved=false; this._px=t.clientX; this._py=t.clientY;
+      } else if(e.touches.length===2){
+        this.panning=false;
+        this._pinch=pinchDist(e); this._pinchK=this.k;
+        const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
+      }
+    },{passive:false});
+    this.cv.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(e.touches.length===2 && this._pinch){
+        const d=pinchDist(e), f=d/this._pinch;
+        const ns=Math.min(60,Math.max(0.7,this._pinchK*f));
+        this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.k;
+        this.ty=this._pinchCy-(this._pinchCy-this.ty)*ns/this.k;
+        this.k=ns; this.draw();
+        return;
+      }
+      if(e.touches.length!==1||!this.panning) return;
+      const t=e.touches[0];
+      this._moved=true;
+      this.tx+=t.clientX-this._px; this.ty+=t.clientY-this._py;
+      this._px=t.clientX; this._py=t.clientY;
+      this.draw();
+    },{passive:false});
+    this.cv.addEventListener('touchend', e=>{
+      if(e.touches.length===0){
+        if(!this._moved){
+          const t=e.changedTouches[0]; if(!t) return;
+          const r=this.cv.getBoundingClientRect();
+          const i=this.pick(t.clientX-r.left, t.clientY-r.top);
+          if(i>=0) this.placeCard(i);
+        }
+        this.panning=false; this._pinch=0;
+      }
+    });
     window.addEventListener('resize',()=>{ clearTimeout(this._rt); this._rt=setTimeout(()=>{ this.size(); this.draw(); },200); });
     this.size(); this.fit(G.bbox[0],G.bbox[1],G.bbox[2],G.bbox[3]); this.draw();
   },
