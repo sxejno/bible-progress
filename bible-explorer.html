@@ -254,7 +254,7 @@ main{position:fixed; inset:52px 0 0 0}
   header .tab{padding:14px 8px; font-size:13px; white-space:nowrap}
   .brand{font-size:11px; margin-right:8px; letter-spacing:.15em}
   #sbox{min-width:110px; width:min(200px,28vw); padding:6px 10px; font-size:13px}
-  .fpanel{max-width:calc(100vw - 28px) !important; width:auto !important}
+  .fpanel{max-width:calc(100vw - 16px)}
   #netCtl,#webCtl,#mapCtl{width:min(224px,calc(100vw - 28px)); left:8px; top:8px; padding:10px 12px; font-size:12px; transition:transform .2s}
   .fp-tog{display:none; align-items:center; justify-content:center; position:absolute; top:8px; left:8px;
     width:34px; height:34px; border-radius:10px; background:rgba(20,22,31,.93); border:1px solid var(--line);
@@ -1048,7 +1048,7 @@ BX.views.net = {
         if(i>=0){ this.dragN=i; this._moved=false; }
         else { this.panning=true; this._px=mx; this._py=my; this._moved=false; }
       } else if(e.touches.length===2){
-        this.dragN=-1; this.panning=false;
+        this.dragN=-1; this.panning=false; this._moved=true;
         this._pinch=pinchDist(e); this._pinchScale=this.scale;
         const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
       }
@@ -1057,6 +1057,7 @@ BX.views.net = {
       e.preventDefault();
       const r=this.cv.getBoundingClientRect();
       if(e.touches.length===2 && this._pinch){
+        this._moved=true;
         const d=pinchDist(e), f=d/this._pinch;
         const ns=Math.min(6,Math.max(.2,this._pinchScale*f));
         this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.scale;
@@ -1415,7 +1416,7 @@ BX.views.webs = {
         if(i>=0){ this.dragN=i; this._moved=false; }
         else { this.panning=true; this._px=mx; this._py=my; this._moved=false; }
       } else if(e.touches.length===2){
-        this.dragN=-1; this.panning=false;
+        this.dragN=-1; this.panning=false; this._moved=true;
         this._pinch=pinchDist(e); this._pinchScale=this.scale;
         const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
       }
@@ -1424,6 +1425,7 @@ BX.views.webs = {
       e.preventDefault();
       const r=this.cv.getBoundingClientRect();
       if(e.touches.length===2 && this._pinch){
+        this._moved=true;
         const d=pinchDist(e), f=d/this._pinch;
         const ns=Math.min(6,Math.max(.2,this._pinchScale*f));
         this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.scale;
@@ -1916,7 +1918,7 @@ BX.views.map = {
         const t=e.touches[0];
         this.panning=true; this._moved=false; this._px=t.clientX; this._py=t.clientY;
       } else if(e.touches.length===2){
-        this.panning=false;
+        this.panning=false; this._moved=true;
         this._pinch=pinchDist(e); this._pinchK=this.k;
         const c=pinchCenter(e,r); this._pinchCx=c[0]; this._pinchCy=c[1];
       }
@@ -1924,6 +1926,7 @@ BX.views.map = {
     this.cv.addEventListener('touchmove', e=>{
       e.preventDefault();
       if(e.touches.length===2 && this._pinch){
+        this._moved=true;
         const d=pinchDist(e), f=d/this._pinch;
         const ns=Math.min(60,Math.max(0.7,this._pinchK*f));
         this.tx=this._pinchCx-(this._pinchCx-this.tx)*ns/this.k;
