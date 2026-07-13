@@ -885,20 +885,25 @@ BX.views.arcs = {
           + (BX.prog ? ` · you've read ${fmt(BX.prog.chRead)} — ${BX.prog.pct.toFixed(1)}% of all words` : '');
       $('#arcProgLeg').innerHTML = BX.prog ? '<span style="color:#d8ab4e">▮</span> chapters you\'ve read' : '';
       if(p<order.length){ requestAnimationFrame(chunk); }
+      else { this.decorate(); }
       this.compose();
     };
     requestAnimationFrame(chunk);
   },
   drawBars(c, hover){
-    const H=this.H;
+    const H=this.H, y0=this.baseY+2, barBot=H-16;
+    const xL=this.bounds[0], xR=this.bounds[BX.ch.length], xNT=this.bounds[BX.bookCh0[39]];
+    // testament zones — always visible, whether or not chapters are read
+    c.fillStyle='rgba(84,102,150,.12)';  c.fillRect(xL, y0, xNT-xL, barBot-y0);
+    c.fillStyle='rgba(170,124,72,.14)'; c.fillRect(xNT, y0, xR-xNT, barBot-y0);
     for(let i=0;i<BX.ch.length;i++){
       const ch=BX.ch[i];
       const x=this.bounds[i], w=Math.max(0.4, this.bounds[i+1]-x-0.25);
       const h=6 + ch.nv/this.maxNv*(H-this.baseY-26);
       if(i===hover) c.fillStyle='#f0c96c';
       else if(BX.prog && BX.prog.read[i]) c.fillStyle='#e2b254';
-      else if(BX.prog) c.fillStyle = BX.d.books[ch.b].t===0 ? 'rgba(76,88,120,.5)' : 'rgba(138,111,77,.5)';
-      else c.fillStyle = BX.d.books[ch.b].t===0 ? '#4c5878' : '#8a6f4d';
+      else if(BX.prog) c.fillStyle = BX.d.books[ch.b].t===0 ? 'rgba(96,116,168,.6)' : 'rgba(176,138,90,.6)';
+      else c.fillStyle = BX.d.books[ch.b].t===0 ? '#5871a0' : '#a37c4d';
       c.fillRect(x, this.baseY+2, w, h);
     }
     // book boundaries + labels
@@ -913,6 +918,22 @@ BX.views.arcs = {
         c.fillText(BX.d.books[b].a, (x0+x1)/2, this.H-6);
       }
     }
+    // testament divider (bar zone) — persists on hover
+    c.fillStyle='rgba(240,201,108,.55)'; c.fillRect(xNT-0.75, y0, 1.5, barBot-y0);
+  },
+  // OT/NT divider + labels through the dome; drawn onto the base after arcs finish
+  decorate(){
+    const c=this.base.getContext('2d');
+    c.setTransform(this.dpr,0,0,this.dpr,0,0);
+    const xNT=this.bounds[BX.bookCh0[39]];
+    c.fillStyle='rgba(240,201,108,.20)'; c.fillRect(xNT-0.5, 28, 1, this.baseY-28);
+    c.font='600 11px system-ui'; c.letterSpacing='1px'; c.textBaseline='alphabetic';
+    c.lineWidth=4; c.strokeStyle='rgba(13,14,18,.95)'; c.fillStyle='#cbb47d';
+    const roomy = this.bounds[BX.ch.length]-xNT > 120;   // enough width for the full NT label?
+    const ot = roomy?'OLD TESTAMENT':'OT', nt = roomy?'NEW TESTAMENT':'NT';
+    c.textAlign='right'; c.strokeText(ot, xNT-9, this.baseY-7); c.fillText(ot, xNT-9, this.baseY-7);
+    c.textAlign='left';  c.strokeText(nt, xNT+9, this.baseY-7); c.fillText(nt, xNT+9, this.baseY-7);
+    c.letterSpacing='0px';
   },
   compose(){
     const ctx=this.ctx, dpr=this.dpr;
