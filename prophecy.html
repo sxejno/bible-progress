@@ -22,6 +22,9 @@
 <style>
   body { margin: 0; background: #030712; }
   * { scrollbar-width: thin; scrollbar-color: #374151 transparent; }
+  html { scroll-behavior: smooth; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body data-dark-native>
@@ -80,7 +83,7 @@ const PROPHECIES = [
     source: "Matthew 24:14",
     sourceText: "And this gospel of the kingdom shall be preached in all the world for a witness unto all nations; and then shall the end come.",
     description: "The gospel must be proclaimed as a testimony to every nation (ethnos) before the end comes.",
-    modernFulfillment: "Scripture translated into over 3,500 languages covering ~97% of the world\u2019s population. Internet and satellite technology reach previously unreached peoples. However, an estimated 7,000+ people groups are still considered \u2018unreached\u2019 by mission agencies. Radio, television, and digital media have expanded gospel access to virtually every country.",
+    modernFulfillment: "Scripture translated into over 3,700 languages covering ~97% of the world\u2019s population, with the full Bible in 700+. Internet and satellite technology reach previously unreached peoples. However, an estimated 7,000+ people groups are still considered \u2018unreached\u2019 by mission agencies. Radio, television, and digital media have expanded gospel access to virtually every country.",
     fulfillmentLevel: 75, linkedProphecies: ["j15"],
     tags: ["gospel", "nations", "missions", "translation"],
     keyEvents: [
@@ -94,7 +97,7 @@ const PROPHECIES = [
     source: "Ezekiel 37:21-22; Isaiah 66:8",
     sourceText: "I will take the children of Israel from among the heathen... and will gather them on every side, and bring them into their own land... Shall a nation be born at once?",
     description: "After a long exile, the nation of Israel would be reconstituted in a single day, gathering Jews from among the nations back to their ancestral land.",
-    modernFulfillment: "On May 14, 1948, the State of Israel was proclaimed \u2014 the first Jewish nation-state in ~1,900 years. Jews returned from over 100 countries. The Hebrew language was revived from liturgical to everyday use. Israel\u2019s population has grown from 806,000 to over 9.8 million.",
+    modernFulfillment: "On May 14, 1948, the State of Israel was proclaimed \u2014 the first Jewish nation-state in ~1,900 years. Jews returned from over 100 countries. The Hebrew language was revived from liturgical to everyday use. Israel\u2019s population has grown from 806,000 to over 10 million (a milestone passed in 2025).",
     fulfillmentLevel: 95, linkedProphecies: ["j4", "j10", "j11"],
     tags: ["israel", "nation", "1948", "restoration"],
     keyEvents: [
@@ -123,7 +126,7 @@ const PROPHECIES = [
     source: "Revelation 13:7-8, 16-17",
     sourceText: "And power was given him over all kindreds, and tongues, and nations... And he causeth all... to receive a mark in their right hand, or in their foreheads.",
     description: "A global political-economic system requiring universal participation \u2014 often interpreted as involving a \u2018mark\u2019 necessary for buying and selling.",
-    modernFulfillment: "Digital payments, biometric ID, social credit systems, Central Bank Digital Currencies (CBDCs), and global surveillance infrastructure have created technological prerequisites. Over 100 countries exploring CBDCs. EU eIDAS digital identity regulation, India\u2019s Aadhaar (1.3B enrolled), and pandemic-accelerated cashless trends all point toward centralized frameworks.",
+    modernFulfillment: "Digital payments, biometric ID, social credit systems, Central Bank Digital Currencies (CBDCs), and global surveillance infrastructure have created technological prerequisites. 134 countries are exploring CBDCs; the ECB targets a digital euro launch by 2029, while the U.S. banned a federal CBDC through 2030 in favor of private stablecoins \u2014 either path digitizes and centralizes transaction visibility. EU eIDAS digital identity regulation, India\u2019s Aadhaar (1.3B enrolled), and pandemic-accelerated cashless trends all point toward centralized frameworks.",
     fulfillmentLevel: 40, linkedProphecies: ["i4"],
     tags: ["mark of the beast", "global government", "CBDC", "surveillance", "digital ID"],
     keyEvents: [
@@ -131,6 +134,7 @@ const PROPHECIES = [
       { date: "2020", event: "COVID accelerates digital payment adoption globally" },
       { date: "2022", event: "Nigeria launches eNaira CBDC; 100+ countries exploring CBDCs" },
       { date: "2024", event: "EU eIDAS digital identity regulation takes effect" },
+      { date: "2026", event: "134 countries explore CBDCs; digital euro advances toward 2029 launch as U.S. bets on stablecoins" },
     ],
   },
   {
@@ -168,7 +172,7 @@ const PROPHECIES = [
     source: "Daniel 12:4",
     sourceText: "...shut up the words, and seal the book, even to the time of the end: many shall run to and fro, and knowledge shall be increased.",
     description: "An explosion of knowledge and dramatic increase in human travel in the time of the end.",
-    modernFulfillment: "Human knowledge estimated to double every 12 hours (IBM). Over 4 billion flew commercially in 2019. The internet makes virtually all knowledge instantly accessible. AI systems now generate new knowledge autonomously. The contrast with all prior history is staggering.",
+    modernFulfillment: "Human knowledge once doubled every century; by recent estimates it doubles in a year or less, with AI accelerating the curve. Over 4.5 billion passengers flew commercially in 2019, and traffic has since surpassed pre-pandemic records. The internet makes virtually all knowledge instantly accessible. AI systems now generate new knowledge autonomously. The contrast with all prior history is staggering.",
     fulfillmentLevel: 90, linkedProphecies: ["i13"],
     tags: ["knowledge", "travel", "technology", "internet", "AI", "daniel"],
     keyEvents: [
@@ -220,6 +224,7 @@ const PROPHECIES = [
       { date: "2022", event: "Russia makes explicit nuclear threats during Ukraine war" },
       { date: "2024", event: "Russia, China, and U.S. modernize nuclear arsenals; hypersonic missiles deployed" },
       { date: "2025", event: "Twelve-Day War (Israel-Iran) demonstrates speed of modern conflict escalation" },
+      { date: "2026", event: "Doomsday Clock set to 85 seconds to midnight \u2014 closest to catastrophe ever" },
     ],
   },
   {
@@ -282,14 +287,14 @@ const PROPHECIES = [
     source: "Matthew 24:9; Luke 21:12; Revelation 6:9-11",
     sourceText: "Then shall they deliver you up to be afflicted, and shall kill you: and ye shall be hated of all nations for my name\u2019s sake.",
     description: "Christians will face increasing persecution globally, being hated by all nations. Martyrdom will intensify before the end.",
-    modernFulfillment: "Open Doors reports over 365 million Christians face high levels of persecution (2024). North Korea, Afghanistan, Somalia, Libya, and others rank as extreme. Nigeria alone saw over 5,000 Christians killed in 2022. China demolishes churches and uses AI surveillance on believers. Persecution has reached its highest levels in modern history.",
+    modernFulfillment: "Open Doors reports over 380 million Christians face high levels of persecution (2025 World Watch List). North Korea, Afghanistan, Somalia, Libya, and others rank as extreme. Nigeria alone saw over 5,000 Christians killed in 2022. China demolishes churches and uses AI surveillance on believers. Persecution has reached its highest levels in modern history.",
     fulfillmentLevel: 70, linkedProphecies: ["c7"],
     tags: ["persecution", "martyrdom", "Christians", "hatred"],
     keyEvents: [
       { date: "2014", event: "ISIS begins systematic persecution of Christians in Iraq/Syria" },
       { date: "2022", event: "Open Doors: 360M Christians face high persecution \u2014 record high" },
       { date: "2024", event: "Nigeria, sub-Saharan Africa sees escalating anti-Christian violence" },
-      { date: "2026", event: "Doomsday Clock set to 85 seconds to midnight \u2014 closest ever" },
+      { date: "2025", event: "Open Doors World Watch List: 380M Christians face high persecution" },
     ],
   },
   {
@@ -1050,7 +1055,10 @@ const RSS_FEEDS = [
 
 const FulfillmentBar = ({ level, size = "md" }) => {
   const h = size === "sm" ? "h-1.5" : "h-2.5";
-  const color = level >= 80 ? "bg-red-500" : level >= 50 ? "bg-amber-500" : level >= 25 ? "bg-yellow-600" : "bg-gray-500";
+  const color = level >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+    : level >= 50 ? "bg-gradient-to-r from-yellow-500 to-amber-500"
+    : level >= 25 ? "bg-gradient-to-r from-yellow-700 to-yellow-600"
+    : "bg-gray-500";
   return (
     <div className={`w-full ${h} bg-gray-700/60 rounded-full overflow-hidden`}>
       <div className={`${h} ${color} rounded-full transition-all duration-700`} style={{ width: `${level}%` }} />
@@ -1070,8 +1078,8 @@ const ProphecyDetail = ({ prophecy: p, onClose, onNav }) => {
   const c = TRADITION_COLORS[p.tradition];
   const linked = PROPHECIES.filter(x => p.linkedProphecies.includes(x.id));
   return (
-    <div className="fixed inset-0 bg-black/85 z-50 flex items-start justify-center overflow-y-auto p-4 pt-6 pb-20" onClick={onClose}>
-      <div className={`max-w-3xl w-full bg-gray-900 border ${c.border} rounded-2xl p-5 sm:p-6 shadow-2xl ${c.glow} relative`} onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto p-4 pt-6 pb-20" style={{ animation: "fadeIn .2s ease" }} onClick={onClose}>
+      <div className={`max-w-3xl w-full bg-gray-900 border ${c.border} rounded-2xl p-5 sm:p-6 shadow-2xl ${c.glow} relative`} style={{ animation: "fadeUp .25s ease" }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-3 right-4 text-gray-500 hover:text-white text-2xl">&times;</button>
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <TBadge t={p.tradition} />
@@ -1631,7 +1639,8 @@ const Dashboard = ({ onSelect }) => {
           reveals the depth and specificity of God&rsquo;s prophetic word.
         </p>
       </div>
-      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center">
+      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at top, rgba(99,102,241,0.14), transparent 60%)" }} />
         <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Composite Fulfillment Index</p>
         <div className="text-5xl font-black text-white mb-2">
           {stats.avg}<span className="text-2xl text-gray-600">%</span>
@@ -1748,8 +1757,8 @@ function App() {
       <div className="bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 border-b border-gray-800">
         <div className="max-w-5xl mx-auto px-4 py-5">
           <div className="flex items-center gap-3 mb-0.5">
-            <div className="text-2xl">&#9769;</div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">Eschaton Watch</h1>
+            <div className="text-2xl text-indigo-400">&#9769;</div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-indigo-200 to-white bg-clip-text text-transparent">Eschaton Watch</h1>
             <a href="index.html" className="ml-auto text-gray-500 hover:text-gray-300 text-xs font-semibold whitespace-nowrap">&larr; Bible Progress</a>
           </div>
           <p className="text-gray-500 text-xs sm:text-sm ml-9">
@@ -1803,7 +1812,7 @@ function App() {
                 const c = TRADITION_COLORS[p.tradition];
                 const isScriptureOpen = showScripture[p.id];
                 return (
-                  <div key={p.id} className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 transition group`}>
+                  <div key={p.id} className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 transition duration-200 group hover:-translate-y-0.5 hover:shadow-lg ${c.glow}`}>
                     <div className="cursor-pointer hover:brightness-110" onClick={() => setSel(p)}>
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         <TBadge t={p.tradition} />
