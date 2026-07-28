@@ -22,6 +22,9 @@
 <style>
   body { margin: 0; background: #030712; }
   * { scrollbar-width: thin; scrollbar-color: #374151 transparent; }
+  html { scroll-behavior: smooth; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 </head>
 <body data-dark-native>
@@ -63,14 +66,16 @@ const PROPHECIES = [
     source: "2 Thessalonians 2:3-4; Revelation 11:1-2",
     sourceText: "...the man of sin be revealed, the son of perdition; Who opposeth and exalteth himself above all that is called God... so that he as God sitteth in the temple of God...",
     description: "A Third Temple will be built in Jerusalem where the Antichrist will seat himself and declare himself God. This presupposes the restoration of the Temple and its sacrificial system.",
-    modernFulfillment: "The Temple Institute in Jerusalem has recreated over 60 sacred vessels and priestly garments. Architectural plans are complete. The Sanhedrin was reconvened in 2004. Five red heifers were brought from Texas to Israel in September 2022 for potential use in the purification ceremony (Numbers 19). Political movements increasingly call for Jewish access to the Temple Mount.",
-    fulfillmentLevel: 35, linkedProphecies: ["j1", "i10"],
+    modernFulfillment: "The Temple Institute in Jerusalem has recreated over 60 sacred vessels and priestly garments. Architectural plans are complete. The Sanhedrin was reconvened in 2004. Five red heifers were brought from Texas to Israel in September 2022 for the purification ceremony (Numbers 19); those aged out and were disqualified, but a full practice run of the ceremony was performed in northern Israel on July 1, 2025, and new candidates raised in Israel reached eligible age in 2026. A record 76,000+ Jews ascended the Temple Mount in 2025.",
+    fulfillmentLevel: 40, linkedProphecies: ["j1", "i10"],
     tags: ["temple", "jerusalem", "red heifer", "antichrist", "sacrifice"],
     keyEvents: [
       { date: "1967", event: "Israel captures the Temple Mount in the Six-Day War" },
       { date: "2004", event: "Sanhedrin reconvened for the first time in ~1,600 years" },
       { date: "2018", event: "Temple Institute completes altar of burnt offering" },
       { date: "2022", event: "Five red heifers brought from Texas ranch to Israel" },
+      { date: "2025", event: "Full practice run of red heifer ceremony performed in northern Israel; record Temple Mount visits" },
+      { date: "2026", event: "New red heifer candidates raised in Israel reach eligible age" },
     ],
   },
   {
@@ -78,7 +83,7 @@ const PROPHECIES = [
     source: "Matthew 24:14",
     sourceText: "And this gospel of the kingdom shall be preached in all the world for a witness unto all nations; and then shall the end come.",
     description: "The gospel must be proclaimed as a testimony to every nation (ethnos) before the end comes.",
-    modernFulfillment: "Scripture translated into over 3,500 languages covering ~97% of the world\u2019s population. Internet and satellite technology reach previously unreached peoples. However, an estimated 7,000+ people groups are still considered \u2018unreached\u2019 by mission agencies. Radio, television, and digital media have expanded gospel access to virtually every country.",
+    modernFulfillment: "Scripture translated into over 3,700 languages covering ~97% of the world\u2019s population, with the full Bible in 700+. Internet and satellite technology reach previously unreached peoples. However, an estimated 7,000+ people groups are still considered \u2018unreached\u2019 by mission agencies. Radio, television, and digital media have expanded gospel access to virtually every country.",
     fulfillmentLevel: 75, linkedProphecies: ["j15"],
     tags: ["gospel", "nations", "missions", "translation"],
     keyEvents: [
@@ -92,7 +97,7 @@ const PROPHECIES = [
     source: "Ezekiel 37:21-22; Isaiah 66:8",
     sourceText: "I will take the children of Israel from among the heathen... and will gather them on every side, and bring them into their own land... Shall a nation be born at once?",
     description: "After a long exile, the nation of Israel would be reconstituted in a single day, gathering Jews from among the nations back to their ancestral land.",
-    modernFulfillment: "On May 14, 1948, the State of Israel was proclaimed \u2014 the first Jewish nation-state in ~1,900 years. Jews returned from over 100 countries. The Hebrew language was revived from liturgical to everyday use. Israel\u2019s population has grown from 806,000 to over 9.8 million.",
+    modernFulfillment: "On May 14, 1948, the State of Israel was proclaimed \u2014 the first Jewish nation-state in ~1,900 years. Jews returned from over 100 countries. The Hebrew language was revived from liturgical to everyday use. Israel\u2019s population has grown from 806,000 to over 10 million (a milestone passed in 2025).",
     fulfillmentLevel: 95, linkedProphecies: ["j4", "j10", "j11"],
     tags: ["israel", "nation", "1948", "restoration"],
     keyEvents: [
@@ -121,7 +126,7 @@ const PROPHECIES = [
     source: "Revelation 13:7-8, 16-17",
     sourceText: "And power was given him over all kindreds, and tongues, and nations... And he causeth all... to receive a mark in their right hand, or in their foreheads.",
     description: "A global political-economic system requiring universal participation \u2014 often interpreted as involving a \u2018mark\u2019 necessary for buying and selling.",
-    modernFulfillment: "Digital payments, biometric ID, social credit systems, Central Bank Digital Currencies (CBDCs), and global surveillance infrastructure have created technological prerequisites. Over 100 countries exploring CBDCs. EU eIDAS digital identity regulation, India\u2019s Aadhaar (1.3B enrolled), and pandemic-accelerated cashless trends all point toward centralized frameworks.",
+    modernFulfillment: "Digital payments, biometric ID, social credit systems, Central Bank Digital Currencies (CBDCs), and global surveillance infrastructure have created technological prerequisites. 134 countries are exploring CBDCs; the ECB targets a digital euro launch by 2029, while the U.S. banned a federal CBDC through 2030 in favor of private stablecoins \u2014 either path digitizes and centralizes transaction visibility. EU eIDAS digital identity regulation, India\u2019s Aadhaar (1.3B enrolled), and pandemic-accelerated cashless trends all point toward centralized frameworks.",
     fulfillmentLevel: 40, linkedProphecies: ["i4"],
     tags: ["mark of the beast", "global government", "CBDC", "surveillance", "digital ID"],
     keyEvents: [
@@ -129,6 +134,7 @@ const PROPHECIES = [
       { date: "2020", event: "COVID accelerates digital payment adoption globally" },
       { date: "2022", event: "Nigeria launches eNaira CBDC; 100+ countries exploring CBDCs" },
       { date: "2024", event: "EU eIDAS digital identity regulation takes effect" },
+      { date: "2026", event: "134 countries explore CBDCs; digital euro advances toward 2029 launch as U.S. bets on stablecoins" },
     ],
   },
   {
@@ -157,6 +163,7 @@ const PROPHECIES = [
       { date: "2015", event: "Russia deploys to Syria; permanent bases established" },
       { date: "2017", event: "Russia-Iran-Turkey Astana alliance formalized" },
       { date: "2023", event: "Oct 7 attack; Iran-backed groups engage Israel on multiple fronts" },
+      { date: "2024", event: "Assad falls — Russia and Iran's Syrian foothold disrupted; coalition recalibrates" },
       { date: "2025", event: "Operation Rising Lion — Israel strikes Iranian nuclear facilities; Twelve-Day War" },
     ],
   },
@@ -165,7 +172,7 @@ const PROPHECIES = [
     source: "Daniel 12:4",
     sourceText: "...shut up the words, and seal the book, even to the time of the end: many shall run to and fro, and knowledge shall be increased.",
     description: "An explosion of knowledge and dramatic increase in human travel in the time of the end.",
-    modernFulfillment: "Human knowledge estimated to double every 12 hours (IBM). Over 4 billion flew commercially in 2019. The internet makes virtually all knowledge instantly accessible. AI systems now generate new knowledge autonomously. The contrast with all prior history is staggering.",
+    modernFulfillment: "Human knowledge once doubled every century; by recent estimates it doubles in a year or less, with AI accelerating the curve. Over 4.5 billion passengers flew commercially in 2019, and traffic has since surpassed pre-pandemic records. The internet makes virtually all knowledge instantly accessible. AI systems now generate new knowledge autonomously. The contrast with all prior history is staggering.",
     fulfillmentLevel: 90, linkedProphecies: ["i13"],
     tags: ["knowledge", "travel", "technology", "internet", "AI", "daniel"],
     keyEvents: [
@@ -192,15 +199,15 @@ const PROPHECIES = [
     source: "Isaiah 17:1",
     sourceText: "The burden of Damascus. Behold, Damascus is taken away from being a city, and it shall be a ruinous heap.",
     description: "Damascus \u2014 one of the oldest continuously inhabited cities in the world \u2014 will be utterly destroyed and cease to be a city.",
-    modernFulfillment: "The Syrian civil war (2011\u2013present) has devastated large parts of Damascus, though it remains inhabited. Massive bombing campaigns, chemical weapons attacks, and urban warfare have reduced entire neighborhoods to rubble. Some districts are uninhabitable. The city has never been fully destroyed in recorded history, suggesting complete fulfillment may be future.",
-    fulfillmentLevel: 40, linkedProphecies: ["i6"],
-    tags: ["damascus", "syria", "destruction", "isaiah"],
+    modernFulfillment: "The Syrian civil war (2011\u20132024) devastated large parts of Damascus, though it remains inhabited. Massive bombing campaigns, chemical weapons attacks, and urban warfare reduced entire neighborhoods to rubble. In December 2024 the Assad regime collapsed in just 11 days, ending 54 years of dynastic rule \u2014 rebels took Damascus, and Israel struck hundreds of military sites across Syria in the aftermath. The city has never been fully destroyed in recorded history, suggesting complete fulfillment may be future; commentators note Syria's post-Assad instability keeps Isaiah 17 in sharp focus.",
+    fulfillmentLevel: 40, linkedProphecies: ["i6", "c30"],
+    tags: ["damascus", "syria", "destruction", "isaiah", "assad"],
     keyEvents: [
       { date: "2012", event: "Battle of Damascus begins; heavy urban combat" },
       { date: "2013", event: "Chemical weapons attack in Ghouta suburb" },
       { date: "2018", event: "Regime recaptures most of Damascus; vast areas in ruins" },
-      { date: "2023", event: "Damascus remains partially destroyed but still inhabited" },
-      { date: "2025", event: "Regional escalation from Twelve-Day War heightens concerns about Damascus" },
+      { date: "2024", event: "Assad regime falls in 11 days; rebels take Damascus; Israel strikes military sites across Syria" },
+      { date: "2025", event: "Post-Assad transition; Twelve-Day War escalation heightens focus on Damascus" },
     ],
   },
   {
@@ -217,6 +224,7 @@ const PROPHECIES = [
       { date: "2022", event: "Russia makes explicit nuclear threats during Ukraine war" },
       { date: "2024", event: "Russia, China, and U.S. modernize nuclear arsenals; hypersonic missiles deployed" },
       { date: "2025", event: "Twelve-Day War (Israel-Iran) demonstrates speed of modern conflict escalation" },
+      { date: "2026", event: "Doomsday Clock set to 85 seconds to midnight \u2014 closest to catastrophe ever" },
     ],
   },
   {
@@ -244,6 +252,7 @@ const PROPHECIES = [
       { date: "167 BC", event: "Antiochus IV desecrates Second Temple \u2014 historical type" },
       { date: "70 AD", event: "Roman destruction of the Temple \u2014 second historical type" },
       { date: "2022", event: "Red heifers brought to Israel; Temple preparations advance" },
+      { date: "2025", event: "Practice red heifer ceremony performed \u2014 purification pathway advances" },
     ],
   },
   {
@@ -278,14 +287,14 @@ const PROPHECIES = [
     source: "Matthew 24:9; Luke 21:12; Revelation 6:9-11",
     sourceText: "Then shall they deliver you up to be afflicted, and shall kill you: and ye shall be hated of all nations for my name\u2019s sake.",
     description: "Christians will face increasing persecution globally, being hated by all nations. Martyrdom will intensify before the end.",
-    modernFulfillment: "Open Doors reports over 365 million Christians face high levels of persecution (2024). North Korea, Afghanistan, Somalia, Libya, and others rank as extreme. Nigeria alone saw over 5,000 Christians killed in 2022. China demolishes churches and uses AI surveillance on believers. Persecution has reached its highest levels in modern history.",
+    modernFulfillment: "Open Doors reports over 380 million Christians face high levels of persecution (2025 World Watch List). North Korea, Afghanistan, Somalia, Libya, and others rank as extreme. Nigeria alone saw over 5,000 Christians killed in 2022. China demolishes churches and uses AI surveillance on believers. Persecution has reached its highest levels in modern history.",
     fulfillmentLevel: 70, linkedProphecies: ["c7"],
     tags: ["persecution", "martyrdom", "Christians", "hatred"],
     keyEvents: [
       { date: "2014", event: "ISIS begins systematic persecution of Christians in Iraq/Syria" },
       { date: "2022", event: "Open Doors: 360M Christians face high persecution \u2014 record high" },
       { date: "2024", event: "Nigeria, sub-Saharan Africa sees escalating anti-Christian violence" },
-      { date: "2026", event: "Doomsday Clock set to 85 seconds to midnight \u2014 closest ever" },
+      { date: "2025", event: "Open Doors World Watch List: 380M Christians face high persecution" },
     ],
   },
   {
@@ -293,14 +302,15 @@ const PROPHECIES = [
     source: "Daniel 9:27",
     sourceText: "And he shall confirm the covenant with many for one week: and in the midst of the week he shall cause the sacrifice and the oblation to cease.",
     description: "A world leader (Antichrist) will confirm a 7-year covenant ('one week' of years) with Israel and many nations. Midway through, he breaks it and commits the Abomination of Desolation.",
-    modernFulfillment: "The Abraham Accords (2020) normalized relations between Israel and multiple Arab states \u2014 the most significant Middle East peace framework in decades. Ongoing Saudi-Israel normalization talks. No 7-year covenant yet, but the diplomatic infrastructure for such a deal is being built in real time.",
-    fulfillmentLevel: 30, linkedProphecies: ["c14", "c6"],
+    modernFulfillment: "The Abraham Accords (2020) normalized relations between Israel and multiple Arab states \u2014 the most significant Middle East peace framework in decades. Kazakhstan acceded in 2025, and post-Assad Syria and Lebanon have been floated as next members. A 2026 US-Saudi civil nuclear deal was made contingent on Saudi-Israel normalization. No 7-year covenant yet, but the diplomatic infrastructure for a comprehensive multi-nation deal is being built in real time.",
+    fulfillmentLevel: 30, linkedProphecies: ["c14", "c6", "c30"],
     tags: ["covenant", "peace deal", "abraham accords", "antichrist", "daniel", "israel"],
     keyEvents: [
       { date: "1993", event: "Oslo Accords signed \u2014 first Israeli-Palestinian peace framework" },
       { date: "2020", event: "Abraham Accords \u2014 UAE, Bahrain, Sudan, Morocco normalize with Israel" },
       { date: "2023", event: "Saudi-Israel normalization talks underway before Oct 7 disruption" },
-      { date: "2025", event: "Post-Twelve-Day-War ceasefire negotiations involve multi-nation framework" },
+      { date: "2025", event: "Kazakhstan joins Abraham Accords; Syria and Lebanon floated as members" },
+      { date: "2026", event: "US-Saudi civil nuclear deal tied to Israel normalization" },
     ],
   },
   {
@@ -364,13 +374,14 @@ const PROPHECIES = [
     source: "Ezekiel 40-48; Isaiah 2:2-3; Micah 4:1",
     sourceText: "In the last days... the mountain of the house of the LORD shall be established in the top of the mountains... and many nations shall come.",
     description: "The Third Temple will be rebuilt in Jerusalem as the center of world worship, either by the Messiah himself or in preparation for his coming.",
-    modernFulfillment: "Temple Institute has prepared 60+ sacred vessels. Red heifer candidates raised. Reconvened Sanhedrin has performed practice sacrifices. Increasing Israeli support for Temple construction. Geopolitical tensions over Temple Mount / Haram al-Sharif remain the primary obstacle.",
-    fulfillmentLevel: 30, linkedProphecies: ["c2", "i10", "j13"],
+    modernFulfillment: "Temple Institute has prepared 60+ sacred vessels. Red heifer candidates raised — the 2022 Texas heifers aged out, but a full practice run of the parah adumah ceremony was held in northern Israel in July 2025, and new Israel-raised candidates reached eligible age in 2026. Reconvened Sanhedrin has performed practice sacrifices. Jewish Temple Mount visits hit a record 76,000+ in 2025. Geopolitical tensions over Temple Mount / Haram al-Sharif remain the primary obstacle.",
+    fulfillmentLevel: 35, linkedProphecies: ["c2", "i10", "j13"],
     tags: ["temple", "jerusalem", "beit hamikdash", "sacrifice", "red heifer"],
     keyEvents: [
       { date: "1967", event: "Israel captures Temple Mount" },
       { date: "1987", event: "Temple Institute founded" },
       { date: "2022", event: "Red heifers brought from Texas to Israel" },
+      { date: "2025", event: "Practice red heifer ceremony held; record Jewish Temple Mount visits" },
     ],
   },
   {
@@ -539,7 +550,7 @@ const PROPHECIES = [
     sourceText: "There will come a time when no one is left who does not consume riba, and whoever does not consume it will still be affected by its dust.",
     description: "Interest-based finance will become so pervasive that virtually no one can avoid it, even if they try.",
     modernFulfillment: "The entire global financial system is built on interest. Mortgages, credit cards, student loans, national debts, savings accounts, and inflation make it nearly impossible to avoid all contact with interest. Even Islamic banking products are debated regarding true compliance.",
-    fulfillmentLevel: 95, linkedProphecies: [],
+    fulfillmentLevel: 95, linkedProphecies: ["i22"],
     tags: ["usury", "interest", "riba", "banking", "finance"],
     keyEvents: [
       { date: "1971", event: "Nixon ends gold standard; fiat currency with built-in inflation becomes universal" },
@@ -656,7 +667,7 @@ const PROPHECIES = [
     sourceText: "The wilderness and the solitary place shall be glad for them; and the desert shall rejoice, and blossom as the rose.",
     description: "The desolate Land of Israel will bloom again \u2014 once-barren deserts will become fertile and productive when the Jewish people return.",
     modernFulfillment: "Israel is a world leader in agriculture technology despite being 60% desert. Drip irrigation (invented in Israel), desalination plants, and afforestation have transformed the Negev. Israel is the only country that ended the 20th century with more trees than it started with. The contrast with the barren Ottoman-era landscape described by Mark Twain in 1867 is dramatic.",
-    fulfillmentLevel: 85, linkedProphecies: ["c4", "j4", "j10"],
+    fulfillmentLevel: 85, linkedProphecies: ["c4", "j4", "j10", "j16"],
     tags: ["desert", "bloom", "agriculture", "israel", "negev"],
     keyEvents: [
       { date: "1901", event: "Jewish National Fund begins reforestation of Israel" },
@@ -811,7 +822,7 @@ const PROPHECIES = [
     sourceText: "It shall be the basest of the kingdoms; neither shall it exalt itself any more above the nations: for I will diminish them, that they shall no more rule over the nations.",
     description: "Ezekiel prophesied that Egypt — the greatest ancient civilization, which dominated the Near East for 3,000 years — would continue to exist but would become the 'basest of kingdoms' and never again rule over other nations.",
     modernFulfillment: "Since Ezekiel's prophecy (~570 BC), Egypt has never regained independent superpower status. It has been ruled by Persians, Greeks (Ptolemies), Romans, Byzantines, Arabs, Ottomans, and the British. Even after independence in 1952, Egypt has remained a regional power at best — never an empire. For a civilization that was THE superpower for 3 millennia, the prophecy that it would exist but never again 'exalt itself above the nations' has held for 2,600 years.",
-    fulfillmentLevel: 95, linkedProphecies: [],
+    fulfillmentLevel: 95, linkedProphecies: ["c30"],
     tags: ["egypt", "ezekiel", "empire", "diminished", "fulfilled", "nations"],
     keyEvents: [
       { date: "525 BC", event: "Persian conquest of Egypt — begins cycle of foreign rule" },
@@ -942,6 +953,82 @@ const PROPHECIES = [
       { date: "Ongoing", event: "Scholarly debate on identity; parallels drawn with modern threats" },
     ],
   },
+  {
+    id: "j16", tradition: "Jewish", title: "Healing of the Dead Sea — Life Returns", category: "Natural Signs",
+    source: "Ezekiel 47:8-10; Zechariah 14:8",
+    sourceText: "These waters issue out toward the east country, and go down into the desert, and go into the sea: which being brought forth into the sea, the waters shall be healed. And it shall come to pass, that every thing that liveth, which moveth, whithersoever the rivers shall come, shall live: and there shall be a very great multitude of fish... the fishers shall stand upon it from Engedi even unto Eneglaim.",
+    description: "Ezekiel saw a river flowing from the Temple in Jerusalem down to the Dead Sea, 'healing' its waters so that it teems with fish 'as the fish of the great sea' — with fishermen working its shores from En Gedi to En Eglaim. The Dead Sea is nearly 10 times saltier than the ocean; no fish have ever lived in it. For millennia this was read as pure allegory.",
+    modernFulfillment: "As the Dead Sea recedes (over a meter per year), thousands of sinkholes have opened along its shores — and freshwater from the surrounding mountains is filling them. Pools discovered since 2011 carpet with microbial mats and algae; vegetation is growing, birds are gathering, and small freshwater fish have been photographed swimming in shoreline sinkhole pools — including near En Gedi, one of the two locations Ezekiel names. Scientists frame it as hydrology; prophecy watchers note that life is appearing around the Dead Sea for the first time in recorded history. Full fulfillment awaits the river from the Temple, tying this to the Third Temple prophecies.",
+    fulfillmentLevel: 25, linkedProphecies: ["j7", "j1", "c2"],
+    tags: ["dead sea", "ezekiel 47", "fish", "healing", "en gedi", "sinkholes", "living waters"],
+    keyEvents: [
+      { date: "2011", event: "Divers discover freshwater springs and microbial mats on the Dead Sea floor" },
+      { date: "2016", event: "Fish, algae, and vegetation documented in freshwater sinkhole pools along the shore" },
+      { date: "2020s", event: "6,000+ sinkholes; vegetation and birds return around freshwater pools as the sea recedes" },
+      { date: "2025", event: "Ecological-collapse coverage notes paradox of new life flourishing at the shoreline" },
+    ],
+  },
+  {
+    id: "c30", tradition: "Christian", title: "The Isaiah 19 Highway — Egypt, Assyria, Israel", category: "Israel & Nations",
+    source: "Isaiah 19:23-25",
+    sourceText: "In that day shall there be a highway out of Egypt to Assyria... In that day shall Israel be the third with Egypt and with Assyria, even a blessing in the midst of the land: Whom the LORD of hosts shall bless, saying, Blessed be Egypt my people, and Assyria the work of my hands, and Israel mine inheritance.",
+    description: "Isaiah foresaw a 'highway' of peace and worship linking three historic mortal enemies — Egypt, Israel, and Assyria (the territory of modern Syria and Iraq) — with Israel as the connecting third and all three blessed together. Written when Assyria was actively destroying Israel's northern kingdom, this was geopolitically unthinkable.",
+    modernFulfillment: "Egypt has been at peace with Israel since 1979 — the first Arab state to normalize. The Abraham Accords (2020) added the UAE, Bahrain, Sudan, and Morocco; Kazakhstan acceded in 2025. After the fall of the Assad regime, Israeli officials publicly floated Syria and Lebanon joining the Accords — nations occupying ancient Assyria's western lands. A 2026 US-Saudi civil nuclear deal was made contingent on Saudi-Israel normalization. Regional trade corridors (e.g., the India–Middle East–Europe corridor announced 2023) trace the literal route of a highway through Israel between Egypt and the north.",
+    fulfillmentLevel: 35, linkedProphecies: ["c18", "c25", "c11"],
+    tags: ["isaiah 19", "highway", "egypt", "assyria", "syria", "abraham accords", "peace"],
+    keyEvents: [
+      { date: "1979", event: "Egypt-Israel peace treaty — first Arab state to make peace with Israel" },
+      { date: "2020", event: "Abraham Accords normalize Israel's ties with multiple Arab states" },
+      { date: "2023", event: "India-Middle East-Europe economic corridor announced through the region" },
+      { date: "2025", event: "Post-Assad Syria and Lebanon floated as next Abraham Accords members" },
+      { date: "2026", event: "US-Saudi civil nuclear deal tied to Israel normalization" },
+    ],
+  },
+  {
+    id: "c31", tradition: "Christian", title: "Psalm 83 — Inner-Ring Confederacy Against Israel", category: "Wars & Conflicts",
+    source: "Psalm 83:4-8",
+    sourceText: "They have said, Come, and let us cut them off from being a nation; that the name of Israel may be no more in remembrance... The tabernacles of Edom, and the Ishmaelites; of Moab, and the Hagarenes; Gebal, and Ammon, and Amalek; the Philistines with the inhabitants of Tyre; Assur also is joined with them.",
+    description: "A confederacy of Israel's immediate neighbors — Edom, Moab, and Ammon (modern Jordan), the Ishmaelites (Arabia), the Philistines (Gaza), Tyre (Lebanon), and Assur (Syria/Iraq) — conspires to erase Israel as a nation. Some interpreters see a distinct 'inner-ring' war preceding Ezekiel 38's outer-ring coalition; notably, the Psalm 83 nations are absent from the Gog-Magog lineup.",
+    modernFulfillment: "The named peoples map onto Israel's contiguous neighbors — precisely the coalitions of 1948, 1967, and 1973. The stated goal, 'cut them off from being a nation,' matches the founding charters of Hamas and Hezbollah nearly verbatim. The October 7, 2023 attack from Gaza ('the Philistines') and the ensuing Hezbollah war from Lebanon ('the inhabitants of Tyre') revived widespread discussion of Psalm 83 as a template for the multi-front war Israel actually fought.",
+    fulfillmentLevel: 45, linkedProphecies: ["c8", "j3", "c19"],
+    tags: ["psalm 83", "confederacy", "gaza", "lebanon", "jordan", "inner ring", "war"],
+    keyEvents: [
+      { date: "1948", event: "Five Arab armies invade at Israel's founding — stated goal to end the new state" },
+      { date: "1967", event: "Six-Day War — coalition of contiguous neighbors defeated in six days" },
+      { date: "2023", event: "Oct 7 attack; Hamas (Gaza) and Hezbollah (Tyre/Lebanon) open multi-front war" },
+      { date: "2024", event: "Hezbollah decimated; ceasefire leaves inner ring dramatically weakened" },
+    ],
+  },
+  {
+    id: "c32", tradition: "Christian", title: "Times of the Gentiles — Jerusalem Trodden Down", category: "Temple & Jerusalem",
+    source: "Luke 21:24",
+    sourceText: "And they shall fall by the edge of the sword, and shall be led away captive into all nations: and Jerusalem shall be trodden down of the Gentiles, until the times of the Gentiles be fulfilled.",
+    description: "Jesus prophesied three things in sequence: Jerusalem's violent fall, the worldwide captivity of the Jewish people, and Gentile control of Jerusalem for a limited era — the word 'until' implying an eventual end and Jewish restoration.",
+    modernFulfillment: "All three stages are historically documented: Rome destroyed Jerusalem in 70 AD and dispersed the survivors; Gentile powers ruled the city for ~1,900 years (Rome, Byzantium, Arab caliphates, Crusaders, Mamluks, Ottomans, Britain, Jordan); in 1967 Israel captured the Old City — the first Jewish sovereignty over Jerusalem since the biblical era. Yet the Temple Mount itself remains administered by the Jordanian Waqf, leading some to argue the 'times of the Gentiles' are ending but not fully ended.",
+    fulfillmentLevel: 90, linkedProphecies: ["c4", "j13", "c29"],
+    tags: ["times of the gentiles", "jerusalem", "70 AD", "1967", "luke", "restoration"],
+    keyEvents: [
+      { date: "70 AD", event: "Titus destroys Jerusalem; survivors enslaved and dispersed — exactly as prophesied" },
+      { date: "1917", event: "British capture Jerusalem from the Ottomans" },
+      { date: "1967", event: "Israel captures the Old City — Jewish control of Jerusalem restored" },
+      { date: "1980", event: "Jerusalem Law declares the united city Israel's capital" },
+    ],
+  },
+  {
+    id: "i22", tradition: "Islamic", title: "Arabia Reverts to Meadows and Rivers", category: "Natural Signs",
+    source: "Sahih Muslim 157a",
+    sourceText: "The Last Hour will not come till wealth is abundant and overflowing... and till the land of Arabia reverts to meadows and rivers.",
+    description: "The barren Arabian desert will become green and well-watered again before the Hour. The word 'reverts' implies Arabia was once green — a claim impossible to verify in the 7th century, since Arabia had been hyper-arid throughout recorded history.",
+    modernFulfillment: "Modern paleoclimatology ('Green Arabia' research) confirmed only in recent decades that Arabia was once covered with rivers, lakes, and grasslands — validating 'reverts.' Today: recurring desert-greening events after record rains near Mecca and in the Empty Quarter, unprecedented Gulf flooding (Dubai 2024 saw two years of rain in one day), the Saudi Green Initiative targeting 10 billion trees, and large-scale cloud seeding. Satellite imagery periodically shows Saudi deserts carpeted in green after storm systems — images that circulate widely as fulfillment of this hadith.",
+    fulfillmentLevel: 40, linkedProphecies: ["i8"],
+    tags: ["arabia", "green", "meadows", "rivers", "saudi", "climate", "desert"],
+    keyEvents: [
+      { date: "2010s", event: "'Green Arabia' studies confirm ancient rivers and lakes beneath the desert" },
+      { date: "2018", event: "Meadows sprout near Mecca after heavy rains; photos circulate globally" },
+      { date: "2021", event: "Saudi Green Initiative launched — 10 billion trees pledged" },
+      { date: "2024", event: "Record Gulf floods; Dubai receives two years of rain in one day" },
+    ],
+  },
 ];
 
 const TRADITION_COLORS = {
@@ -961,13 +1048,17 @@ const RSS_FEEDS = [
   { name: "CBDC / Digital ID / Mark", url: "https://news.google.com/rss/search?q=CBDC+digital+currency+OR+mark+beast+OR+digital+ID&hl=en-US&gl=US&ceid=US:en" },
   { name: "Third Temple", url: "https://news.google.com/rss/search?q=third+temple+israel+OR+temple+institute&hl=en-US&gl=US&ceid=US:en" },
   { name: "Iran & Israel", url: "https://news.google.com/rss/search?q=iran+israel+war+OR+nuclear+OR+strike&hl=en-US&gl=US&ceid=US:en" },
+  { name: "Syria & Damascus", url: "https://news.google.com/rss/search?q=syria+damascus+OR+isaiah+17+OR+abraham+accords+syria&hl=en-US&gl=US&ceid=US:en" },
   { name: "Earthquakes & Natural Disasters", url: "https://news.google.com/rss/search?q=major+earthquake+OR+tsunami+OR+volcanic+eruption&hl=en-US&gl=US&ceid=US:en" },
   { name: "Jerusalem & Al-Aqsa", url: "https://news.google.com/rss/search?q=jerusalem+conflict+OR+al+aqsa+OR+temple+mount+tensions&hl=en-US&gl=US&ceid=US:en" },
 ];
 
 const FulfillmentBar = ({ level, size = "md" }) => {
   const h = size === "sm" ? "h-1.5" : "h-2.5";
-  const color = level >= 80 ? "bg-red-500" : level >= 50 ? "bg-amber-500" : level >= 25 ? "bg-yellow-600" : "bg-gray-500";
+  const color = level >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+    : level >= 50 ? "bg-gradient-to-r from-yellow-500 to-amber-500"
+    : level >= 25 ? "bg-gradient-to-r from-yellow-700 to-yellow-600"
+    : "bg-gray-500";
   return (
     <div className={`w-full ${h} bg-gray-700/60 rounded-full overflow-hidden`}>
       <div className={`${h} ${color} rounded-full transition-all duration-700`} style={{ width: `${level}%` }} />
@@ -987,8 +1078,8 @@ const ProphecyDetail = ({ prophecy: p, onClose, onNav }) => {
   const c = TRADITION_COLORS[p.tradition];
   const linked = PROPHECIES.filter(x => p.linkedProphecies.includes(x.id));
   return (
-    <div className="fixed inset-0 bg-black/85 z-50 flex items-start justify-center overflow-y-auto p-4 pt-6 pb-20" onClick={onClose}>
-      <div className={`max-w-3xl w-full bg-gray-900 border ${c.border} rounded-2xl p-5 sm:p-6 shadow-2xl ${c.glow} relative`} onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto p-4 pt-6 pb-20" style={{ animation: "fadeIn .2s ease" }} onClick={onClose}>
+      <div className={`max-w-3xl w-full bg-gray-900 border ${c.border} rounded-2xl p-5 sm:p-6 shadow-2xl ${c.glow} relative`} style={{ animation: "fadeUp .25s ease" }} onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-3 right-4 text-gray-500 hover:text-white text-2xl">&times;</button>
         <div className="flex items-center gap-2 mb-1 flex-wrap">
           <TBadge t={p.tradition} />
@@ -1548,7 +1639,8 @@ const Dashboard = ({ onSelect }) => {
           reveals the depth and specificity of God&rsquo;s prophetic word.
         </p>
       </div>
-      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center">
+      <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at top, rgba(99,102,241,0.14), transparent 60%)" }} />
         <p className="text-gray-500 text-xs uppercase tracking-widest mb-1">Composite Fulfillment Index</p>
         <div className="text-5xl font-black text-white mb-2">
           {stats.avg}<span className="text-2xl text-gray-600">%</span>
@@ -1665,8 +1757,8 @@ function App() {
       <div className="bg-gradient-to-b from-gray-900 via-gray-900 to-gray-950 border-b border-gray-800">
         <div className="max-w-5xl mx-auto px-4 py-5">
           <div className="flex items-center gap-3 mb-0.5">
-            <div className="text-2xl">&#9769;</div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">Eschaton Watch</h1>
+            <div className="text-2xl text-indigo-400">&#9769;</div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-indigo-200 to-white bg-clip-text text-transparent">Eschaton Watch</h1>
             <a href="index.html" className="ml-auto text-gray-500 hover:text-gray-300 text-xs font-semibold whitespace-nowrap">&larr; Bible Progress</a>
           </div>
           <p className="text-gray-500 text-xs sm:text-sm ml-9">
@@ -1720,7 +1812,7 @@ function App() {
                 const c = TRADITION_COLORS[p.tradition];
                 const isScriptureOpen = showScripture[p.id];
                 return (
-                  <div key={p.id} className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 transition group`}>
+                  <div key={p.id} className={`text-left ${c.bg} border ${c.border} rounded-xl p-4 transition duration-200 group hover:-translate-y-0.5 hover:shadow-lg ${c.glow}`}>
                     <div className="cursor-pointer hover:brightness-110" onClick={() => setSel(p)}>
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         <TBadge t={p.tradition} />
