@@ -207,6 +207,47 @@ If you discover a security vulnerability:
 | Date | Type | Findings | Status |
 |------|------|----------|--------|
 | 2026-01-08 | Comprehensive Security Review | 10 issues identified | Fixed (see above) |
+| 2026-08-05 | Stored-XSS / import-hardening review | 6 issues across 4 pages | Fixed (see below) |
+
+### 2026-08-05 Review — Stored XSS via imported / cloud-synced data
+
+The theme of this review was **untrusted `appData`**: a malicious JSON backup a
+user is tricked into importing, or a tampered/compromised Firestore document that
+syncs down, can carry attacker-shaped strings. `validateAppData()` only checks the
+top-level shape, so any field it doesn't cover reaches render code unescaped. Fixes:
+
+1. **`index.html` — `planHistory` stored XSS (primary).** The plan-history list
+   rendered the plan label with `${name}` (raw) where `name` falls back to the raw
+   `entry.plan` string, and `planHistory` was never sanitized. A crafted
+   `planHistory` entry executed script when the user viewed their plan history.
+   Fixed by (a) validating `planHistory` and `profilePlans` against the known plan
+   IDs in `normalizeAppData()`, and (b) escaping the label at the render site.
+2. **`index.html` — profile-name stored XSS.** Profile names are alphanumeric-only
+   when created (`sanitizeProfileName`) but are **not** re-sanitized on import/sync.
+   The delete/rename modal titles and the profile-sync-rule prompts interpolated
+   names raw into `showCustomModal` (which renders via `innerHTML`). Escaped every
+   such site with `escapeHtml()`. (The always-on displays — profile list, header —
+   already used `textContent`/`innerText` and were safe.)
+3. **`index.html` — `profilePlans` in exports.** Plan IDs were rendered raw into the
+   PDF / visual-report export HTML via `getPlanDisplayName()`'s raw fallback; the new
+   `normalizeAppData()` whitelist closes this.
+4. **`biblical-languages-trainer.html` — `blt2-lang` → `innerHTML`.** The language
+   value (writable from an imported backup or cloud doc) was concatenated into
+   `innerHTML` unescaped. Now whitelisted to `greek`/`hebrew` at the sink and at the
+   cloud-write. State scalars (`streak`, `xp`, `xpToday`, `goal`) are now escaped at
+   render, and the backup-import loop is restricted to this app's own keys (a crafted
+   backup could previously write **any** localStorage key on the origin, e.g. the main
+   app's `kjv_v6_data`).
+5. **`prophecy.html` — `javascript:` link.** Article links from the third-party
+   rss2json API were bound to a React `href` (React does not block `javascript:`/`data:`
+   URLs). Added a `safeUrl()` guard that only allows `http(s)`.
+6. **`memorize.html` — quote-unsafe `escapeHtml`.** Its DOM-based escaper left `"`/`'`
+   intact (unsafe if an escaped value is ever placed in an HTML attribute). Replaced
+   with the quote-escaping regex version used elsewhere. Defense-in-depth.
+
+All fixes were verified end-to-end in headless Chromium by seeding malicious
+`appData`/state and confirming (a) the app still boots and functions and (b) no
+script executes and no attacker element is injected into the DOM.
 
 ## References
 
@@ -227,6 +268,14 @@ Priority improvements for consideration:
 
 ---
 
-**Last Updated**: 2026-02-17
+> **Most important control — verify it is actually deployed.** Because the app is
+> client-side only, the Firestore Security Rules above are the *only* server-side
+> boundary protecting one user's cloud data from another. Client-side validation
+> (`validateAppData`/`normalizeAppData`) protects the local device from malicious
+> imports/snapshots, but it cannot stop a determined attacker from writing to the
+> database directly. Confirm in the Firebase Console that the per-user rules are
+> published and that the catch-all `allow read, write: if false;` is present.
+
+**Last Updated**: 2026-08-05
 **Security Level**: Good (for a client-side Bible tracker)
 **Compliance**: OWASP Top 10 addressed

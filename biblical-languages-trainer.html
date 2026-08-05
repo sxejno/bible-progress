@@ -229,7 +229,7 @@ async function pull(apply){
     }
     if(merged!==cloud)pushNeeded=true;
   }
-  if(td&&td.lang&&!localStorage.getItem("blt2-lang"))localStorage.setItem("blt2-lang",td.lang);
+  if(td&&(td.lang==="greek"||td.lang==="hebrew")&&!localStorage.getItem("blt2-lang"))localStorage.setItem("blt2-lang",td.lang);
   if(pushNeeded)schedulePush();
   return changed;
 }
@@ -346,6 +346,9 @@ async function decompress(lang){
   return DCACHE[lang]=JSON.parse(await new Response(stream).text());
 }
 async function setLanguage(lang){
+  // Whitelist the language: blt2-lang can be written from an imported backup or a
+  // cloud doc, and it is interpolated into innerHTML below — never trust it raw.
+  lang=(lang==="hebrew")?"hebrew":"greek";
   LANG=lang;localStorage.setItem("blt2-lang",lang);
   app().innerHTML='<div class="card center" style="margin-top:80px"><p>Loading '+lang+' corpus…</p></div>';
   D=await decompress(lang);L=D.lemmas;V=D.verses;
@@ -877,8 +880,8 @@ function header(){
       <button id="lw-greek" class="${LANG==="greek"?"on":""}">Greek</button>
       <button id="lw-hebrew" class="${LANG==="hebrew"?"on":""}">Hebrew</button>
     </div>
-    <span class="chip">Streak <b>${S.streak}</b></span>
-    <span class="chip">XP <b>${S.xp}</b></span>
+    <span class="chip">Streak <b>${esc(S.streak)}</b></span>
+    <span class="chip">XP <b>${esc(S.xp)}</b></span>
     <span class="chip" id="syncchip" style="cursor:pointer" title="${esc(sy.title)}">${esc(sy.txt)}</span></div></header>`;
 }
 function bindHeader(){
@@ -914,7 +917,7 @@ function renderHome(){
     <div class="bar"><div style="width:${bs.cov*100}%"></div></div></div>`;})():""}
   <div class="card">
     <h2>Daily goal</h2>
-    <div class="mut">${S.xpToday} / ${S.goal} XP today</div>
+    <div class="mut">${esc(S.xpToday)} / ${esc(S.goal)} XP today</div>
     <div class="bar"><div style="width:${goalPct}%"></div></div>
     <button class="btn" id="start">Start session${due?` · ${due} due`:""}</button>
     <div class="row">
@@ -1069,7 +1072,11 @@ function renderSettings(){
       const data=JSON.parse(await f.text());
       if(data.app!=="biblical-languages-trainer"||!data.keys)throw new Error("not a trainer backup");
       if(!confirm("Replace current progress with this backup?"))return;
-      for(const k in data.keys)localStorage.setItem(k,data.keys[k]);
+      // Only ever write this trainer's own keys. A backup file is untrusted input;
+      // without this allowlist a crafted file could overwrite any localStorage key on
+      // this origin (e.g. the main app's kjv_v6_data) or inject __proto__.
+      const ALLOWED_KEYS=["blt2-greek","blt2-hebrew","blt2-lang"];
+      for(const k of ALLOWED_KEYS){if(typeof data.keys[k]==="string")localStorage.setItem(k,data.keys[k]);}
       await setLanguage(localStorage.getItem("blt2-lang")||"greek");
       S.resetAt=Date.now();
       save();

@@ -869,10 +869,13 @@
 
     <script>
         // ===================== Utilities =====================
+        // Escapes &<>"' so the result is safe in both element-text and quoted-attribute
+        // contexts (the DOM textContent approach leaves quotes intact, which is unsafe
+        // if an escaped value is ever placed inside an HTML attribute).
         function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text == null ? '' : String(text);
-            return div.innerHTML;
+            return String(text == null ? '' : text).replace(/[&<>"']/g, (c) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
         }
         function $(id) { return document.getElementById(id); }
         function uid() { return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }

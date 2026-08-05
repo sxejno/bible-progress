@@ -1039,6 +1039,17 @@ const TRADITION_COLORS = {
 
 const CATEGORIES = [...new Set(PROPHECIES.map(p => p.category))].sort();
 
+// Article links come from a third-party API (rss2json). React does not block
+// javascript:/data: URLs in href, so only allow http(s) through to the DOM.
+const safeUrl = (u) => {
+  try {
+    const p = new URL(u, window.location.href);
+    return (p.protocol === "http:" || p.protocol === "https:") ? p.href : "#";
+  } catch (e) {
+    return "#";
+  }
+};
+
 const RSS_FEEDS = [
   { name: "Prophecy Fulfillment", url: "https://news.google.com/rss/search?q=biblical+prophecy+fulfillment&hl=en-US&gl=US&ceid=US:en" },
   { name: "Euphrates River", url: "https://news.google.com/rss/search?q=euphrates+river+drying&hl=en-US&gl=US&ceid=US:en" },
@@ -1225,7 +1236,7 @@ const NewsFeed = () => {
       {articles.length > 0 && (
         <div className="space-y-1.5 mb-4 max-h-80 overflow-y-auto">
           {articles.map((a, i) => (
-            <a key={i} href={a.link} target="_blank" rel="noopener noreferrer"
+            <a key={i} href={safeUrl(a.link)} target="_blank" rel="noopener noreferrer"
               className="block bg-gray-800/40 hover:bg-gray-700/40 border border-gray-700/50 rounded-lg p-3 transition">
               <p className="text-white text-sm font-medium leading-snug">{a.title}</p>
               <p className="text-gray-500 text-xs mt-1">{new Date(a.pubDate).toLocaleDateString()}</p>

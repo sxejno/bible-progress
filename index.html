@@ -2724,6 +2724,9 @@
 
         // --- VALIDATE APP DATA ---
         const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype'];
+        // Canonical reading-plan IDs; anything outside this set is treated as untrusted
+        // when normalizing imported/cloud data (see normalizeAppData).
+        const VALID_PLAN_IDS = ['SEQUENTIAL', 'FIVE_DAY', 'ONE_YEAR', 'MCHEYNE', 'HORNER', 'CUSTOM'];
         function hasForbiddenKeys(obj) {
             return FORBIDDEN_KEYS.some(k => Object.prototype.hasOwnProperty.call(obj, k));
         }
@@ -2788,7 +2791,12 @@
                     data.goals[profileName] = list.filter(g =>
                         g && typeof g === 'object' &&
                         typeof g.name === 'string' && VALID_GOAL_TYPES.includes(g.type));
-                    data.goals[profileName].forEach(g => { g.name = g.name.slice(0, 100); });
+                    data.goals[profileName].forEach(g => {
+                        g.name = g.name.slice(0, 100);
+                        // deadline is interpolated raw into the PDF/visual-report export HTML;
+                        // keep only a plain ISO date (YYYY-MM-DD) or null.
+                        if(typeof g.deadline !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(g.deadline)) g.deadline = null;
+                    });
                 });
             }
 
@@ -2805,6 +2813,38 @@
                         if(typeof p.config.psalms !== 'number') p.config.psalms = 0;
                         if(typeof p.config.proverbs !== 'number') p.config.proverbs = 0;
                     });
+                });
+            }
+
+            // Reading plan IDs are turned into labels by getPlanDisplayName(), which falls
+            // back to the raw value for unknown IDs and is interpolated straight into the
+            // PDF/visual-report export HTML. Coerce any unrecognized plan (e.g. from a
+            // tampered backup or cloud doc) to a safe known ID so no attacker-controlled
+            // string can reach those sinks.
+            if(data.profilePlans && typeof data.profilePlans === 'object') {
+                Object.keys(data.profilePlans).forEach(profileName => {
+                    if(!VALID_PLAN_IDS.includes(data.profilePlans[profileName])) {
+                        data.profilePlans[profileName] = 'SEQUENTIAL';
+                    }
+                });
+            }
+
+            // planHistory entries are rendered in the plan-history list (the plan label
+            // in particular). Drop malformed entries and constrain the plan ID to the
+            // known set so imported/synced data can't inject markup.
+            if(data.planHistory && typeof data.planHistory === 'object') {
+                Object.keys(data.planHistory).forEach(profileName => {
+                    const list = data.planHistory[profileName];
+                    if(!Array.isArray(list)) { data.planHistory[profileName] = []; return; }
+                    data.planHistory[profileName] = list
+                        .filter(e => e && typeof e === 'object' &&
+                            typeof e.startDate === 'number' &&
+                            (e.endDate === null || e.endDate === undefined || typeof e.endDate === 'number'))
+                        .map(e => ({
+                            plan: VALID_PLAN_IDS.includes(e.plan) ? e.plan : 'SEQUENTIAL',
+                            startDate: e.startDate,
+                            endDate: typeof e.endDate === 'number' ? e.endDate : null
+                        }));
                 });
             }
             return data;
@@ -4194,7 +4234,7 @@
             }
 
             const userInput = await window.showPrompt(
-                `Delete Profile: "${name}"?`,
+                `Delete Profile: "${escapeHtml(name)}"?`,
                 `This will permanently delete:\n• All reading progress\n• Reading plan settings\n\nThis action CANNOT be undone.\n\nType the profile name to confirm:`,
                 '',
                 'Type profile name...',
@@ -4241,7 +4281,7 @@
 
         window.renameProfile = async (oldName) => {
             const rawName = await window.showPrompt(
-                `Rename Profile "${oldName}"`,
+                `Rename Profile "${escapeHtml(oldName)}"`,
                 `Enter new name:\n(alphanumeric only, max ${CONFIG.MAX_PROFILE_NAME_LENGTH} characters)`,
                 oldName,
                 'New profile name...',
@@ -4453,7 +4493,7 @@
             let sourceProfile = availableSourceProfiles[0];
             if(availableSourceProfiles.length > 1) {
                 const sourceMsg = "Select SOURCE profile (chapters marked here will sync):\n\n" +
-                    availableSourceProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
+                    availableSourceProfiles.map((name, i) => `${i + 1}. ${escapeHtml(name)}`).join('\n');
                 const sourceInput = await window.showPrompt('Select Source Profile', sourceMsg, '1', 'Enter number...', 'Select');
 
                 if(!sourceInput) return;
@@ -4479,8 +4519,8 @@
 
             let targetProfile = availableTargetProfiles[0];
             if(availableTargetProfiles.length > 1) {
-                const targetMsg = `Select TARGET profile (will receive synced chapters from "${sourceProfile}"):\n\n` +
-                    availableTargetProfiles.map((name, i) => `${i + 1}. ${name}`).join('\n');
+                const targetMsg = `Select TARGET profile (will receive synced chapters from "${escapeHtml(sourceProfile)}"):\n\n` +
+                    availableTargetProfiles.map((name, i) => `${i + 1}. ${escapeHtml(name)}`).join('\n');
                 const targetInput = await window.showPrompt('Select Target Profile', targetMsg, '1', 'Enter number...', 'Select');
 
                 if(!targetInput) return;
@@ -4494,7 +4534,7 @@
             }
 
             // Confirm the rule
-            const confirmMsg = `${sourceProfile} → ${targetProfile}\n\nChapters marked in "${sourceProfile}" will automatically be marked in "${targetProfile}".`;
+            const confirmMsg = `${escapeHtml(sourceProfile)} → ${escapeHtml(targetProfile)}\n\nChapters marked in "${escapeHtml(sourceProfile)}" will automatically be marked in "${escapeHtml(targetProfile)}".`;
             const confirmed = await window.showConfirm('Create Sync Rule?', confirmMsg, 'Create');
 
             if(!confirmed) return;
@@ -4508,7 +4548,7 @@
         window.removeProfileSyncRule = async (sourceProfile) => {
             const targetProfile = appData.profileSyncRules[sourceProfile];
 
-            const confirmMsg = `${sourceProfile} → ${targetProfile}\n\nChapters will no longer sync automatically.`;
+            const confirmMsg = `${escapeHtml(sourceProfile)} → ${escapeHtml(targetProfile)}\n\nChapters will no longer sync automatically.`;
             const confirmed = await window.showConfirm('Remove Sync Rule?', confirmMsg, 'Remove');
 
             if(!confirmed) return;
@@ -10526,10 +10566,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         }
 
         function getGoalTypeLabel(goal) {
+            // Tolerate malformed/imported goals: never throw on a missing/oddly-shaped target.
             if(goal.type === 'wholeBible') return 'Whole Bible';
-            if(goal.type === 'testament') return goal.target.testament === 'OT' ? 'Old Testament' : 'New Testament';
-            if(goal.type === 'books') return goal.target.books.join(', ');
-            if(goal.type === 'category') return goal.target.category;
+            if(goal.type === 'testament') return goal.target?.testament === 'OT' ? 'Old Testament' : 'New Testament';
+            if(goal.type === 'books') return Array.isArray(goal.target?.books) ? goal.target.books.join(', ') : '';
+            if(goal.type === 'category') return typeof goal.target?.category === 'string' ? goal.target.category : '';
             return '';
         }
 
@@ -12552,7 +12593,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 rounded-full bg-${color}-500"></div>
                         <div>
-                            <div class="text-sm font-bold text-slate-800">${name}</div>
+                            <div class="text-sm font-bold text-slate-800">${escapeHtml(name)}</div>
                             <div class="text-[10px] text-slate-500">${start} — ${end}</div>
                         </div>
                     </div>
