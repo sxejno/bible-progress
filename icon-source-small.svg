@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#24407b"/>
+    <stop offset="0.5" stop-color="#182c58"/>
+    <stop offset="1" stop-color="#0e1c3c"/>
+  </linearGradient>
+  <radialGradient id="vig" cx="0.5" cy="0.42" r="0.75">
+    <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.34"/>
+  </radialGradient>
+  <linearGradient id="ring" x1="0.85" y1="0" x2="0.15" y2="1">
+    <stop offset="0" stop-color="#79f2e0"/>
+    <stop offset="0.45" stop-color="#22c8b7"/>
+    <stop offset="1" stop-color="#0b8578"/>
+  </linearGradient>
+  <linearGradient id="cover" x1="0" y1="0" x2="0.9" y2="1">
+    <stop offset="0" stop-color="#242741"/>
+    <stop offset="0.55" stop-color="#181a2c"/>
+    <stop offset="1" stop-color="#101120"/>
+  </linearGradient>
+  <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#0d0e19"/>
+    <stop offset="0.55" stop-color="#1d1f33"/>
+    <stop offset="1" stop-color="#101124"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f9e7a9"/>
+    <stop offset="0.45" stop-color="#e8c266"/>
+    <stop offset="1" stop-color="#b07f2c"/>
+  </linearGradient>
+  <linearGradient id="goldtext" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fdf0bd"/>
+    <stop offset="0.42" stop-color="#f0ca6e"/>
+    <stop offset="0.75" stop-color="#d6a344"/>
+    <stop offset="1" stop-color="#a97c26"/>
+  </linearGradient>
+  <linearGradient id="pages" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f2dc9f"/>
+    <stop offset="0.35" stop-color="#e3c176"/>
+    <stop offset="1" stop-color="#c69c4b"/>
+  </linearGradient>
+  <linearGradient id="pagesR" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#c79d4d"/>
+    <stop offset="1" stop-color="#eed394"/>
+  </linearGradient>
+  <linearGradient id="mark" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#43e6d0"/>
+    <stop offset="1" stop-color="#0d9c8d"/>
+  </linearGradient>
+  <radialGradient id="disc" cx="0.42" cy="0.36" r="0.85">
+    <stop offset="0" stop-color="#1cc0ae"/>
+    <stop offset="1" stop-color="#0a7f73"/>
+  </radialGradient>
+  <filter id="softsh" x="-40%" y="-40%" width="190%" height="190%">
+    <feDropShadow dx="26" dy="34" stdDeviation="34" flood-color="#020614" flood-opacity="0.55"/>
+  </filter>
+  <filter id="smallsh" x="-40%" y="-40%" width="190%" height="190%">
+    <feDropShadow dx="5" dy="9" stdDeviation="10" flood-color="#020614" flood-opacity="0.5"/>
+  </filter>
+  <filter id="textsh" x="-25%" y="-25%" width="150%" height="160%">
+    <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#000" flood-opacity="0.55"/>
+  </filter>
+</defs>
+
+<rect width="1024" height="1024" fill="url(#bg)"/>
+<circle cx="512" cy="512" r="398" fill="none" stroke="url(#ring)" stroke-width="96" stroke-linecap="round" stroke-dasharray="2028.35 472.36" stroke-dashoffset="76.41" />
+<g filter="url(#softsh)">
+  <rect x="178" y="176" width="656" height="656" rx="52" fill="#0d0e19"/>
+</g>
+<!-- pages -->
+<path d="M 286 780 H 830 q 44 0 44 40 v 4 q 0 48 -52 48 H 286 Z" fill="url(#pages)"/>
+<line x1="300" y1="806" x2="856" y2="806" stroke="#8f6a22" stroke-width="10" opacity="0.5"/>
+<line x1="300" y1="836" x2="856" y2="836" stroke="#8f6a22" stroke-width="10" opacity="0.5"/>
+<!-- bookmark -->
+<path d="M 360 820 h 104 V 986 L 412 930 L 360 986 Z" fill="url(#mark)"
+      stroke="#0e1c3c" stroke-width="10" paint-order="stroke"/>
+<!-- spine -->
+<rect x="178" y="176" width="120" height="656" rx="52" fill="url(#spine)"/>
+<rect x="188" y="300" width="104" height="12" fill="url(#gold)" rx="6"/>
+<rect x="188" y="500" width="104" height="12" fill="url(#gold)" rx="6"/>
+<rect x="188" y="700" width="104" height="12" fill="url(#gold)" rx="6"/>
+<!-- cover -->
+<rect x="268" y="176" width="566" height="628" rx="34" fill="url(#cover)"/>
+<rect x="332" y="244" width="440" height="494" rx="22" fill="none" stroke="url(#gold)" stroke-width="18"/>
+<!-- title bars -->
+<rect x="402" y="368" width="300" height="52" rx="16" fill="url(#goldtext)"/>
+<rect x="422" y="474" width="260" height="52" rx="16" fill="url(#goldtext)" opacity="0.92"/>
+<!-- badge -->
+<circle cx="793" cy="231" r="128" fill="url(#gold)"/>
+<circle cx="793" cy="231" r="104" fill="url(#disc)"/>
+<path d="M 743 235 L 781 273 L 847 197"
+      fill="none" stroke="#f8f4e3" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

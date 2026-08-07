@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<style>@font-face{font-family:'CoverSerif';src:url(data:font/ttf;base64,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) format('truetype');}
+text{font-family:'CoverSerif',Georgia,serif;font-weight:700;letter-spacing:14px;}</style>
+
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#24407b"/>
+    <stop offset="0.5" stop-color="#182c58"/>
+    <stop offset="1" stop-color="#0e1c3c"/>
+  </linearGradient>
+  <radialGradient id="vig" cx="0.5" cy="0.42" r="0.75">
+    <stop offset="0.62" stop-color="#000" stop-opacity="0"/>
+    <stop offset="1" stop-color="#000" stop-opacity="0.34"/>
+  </radialGradient>
+  <linearGradient id="ring" x1="0.85" y1="0" x2="0.15" y2="1">
+    <stop offset="0" stop-color="#79f2e0"/>
+    <stop offset="0.45" stop-color="#22c8b7"/>
+    <stop offset="1" stop-color="#0b8578"/>
+  </linearGradient>
+  <linearGradient id="cover" x1="0" y1="0" x2="0.9" y2="1">
+    <stop offset="0" stop-color="#242741"/>
+    <stop offset="0.55" stop-color="#181a2c"/>
+    <stop offset="1" stop-color="#101120"/>
+  </linearGradient>
+  <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#0d0e19"/>
+    <stop offset="0.55" stop-color="#1d1f33"/>
+    <stop offset="1" stop-color="#101124"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f9e7a9"/>
+    <stop offset="0.45" stop-color="#e8c266"/>
+    <stop offset="1" stop-color="#b07f2c"/>
+  </linearGradient>
+  <linearGradient id="goldtext" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#fdf0bd"/>
+    <stop offset="0.42" stop-color="#f0ca6e"/>
+    <stop offset="0.75" stop-color="#d6a344"/>
+    <stop offset="1" stop-color="#a97c26"/>
+  </linearGradient>
+  <linearGradient id="pages" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#f2dc9f"/>
+    <stop offset="0.35" stop-color="#e3c176"/>
+    <stop offset="1" stop-color="#c69c4b"/>
+  </linearGradient>
+  <linearGradient id="pagesR" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#c79d4d"/>
+    <stop offset="1" stop-color="#eed394"/>
+  </linearGradient>
+  <linearGradient id="mark" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#43e6d0"/>
+    <stop offset="1" stop-color="#0d9c8d"/>
+  </linearGradient>
+  <radialGradient id="disc" cx="0.42" cy="0.36" r="0.85">
+    <stop offset="0" stop-color="#1cc0ae"/>
+    <stop offset="1" stop-color="#0a7f73"/>
+  </radialGradient>
+  <filter id="softsh" x="-40%" y="-40%" width="190%" height="190%">
+    <feDropShadow dx="26" dy="34" stdDeviation="34" flood-color="#020614" flood-opacity="0.55"/>
+  </filter>
+  <filter id="smallsh" x="-40%" y="-40%" width="190%" height="190%">
+    <feDropShadow dx="5" dy="9" stdDeviation="10" flood-color="#020614" flood-opacity="0.5"/>
+  </filter>
+  <filter id="textsh" x="-25%" y="-25%" width="150%" height="160%">
+    <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#000" flood-opacity="0.55"/>
+  </filter>
+</defs>
+
+<rect width="1024" height="1024" fill="url(#bg)"/>
+<rect width="1024" height="1024" fill="url(#vig)"/>
+
+<!-- progress ring (behind book) -->
+<circle cx="512" cy="512" r="408" fill="none" stroke="url(#ring)" stroke-width="62" stroke-linecap="round" stroke-dasharray="1538.12 1025.42" stroke-dashoffset="-498.47" />
+<path d="M 913.8 441.2 A 408 408 0 0 1 919.2 487.1" fill="none" stroke="#63ecdb" stroke-width="54"/><path d="M 919.8 524.1 A 408 408 0 0 1 915.8 570.2" fill="none" stroke="#4de2d0" stroke-width="54"/><path d="M 908.9 606.6 A 408 408 0 0 1 895.6 650.9" fill="none" stroke="#38d6c4" stroke-width="54"/><path d="M 881.5 685.1 A 408 408 0 0 1 859.5 725.8" fill="none" stroke="#27c6b4" stroke-width="54"/><path d="M 838.7 756.4 A 408 408 0 0 1 808.9 791.8" fill="none" stroke="#1ab3a2" stroke-width="54"/><path d="M 782.3 817.6 A 408 408 0 0 1 746.0 846.2" fill="none" stroke="#12a090" stroke-width="54"/><path d="M 714.8 866.0 A 408 408 0 0 1 673.4 886.7" fill="none" stroke="#0d8d7f" stroke-width="54"/>
+
+<!-- book drop shadow -->
+<g filter="url(#softsh)">
+  <rect x="182" y="164" width="664" height="728" rx="44" fill="#0d0e19"/>
+</g>
+<!-- right page sliver -->
+<rect x="796" y="194" width="52" height="652" rx="20" fill="url(#pagesR)"/>
+<!-- bottom page block -->
+<path d="M 306 802 H 814 q 34 0 34 30 V 854 q 0 44 -48 44 H 306 Z" fill="url(#pages)"/>
+<line x1="316" y1="840.7" x2="842" y2="840.7" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="845.3" x2="842" y2="845.3" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="850.0" x2="842" y2="850.0" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="854.7" x2="842" y2="854.7" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="859.3" x2="842" y2="859.3" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="864.0" x2="842" y2="864.0" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="868.7" x2="842" y2="868.7" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="873.3" x2="842" y2="873.3" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="878.0" x2="842" y2="878.0" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="882.7" x2="842" y2="882.7" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/><line x1="316" y1="887.3" x2="842" y2="887.3" stroke="#8f6a22" stroke-width="3.5" opacity="0.5"/>
+<path d="M 306 804 H 830" stroke="#000" stroke-opacity="0.3" stroke-width="9" fill="none"/>
+
+<!-- bookmark -->
+<g filter="url(#smallsh)">
+  <path d="M 340 850 h 98 V 986 L 389 936 L 340 986 Z" fill="url(#mark)"/>
+  <path d="M 340 850 h 13 V 972 l -13 14 Z" fill="#0a7d70" opacity="0.55"/>
+</g>
+
+<!-- spine -->
+<rect x="182" y="164" width="144" height="698" rx="42" fill="url(#spine)"/>
+<rect x="190" y="176" width="14" height="674" rx="7" fill="#3a3d5c" opacity="0.5"/>
+
+      <rect x="188" y="312" width="114" height="30" fill="#080910" opacity="0.55" rx="6"/>
+      <rect x="188" y="310" width="114" height="7" fill="url(#gold)" rx="3.5"/>
+      <rect x="188" y="337" width="114" height="7" fill="url(#gold)" rx="3.5" opacity="0.9"/>
+      <rect x="188" y="466" width="114" height="30" fill="#080910" opacity="0.55" rx="6"/>
+      <rect x="188" y="464" width="114" height="7" fill="url(#gold)" rx="3.5"/>
+      <rect x="188" y="491" width="114" height="7" fill="url(#gold)" rx="3.5" opacity="0.9"/>
+      <rect x="188" y="620" width="114" height="30" fill="#080910" opacity="0.55" rx="6"/>
+      <rect x="188" y="618" width="114" height="7" fill="url(#gold)" rx="3.5"/>
+      <rect x="188" y="645" width="114" height="7" fill="url(#gold)" rx="3.5" opacity="0.9"/>
+      <rect x="188" y="774" width="114" height="30" fill="#080910" opacity="0.55" rx="6"/>
+      <rect x="188" y="772" width="114" height="7" fill="url(#gold)" rx="3.5"/>
+      <rect x="188" y="799" width="114" height="7" fill="url(#gold)" rx="3.5" opacity="0.9"/>
+
+<!-- front cover -->
+<rect x="284" y="152" width="528" height="678" rx="24" fill="url(#cover)"/>
+<rect x="284" y="152" width="528" height="678" rx="24" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="3"/>
+<!-- gold frame -->
+<rect x="330" y="198" width="436" height="586" rx="14" fill="none" stroke="url(#gold)" stroke-width="9"/>
+<rect x="350" y="218" width="396" height="546" rx="9" fill="none" stroke="url(#gold)" stroke-width="3.5" opacity="0.8"/>
+
+<!-- title -->
+<g filter="url(#textsh)" text-anchor="middle" font-size="122">
+  <text x="555.0" y="438" fill="url(#goldtext)" stroke="#6e4d15" stroke-width="2">HOLY</text>
+  <text x="555.0" y="596" fill="url(#goldtext)" stroke="#6e4d15" stroke-width="2">BIBLE</text>
+</g>
+
+<!-- check badge -->
+<g filter="url(#smallsh)">
+  <circle cx="800" cy="224" r="95" fill="url(#gold)"/>
+  <circle cx="800" cy="224" r="77" fill="url(#disc)"/>
+  <path d="M 764 226 L 791 253 L 840 198"
+        fill="none" stroke="#f8f4e3" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
