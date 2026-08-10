@@ -15,7 +15,7 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
 ```javascript
 {
     profiles: { [id]: { "Genesis-1": timestamp_ms, ... } },  // chapter progress
-    profilePlans: { [id]: "SEQUENTIAL"|"MCHEYNE"|"HORNER"|"ONEYEAR"|"FIVE_DAY"|"CUSTOM" },
+    profilePlans: { [id]: "SEQUENTIAL"|"MCHEYNE"|"HORNER"|"ONE_YEAR"|"FIVE_DAY"|"CUSTOM" },
     activeProfileId: string,
     defaultProfileId: string,
     hornerDailyProgress: { [id]: { date: "YYYY-MM-DD", completedLists: [0,1,...] } },
@@ -23,7 +23,7 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
     hornerCycleLastAt: { [id]: [timestamp_ms x10] },  // watermark: when each list's read-through was last counted
     memorizedVerses: { [id]: [{ id, ref, text, addedDate }] },
     goals: { [id]: [{ name, type, target, deadline, createdDate }] },
-    customPlans: { [id]: { name, ot_chapters, nt_chapters } },
+    customPlans: { [id]: [{ name, config: { ot, nt, psalms, proverbs }, active, createdDate }] },
     deletedChapters: { [id]: { "Genesis-1": deletion_timestamp_ms } },  // unmark tombstones for multi-device sync
     showReadingTime: boolean,
     wordsPerMinute: number
@@ -71,4 +71,4 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Chapter key format**: `"BookName-ChapterNumber"` (e.g., `"Genesis-1"`, `"Psalms-119"`)
 - **Security functions**: `escapeHtml()`, `isValidHttpsUrl()`, `validateAppData()`, `normalizeAppData()` (deep sanitation of imported/cloud data; toasts escape messages centrally)
 - **Deployment**: GitHub Pages from main branch, domain via CNAME
-- **See also**: `SECURITY.md`, `TODO.md`
+- **See also**: `SECURITY.md`, `TODO.md`, and the skill library in `.claude/skills/` (start with `codebase-map`; its `README.md` indexes all skills)

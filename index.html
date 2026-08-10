@@ -9678,7 +9678,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             exportProfiles.forEach(profile => {
                 const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
-                const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
+                const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONE_YEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
                 const planLabel = planLabels[plan] || plan;
 
                 // Profile header
@@ -9782,7 +9782,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const exportProfiles = getExportProfilesFiltered(selectedNames);
             const generatedDate = new Date().toLocaleString();
             const dateStamp = getExportDateStamp();
-            const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
+            const planLabels = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONE_YEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
             const pdfTitle = `Bible Reading Progress - ${dateStamp}`;
 
             let bodyContent = `<div class="header"><h1>Bible Reading Progress</h1><p class="meta">Exported from bibleprogress.com &bull; ${generatedDate}</p></div>`;
