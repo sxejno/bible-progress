@@ -9664,11 +9664,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             downloadExportFile(csvContent, `bibleprogress_export_${getExportDateStamp()}.csv`, 'text/csv;charset=utf-8;');
         };
 
-        window.exportProgressObsidian = async () => {
-            const selectedNames = await window.showProfilePicker('Export Obsidian')
-            if (!selectedNames) return
-            const exportProfiles = getExportProfilesFiltered(selectedNames);
-            const generatedDate = new Date().toISOString();
+        // Classic Obsidian export: everything in one note. Returns the Markdown
+        // so the export dispatcher can decide how to deliver it.
+        const buildObsidianSingleNote = (exportProfiles) => {
             const dateStamp = getExportDateStamp();
 
             // Build a single well-structured Obsidian note
@@ -9773,7 +9771,695 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             content += `| Show Reading Time | ${appData.showReadingTime ? 'Yes' : 'No'} |\n`;
             content += `\n`;
 
-            downloadExportFile(content, `Bible Reading Progress ${dateStamp}.md`, 'text/markdown;charset=utf-8;');
+            return content;
+        };
+
+        // ===================== OBSIDIAN VAULT EXPORT =====================
+        // Builds a folder of cross-linked Markdown notes — a hub, one note per
+        // profile, one per Bible book, one per reading day, one per memorized
+        // verse — that drops straight into an Obsidian vault. Delivered as a
+        // ZIP everywhere, or written into a folder the reader picks where the
+        // File System Access API exists (Chromium desktop).
+
+        const OBSIDIAN_ROOT = 'Bible Progress';
+        const OBSIDIAN_PLAN_LABELS = { SEQUENTIAL: 'Sequential', MCHEYNE: "M'Cheyne", HORNER: 'Horner System', ONEYEAR: 'One Year (OT+NT Daily)', FIVE_DAY: 'Five-Day (Weekends Off)', CUSTOM: 'Custom Plan' };
+        const OBSIDIAN_FS_SUPPORTED = typeof window.showDirectoryPicker === 'function';
+
+        // Strip what Obsidian/Windows reject in file names, plus the wikilink
+        // metacharacters that would break [[links]] pointing at the note.
+        const obsidianFileName = (name) => {
+            const cleaned = String(name == null ? '' : name)
+                .replace(/[\\/:*?"<>|#^\[\]]/g, '-')
+                .replace(/[\u0000-\u001f]/g, '')
+                .replace(/\s+/g, ' ')
+                .slice(0, 80)
+                .replace(/^[.\s]+|[.\s]+$/g, '');
+            return cleaned || 'Untitled';
+        };
+        // Link display text can't contain | or [] without breaking the link.
+        const obsidianAlias = (text) => String(text == null ? '' : text).replace(/[|\[\]]/g, ' ').replace(/\s+/g, ' ').trim() || 'Untitled';
+        // Full vault-relative paths, so links never collide with notes the
+        // reader already has (a vault with its own "Genesis" note is common).
+        const obsidianLink = (relPath, alias) => `[[${OBSIDIAN_ROOT}/${relPath}|${obsidianAlias(alias || relPath.split('/').pop())}]]`;
+        const obsidianTag = (text) => String(text == null ? '' : text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'other';
+        const obsidianNumber = (value) => Math.round(value || 0).toLocaleString('en-US');
+        const obsidianMinutes = (words) => Math.max(1, Math.round((words || 0) / (appData.wordsPerMinute || CONFIG.DEFAULT_WPM || 200)));
+        const obsidianBar = (percent) => {
+            const filled = Math.max(0, Math.min(10, Math.round((percent || 0) / 10)));
+            return `${'█'.repeat(filled)}${'░'.repeat(10 - filled)}`;
+        };
+        const obsidianInline = (text) => String(text == null ? '' : text).replace(/[\r\n]+/g, ' ').trim();
+
+        const yamlValue = (value) => {
+            if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '0';
+            if (typeof value === 'boolean') return value ? 'true' : 'false';
+            return `"${String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\r\n]+/g, ' ')}"`;
+        };
+        // Frontmatter keys stay single-word/camelCase: Dataview reads a hyphen
+        // in a query as subtraction, so `chapters-read` would not be queryable.
+        const yamlFrontmatter = (fields) => {
+            let out = '---\n';
+            Object.keys(fields).forEach(key => {
+                const value = fields[key];
+                if (value === undefined || value === null || value === '') return;
+                if (Array.isArray(value)) {
+                    if (!value.length) return;
+                    out += `${key}:\n${value.map(item => `  - ${yamlValue(item)}\n`).join('')}`;
+                } else {
+                    out += `${key}: ${yamlValue(value)}\n`;
+                }
+            });
+            return `${out}---\n\n`;
+        };
+
+        // Per-profile numbers the vault notes are built from.
+        const obsidianProfileStats = (profile) => {
+            const progress = profile.progress || {};
+            const books = bible.map((book, bookIndex) => {
+                let words = 0, wordsRead = 0, chaptersRead = 0;
+                const chapters = book.ch.map((wordCount, idx) => {
+                    const chapterNumber = idx + 1;
+                    const stored = progress[`${book.name}-${chapterNumber}`];
+                    const timestamp = typeof stored === 'number' ? stored : null;
+                    words += wordCount;
+                    if (stored) { wordsRead += wordCount; chaptersRead++; }
+                    return { number: chapterNumber, words: wordCount, timestamp, read: !!stored };
+                });
+                return {
+                    book, bookIndex, chapters, words, wordsRead, chaptersRead,
+                    total: book.ch.length,
+                    percent: words > 0 ? wordsRead / words * 100 : 0,
+                    complete: chaptersRead === book.ch.length
+                };
+            });
+            const sum = (list, key) => list.reduce((total, entry) => total + entry[key], 0);
+            const ot = books.filter(entry => entry.book.testament === 'OT');
+            const nt = books.filter(entry => entry.book.testament === 'NT');
+            const timestamps = [];
+            books.forEach(entry => entry.chapters.forEach(chapter => { if (chapter.timestamp) timestamps.push(chapter.timestamp); }));
+            const wordsRead = sum(books, 'wordsRead');
+            const plan = (appData.profilePlans && appData.profilePlans[profile.name]) || 'SEQUENTIAL';
+            return {
+                name: profile.name,
+                plan,
+                planLabel: OBSIDIAN_PLAN_LABELS[plan] || plan,
+                books,
+                wordsRead,
+                chaptersRead: sum(books, 'chaptersRead'),
+                totalChapters: sum(books, 'total'),
+                percent: WORD_TOTALS.GLOBAL > 0 ? wordsRead / WORD_TOTALS.GLOBAL * 100 : 0,
+                otWordsRead: sum(ot, 'wordsRead'),
+                ntWordsRead: sum(nt, 'wordsRead'),
+                otPercent: WORD_TOTALS.OT > 0 ? sum(ot, 'wordsRead') / WORD_TOTALS.OT * 100 : 0,
+                ntPercent: WORD_TOTALS.NT > 0 ? sum(nt, 'wordsRead') / WORD_TOTALS.NT * 100 : 0,
+                booksComplete: books.filter(entry => entry.complete).length,
+                booksStarted: books.filter(entry => entry.chaptersRead > 0 && !entry.complete),
+                firstRead: timestamps.length ? Math.min(...timestamps) : null,
+                lastRead: timestamps.length ? Math.max(...timestamps) : null,
+                streaks: calculateStreaks(progress)
+            };
+        };
+
+        const buildObsidianVault = (exportProfiles, options) => {
+            const opts = options || {};
+            const files = [];
+            const dateStamp = getExportDateStamp();
+            const exportedAt = new Date().toISOString();
+            const statsList = exportProfiles.map(obsidianProfileStats);
+            const primary = statsList[0];
+            const multi = statsList.length > 1;
+            // Profile names created in-app are alphanumeric, but restored or
+            // synced data can carry anything — two names that sanitize to the
+            // same file name would silently overwrite one another.
+            const profileFileNames = new Map();
+            const usedProfileFileNames = new Set();
+            statsList.forEach(stats => {
+                const base = obsidianFileName(stats.name);
+                let candidate = base;
+                let suffix = 2;
+                while (usedProfileFileNames.has(candidate)) candidate = `${base} ${suffix++}`;
+                usedProfileFileNames.add(candidate);
+                profileFileNames.set(stats.name, candidate);
+            });
+            const profilePath = (name) => `Profiles/${profileFileNames.get(name) || obsidianFileName(name)}`;
+            const bookPath = (bookName) => `Books/${obsidianFileName(bookName)}`;
+            const logPath = (date) => `Reading Log/${date}`;
+            const footer = `\n---\n\n${obsidianLink(OBSIDIAN_ROOT, 'Bible Progress')} · _Exported from [bibleprogress.com](https://bibleprogress.com) on ${dateStamp}_\n`;
+            const summaryFor = (bookName, chapterNumber) => (opts.includeSummaries ? chapterSummaries[`${bookName.toLowerCase().replace(/ /g, '-')}-${chapterNumber}`] : '') || '';
+
+            // --- Reading days (shared by the log notes and the profile notes) ---
+            const byDate = {};
+            statsList.forEach(stats => {
+                stats.books.forEach(entry => entry.chapters.forEach(chapter => {
+                    if (!chapter.timestamp) return;
+                    const date = getLocalDateString(chapter.timestamp);
+                    if (!byDate[date]) byDate[date] = [];
+                    byDate[date].push({ profile: stats.name, book: entry.book.name, chapter: chapter.number, words: chapter.words, timestamp: chapter.timestamp });
+                }));
+            });
+            const logDates = Object.keys(byDate).sort();
+            const includeLog = opts.includeLog !== false;
+            const dateCell = (date) => (includeLog ? obsidianLink(logPath(date), date) : date);
+
+            // --- Hub note ---
+            let hub = yamlFrontmatter({
+                type: 'bible-progress-hub',
+                exported: exportedAt,
+                source: 'https://bibleprogress.com',
+                profiles: statsList.map(stats => stats.name),
+                totalWords: WORD_TOTALS.GLOBAL,
+                tags: ['bible', 'bible/hub']
+            });
+            hub += `# 📖 Bible Progress\n\n`;
+            hub += `> [!info] Word-weighted KJV reading progress, exported ${dateStamp}.\n`;
+            hub += `> The whole Bible is **${obsidianNumber(WORD_TOTALS.GLOBAL)} words** — ${obsidianNumber(WORD_TOTALS.OT)} Old Testament, ${obsidianNumber(WORD_TOTALS.NT)} New Testament.\n\n`;
+            hub += `## Profiles\n\n| Profile | Plan | Complete | Chapters | Books | Streak |\n|---|---|---|---|---|---|\n`;
+            statsList.forEach(stats => {
+                hub += `| ${obsidianLink(profilePath(stats.name), stats.name)} | ${stats.planLabel} | ${obsidianBar(stats.percent)} ${stats.percent.toFixed(1)}% | ${obsidianNumber(stats.chaptersRead)}/${obsidianNumber(stats.totalChapters)} | ${stats.booksComplete}/66 | ${stats.streaks.current} day${stats.streaks.current === 1 ? '' : 's'} |\n`;
+            });
+            hub += `\n## Books\n\n`;
+            if (multi) hub += `_Book progress below is shown for **${obsidianAlias(primary.name)}**; every profile's numbers are on each book note._\n\n`;
+            ALL_CATEGORIES.forEach(category => {
+                const categoryBooks = primary.books.filter(entry => entry.book.cat === category.name);
+                if (!categoryBooks.length) return;
+                const categoryWords = categoryBooks.reduce((total, entry) => total + entry.words, 0);
+                const categoryRead = categoryBooks.reduce((total, entry) => total + entry.wordsRead, 0);
+                const categoryPercent = categoryWords > 0 ? categoryRead / categoryWords * 100 : 0;
+                hub += `### ${category.name} — ${obsidianBar(categoryPercent)} ${categoryPercent.toFixed(0)}%\n\n`;
+                hub += `| Book | Chapters | Words | Progress |\n|---|---|---|---|\n`;
+                categoryBooks.forEach(entry => {
+                    hub += `| ${obsidianLink(bookPath(entry.book.name), entry.book.name)} | ${entry.chaptersRead}/${entry.total} | ${obsidianNumber(entry.words)} | ${obsidianBar(entry.percent)} ${entry.percent.toFixed(0)}% |\n`;
+                });
+                hub += `\n`;
+            });
+            if (includeLog && logDates.length) {
+                hub += `## Recent Reading\n\n| Date | Chapters | Words |\n|---|---|---|\n`;
+                logDates.slice(-14).reverse().forEach(date => {
+                    const entries = byDate[date];
+                    hub += `| ${dateCell(date)} | ${entries.length} | ${obsidianNumber(entries.reduce((total, entry) => total + entry.words, 0))} |\n`;
+                });
+                hub += `\n`;
+            }
+            hub += `## Queries\n\n`;
+            hub += `> [!tip] These render as live tables with the [Dataview](https://blacksmithgu.github.io/obsidian-dataview) plugin installed. Without it they stay harmless code blocks.\n\n`;
+            hub += `**Books in progress**\n\n`;
+            hub += '```dataview\nTABLE testament AS Testament, category AS Category, chaptersRead + "/" + chapters AS Chapters, percentRead AS "%"\nFROM #bible/book\nWHERE percentRead > 0 AND percentRead < 100\nSORT percentRead DESC\n```\n\n';
+            hub += `**Not started yet**\n\n`;
+            hub += '```dataview\nTABLE category AS Category, chapters AS Chapters, words AS Words\nFROM #bible/book\nWHERE chaptersRead = 0\nSORT order ASC\n```\n\n';
+            if (includeLog) {
+                hub += `**Reading log**\n\n`;
+                hub += '```dataview\nTABLE date AS Date, chapters AS Chapters, words AS Words, minutes AS "Min"\nFROM #bible/log\nSORT date DESC\nLIMIT 30\n```\n\n';
+            }
+            if (opts.includeVerses !== false) {
+                hub += `**Memorized verses**\n\n`;
+                hub += '```dataview\nTABLE book AS Book, added AS Added\nFROM #bible/memorized\nSORT added DESC\n```\n\n';
+            }
+            files.push({ path: `${OBSIDIAN_ROOT}/${OBSIDIAN_ROOT}.md`, content: hub + footer });
+
+            // --- One note per Bible book ---
+            bible.forEach((book, bookIndex) => {
+                const perProfile = statsList.map(stats => stats.books[bookIndex]);
+                const primaryBook = perProfile[0];
+                const testament = book.testament === 'OT' ? 'Old Testament' : 'New Testament';
+                const status = primaryBook.complete ? 'complete' : primaryBook.chaptersRead > 0 ? 'in-progress' : 'unread';
+                let note = yamlFrontmatter({
+                    type: 'bible-book',
+                    book: book.name,
+                    testament,
+                    category: book.cat || '',
+                    order: bookIndex + 1,
+                    chapters: book.ch.length,
+                    words: primaryBook.words,
+                    chaptersRead: primaryBook.chaptersRead,
+                    wordsRead: primaryBook.wordsRead,
+                    percentRead: Number(primaryBook.percent.toFixed(1)),
+                    status,
+                    profile: primary.name,
+                    tags: ['bible/book', `bible/${book.testament === 'OT' ? 'ot' : 'nt'}`, `bible/${obsidianTag(book.cat)}`, `bible/status/${status}`]
+                });
+                note += `# ${book.name}\n\n`;
+                note += `> [!abstract] ${book.cat || 'Bible'} · ${testament} · ${book.ch.length} chapters · ${obsidianNumber(primaryBook.words)} words · ~${obsidianMinutes(primaryBook.words)} min\n\n`;
+                note += `| Profile | Chapters | Words read | Progress |\n|---|---|---|---|\n`;
+                perProfile.forEach((entry, idx) => {
+                    note += `| ${obsidianLink(profilePath(statsList[idx].name), statsList[idx].name)} | ${entry.chaptersRead}/${entry.total} | ${obsidianNumber(entry.wordsRead)} | ${obsidianBar(entry.percent)} ${entry.percent.toFixed(0)}% |\n`;
+                });
+                note += `\n## Chapters\n\n`;
+                perProfile.forEach((entry, idx) => {
+                    if (multi) note += `### ${obsidianAlias(statsList[idx].name)}\n\n`;
+                    entry.chapters.forEach(chapter => {
+                        const readOn = chapter.timestamp ? ` · read ${dateCell(getLocalDateString(chapter.timestamp))}` : '';
+                        note += `- [${chapter.read ? 'x' : ' '}] **${book.name} ${chapter.number}** — ${obsidianNumber(chapter.words)} words${readOn}\n`;
+                        const summary = summaryFor(book.name, chapter.number);
+                        if (summary) note += `\t- ${obsidianInline(summary)}\n`;
+                    });
+                    note += `\n`;
+                });
+                const previousBook = bible[bookIndex - 1];
+                const nextBook = bible[bookIndex + 1];
+                const nav = [];
+                if (previousBook) nav.push(`← ${obsidianLink(bookPath(previousBook.name), previousBook.name)}`);
+                if (nextBook) nav.push(`${obsidianLink(bookPath(nextBook.name), nextBook.name)} →`);
+                if (nav.length) note += `${nav.join(' · ')}\n\n`;
+                files.push({ path: `${OBSIDIAN_ROOT}/${bookPath(book.name)}.md`, content: note + footer });
+            });
+
+            // --- One note per reading day ---
+            if (includeLog) {
+                logDates.forEach((date, dateIndex) => {
+                    const entries = byDate[date].slice().sort((a, b) => a.timestamp - b.timestamp);
+                    const words = entries.reduce((total, entry) => total + entry.words, 0);
+                    const dayProfiles = [...new Set(entries.map(entry => entry.profile))];
+                    let note = yamlFrontmatter({
+                        type: 'bible-reading-log',
+                        date,
+                        chapters: entries.length,
+                        words,
+                        minutes: obsidianMinutes(words),
+                        profiles: dayProfiles,
+                        tags: ['bible/log']
+                    });
+                    note += `# 📖 ${date}\n\n`;
+                    note += `> [!success] ${entries.length} chapter${entries.length === 1 ? '' : 's'} · ${obsidianNumber(words)} words · ~${obsidianMinutes(words)} min\n\n`;
+                    dayProfiles.forEach(name => {
+                        if (multi) note += `## ${obsidianAlias(name)}\n\n`;
+                        entries.filter(entry => entry.profile === name).forEach(entry => {
+                            note += `- ${obsidianLink(bookPath(entry.book), entry.book)} **${entry.chapter}** — ${obsidianNumber(entry.words)} words\n`;
+                            const summary = summaryFor(entry.book, entry.chapter);
+                            if (summary) note += `\t- ${obsidianInline(summary)}\n`;
+                        });
+                        note += `\n`;
+                    });
+                    const nav = [];
+                    if (dateIndex > 0) nav.push(`← ${obsidianLink(logPath(logDates[dateIndex - 1]), logDates[dateIndex - 1])}`);
+                    if (dateIndex < logDates.length - 1) nav.push(`${obsidianLink(logPath(logDates[dateIndex + 1]), logDates[dateIndex + 1])} →`);
+                    if (nav.length) note += `${nav.join(' · ')}\n\n`;
+                    files.push({ path: `${OBSIDIAN_ROOT}/${logPath(date)}.md`, content: note + footer });
+                });
+            }
+
+            // --- One note per memorized verse (shared across profiles) ---
+            if (opts.includeVerses !== false) {
+                const verseNotes = new Map();
+                statsList.forEach(stats => {
+                    const verses = (appData.memorizedVerses && appData.memorizedVerses[stats.name]) || [];
+                    verses.forEach(verse => {
+                        const reference = verse.ref || verse.id || 'Verse';
+                        const key = obsidianFileName(reference);
+                        if (!verseNotes.has(key)) verseNotes.set(key, { reference, text: verse.text || '', added: verse.addedDate || null, profiles: [] });
+                        const entry = verseNotes.get(key);
+                        if (!entry.profiles.includes(stats.name)) entry.profiles.push(stats.name);
+                        if (!entry.text && verse.text) entry.text = verse.text;
+                        if (!entry.added && verse.addedDate) entry.added = verse.addedDate;
+                    });
+                });
+                verseNotes.forEach((verse, key) => {
+                    const parsed = /^(.*?)\s+(\d+):(\d+)/.exec(verse.reference);
+                    const parsedBook = parsed ? parsed[1].trim() : '';
+                    const knownBook = bible.find(book => book.name.toLowerCase() === parsedBook.toLowerCase());
+                    let note = yamlFrontmatter({
+                        type: 'bible-verse',
+                        reference: verse.reference,
+                        book: knownBook ? knownBook.name : parsedBook,
+                        chapter: parsed ? Number(parsed[2]) : undefined,
+                        verse: parsed ? Number(parsed[3]) : undefined,
+                        profiles: verse.profiles,
+                        added: formatExportDate(verse.added),
+                        tags: ['bible/verse', 'bible/memorized']
+                    });
+                    note += `# ${obsidianAlias(verse.reference)}\n\n`;
+                    note += `> [!quote] ${obsidianAlias(verse.reference)}\n> ${obsidianInline(verse.text)}\n\n`;
+                    if (knownBook) note += `**Book:** ${obsidianLink(bookPath(knownBook.name), knownBook.name)}\n`;
+                    note += `**Memorized by:** ${verse.profiles.map(name => obsidianLink(profilePath(name), name)).join(', ')}\n`;
+                    if (verse.added) note += `**Added:** ${formatExportDate(verse.added)}\n`;
+                    files.push({ path: `${OBSIDIAN_ROOT}/Verses/${key}.md`, content: `${note}\n${footer}` });
+                });
+            }
+
+            // --- One note per profile ---
+            statsList.forEach(stats => {
+                const goals = (appData.goals && appData.goals[stats.name]) || [];
+                const verses = (appData.memorizedVerses && appData.memorizedVerses[stats.name]) || [];
+                const remainingWords = Math.max(0, WORD_TOTALS.GLOBAL - stats.wordsRead);
+                let note = yamlFrontmatter({
+                    type: 'bible-reading-profile',
+                    profile: stats.name,
+                    plan: stats.planLabel,
+                    percentRead: Number(stats.percent.toFixed(2)),
+                    wordsRead: stats.wordsRead,
+                    chaptersRead: stats.chaptersRead,
+                    chapters: stats.totalChapters,
+                    booksComplete: stats.booksComplete,
+                    currentStreak: stats.streaks.current,
+                    longestStreak: stats.streaks.longest,
+                    firstRead: formatExportDate(stats.firstRead),
+                    lastRead: formatExportDate(stats.lastRead),
+                    tags: ['bible/profile']
+                });
+                note += `# ${obsidianAlias(stats.name)}\n\n`;
+                note += `> [!info] ${stats.planLabel} · ${obsidianBar(stats.percent)} **${stats.percent.toFixed(2)}%** of the Bible by word count\n\n`;
+                note += `| | |\n|---|---|\n`;
+                note += `| Words read | ${obsidianNumber(stats.wordsRead)} / ${obsidianNumber(WORD_TOTALS.GLOBAL)} |\n`;
+                note += `| Chapters read | ${obsidianNumber(stats.chaptersRead)} / ${obsidianNumber(stats.totalChapters)} |\n`;
+                note += `| Books complete | ${stats.booksComplete} / 66 |\n`;
+                note += `| Old Testament | ${obsidianBar(stats.otPercent)} ${stats.otPercent.toFixed(1)}% (${obsidianNumber(stats.otWordsRead)} words) |\n`;
+                note += `| New Testament | ${obsidianBar(stats.ntPercent)} ${stats.ntPercent.toFixed(1)}% (${obsidianNumber(stats.ntWordsRead)} words) |\n`;
+                note += `| Current streak | ${stats.streaks.current} day${stats.streaks.current === 1 ? '' : 's'} |\n`;
+                note += `| Longest streak | ${stats.streaks.longest} day${stats.streaks.longest === 1 ? '' : 's'} |\n`;
+                if (stats.firstRead) note += `| First chapter read | ${formatExportDate(stats.firstRead)} |\n`;
+                if (stats.lastRead) note += `| Last chapter read | ${formatExportDate(stats.lastRead)} |\n`;
+                note += `| Remaining | ${obsidianNumber(remainingWords)} words (~${obsidianNumber(obsidianMinutes(remainingWords))} min) |\n\n`;
+
+                if (stats.plan === 'CUSTOM' && appData.customPlans && appData.customPlans[stats.name]) {
+                    const plans = appData.customPlans[stats.name] || [];
+                    const activePlan = plans.find(plan => plan.active) || plans[0];
+                    if (activePlan && activePlan.config) {
+                        const config = activePlan.config;
+                        note += `## Custom Plan\n\n**${obsidianInline(activePlan.name || 'Custom')}** — ${config.ot || 0} OT + ${config.nt || 0} NT + ${config.psalms || 0} Psalms + ${config.proverbs || 0} Proverbs daily\n\n`;
+                    }
+                }
+                if (stats.plan === 'HORNER' && appData.hornerCycleCount && appData.hornerCycleCount[stats.name]) {
+                    const cycles = appData.hornerCycleCount[stats.name] || [];
+                    if (cycles.some(count => count > 0)) {
+                        note += `## Horner Read-Throughs\n\n| List | Read-throughs |\n|---|---|\n`;
+                        cycles.forEach((count, idx) => {
+                            if (count > 0) note += `| ${idx + 1}. ${HORNER_LIST_NAMES[idx] || `List ${idx + 1}`} | ${count} |\n`;
+                        });
+                        note += `\n`;
+                    }
+                }
+                if (goals.length) {
+                    note += `## Goals\n\n`;
+                    goals.forEach(goal => {
+                        const { percent } = calculateGoalProgress(goal);
+                        const done = percent >= 99.999;
+                        const deadline = goal.deadline ? ` · due ${goal.deadline}` : '';
+                        note += `- [${done ? 'x' : ' '}] **${obsidianInline(goal.name || getGoalTypeLabel(goal))}** — ${percent.toFixed(1)}%${deadline}\n`;
+                    });
+                    note += `\n`;
+                }
+                if (stats.booksStarted.length) {
+                    note += `## In Progress\n\n| Book | Chapters | Progress |\n|---|---|---|\n`;
+                    stats.booksStarted.slice().sort((a, b) => b.percent - a.percent).forEach(entry => {
+                        note += `| ${obsidianLink(bookPath(entry.book.name), entry.book.name)} | ${entry.chaptersRead}/${entry.total} | ${obsidianBar(entry.percent)} ${entry.percent.toFixed(0)}% |\n`;
+                    });
+                    note += `\n`;
+                }
+                const completed = stats.books.filter(entry => entry.complete);
+                if (completed.length) {
+                    note += `## Completed Books\n\n`;
+                    note += `${completed.map(entry => obsidianLink(bookPath(entry.book.name), entry.book.name)).join(' · ')}\n\n`;
+                }
+                if (verses.length) {
+                    note += `## Memorized Verses\n\n`;
+                    verses.forEach(verse => {
+                        const reference = verse.ref || verse.id || 'Verse';
+                        note += opts.includeVerses !== false
+                            ? `- ${obsidianLink(`Verses/${obsidianFileName(reference)}`, reference)}\n`
+                            : `- **${obsidianAlias(reference)}** — ${obsidianInline(verse.text)}\n`;
+                    });
+                    note += `\n`;
+                }
+                const profileDates = logDates.filter(date => byDate[date].some(entry => entry.profile === stats.name));
+                if (profileDates.length) {
+                    note += `## Recent Reading\n\n| Date | Chapters | Words |\n|---|---|---|\n`;
+                    profileDates.slice(-30).reverse().forEach(date => {
+                        const entries = byDate[date].filter(entry => entry.profile === stats.name);
+                        note += `| ${dateCell(date)} | ${entries.length} | ${obsidianNumber(entries.reduce((total, entry) => total + entry.words, 0))} |\n`;
+                    });
+                    note += `\n`;
+                }
+                files.push({ path: `${OBSIDIAN_ROOT}/${profilePath(stats.name)}.md`, content: note + footer });
+            });
+
+            return files;
+        };
+
+        // --- Minimal ZIP writer (no dependency; deflate where the browser has it) ---
+        const CRC32_TABLE = (() => {
+            const table = new Uint32Array(256);
+            for (let i = 0; i < 256; i++) {
+                let value = i;
+                for (let bit = 0; bit < 8; bit++) value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+                table[i] = value >>> 0;
+            }
+            return table;
+        })();
+        const crc32 = (bytes) => {
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < bytes.length; i++) crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        };
+        const deflateRaw = async (bytes) => {
+            if (typeof CompressionStream !== 'function') return null;
+            try {
+                const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+                return new Uint8Array(await new Response(stream).arrayBuffer());
+            } catch (err) {
+                return null;
+            }
+        };
+        const createZipBlob = async (files) => {
+            const encoder = new TextEncoder();
+            const now = new Date();
+            const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xFFFF;
+            const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
+            const parts = [];
+            const central = [];
+            let offset = 0;
+            for (const file of files) {
+                const nameBytes = encoder.encode(file.path);
+                const data = encoder.encode(file.content);
+                const checksum = crc32(data);
+                const deflated = await deflateRaw(data);
+                const useDeflate = !!deflated && deflated.length < data.length;
+                const payload = useDeflate ? deflated : data;
+                const method = useDeflate ? 8 : 0;
+
+                const local = new Uint8Array(30 + nameBytes.length);
+                const localView = new DataView(local.buffer);
+                localView.setUint32(0, 0x04034b50, true);
+                localView.setUint16(4, 20, true);
+                localView.setUint16(6, 0x0800, true); // UTF-8 file names
+                localView.setUint16(8, method, true);
+                localView.setUint16(10, dosTime, true);
+                localView.setUint16(12, dosDate, true);
+                localView.setUint32(14, checksum, true);
+                localView.setUint32(18, payload.length, true);
+                localView.setUint32(22, data.length, true);
+                localView.setUint16(26, nameBytes.length, true);
+                local.set(nameBytes, 30);
+                parts.push(local, payload);
+
+                const entry = new Uint8Array(46 + nameBytes.length);
+                const entryView = new DataView(entry.buffer);
+                entryView.setUint32(0, 0x02014b50, true);
+                entryView.setUint16(4, 20, true);
+                entryView.setUint16(6, 20, true);
+                entryView.setUint16(8, 0x0800, true);
+                entryView.setUint16(10, method, true);
+                entryView.setUint16(12, dosTime, true);
+                entryView.setUint16(14, dosDate, true);
+                entryView.setUint32(16, checksum, true);
+                entryView.setUint32(20, payload.length, true);
+                entryView.setUint32(24, data.length, true);
+                entryView.setUint16(28, nameBytes.length, true);
+                entryView.setUint32(42, offset, true);
+                entry.set(nameBytes, 46);
+                central.push(entry);
+
+                offset += local.length + payload.length;
+            }
+            const centralSize = central.reduce((total, entry) => total + entry.length, 0);
+            const end = new Uint8Array(22);
+            const endView = new DataView(end.buffer);
+            endView.setUint32(0, 0x06054b50, true);
+            endView.setUint16(8, files.length, true);
+            endView.setUint16(10, files.length, true);
+            endView.setUint32(12, centralSize, true);
+            endView.setUint32(16, offset, true);
+            return new Blob([...parts, ...central, end], { type: 'application/zip' });
+        };
+
+        const downloadBlobFile = (blob, filename) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        };
+
+        // Write the vault straight into a folder the reader picks. Re-running
+        // overwrites the same notes, so the vault stays in sync.
+        const writeVaultToDirectory = async (rootHandle, files) => {
+            const dirCache = new Map();
+            const ensureDir = async (segments) => {
+                let handle = rootHandle;
+                let key = '';
+                for (const segment of segments) {
+                    key = key ? `${key}/${segment}` : segment;
+                    if (!dirCache.has(key)) dirCache.set(key, await handle.getDirectoryHandle(segment, { create: true }));
+                    handle = dirCache.get(key);
+                }
+                return handle;
+            };
+            for (const file of files) {
+                const segments = file.path.split('/');
+                const name = segments.pop();
+                const directory = await ensureDir(segments);
+                const fileHandle = await directory.getFileHandle(name, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(file.content);
+                await writable.close();
+            }
+        };
+
+        const showObsidianExportOptions = () => {
+            return new Promise((resolve) => {
+                const existingModal = document.getElementById('custom-modal-overlay');
+                if (existingModal) existingModal.remove();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'custom-modal-overlay';
+                overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm';
+                overlay.style.animation = 'fadeIn 0.2s ease-out';
+
+                const modal = document.createElement('div');
+                modal.className = 'glass bg-white border-2 border-indigo-200 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto';
+                modal.style.animation = 'fadeIn 0.3s ease-out';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-label', 'Obsidian export options');
+
+                const summariesReady = Object.keys(chapterSummaries).length > 0;
+                modal.innerHTML = `
+                    <div class="flex items-start gap-4 mb-4">
+                        <span class="text-3xl flex-shrink-0">&#128450;&#65039;</span>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-black text-indigo-900 mb-1">Export to Obsidian</h3>
+                            <p class="text-sm text-indigo-700 leading-relaxed">Choose how your reading data lands in your vault.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4" role="radiogroup" aria-label="Export format">
+                        <label class="flex items-start gap-3 px-3 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer" for="obs-format-vault">
+                            <input type="radio" name="obs-format" id="obs-format-vault" value="vault" checked class="mt-1 w-4 h-4 accent-indigo-600" />
+                            <span class="flex-1">
+                                <span class="block text-sm font-bold text-slate-700">Linked vault <span class="text-[9px] uppercase tracking-wider text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full align-middle">Recommended</span></span>
+                                <span class="block text-xs text-slate-500 leading-relaxed mt-0.5">A folder of cross-linked notes &mdash; a hub, one per profile, one per book, one per reading day, one per memorized verse &mdash; with YAML frontmatter Dataview can query.</span>
+                            </span>
+                        </label>
+                        <label class="flex items-start gap-3 px-3 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer" for="obs-format-note">
+                            <input type="radio" name="obs-format" id="obs-format-note" value="note" class="mt-1 w-4 h-4 accent-indigo-600" />
+                            <span class="flex-1">
+                                <span class="block text-sm font-bold text-slate-700">Single note</span>
+                                <span class="block text-xs text-slate-500 leading-relaxed mt-0.5">Everything in one Markdown file.</span>
+                            </span>
+                        </label>
+                    </div>
+                    <div id="obs-vault-options" class="border border-slate-200 rounded-xl p-3 mb-4 space-y-1">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Include in the vault</p>
+                        <label class="flex items-center gap-3 px-1 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer" for="obs-opt-log">
+                            <input type="checkbox" id="obs-opt-log" checked class="w-4 h-4 rounded border-slate-300 accent-indigo-600" />
+                            <span class="text-sm font-bold text-slate-700">Daily reading log notes</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-1 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer" for="obs-opt-verses">
+                            <input type="checkbox" id="obs-opt-verses" checked class="w-4 h-4 rounded border-slate-300 accent-indigo-600" />
+                            <span class="text-sm font-bold text-slate-700">Memorized verse notes</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-1 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer ${summariesReady ? '' : 'opacity-50'}" for="obs-opt-summaries">
+                            <input type="checkbox" id="obs-opt-summaries" ${summariesReady ? 'checked' : 'disabled'} class="w-4 h-4 rounded border-slate-300 accent-indigo-600" />
+                            <span class="text-sm font-bold text-slate-700">Chapter summaries${summariesReady ? '' : ' <span class="text-xs font-normal text-slate-400">(still loading)</span>'}</span>
+                        </label>
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-end">
+                        <button id="obs-cancel" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors">Cancel</button>
+                        ${OBSIDIAN_FS_SUPPORTED ? '<button id="obs-folder" class="px-5 py-2.5 bg-white border border-indigo-300 text-indigo-700 rounded-xl text-sm font-bold hover:bg-indigo-50 transition-colors">Sync to Folder</button>' : ''}
+                        <button id="obs-primary" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors">Download ZIP</button>
+                    </div>
+                    <p id="obs-hint" class="text-xs text-slate-500 mt-3 leading-relaxed">Unzip into your vault &mdash; everything lives under a single <strong>Bible Progress</strong> folder.</p>`;
+
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                const releaseFocusTrap = createFocusTrap(modal);
+                const vaultOptions = modal.querySelector('#obs-vault-options');
+                const folderBtn = modal.querySelector('#obs-folder');
+                const primaryBtn = modal.querySelector('#obs-primary');
+                const hint = modal.querySelector('#obs-hint');
+                const formatInputs = modal.querySelectorAll('input[name="obs-format"]');
+
+                const isVault = () => modal.querySelector('#obs-format-vault').checked;
+                const syncFormat = () => {
+                    const vault = isVault();
+                    vaultOptions.classList.toggle('hidden', !vault);
+                    if (folderBtn) folderBtn.classList.toggle('hidden', !vault);
+                    primaryBtn.textContent = vault ? 'Download ZIP' : 'Download Note';
+                    hint.innerHTML = vault
+                        ? 'Unzip into your vault &mdash; everything lives under a single <strong>Bible Progress</strong> folder.'
+                        : 'One Markdown file you can drop anywhere in your vault.';
+                };
+                formatInputs.forEach(input => input.addEventListener('change', syncFormat));
+                syncFormat();
+
+                const closeModal = (result) => {
+                    document.removeEventListener('keydown', handleEscape);
+                    releaseFocusTrap();
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.remove(), 200);
+                    resolve(result);
+                };
+                const submit = (delivery) => closeModal({
+                    format: isVault() ? 'vault' : 'note',
+                    delivery,
+                    includeLog: modal.querySelector('#obs-opt-log').checked,
+                    includeVerses: modal.querySelector('#obs-opt-verses').checked,
+                    includeSummaries: modal.querySelector('#obs-opt-summaries').checked
+                });
+                function handleEscape(e) { if (e.key === 'Escape') closeModal(null); }
+
+                primaryBtn.addEventListener('click', () => submit('download'));
+                if (folderBtn) folderBtn.addEventListener('click', () => submit('folder'));
+                modal.querySelector('#obs-cancel').addEventListener('click', () => closeModal(null));
+                overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(null); });
+                document.addEventListener('keydown', handleEscape);
+                primaryBtn.focus();
+            });
+        };
+
+        window.exportProgressObsidian = async () => {
+            const selectedNames = await window.showProfilePicker('Export Obsidian');
+            if (!selectedNames) return;
+            const choice = await showObsidianExportOptions();
+            if (!choice) return;
+            const exportProfiles = getExportProfilesFiltered(selectedNames);
+            if (!exportProfiles.length) return;
+            const dateStamp = getExportDateStamp();
+
+            try {
+                if (choice.format === 'note') {
+                    downloadExportFile(buildObsidianSingleNote(exportProfiles), `Bible Reading Progress ${dateStamp}.md`, 'text/markdown;charset=utf-8;');
+                    window.showToast('Obsidian note exported', 'success');
+                    return;
+                }
+
+                const files = buildObsidianVault(exportProfiles, choice);
+                if (choice.delivery === 'folder') {
+                    const rootHandle = await window.showDirectoryPicker({ mode: 'readwrite', id: 'bibleprogress-obsidian' });
+                    await writeVaultToDirectory(rootHandle, files);
+                    window.showToast(`Synced ${files.length} notes into your vault`, 'success', 5000);
+                } else {
+                    const blob = await createZipBlob(files);
+                    downloadBlobFile(blob, `Bible Progress Vault ${dateStamp}.zip`);
+                    window.showToast(`Exported ${files.length} Obsidian notes`, 'success', 5000);
+                }
+            } catch (err) {
+                // The reader dismissing the folder picker isn't an error.
+                if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return;
+                log('Obsidian export failed:', err);
+                window.showToast('Obsidian export failed. Try the ZIP download instead.', 'error', 5000);
+            }
         };
 
         window.exportProgressPDF = async () => {

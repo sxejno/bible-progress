@@ -41,7 +41,7 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Streaks**: Consecutive reading days with 1-day grace, heatmap, milestone celebrations
 - **Bible Reader**: In-app KJV text with verse memorization (star icon)
 - **Goals**: Deadline-based reading goals (whole Bible, testament, books, category)
-- **Export**: CSV, Obsidian (MD with YAML frontmatter), PDF, JSON backup — all include full user data
+- **Export**: CSV, Obsidian (single note *or* linked vault), PDF, JSON backup — all include full user data
 - **Dark Mode**: Settings toggle + triple-click logo easter egg
 - **Easter Eggs**: 7 hidden features (Konami code, profile dot clicks, Psalm 119, etc.)
 - **Accessibility**: 35+ ARIA labels for screen readers
@@ -66,6 +66,7 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 
 ## Quick Reference
 
+- **Obsidian vault export**: `buildObsidianVault()` emits `{path, content}` notes under a single `Bible Progress/` folder (hub, `Profiles/`, `Books/`, `Reading Log/`, `Verses/`). Delivered as a ZIP via the built-in `createZipBlob()` (no dependency; `CompressionStream('deflate-raw')` with a stored fallback) or written straight to a folder via `showDirectoryPicker()`. Frontmatter keys are camelCase on purpose — Dataview parses a hyphen in a query as subtraction.
 - **Firebase**: Project `bibleprogress-48cfd`, Firestore per-user docs
 - **Bible data**: Minified array near top of JS section (66 books with word counts per chapter)
 - **Chapter key format**: `"BookName-ChapterNumber"` (e.g., `"Genesis-1"`, `"Psalms-119"`)
