@@ -11719,58 +11719,34 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-
-            // Check if there's activity within the last 36 hours (more flexible than calendar days)
-            const now = Date.now();
-            const thirtysixHoursAgo = now - (36 * 60 * 60 * 1000);
             const todayStr = getLocalDateString(today.getTime());
             const yesterday = new Date(today);
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = getLocalDateString(yesterday.getTime());
 
-            const hasRecentActivity = activityMap[todayStr] || activityMap[yesterdayStr];
-
-            // Calculate longest streak (still using calendar days for historical consistency)
+            // Streaks count reading days with a 1-day grace: a single missed
+            // calendar day between reads doesn't break the chain (the reader
+            // may have read without marking it that day). Two or more missed
+            // days in a row do break it. Current and longest use the same
+            // rule so the current streak can never exceed the longest.
             for(let i = 0; i < dates.length; i++) {
                 if(i === 0) {
                     tempStreak = 1;
                 } else {
                     const prevDate = new Date(dates[i-1]);
                     const currDate = new Date(dates[i]);
-                    const diffDays = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
-
-                    if(diffDays === 1) {
-                        tempStreak++;
-                    } else {
-                        tempStreak = 1;
-                    }
+                    const diffDays = Math.round((currDate - prevDate) / (1000 * 60 * 60 * 24));
+                    tempStreak = diffDays <= 2 ? tempStreak + 1 : 1;
                 }
 
                 longestStreak = Math.max(longestStreak, tempStreak);
             }
 
-            // Calculate current streak with more flexible grace (36-hour window)
-            if(hasRecentActivity) {
-                let checkDate = new Date(today);
-                currentStreak = 0;
-                let consecutiveMisses = 0;
-
-                for(let i = 0; i < 365; i++) {
-                    const checkStr = getLocalDateString(checkDate.getTime());
-                    if(activityMap[checkStr]) {
-                        currentStreak++;
-                        consecutiveMisses = 0; // Reset miss counter
-                        checkDate.setDate(checkDate.getDate() - 1);
-                    } else {
-                        consecutiveMisses++;
-                        if(consecutiveMisses > 1) {
-                            // Allow one day gap (36-hour window accommodates varying schedules)
-                            // More than 1 consecutive miss breaks the streak
-                            break;
-                        }
-                        checkDate.setDate(checkDate.getDate() - 1);
-                    }
-                }
+            // The current streak is the most recent run, alive only if there
+            // was activity today or yesterday (yesterday = the grace day).
+            const lastDateStr = dates[dates.length - 1];
+            if(lastDateStr === todayStr || lastDateStr === yesterdayStr) {
+                currentStreak = tempStreak;
             }
 
             return { current: currentStreak, longest: longestStreak };
