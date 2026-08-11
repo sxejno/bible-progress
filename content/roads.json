@@ -91,6 +91,55 @@
      "text": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee."
     }
    ]
+  },
+  {
+   "id": "grace",
+   "title": "The Doctrines of Grace",
+   "blurb": "Six stops on the work God begins, keeps, and finishes himself.",
+   "stops": [
+    {
+     "ref": "John 6:37",
+     "book": "John",
+     "cv": "6:37",
+     "hint": "All that the Father giveth",
+     "text": "All that the Father giveth me shall come to me; and him that cometh to me I will in no wise cast out."
+    },
+    {
+     "ref": "John 6:44",
+     "book": "John",
+     "cv": "6:44",
+     "hint": "No man can come",
+     "text": "No man can come to me, except the Father which hath sent me draw him: and I will raise him up at the last day."
+    },
+    {
+     "ref": "John 10:27-29",
+     "book": "John",
+     "cv": "10:27-29",
+     "hint": "My sheep hear my voice",
+     "text": "My sheep hear my voice, and I know them, and they follow me: And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand. My Father, which gave them me, is greater than all; and no man is able to pluck them out of my Father’s hand."
+    },
+    {
+     "ref": "Romans 9:16",
+     "book": "Romans",
+     "cv": "9:16",
+     "hint": "Not of him that willeth",
+     "text": "So then it is not of him that willeth, nor of him that runneth, but of God that sheweth mercy."
+    },
+    {
+     "ref": "Ephesians 2:8-9",
+     "book": "Ephesians",
+     "cv": "2:8-9",
+     "hint": "By grace are ye saved",
+     "text": "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast."
+    },
+    {
+     "ref": "Philippians 1:6",
+     "book": "Philippians",
+     "cv": "1:6",
+     "hint": "He which hath begun",
+     "text": "Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ:"
+    }
+   ]
   }
  ]
 }

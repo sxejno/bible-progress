@@ -16,7 +16,7 @@ cheap parts of Phase 2; see [Status against the PRD](#status-against-the-prd).
 |---|---|
 | `lamp.html` | The whole app — one page, ES module, no build step, no Tailwind (self-contained CSS from the PRD §8 tokens, so it renders even if the CDN is unreachable) |
 | `content/packs/{nt,ot-law,ot-history,ot-poetry,ot-major,ot-minor}.json` | Chapter gists + key-verse anchors, one pack per section group |
-| `content/roads.json` | Guided verse journeys (Roman Road, Comfort Ye) |
+| `content/roads.json` | Guided verse journeys (Roman Road, Comfort Ye, the Doctrines of Grace) |
 | `tests/lamp-sync.test.html` | Sync acceptance tests — open in a browser, 30 assertions, no runner needed |
 
 Packs are generated from the site's existing `bible_chapter_summaries_concise.json`
@@ -208,16 +208,21 @@ the first-letter rule. Green = 30 passed, 0 failed.
 
 **Shipped** — accounts and household profiles · guest mode and adoption · all six
 packs (1,189 chapters, 238 key-verse anchors) · map with sections, collapse, read
-rings · Leitner + trim sessions · anchors ("Drop anchor") · Roman Road and Comfort
-Ye · solo Sword Drill · Chapter Chain · Folio with oil, ranks, manna, sabbath jar,
+rings · Leitner + trim sessions · anchors ("Drop anchor") · all three launch roads
+· solo Sword Drill · Chapter Chain · Folio with oil, ranks, manna, sabbath jar,
 plates, year heatmap, 30-day due forecast, per-book mastery · sync per §7 with
 acceptance tests · export/import incl. v1 migration · PWA via the site's existing
 manifest and service worker · cross-navigation both ways.
 
-**Not built (deliberately deferred)** — the Doctrines of Grace road (PRD §12: ships
-only after Shane's sign-off; drop it into `content/roads.json` and it appears)
-· weekly household drill · custom per-profile gist overrides · Book Chains (27/66)
-· emblem plates · testament certificates.
+**Not built (deliberately deferred)** — weekly household drill · custom per-profile
+gist overrides · Book Chains (27/66) · emblem plates · testament certificates.
+
+**Adding a road** is adding an object to the `ROADS` dict in
+`build/gen-lamp-packs.py` and re-running it — verse text is pulled verbatim from
+`kjv_bible.json` so stops can never drift from the KJV. A stop's verse may be an
+int or a tuple of consecutive verses (`("John", 10, (27,28,29), "My sheep hear my
+voice")`), which renders as `John 10:27-29`; the References Cold gate accepts a
+ranged reference by its opening verse too.
 
 **Deviations from the PRD, and why** — Firestore field instead of a subcollection
 (security rules, above) · household profiles reuse the tracker's list instead of a

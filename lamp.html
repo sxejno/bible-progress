@@ -1308,7 +1308,9 @@ function roadCold(road){
     window.__rdAns = () => {
       const v = el('rc-in').value.trim().toLowerCase().replace(/\s+/g,' ').replace(/[.]/g,'');
       const want = stop.ref.toLowerCase().replace(/\s+/g,' ');
-      const ok = v === want || v === want.replace(/\s/g,'');
+      // A ranged stop (John 10:27-29) also accepts its opening verse.
+      const accepted = [want, want.replace(/-\d+$/,'')].flatMap(x => [x, x.replace(/\s/g,'')]);
+      const ok = accepted.includes(v);
       if(!ok) misses++;
       el('rd-note').textContent = ok ? 'Right.' : `Not so — ${stop.ref}`;
       el('rd-note').style.color = ok ? '#3f6b3f' : '#a04a38';

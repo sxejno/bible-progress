@@ -139,6 +139,17 @@ ROADS = {
      ("1 Peter",5,7,"Casting all your care"),
      ("Hebrews",13,5,"Never leave thee"),
    ]},
+ "grace": {
+   "id":"grace","title":"The Doctrines of Grace",
+   "blurb":"Six stops on the work God begins, keeps, and finishes himself.",
+   "stops":[
+     ("John",6,37,"All that the Father giveth"),
+     ("John",6,44,"No man can come"),
+     ("John",10,(27,28,29),"My sheep hear my voice"),
+     ("Romans",9,16,"Not of him that willeth"),
+     ("Ephesians",2,(8,9),"By grace are ye saved"),
+     ("Philippians",1,6,"He which hath begun"),
+   ]},
 }
 
 
@@ -162,7 +173,8 @@ def main():
         return verses[(book, ch, v)]
 
     def cv(ch, v):
-        return f"{ch}:{v[0]}-{v[1]}" if isinstance(v, tuple) else f"{ch}:{v}"
+        # v[-1], not v[1] — a range may span more than two verses (John 10:27-29)
+        return f"{ch}:{v[0]}-{v[-1]}" if isinstance(v, tuple) else f"{ch}:{v}"
 
     def build_book(name, section):
         n = len(gists[name])
