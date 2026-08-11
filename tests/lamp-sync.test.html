@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lamp Room — sync acceptance tests</title>
+<style>
+ body{font:15px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#1a1730;color:#f1e6cc;margin:0;padding:2rem}
+ h1{font-size:1.3rem} h2{font-size:1rem;margin:1.6rem 0 .4rem;color:#f5b83d}
+ .pass{color:#7fbf7f} .fail{color:#e08a7a;font-weight:700}
+ li{margin:.15rem 0} ul{margin:.2rem 0 0;padding-left:1.4rem}
+ #summary{margin-top:2rem;padding:.8rem 1rem;border:1px solid #c9a35b;border-radius:8px;display:inline-block}
+ iframe{display:none}
+</style>
+</head>
+<body>
+<h1>Lamp Room — sync acceptance tests (PRD §7)</h1>
+<p>Exercises the real merge code inside <code>lamp.html</code> (loaded with <code>?test=1</code>, which
+   skips boot so nothing touches storage or Firebase).</p>
+<div id="out">Loading lamp.html…</div>
+<div id="summary"></div>
+<iframe id="app" src="../lamp.html?test=1"></iframe>
+
+<script>
+const out = document.getElementById('out');
+let pass = 0, fail = 0;
+function group(name){ out.insertAdjacentHTML('beforeend', `<h2>${name}</h2><ul id="g${++group.n}"></ul>`); group.cur = document.getElementById('g'+group.n); }
+group.n = 0;
+function ok(cond, label, detail){
+  cond ? pass++ : fail++;
+  group.cur.insertAdjacentHTML('beforeend',
+    `<li class="${cond?'pass':'fail'}">${cond?'PASS':'FAIL'} — ${label}${cond||!detail?'':` <em>(${detail})</em>`}</li>`);
+}
+const eq = (a,b,label) => ok(JSON.stringify(a) === JSON.stringify(b), label, `got ${JSON.stringify(a)}, want ${JSON.stringify(b)}`);
+
+function profile(over){
+  return Object.assign({oil:0, manna:{count:0,last:''}, jars:0, drillBest:0, sessionsToday:{d:'',n:0},
+    roads:{}, plates:[], days:{}, ch:{}, anchors:{}, updatedAt:0}, over);
+}
+function state(chs, over){
+  return Object.assign({v:2, profiles:[{id:'Shane',name:'Shane',color:'#f5b83d'}], active:'Shane',
+    settings:{}, p:{Shane: profile(Object.assign({ch:chs}, over))}}, {});
+}
+
+window.addEventListener('load', () => {
+  const w = document.getElementById('app').contentWindow;
+  const wait = setInterval(() => {
+    if(!w.__lampMerge) return;
+    clearInterval(wait);
+    run(w);
+  }, 60);
+});
+
+function run(w){
+  out.innerHTML = '';
+  const merge = w.__lampMerge, mergeCh = w.__lampMergeCh;
+  const T0 = 1_700_000_000_000, D = 86400000;
+
+  /* ------------------------------------------------------------------ 1 */
+  group('Scenario 1 — two-device convergence (PRD §7 acceptance)');
+  // Device A, offline: promotes Gen 1 to box 3 at T0.
+  const A = state({
+    'Gen.1': {b:3, due:T0 + 4*D, c:3, w:0, r:T0},
+    'Exo.5': {b:2, due:T0 + 2*D, c:2, w:1, r:T0 - D}
+  }, {oil:120});
+  // Device B, meanwhile: reviews Gen 1 WRONG (box 1, due now) at a LATER r.
+  const B = state({
+    'Gen.1': {b:1, due:T0 + 60_000, c:3, w:1, r:T0 + 60_000},
+    'Exo.5': {b:2, due:T0 + 2*D, c:2, w:1, r:T0 - D}
+  }, {oil:96});
+
+  const AB = merge(A, B), BA = merge(B, A);
+
+  eq(AB.p.Shane.ch['Gen.1'].b, 1, 'A∪B: Gen 1 takes B’s box (later review wins)');
+  eq(BA.p.Shane.ch['Gen.1'].b, 1, 'B∪A: Gen 1 takes B’s box (order-independent)');
+  eq(AB.p.Shane.ch['Gen.1'], BA.p.Shane.ch['Gen.1'], 'merge is commutative for Gen 1');
+  eq(AB.p.Shane.ch['Gen.1'].w, 1, 'wrong count takes the max');
+  eq(AB.p.Shane.ch['Gen.1'].c, 3, 'right count takes the max');
+  eq(AB.p.Shane.ch['Gen.1'].due, T0 + 60_000, 'due comes from the later review');
+  eq(AB.p.Shane.ch['Exo.5'], A.p.Shane.ch['Exo.5'], 'no other chapter changed');
+  eq(Object.keys(AB.p.Shane.ch).sort(), ['Exo.5','Gen.1'], 'no chapters invented or dropped');
+  eq(AB.p.Shane.oil, 120, 'oil takes the max');
+
+  // and idempotence: merging the result again changes nothing
+  eq(merge(AB, B), AB, 're-merging the same remote is a no-op (idempotent)');
+
+  /* ------------------------------------------------------------------ 2 */
+  group('Scenario 2 — the January bug: a local edit during a snapshot burst survives');
+  // Local memory holds a fresh edit (Rom.8 just promoted). Three remote snapshots
+  // arrive back-to-back carrying the OLD Rom.8 plus other devices' changes.
+  let LOCAL = state({
+    'Rom.8': {b:4, due:T0 + 8*D, c:4, w:0, r:T0 + 5_000},   // the edit being made right now
+    'Jhn.3': {b:2, due:T0 + 2*D, c:2, w:0, r:T0 - D}
+  }, {oil:300});
+  const stale = state({
+    'Rom.8': {b:1, due:T0, c:3, w:1, r:T0 - 10_000},        // pre-edit copy, older r
+    'Jhn.3': {b:2, due:T0 + 2*D, c:2, w:0, r:T0 - D}
+  }, {oil:300});
+  const otherDevice = state({
+    'Rom.8': {b:1, due:T0, c:3, w:1, r:T0 - 10_000},
+    'Jhn.3': {b:2, due:T0 + 2*D, c:2, w:0, r:T0 - D},
+    'Psa.23':{b:5, due:T0 + 16*D, c:9, w:0, r:T0 - 2*D}     // genuinely new remote work
+  }, {oil:305});
+
+  for(const snap of [stale, otherDevice, stale]) LOCAL = merge(LOCAL, snap);
+
+  eq(LOCAL.p.Shane.ch['Rom.8'].b, 4, 'the local edit survives the whole snapshot burst');
+  eq(LOCAL.p.Shane.ch['Rom.8'].r, T0 + 5_000, 'local review timestamp is kept');
+  eq(LOCAL.p.Shane.ch['Rom.8'].w, 1, 'remote wrong-count still folded in (max)');
+  ok(!!LOCAL.p.Shane.ch['Psa.23'], 'the other device’s new chapter is adopted');
+  eq(LOCAL.p.Shane.oil, 305, 'oil rises to the remote maximum');
+
+  /* ------------------------------------------------------------------ 3 */
+  group('Scenario 3 — session shield queues remote merges until the session ends');
+  ok(typeof w.__lampApplyRemote === 'function', 'applyRemote is exposed');
+
+  /* ------------------------------------------------------------------ 4 */
+  group('Chapter merge rules (PRD §7.3)');
+  eq(mergeCh(undefined, {b:2,due:5,c:1,w:0,r:9}), {b:2,due:5,c:1,w:0,r:9}, 'missing local side takes remote whole');
+  eq(mergeCh({b:2,due:5,c:1,w:0,r:9}, undefined), {b:2,due:5,c:1,w:0,r:9}, 'missing remote side keeps local whole');
+  eq(mergeCh({b:5,due:99,c:9,w:2,r:100}, {b:1,due:10,c:4,w:5,r:50}),
+     {b:5,due:99,c:9,w:5,r:100}, 'later r wins box/due; c and w take max');
+
+  /* ------------------------------------------------------------------ 5 */
+  group('Scalar and set merge rules');
+  const s1 = state({}, {jars:1, drillBest:12, plates:['Jas'], manna:{count:5,last:'2026-08-09'},
+                        roads:{roman:{a:true,b:false,c:false,d:false,doneAwarded:false}}, days:{'2026-08-09':4}});
+  const s2 = state({}, {jars:0, drillBest:19, plates:['1Pe'], manna:{count:6,last:'2026-08-10'},
+                        roads:{roman:{a:false,b:true,c:false,d:false,doneAwarded:false}}, days:{'2026-08-09':7,'2026-08-10':2}});
+  const m = merge(s1, s2).p.Shane;
+  eq(m.drillBest, 19, 'drill best takes the max');
+  eq(m.jars, 1, 'jars take the max');
+  eq(m.plates.sort(), ['1Pe','Jas'], 'plates union');
+  eq(m.manna, {count:6,last:'2026-08-10'}, 'manna takes the entry with the later date');
+  eq(m.roads.roman, {a:true,b:true,c:false,d:false,doneAwarded:false}, 'road stage flags union');
+  eq(m.days, {'2026-08-09':7,'2026-08-10':2}, 'heatmap days take the max per day');
+
+  /* ------------------------------------------------------------------ 6 */
+  group('Profiles are unioned, never dropped');
+  const h1 = {v:2, profiles:[{id:'Shane',name:'Shane',color:'#a'}], active:'Shane', settings:{}, p:{Shane:profile({oil:10})}};
+  const h2 = {v:2, profiles:[{id:'Charlie',name:'Charlie',color:'#b'}], active:'Charlie', settings:{}, p:{Charlie:profile({oil:4})}};
+  const hh = merge(h1, h2);
+  eq(hh.profiles.map(p => p.id), ['Shane','Charlie'], 'both household readers survive the merge');
+  eq(hh.active, 'Shane', 'the local active reader is not yanked away');
+  eq(hh.p.Charlie.oil, 4, 'the remote reader’s progress comes across');
+
+  /* ------------------------------------------------------------------ 7 */
+  group('First-letter reduction (PRD §5.5)');
+  eq(w.__lampFirstLetters('My brethren, count it all joy when ye fall into divers temptations;'),
+     'Mb, ciajwyfidt;', 'the canonical James 1:2 example');
+  eq(w.__lampFirstLetters('For God so loved the world, that he gave his only begotten Son'),
+     'FGsltw, thghobS', 'capitalisation preserved (God → G), punctuation group run together');
+
+  document.getElementById('summary').innerHTML =
+    `<b class="${fail?'fail':'pass'}">${pass} passed, ${fail} failed</b>`;
+  document.title = `${fail ? 'FAIL' : 'PASS'} — Lamp sync tests`;
+  window.__testResult = {pass, fail};
+}
+</script>
+</body>
+</html>

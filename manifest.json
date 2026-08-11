@@ -48,6 +48,13 @@
       "description": "View your reading statistics",
       "url": "./index.html?tab=STATS",
       "icons": []
+    },
+    {
+      "name": "The Lamp Room",
+      "short_name": "Lamp Room",
+      "description": "Trim the lamps — keep every chapter burning",
+      "url": "./lamp.html",
+      "icons": []
     }
   ],
   "related_applications": [],

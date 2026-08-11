@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>The Lamp Room — Thy Word Is a Lamp | Bible Progress</title>
+<meta name="description" content="Every chapter of the Bible is a lamp. Answer rightly and it kindles; neglect it and it gutters. A whole-Bible retention game over all 1,189 chapters with spaced repetition, guided verse roads, sword drills, and progress that follows your Bible Progress account across devices.">
+<meta name="theme-color" content="#1a1730">
+<link rel="canonical" href="https://bibleprogress.com/lamp.html">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta property="og:title" content="The Lamp Room — Thy Word Is a Lamp">
+<meta property="og:description" content="Thy word is a lamp unto my feet. Keep all 1,189 chapters of Scripture burning.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bibleprogress.com/lamp.html">
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — PRD §8. Every colour in this page derives from these.
+   The tracker is a bright day-ledger; the Lamp Room is a nocturne.
+--------------------------------------------------------------------------- */
+:root{
+  --night:#1a1730; --night2:#242045; --night3:#2e2856;
+  --flame:#f5b83d; --flame-hi:#ffe9ae; --flame-dim:#7a5f22;
+  --parchment:#f1e6cc; --parchment-2:#e2d3b0; --ink:#2a2115;
+  --leather:#7a3b2e; --gilt:#c9a35b;
+  --ok:#7fbf7f; --no:#e08a7a;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--serif);
+  background:
+    radial-gradient(1100px 620px at 50% -12%, #322a63 0%, transparent 62%),
+    linear-gradient(180deg,#1a1730 0%,#161329 60%,#120f22 100%);
+  background-attachment:fixed;
+  color:var(--parchment);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:1rem}
+@media(min-width:768px){.wrap{padding:1.5rem}}
+
+h1,h2,h3,.display{font-variant:small-caps;letter-spacing:.06em;margin:0}
+a{color:var(--flame)}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--flame-hi);outline-offset:2px;border-radius:4px;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Surfaces */
+.panel{background:linear-gradient(180deg,rgba(46,40,86,.72),rgba(36,32,69,.72));
+  border:1px solid rgba(201,163,91,.28);border-radius:16px;padding:1.15rem;
+  box-shadow:0 14px 40px rgba(0,0,0,.34);}
+.parch{background:linear-gradient(180deg,var(--parchment),var(--parchment-2));color:var(--ink);
+  border:1px solid #c3b184;border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.4)}
+.parch h2,.parch h3{color:var(--ink)}
+.muted{color:#b6abd6}
+.parch .muted{color:#6a5c40}
+.hair{height:1px;background:linear-gradient(90deg,transparent,rgba(201,163,91,.5),transparent);border:0;margin:1rem 0}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  padding:.55rem 1rem;border-radius:10px;font-weight:600;font-size:.95rem;
+  border:1px solid rgba(201,163,91,.45);background:rgba(46,40,86,.75);color:var(--parchment);
+  transition:background .15s ease,border-color .15s ease,transform .1s ease}
+.btn:hover:not(:disabled){background:rgba(63,55,112,.9);border-color:var(--gilt)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn-flame{background:linear-gradient(180deg,#f5b83d,#d8952a);color:#2a2115;border-color:#f0cd7c;font-weight:700}
+.btn-flame:hover:not(:disabled){background:linear-gradient(180deg,#ffca5c,#e6a334)}
+.btn-ghost{background:transparent}
+.btn-sm{padding:.34rem .7rem;font-size:.82rem;border-radius:8px}
+
+/* On parchment, controls turn to ink so contrast stays ≥ 4.5:1 both ways */
+.parch .btn{background:rgba(42,33,21,.07);border-color:#bda87a;color:var(--ink)}
+.parch .btn:hover:not(:disabled){background:rgba(42,33,21,.15);border-color:var(--leather)}
+.parch .btn-flame{background:linear-gradient(180deg,#f5b83d,#d8952a);border-color:#b8892a;color:#2a2115}
+.parch .opt{background:rgba(255,255,255,.5);border-color:#c8b78d;color:var(--ink)}
+.parch .opt:hover:not(:disabled){background:#fffdf6;border-color:var(--leather)}
+.parch .opt.right{border-color:#3f6b3f;background:rgba(63,107,63,.15)}
+.parch .opt.wrong{border-color:#a04a38;background:rgba(160,74,56,.15)}
+.parch .opt .k{color:var(--leather)}
+.parch .bar{background:rgba(42,33,21,.14)}
+.parch .chip{background:rgba(122,59,46,.12);color:var(--leather);border-color:#c8b78d}
+
+.pill{display:inline-flex;align-items:center;gap:.4rem;padding:.24rem .7rem;border-radius:999px;
+  font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid rgba(201,163,91,.4);background:rgba(26,23,48,.6)}
+
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem}
+.tab{padding:.5rem .9rem;border-radius:999px;font-variant:small-caps;letter-spacing:.09em;
+  font-size:1rem;border:1px solid transparent;color:#cfc4ea}
+.tab:hover{color:var(--flame-hi)}
+.tab[aria-selected="true"]{background:rgba(245,184,61,.13);border-color:rgba(201,163,91,.55);color:var(--flame-hi)}
+
+/* ---- The lamps ------------------------------------------------------------
+   A lamp's visual state IS its memory state: box number → brightness.
+--------------------------------------------------------------------------- */
+.book{margin-bottom:.9rem;content-visibility:auto;contain-intrinsic-size:auto 120px}
+.book-head{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.35rem}
+.book-name{font-variant:small-caps;letter-spacing:.05em;font-size:1.02rem;color:#e8ddf7}
+.book-count{font-size:.74rem;color:#9c92c0;font-variant-numeric:tabular-nums}
+.lamps{display:flex;flex-wrap:wrap;gap:5px}
+.lamp{
+  --lit:0;
+  position:relative;display:inline-block;width:20px;height:20px;padding:0;flex:0 0 auto;
+  border-radius:50% 50% 50% 50%/58% 58% 42% 42%;
+  background:rgba(255,255,255,.055);
+  border:1px solid rgba(201,163,91,calc(.18 + var(--lit)*.16));
+  transition:transform .12s ease,box-shadow .2s ease,background .2s ease;
+}
+.lamp:hover{transform:scale(1.28);z-index:2}
+.lamp[data-box="1"]{background:radial-gradient(circle at 50% 62%,#6b4f19 0%,rgba(107,79,25,.22) 70%);--lit:1}
+.lamp[data-box="2"]{background:radial-gradient(circle at 50% 62%,#a8791f 0%,rgba(168,121,31,.28) 72%);--lit:2}
+.lamp[data-box="3"]{background:radial-gradient(circle at 50% 62%,#d79f2c 0%,rgba(215,159,44,.3) 74%);--lit:3;box-shadow:0 0 6px rgba(245,184,61,.3)}
+.lamp[data-box="4"]{background:radial-gradient(circle at 50% 62%,#f5b83d 0%,rgba(245,184,61,.34) 76%);--lit:4;box-shadow:0 0 9px rgba(245,184,61,.45)}
+.lamp[data-box="5"]{background:radial-gradient(circle at 50% 60%,#ffe9ae 0%,#f5b83d 55%,rgba(245,184,61,.35) 80%);--lit:5;
+  box-shadow:0 0 12px rgba(255,233,174,.6);border-color:var(--gilt);border-width:1.5px}
+.lamp[data-due="1"]{animation:flicker 2.6s infinite steps(1,end)}
+.lamp[data-read="1"][data-box="0"]{box-shadow:0 0 0 1.5px rgba(241,230,204,.42)}
+.lamp[data-anchor="1"]::after{content:"";position:absolute;right:-2px;bottom:-2px;width:6px;height:6px;
+  border-radius:50%;background:var(--gilt);border:1px solid #1a1730}
+@keyframes flicker{
+  0%,100%{opacity:1}   12%{opacity:.35}  18%{opacity:.95}
+  46%{opacity:.45}     52%{opacity:1}    78%{opacity:.3}  84%{opacity:.9}
+}
+@media(prefers-reduced-motion:reduce){
+  .lamp[data-due="1"]{animation:none;outline:2px dashed var(--flame);outline-offset:1px}
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+body.no-motion .lamp[data-due="1"]{animation:none;outline:2px dashed var(--flame);outline-offset:1px}
+body.no-motion *{animation:none!important}
+
+.section-head{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;
+  padding:.55rem .2rem;margin-top:.5rem;border-bottom:1px solid rgba(201,163,91,.22)}
+.section-head:hover .sec-title{color:var(--flame-hi)}
+.sec-title{font-variant:small-caps;letter-spacing:.11em;font-size:1.12rem;color:#e8ddf7}
+.sec-count{margin-left:auto;font-size:.78rem;color:#a99ecd;font-variant-numeric:tabular-nums}
+.caret{transition:transform .18s ease;color:var(--gilt)}
+.section-head[aria-expanded="false"] .caret{transform:rotate(-90deg)}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.85rem;font-size:.78rem;color:#b6abd6;align-items:center}
+.legend .lamp{width:14px;height:14px;pointer-events:none}
+
+/* Modal */
+.scrim{position:fixed;inset:0;background:rgba(10,8,22,.76);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:1rem;z-index:60}
+.scrim[hidden]{display:none}
+.sheet{max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:1.4rem}
+
+/* Study */
+.q-prompt{font-size:clamp(1.4rem,4.2vw,2.1rem);font-weight:700;line-height:1.25}
+.opt{display:block;width:100%;text-align:left;padding:.8rem 1rem;margin-bottom:.55rem;border-radius:12px;
+  border:1px solid rgba(201,163,91,.3);background:rgba(26,23,48,.5);color:var(--parchment);
+  font-size:.98rem;transition:border-color .12s ease,background .12s ease}
+.opt:hover:not(:disabled){border-color:var(--gilt);background:rgba(46,40,86,.75)}
+.opt.right{border-color:var(--ok);background:rgba(127,191,127,.16)}
+.opt.wrong{border-color:var(--no);background:rgba(224,138,122,.16)}
+.opt:disabled{cursor:default}
+.opt .k{display:inline-block;min-width:1.35rem;color:var(--gilt);font-weight:700}
+.bar{height:7px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#d79f2c,#ffe9ae);border-radius:999px;transition:width .35s ease}
+.chip{display:inline-block;padding:.16rem .55rem;border-radius:999px;font-size:.72rem;font-weight:700;
+  background:rgba(245,184,61,.15);color:var(--flame-hi);border:1px solid rgba(201,163,91,.35)}
+.firstletter{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.12rem;
+  line-height:1.85;letter-spacing:.02em;color:var(--ink);word-break:break-word}
+.verse{font-size:1.05rem;line-height:1.7}
+input[type=text]{width:100%;padding:.6rem .8rem;border-radius:10px;border:1px solid rgba(201,163,91,.4);
+  background:rgba(18,15,34,.75);color:var(--parchment);font-family:var(--serif);font-size:1rem}
+select{padding:.45rem .6rem;border-radius:9px;border:1px solid rgba(201,163,91,.4);
+  background:rgba(18,15,34,.85);color:var(--parchment);font-family:var(--serif);font-size:.9rem}
+
+/* Stats */
+.grid-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+@media(min-width:640px){.grid-stats{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:.8rem;border-radius:12px;background:rgba(26,23,48,.5);border:1px solid rgba(201,163,91,.22);text-align:center}
+.stat b{display:block;font-size:1.55rem;color:var(--flame-hi);font-variant-numeric:tabular-nums}
+.stat span{font-size:.7rem;letter-spacing:.11em;text-transform:uppercase;color:#a99ecd}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,10px);gap:2px;overflow-x:auto;padding-bottom:.3rem}
+.heat i{width:10px;height:10px;border-radius:2px;background:rgba(255,255,255,.07)}
+.fc{display:flex;align-items:flex-end;gap:2px;height:88px}
+.fc i{flex:1 1 0;background:linear-gradient(180deg,#f5b83d,#7a5f22);border-radius:2px 2px 0 0;min-height:1px}
+.mastery{display:flex;align-items:center;gap:.6rem;font-size:.85rem;padding:.15rem 0}
+.mastery .nm{flex:0 0 9.5rem;color:#d8cef0}
+.mastery .bar{flex:1}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:90;
+  padding:.7rem 1.1rem;border-radius:12px;font-weight:600;max-width:90vw;text-align:center;
+  background:linear-gradient(180deg,#f1e6cc,#e2d3b0);color:var(--ink);
+  box-shadow:0 12px 34px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.kindle{animation:kindle .7s ease}
+@keyframes kindle{0%{filter:brightness(1)}35%{filter:brightness(2.6)}100%{filter:brightness(1)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= Header ================= -->
+  <header class="panel" style="display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-start;justify-content:space-between">
+    <div style="max-width:34rem">
+      <p class="pill" style="color:var(--flame)">Thy word is a lamp</p>
+      <h1 style="font-size:clamp(1.9rem,5vw,2.9rem);margin:.5rem 0 .35rem">The&nbsp;Lamp&nbsp;Room</h1>
+      <p class="muted" style="margin:0;font-size:.98rem">
+        Every chapter is a lamp. Answer rightly and it kindles; leave it untrimmed and it gutters.
+        <span id="hdr-total" style="color:var(--flame-hi)"></span>
+      </p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.55rem;align-items:flex-end">
+      <div style="display:flex;gap:.45rem;flex-wrap:wrap;justify-content:flex-end">
+        <button class="btn btn-sm" id="btn-sync" onclick="window.lampSyncClick()" aria-live="polite">
+          <span id="sync-dot" aria-hidden="true">○</span><span id="sync-label">Local</span>
+        </button>
+        <button class="btn btn-sm" onclick="window.lampOpenSettings()" aria-label="Settings">⚙︎</button>
+        <a class="btn btn-sm" href="index.html">← Bible Progress</a>
+      </div>
+      <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <label class="sr-only" for="profile-select">Active reader</label>
+        <select id="profile-select" onchange="window.lampSetProfile(this.value)"></select>
+        <span class="pill" title="Oil is earned by study" id="oil-pill">🫗 <span id="oil-n">0</span></span>
+        <span class="pill" id="rank-pill">Novice</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Tabs ================= -->
+  <nav class="tabs" style="margin:1rem 0" role="tablist" aria-label="Lamp Room sections">
+    <button class="tab" role="tab" id="tab-map"   aria-selected="true"  onclick="window.lampView('map')">Lamp Room</button>
+    <button class="tab" role="tab" id="tab-trim"  aria-selected="false" onclick="window.lampView('trim')">Trim the Lamps</button>
+    <button class="tab" role="tab" id="tab-roads" aria-selected="false" onclick="window.lampView('roads')">Roads</button>
+    <button class="tab" role="tab" id="tab-drill" aria-selected="false" onclick="window.lampView('drill')">Sword Drill</button>
+    <button class="tab" role="tab" id="tab-chain" aria-selected="false" onclick="window.lampView('chain')">Chapter Chain</button>
+    <button class="tab" role="tab" id="tab-folio" aria-selected="false" onclick="window.lampView('folio')">Folio</button>
+  </nav>
+
+  <!-- Guest banner -->
+  <div id="guest-banner" class="parch" style="padding:.85rem 1.1rem;margin-bottom:1rem;display:none;
+       align-items:center;gap:.8rem;flex-wrap:wrap;justify-content:space-between">
+    <span style="font-size:.94rem">Your lamps are kept in this browser only. Sign in to keep them burning across your devices.</span>
+    <button class="btn btn-flame btn-sm" onclick="window.lampSyncClick()">Sign in</button>
+  </div>
+
+  <!-- ================= Map ================= -->
+  <main id="view-map">
+    <section class="panel" style="margin-bottom:1rem">
+      <div class="grid-stats">
+        <div class="stat"><b id="s-burning">0</b><span>Burning</span></div>
+        <div class="stat"><b id="s-due">0</b><span>Need trimming</span></div>
+        <div class="stat"><b id="s-manna">0</b><span>Manna streak</span></div>
+        <div class="stat"><b id="s-plates">0</b><span>Plates</span></div>
+      </div>
+      <hr class="hair">
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
+        <button class="btn btn-flame" onclick="window.lampStartTrim('due')">Trim the lamps</button>
+        <button class="btn" onclick="window.lampStartTrim('read')" id="btn-light-read">Light what you've read</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.lampToggleAll()" id="btn-collapse">Collapse all</button>
+        <span class="muted" style="font-size:.8rem;margin-left:auto" id="jar-note"></span>
+      </div>
+      <hr class="hair">
+      <div class="legend">
+        <span><span class="lamp" data-box="0"></span> unlit</span>
+        <span><span class="lamp" data-box="2"></span> learning</span>
+        <span><span class="lamp" data-box="5"></span> steady</span>
+        <span><span class="lamp" data-box="3" data-due="1"></span> due — flickering</span>
+        <span><span class="lamp" data-box="0" data-read="1"></span> read in the tracker</span>
+        <span><span class="lamp" data-box="4" data-anchor="1"></span> anchored</span>
+      </div>
+    </section>
+    <div id="map" aria-busy="true"><p class="muted">Kindling the room…</p></div>
+  </main>
+
+  <!-- ================= Trim ================= -->
+  <main id="view-trim" hidden>
+    <section class="panel" id="trim-setup">
+      <h2 style="font-size:1.5rem">Trim the Lamps</h2>
+      <p class="muted" style="font-size:.94rem">Twelve items a session — what is due first, then what has never been lit.</p>
+      <hr class="hair">
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+        <label for="trim-scope" style="font-size:.9rem">Scope</label>
+        <select id="trim-scope"></select>
+        <button class="btn btn-flame" onclick="window.lampStartTrim()">Begin</button>
+      </div>
+      <p class="muted" id="trim-scope-note" style="font-size:.82rem;margin-top:.7rem"></p>
+    </section>
+    <section class="parch sheet" id="trim-run" style="display:none;max-width:none;margin:0;padding:1.4rem"></section>
+  </main>
+
+  <!-- ================= Roads ================= -->
+  <main id="view-roads" hidden>
+    <section class="panel" id="roads-list"></section>
+    <section class="parch" id="roads-run" style="display:none;padding:1.4rem;margin-top:1rem"></section>
+  </main>
+
+  <!-- ================= Drill ================= -->
+  <main id="view-drill" hidden>
+    <section class="panel" id="drill-panel"></section>
+  </main>
+
+  <!-- ================= Chain ================= -->
+  <main id="view-chain" hidden>
+    <section class="panel" id="chain-panel"></section>
+  </main>
+
+  <!-- ================= Folio ================= -->
+  <main id="view-folio" hidden>
+    <section class="panel" id="folio-panel"></section>
+  </main>
+
+  <footer class="muted" style="text-align:center;font-size:.8rem;margin:2rem 0 1rem">
+    <p style="margin:.2rem 0">“Thy word is a lamp unto my feet, and a light unto my path.” — Psalm 119:105 (KJV)</p>
+    <p style="margin:.2rem 0">
+      <a href="index.html">Reading tracker</a> ·
+      <a href="memorize.html">Memorization</a> ·
+      <a href="chapter-recall.html">Chapter Recall</a> ·
+      <a href="privacy.html">Privacy</a>
+    </p>
+  </footer>
+</div>
+
+<div class="scrim" id="modal" hidden onclick="if(event.target===this)window.lampCloseModal()">
+  <div class="parch sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="modal-box"></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+"use strict";
+
+/* ===========================================================================
+   THE LAMP ROOM — bibleprogress.com
+   Single page, no build step. Content packs live in content/packs/*.json.
+
+   Storage model
+   -------------
+   Guest:      localStorage["thy_word_lamp_v2"]
+   Signed in:  users/{uid}.lampData  (a sibling field of the tracker's appData;
+               the tracker only ever writes {appData:…} with {merge:true}, so the
+               two never collide and no security-rule change is required)
+
+   Sync invariants (PRD §7) — the January plan-revert bug class by construction:
+     1. Memory is the source of truth. The UI renders only from LAMP.
+     2. Mutations mark dirty keys; an 800 ms debounce flushes ONLY dirty fields
+        as a nested object with {merge:true} (Firestore deep-merges maps, so
+        untouched chapters are never rewritten). Also flushes on page hide.
+     3. Snapshots with metadata.hasPendingWrites are our own echoes — ignored.
+        Genuine remote snapshots are merged per chapter key, never wholesale.
+     4. While a session is running, remote merges queue and apply at session end.
+=========================================================================== */
+
+const TEST_MODE = new URLSearchParams(location.search).has('test');
+
+/* ---------------------------------------------------------------- constants */
+const PACK_IDS = ['nt','ot-law','ot-history','ot-poetry','ot-major','ot-minor'];
+const SECTION_ORDER = ['Law','History','Poetry & Wisdom','Major Prophets','Minor Prophets',
+                       'Gospels & Acts','Epistles','Revelation'];
+const CANON = {'Law':187,'History':249,'Poetry & Wisdom':243,'Major Prophets':183,
+               'Minor Prophets':67,'Gospels & Acts':117,'Epistles':121,'Revelation':22};
+const TOTAL_CHAPTERS = 1189;
+const INTERVALS = [1,2,4,8,16];           // Leitner, days — PRD §5.3
+const DAY = 86400000;
+const SESSION_SIZE = 12;
+const RANKS = [
+  {n:'Novice',oil:0,motto:''},
+  {n:'Disciple',oil:250,motto:''},
+  {n:'Berean',oil:750,motto:'“…searched the scriptures daily.” — Acts 17:11'},
+  {n:'Scribe',oil:2000,motto:''},
+  {n:'Workman',oil:4500,motto:'“Study to shew thyself approved unto God.” — 2 Tim 2:15'},
+  {n:'Interpreter',oil:9000,motto:'“He had his eyes lifted up to heaven.” — Pilgrim’s Progress'},
+  {n:'Valiant-for-Truth',oil:16000,motto:'“My marks and scars I carry with me.” — Pilgrim’s Progress'}
+];
+const OIL = {learn:5,review:3,anchor:8,roadStage:25,roadDone:50,plate:20};
+const STORE_KEY = 'thy_word_lamp_v2';
+const TRACKER_KEY = 'kjv_v6_data';
+
+/* ------------------------------------------------------------------- helpers */
+const $ = s => document.querySelector(s);
+const el = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const todayStr = (t=Date.now()) => { const d=new Date(t);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const dayDiff = (a,b) => Math.round((new Date(b+'T00:00:00') - new Date(a+'T00:00:00'))/DAY);
+
+function toast(msg, ms=2600){
+  const t = el('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+/* First-letter reduction — PRD §5.5, exactly the established rule:
+   words in a punctuation group run together, a space after each punctuation
+   mark, capitalisation preserved.
+   "My brethren, count it all joy…" → "Mb, ciajwyfidt;"                       */
+function firstLetters(text){
+  let out = '';
+  for(const tok of String(text).trim().split(/\s+/)){
+    if(!tok) continue;
+    const m = tok.match(/[A-Za-z0-9]/);
+    if(!m){ out += tok + ' '; continue; }
+    const letter = tok[m.index];
+    let tail = '';
+    for(let i = tok.length - 1; i > m.index; i--){
+      if(/[A-Za-z0-9]/.test(tok[i])) break;
+      tail = tok[i] + tail;
+    }
+    out += letter + tail;
+    if(tail) out += ' ';
+  }
+  return out.trim();
+}
+
+/* ================================ STATE ================================== */
+const BOOKS = [];                 // {id,name,section,testament,gists[],anchors{},n}
+const BOOK_BY_ID = new Map();
+const BOOK_BY_NAME = new Map();
+const CH_KEYS = [];               // "Gen.1" … in canonical order
+const CH_META = new Map();        // key -> {bookId,book,ch,gist,anchor,section}
+
+function blankProfile(){
+  return {oil:0, manna:{count:0,last:''}, jars:0, drillBest:0, sessionsToday:{d:'',n:0},
+          roads:{}, plates:[], days:{}, ch:{}, anchors:{}, updatedAt:Date.now()};
+}
+let LAMP = {v:2, profiles:[], active:'', settings:{noMotion:false,kidCopy:false}, p:{}};
+let readSet = new Set();          // tracker chapters read, as "Gen.1"
+let trackerAppData = null;
+let collapsed = {};               // per-profile section collapse, kept in settings
+
+const P = () => (LAMP.p[LAMP.active] ||= blankProfile());
+
+/* ============================== SYNC LAYER =============================== */
+/* Dirty tracking — only what changed is ever written. */
+const dirty = {meta:false, p:{}};
+function dirtyMeta(){ dirty.meta = true; schedule(); }
+function dirtyField(f){ const pid=LAMP.active; (dirty.p[pid] ||= {f:new Set(),ch:new Set(),a:new Set()}).f.add(f); schedule(); }
+function dirtyCh(k){ const pid=LAMP.active; (dirty.p[pid] ||= {f:new Set(),ch:new Set(),a:new Set()}).ch.add(k); schedule(); }
+function dirtyAnchor(k){ const pid=LAMP.active; (dirty.p[pid] ||= {f:new Set(),ch:new Set(),a:new Set()}).a.add(k); schedule(); }
+
+let fb=null, user=null, unsub=null, flushTimer=null, sessionActive=false, queuedRemote=[];
+
+function saveLocal(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(LAMP)); }
+  catch(e){ console.warn('local save failed', e); }
+}
+function schedule(){
+  P().updatedAt = Date.now();
+  saveLocal();
+  if(!user) return;
+  setSync('saving','Saving…');
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(flush, 800);
+}
+
+/* Build the minimal nested payload for the dirty fields only. */
+function buildPayload(){
+  const out = {};
+  if(dirty.meta){ out.v = 2; out.profiles = LAMP.profiles; out.active = LAMP.active; out.settings = LAMP.settings; }
+  for(const pid in dirty.p){
+    const d = dirty.p[pid], src = LAMP.p[pid];
+    if(!src) continue;
+    const o = {updatedAt: src.updatedAt || Date.now()};
+    d.f.forEach(f => { o[f] = src[f]; });
+    if(d.ch.size){ o.ch = {}; d.ch.forEach(k => { if(src.ch[k]) o.ch[k] = src.ch[k]; }); }
+    if(d.a.size){ o.anchors = {}; d.a.forEach(k => { if(src.anchors[k]) o.anchors[k] = src.anchors[k]; }); }
+    (out.p ||= {})[pid] = o;
+  }
+  return out;
+}
+function clearDirty(){ dirty.meta = false; for(const k in dirty.p) delete dirty.p[k]; }
+
+async function flush(){
+  if(!user || !fb) return;
+  const payload = buildPayload();
+  if(!Object.keys(payload).length) return;
+  clearDirty();
+  try{
+    await fb.fs.setDoc(fb.fs.doc(fb.db,'users',user.uid), {lampData: payload}, {merge:true});
+    setSync('ok','Synced');
+  }catch(e){
+    console.warn('lamp cloud write failed', e);
+    setSync('warn','Saved locally');
+  }
+}
+
+/* ---- merge (PRD §7.3) — pure, exercised by tests/lamp-sync.test.html ---- */
+function mergeCh(a,b){
+  if(!a) return b; if(!b) return a;
+  const later = (b.r||0) > (a.r||0) ? b : a;          // later review wins box/due
+  // NB: never `|0` here — these are epoch-millisecond values and a bitwise
+  // truncation to 32 bits would silently corrupt every due date.
+  return {b:+later.b||0, due:+later.due||0,
+          c:Math.max(a.c||0,b.c||0), w:Math.max(a.w||0,b.w||0),
+          r:Math.max(a.r||0,b.r||0)};
+}
+function mergeProfile(a,b){
+  if(!a) return b; if(!b) return a;
+  const m = {
+    oil: Math.max(a.oil||0, b.oil||0),
+    jars: Math.max(a.jars||0, b.jars||0),
+    drillBest: Math.max(a.drillBest||0, b.drillBest||0),
+    manna: ((b.manna?.last||'') > (a.manna?.last||'')) ? b.manna : (a.manna || b.manna),
+    sessionsToday: ((b.sessionsToday?.d||'') > (a.sessionsToday?.d||'')) ? b.sessionsToday
+                  : ((a.sessionsToday?.d||'') > (b.sessionsToday?.d||'')) ? a.sessionsToday
+                  : {d:a.sessionsToday?.d||'', n:Math.max(a.sessionsToday?.n||0, b.sessionsToday?.n||0)},
+    plates: [...new Set([...(a.plates||[]), ...(b.plates||[])])],
+    roads: {}, days: {}, ch: {}, anchors: {},
+    updatedAt: Math.max(a.updatedAt||0, b.updatedAt||0)
+  };
+  for(const id of new Set([...Object.keys(a.roads||{}), ...Object.keys(b.roads||{})])){
+    const x = (a.roads||{})[id]||{}, y = (b.roads||{})[id]||{};
+    m.roads[id] = {a:!!(x.a||y.a), b:!!(x.b||y.b), c:!!(x.c||y.c), d:!!(x.d||y.d),
+                   doneAwarded:!!(x.doneAwarded||y.doneAwarded)};
+  }
+  for(const d of new Set([...Object.keys(a.days||{}), ...Object.keys(b.days||{})]))
+    m.days[d] = Math.max((a.days||{})[d]||0, (b.days||{})[d]||0);
+  for(const k of new Set([...Object.keys(a.ch||{}), ...Object.keys(b.ch||{})]))
+    m.ch[k] = mergeCh((a.ch||{})[k], (b.ch||{})[k]);
+  for(const k of new Set([...Object.keys(a.anchors||{}), ...Object.keys(b.anchors||{})])){
+    const x = (a.anchors||{})[k], y = (b.anchors||{})[k];
+    m.anchors[k] = (!x) ? y : (!y) ? x : ((y.r||0) > (x.r||0) ? y : x);
+  }
+  return m;
+}
+function mergeLamp(base, other){
+  if(!other) return base; if(!base) return other;
+  const ids = new Set(base.profiles.map(p=>p.id));
+  const profiles = base.profiles.concat((other.profiles||[]).filter(p=>!ids.has(p.id)));
+  const out = {v:2, profiles, active: base.active || other.active,
+               settings: Object.assign({}, other.settings, base.settings), p:{}};
+  for(const pid of new Set([...Object.keys(base.p||{}), ...Object.keys(other.p||{})]))
+    out.p[pid] = mergeProfile((base.p||{})[pid], (other.p||{})[pid]);
+  return out;
+}
+window.__lampMerge = mergeLamp;               // for tests/lamp-sync.test.html
+window.__lampMergeCh = mergeCh;
+window.__lampFirstLetters = firstLetters;
+
+/* Apply a genuine remote snapshot. Never wholesale-replaces. */
+function applyRemote(remote){
+  if(sessionActive){ queuedRemote.push(remote); return false; }   // session shield
+  const before = JSON.stringify(LAMP);
+  LAMP = mergeLamp(LAMP, remote);
+  ensureProfiles();
+  if(JSON.stringify(LAMP) !== before){ saveLocal(); renderAll(); return true; }
+  return false;
+}
+window.__lampApplyRemote = applyRemote;
+function drainQueued(){
+  if(!queuedRemote.length) return;
+  const q = queuedRemote; queuedRemote = [];
+  q.forEach(r => { LAMP = mergeLamp(LAMP, r); });
+  ensureProfiles(); saveLocal(); renderAll();
+}
+
+function setSync(state,label){
+  const dot = el('sync-dot'), lab = el('sync-label');
+  if(!dot) return;
+  dot.textContent = state==='ok' ? '●' : state==='saving' ? '◐' : state==='warn' ? '▲' : '○';
+  dot.style.color = state==='ok' ? 'var(--ok)' : state==='warn' ? 'var(--flame)' : 'var(--gilt)';
+  lab.textContent = label;
+  el('btn-sync').title = user ? `Signed in as ${user.email||user.uid}` : 'Not signed in — tap to sync across devices';
+}
+
+async function loadFirebase(){
+  if(fb) return fb;
+  const base = 'https://www.gstatic.com/firebasejs/10.8.0/';
+  const [appM,authM,fsM] = await Promise.all([
+    import(base+'firebase-app.js'), import(base+'firebase-auth.js'), import(base+'firebase-firestore.js')
+  ]);
+  const app = appM.initializeApp({
+    apiKey:"AIzaSyBkQc0Hyw6zFu9s8QQz1KfEz-5lEkpPVd0",
+    authDomain:"bibleprogress-48cfd.firebaseapp.com",
+    projectId:"bibleprogress-48cfd",
+    storageBucket:"bibleprogress-48cfd.firebasestorage.app",
+    messagingSenderId:"400605616220",
+    appId:"1:400605616220:web:ce3c6f7b3048c90b636e99",
+    measurementId:"G-94H40H1FCR"
+  });
+  fb = {authM, fs:fsM, auth:authM.getAuth(app), db:fsM.getFirestore(app)};
+  return fb;
+}
+
+async function connect(){
+  await loadFirebase();
+  const u = await new Promise(res => { const off = fb.authM.onAuthStateChanged(fb.auth, x => {off(); res(x);}); });
+  if(!u){ setSync('none','Local'); el('guest-banner').style.display='flex'; return; }
+  attach(u);
+}
+function attach(u){
+  user = u;
+  el('guest-banner').style.display = 'none';
+  setSync('ok','Cloud');
+  if(unsub) unsub();
+  unsub = fb.fs.onSnapshot(fb.fs.doc(fb.db,'users',u.uid), snap => {
+    if(snap.metadata.hasPendingWrites) return;            // our own echo
+    const data = snap.exists() ? snap.data() : null;
+    if(!data) { dirty.meta = true; markAllDirty(); flush(); return; }
+    if(data.appData){ trackerAppData = data.appData; refreshReadSet(); }
+    const remote = data.lampData;
+    if(remote && remote.p){ applyRemote(normalize(remote)); }
+    else { dirty.meta = true; markAllDirty(); schedule(); }  // first upload for this account
+    renderHeader();
+  }, err => { console.warn('lamp listener error', err); setSync('warn','Offline'); });
+}
+function markAllDirty(){
+  for(const pid in LAMP.p){
+    const d = (dirty.p[pid] ||= {f:new Set(),ch:new Set(),a:new Set()});
+    ['oil','manna','jars','drillBest','sessionsToday','roads','plates','days'].forEach(f=>d.f.add(f));
+    Object.keys(LAMP.p[pid].ch||{}).forEach(k=>d.ch.add(k));
+    Object.keys(LAMP.p[pid].anchors||{}).forEach(k=>d.a.add(k));
+  }
+}
+function normalize(r){
+  const out = {v:2, profiles:Array.isArray(r.profiles)?r.profiles:[], active:r.active||'',
+               settings:r.settings||{}, p:{}};
+  for(const pid in (r.p||{})){
+    const s = r.p[pid] || {};
+    out.p[pid] = Object.assign(blankProfile(), {
+      oil:+s.oil||0, jars:+s.jars||0, drillBest:+s.drillBest||0,
+      manna:s.manna||{count:0,last:''}, sessionsToday:s.sessionsToday||{d:'',n:0},
+      roads:s.roads||{}, plates:Array.isArray(s.plates)?s.plates:[],
+      days:s.days||{}, ch:s.ch||{}, anchors:s.anchors||{}, updatedAt:+s.updatedAt||0
+    });
+  }
+  return out;
+}
+
+window.lampSyncClick = async function(){
+  try{
+    await loadFirebase();
+    if(user){ toast(`Signed in as ${user.email||'your account'} — lamps sync to your Bible Progress data.`, 4200); return; }
+    await fb.authM.signInWithPopup(fb.auth, new fb.authM.GoogleAuthProvider());
+    const u = fb.auth.currentUser;
+    if(!u) return;
+    attach(u);
+    markAllDirty(); dirty.meta = true; schedule();   // adopt guest progress
+    toast('Signed in — your lamps have been adopted into your account.', 4200);
+  }catch(e){
+    console.warn('sign-in failed', e);
+    toast('Couldn’t sign in here. Sign in on the tracker (it also has email sign-in), then come back.', 5200);
+  }
+};
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden'){ clearTimeout(flushTimer); flush(); }
+});
+
+/* ======================= TRACKER INTEGRATION (§5.10) ====================== */
+/* One-way read only. We never write to the tracker's appData. */
+function refreshReadSet(){
+  readSet = new Set();
+  let data = trackerAppData;
+  if(!data){
+    try{ data = JSON.parse(localStorage.getItem(TRACKER_KEY) || 'null'); }catch(e){ data = null; }
+  }
+  if(!data || !data.profiles) return;
+  const pid = LAMP.active && data.profiles[LAMP.active] ? LAMP.active
+            : (data.activeProfileId && data.profiles[data.activeProfileId] ? data.activeProfileId
+            : Object.keys(data.profiles)[0]);
+  const prog = (pid && data.profiles[pid]) || {};
+  for(const key in prog){
+    const i = key.lastIndexOf('-');
+    if(i < 0) continue;
+    const b = BOOK_BY_NAME.get(key.slice(0,i));
+    if(b) readSet.add(b.id + '.' + key.slice(i+1));
+  }
+}
+function trackerProfiles(){
+  let data = trackerAppData;
+  if(!data){ try{ data = JSON.parse(localStorage.getItem(TRACKER_KEY) || 'null'); }catch(e){ data = null; } }
+  if(!data || !data.profiles) return [];
+  return Object.keys(data.profiles).map(id => ({
+    id, name:id, color:(data.profileColors && data.profileColors[id]) || hashColor(id)
+  }));
+}
+function hashColor(s){
+  let h = 0; for(let i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) | 0;
+  return `hsl(${Math.abs(h)%360} 62% 62%)`;
+}
+/* The household is the tracker's household — one profile list, not two (§5.1). */
+function ensureProfiles(){
+  const seen = new Set(LAMP.profiles.map(p=>p.id));
+  for(const p of trackerProfiles()) if(!seen.has(p.id)){ LAMP.profiles.push(p); seen.add(p.id); }
+  if(!LAMP.profiles.length) LAMP.profiles = [{id:'Reader', name:'Reader', color:hashColor('Reader')}];
+  if(LAMP.profiles.length > 8) LAMP.profiles = LAMP.profiles.slice(0,8);
+  if(!LAMP.active || !LAMP.profiles.some(p=>p.id===LAMP.active)) LAMP.active = LAMP.profiles[0].id;
+  LAMP.p[LAMP.active] ||= blankProfile();
+}
+
+/* ============================ LEITNER ENGINE ============================= */
+const stOf = k => P().ch[k];
+const boxOf = k => (P().ch[k]?.b) || 0;
+const isDue = k => { const s = P().ch[k]; return !!s && s.due <= Date.now(); };
+
+function grade(key, right){
+  const p = P();
+  const s = p.ch[key] || {b:0,due:0,c:0,w:0,r:0};
+  const wasNew = !p.ch[key];
+  if(right){
+    s.b = clamp((s.b||0) + 1, 1, 5);
+    s.c = (s.c||0) + 1;
+    s.due = Date.now() + INTERVALS[s.b-1]*DAY;
+  }else{
+    s.b = 1; s.w = (s.w||0) + 1; s.due = Date.now();
+  }
+  s.r = Date.now();
+  p.ch[key] = s;
+  dirtyCh(key);
+  if(right) addOil(wasNew ? OIL.learn : OIL.review);   // oil is for kindling, not guessing
+  touchDay();
+  return s;
+}
+function addOil(n){
+  if(!n) return;
+  P().oil = (P().oil||0) + n;
+  dirtyField('oil');
+  renderHeader();
+}
+function touchDay(){
+  const p = P(), d = todayStr();
+  p.days[d] = (p.days[d]||0) + 1;
+  dirtyField('days');
+  const m = p.manna || (p.manna = {count:0,last:''});
+  if(m.last === d) return;
+  if(!m.last) m.count = 1;
+  else{
+    const gap = dayDiff(m.last, d);
+    if(gap === 1) m.count += 1;
+    else if(gap > 1){
+      if(p.jars > 0 && gap === 2){ p.jars -= 1; m.count += 1; dirtyField('jars');
+        toast('A jar of manna kept overnight — your streak stands.'); }
+      else m.count = 1;
+    }
+  }
+  m.last = d;
+  dirtyField('manna');
+}
+/* Sabbath jar (§5.3): a double portion gathered in one day keeps overnight. */
+function countSession(){
+  const p = P(), d = todayStr();
+  if(p.sessionsToday.d !== d) p.sessionsToday = {d, n:0};
+  p.sessionsToday.n += 1;
+  dirtyField('sessionsToday');
+  if(p.sessionsToday.n === 2 && (p.jars||0) < 1){
+    p.jars = 1; dirtyField('jars');
+    toast('A double portion — one jar laid up.', 3600);
+  }
+}
+function checkPlates(){
+  const p = P();
+  let earned = 0;
+  for(const b of BOOKS){
+    if(p.plates.includes(b.id)) continue;
+    let all = true;
+    for(let c=1;c<=b.n;c++){ if(((p.ch[b.id+'.'+c]||{}).b||0) < 3){ all = false; break; } }
+    if(all){ p.plates.push(b.id); earned++; addOil(OIL.plate); toast(`A plate engraved: ${b.name}. +${OIL.plate} oil`, 4000); }
+  }
+  if(earned){ dirtyField('plates'); }
+  return earned;
+}
+function rankOf(oil){ let r = RANKS[0]; for(const x of RANKS) if(oil >= x.oil) r = x; return r; }
+function nextRank(oil){ return RANKS.find(x => x.oil > oil) || null; }
+
+/* =============================== RENDERING =============================== */
+function renderHeader(){
+  const p = P();
+  el('oil-n').textContent = (p.oil||0).toLocaleString();
+  const r = rankOf(p.oil||0);
+  el('rank-pill').textContent = r.n;
+  el('rank-pill').title = r.motto || '';
+  let burning = 0, due = 0;
+  for(const k in p.ch){ if(p.ch[k].b > 0) burning++; if(p.ch[k].due <= Date.now()) due++; }
+  el('s-burning').textContent = burning.toLocaleString();
+  el('s-due').textContent = due.toLocaleString();
+  el('s-manna').textContent = mannaShown(p);
+  el('s-plates').textContent = (p.plates||[]).length;
+  el('hdr-total').textContent = `${burning.toLocaleString()} of ${TOTAL_CHAPTERS.toLocaleString()} burning.`;
+  el('jar-note').textContent = (p.jars||0) > 0 ? '🫙 One jar of manna laid up' : '';
+  const sel = el('profile-select');
+  if(sel.dataset.n !== String(LAMP.profiles.length) || sel.value !== LAMP.active){
+    sel.innerHTML = LAMP.profiles.map(x => `<option value="${esc(x.id)}"${x.id===LAMP.active?' selected':''}>${esc(x.name)}</option>`).join('');
+    sel.dataset.n = String(LAMP.profiles.length);
+  }
+}
+/* A streak shown honestly: yesterday's streak still stands until today ends. */
+function mannaShown(p){
+  const m = p.manna || {count:0,last:''};
+  if(!m.last) return 0;
+  const gap = dayDiff(m.last, todayStr());
+  if(gap <= 1) return m.count;
+  if(gap === 2 && (p.jars||0) > 0) return m.count;
+  return 0;
+}
+
+function lampAttrs(key){
+  const s = stOf(key), b = s ? s.b : 0;
+  const due = s && s.due <= Date.now() ? 1 : 0;
+  const read = readSet.has(key) ? 1 : 0;
+  const anch = P().anchors[key] ? 1 : 0;
+  return {b, due, read, anch};
+}
+function lampLabel(key){
+  const m = CH_META.get(key), a = lampAttrs(key);
+  const state = a.b === 0 ? (a.read ? 'unlit, read in tracker' : 'unlit')
+              : `box ${a.b}${a.due ? ', due' : ''}`;
+  return `${m.book} ${m.ch}, ${state}`;
+}
+function renderMap(){
+  const host = el('map');
+  const p = P();
+  const bySection = new Map();
+  for(const b of BOOKS){ (bySection.get(b.section) || bySection.set(b.section, []).get(b.section)).push(b); }
+  let html = '';
+  for(const sec of SECTION_ORDER){
+    const books = bySection.get(sec) || [];
+    let lit = 0, tot = 0;
+    for(const b of books){ tot += b.n; for(let c=1;c<=b.n;c++) if(((p.ch[b.id+'.'+c]||{}).b||0) > 0) lit++; }
+    const open = collapsed[sec] !== true;
+    html += `<button class="section-head" aria-expanded="${open}" aria-controls="sec-${esc(sec.replace(/\W/g,''))}"
+              data-sec="${esc(sec)}"><span class="caret" aria-hidden="true">▾</span>
+              <span class="sec-title">${esc(sec)}</span>
+              <span class="sec-count">${lit} / ${tot} burning</span></button>`;
+    html += `<div id="sec-${esc(sec.replace(/\W/g,''))}" ${open?'':'hidden'} style="padding:.6rem .1rem 1rem">`;
+    for(const b of books){
+      let bl = 0;
+      for(let c=1;c<=b.n;c++) if(((p.ch[b.id+'.'+c]||{}).b||0) > 0) bl++;
+      const plate = p.plates.includes(b.id) ? ' <span class="chip" title="Plate engraved">plate</span>' : '';
+      html += `<div class="book"><div class="book-head"><span class="book-name">${esc(b.name)}</span>
+               <span class="book-count">${bl}/${b.n}</span>${plate}</div><div class="lamps">`;
+      for(let c=1;c<=b.n;c++){
+        const key = b.id + '.' + c, a = lampAttrs(key);
+        html += `<button class="lamp" id="L-${key}" data-k="${key}" data-box="${a.b}" data-due="${a.due}"
+                  data-read="${a.read}" data-anchor="${a.anch}" aria-label="${esc(lampLabel(key))}"></button>`;
+      }
+      html += `</div></div>`;
+    }
+    html += `</div>`;
+  }
+  host.innerHTML = html;
+  host.setAttribute('aria-busy','false');
+}
+function refreshLamps(keys){
+  for(const key of keys){
+    const node = el('L-'+key);
+    if(!node) continue;
+    const a = lampAttrs(key);
+    node.dataset.box = a.b; node.dataset.due = a.due;
+    node.dataset.read = a.read; node.dataset.anchor = a.anch;
+    node.setAttribute('aria-label', lampLabel(key));
+  }
+}
+el('map').addEventListener('click', e => {
+  const head = e.target.closest('.section-head');
+  if(head){
+    const sec = head.dataset.sec, open = head.getAttribute('aria-expanded') === 'true';
+    head.setAttribute('aria-expanded', String(!open));
+    el(head.getAttribute('aria-controls')).hidden = open;
+    collapsed[sec] = open;
+    LAMP.settings.collapsed = collapsed; dirtyMeta();
+    return;
+  }
+  const lamp = e.target.closest('.lamp');
+  if(lamp) openChapter(lamp.dataset.k);
+});
+
+function renderAll(){
+  refreshReadSet();
+  renderHeader();
+  renderMap();
+  if(current === 'folio') renderFolio();
+  if(current === 'roads') renderRoads();
+  if(current === 'drill') renderDrill();
+  if(current === 'chain') renderChain();
+}
+
+/* ============================== CHAPTER MODAL =========================== */
+function openModal(html){
+  el('modal-box').innerHTML = html;
+  el('modal').hidden = false;
+  const f = el('modal-box').querySelector('button,input,a');
+  if(f) f.focus();
+}
+window.lampCloseModal = () => { el('modal').hidden = true; };
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && !el('modal').hidden) window.lampCloseModal();
+});
+
+function openChapter(key){
+  const m = CH_META.get(key), s = stOf(key) || {b:0,c:0,w:0,due:0};
+  const anchor = m.anchor;
+  const anchState = P().anchors[key];
+  const dueTxt = !s.b ? 'never lit' : (s.due <= Date.now() ? 'due now' :
+    `next due in ${Math.max(1, Math.ceil((s.due - Date.now())/DAY))} day(s)`);
+  openModal(`
+    <h2 id="modal-title" style="font-size:1.6rem;margin-bottom:.2rem">${esc(m.book)} ${m.ch}</h2>
+    <p class="muted" style="margin:.1rem 0 .8rem;font-size:.85rem">${esc(m.section)}${readSet.has(key)?' · read in your tracker':''}</p>
+    <p style="font-size:1.06rem;margin:.4rem 0 1rem">${esc(m.gist)}</p>
+    ${anchor ? `<div style="border-left:3px solid var(--gilt);padding-left:.8rem;margin:1rem 0">
+        <p class="verse" style="margin:0">${esc(anchor.text)}</p>
+        <p class="muted" style="margin:.3rem 0 0;font-size:.82rem">${esc(m.book)} ${esc(anchor.cv)} (KJV)${anchState?` · anchor step ${anchState.s}/3`:''}</p>
+      </div>` : ''}
+    <hr class="hair">
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.88rem" class="muted">
+      <span><b style="color:var(--leather)">Box ${s.b||0}</b> · ${esc(dueTxt)}</span>
+      <span>✓ ${s.c||0} &nbsp; ✗ ${s.w||0}</span>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.1rem">
+      <button class="btn btn-flame btn-sm" onclick="window.lampCloseModal();window.lampStartTrim('book:${esc(m.bookId)}')">Study ${esc(m.book)}</button>
+      ${anchor ? `<button class="btn btn-sm" onclick="window.lampDropAnchor('${key}')">${anchState?'Weigh anchor':'Drop anchor'}</button>` : ''}
+      <button class="btn btn-ghost btn-sm" onclick="window.lampCloseModal()">Close</button>
+    </div>`);
+}
+
+/* ------------------------------- Anchors (§5.5) ------------------------- */
+window.lampDropAnchor = function(key){
+  const m = CH_META.get(key);
+  if(!m.anchor) return;
+  const step = (P().anchors[key]?.s) || 0;
+  openModal(`
+    <h2 id="modal-title" style="font-size:1.35rem">Anchor · ${esc(m.book)} ${esc(m.anchor.cv)}</h2>
+    <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">Step ${Math.min(step+1,3)} of 3 — say it, then reveal.</p>
+    <div class="firstletter">${esc(firstLetters(m.anchor.text))}</div>
+    <div id="anchor-reveal" hidden style="margin-top:1rem;border-left:3px solid var(--gilt);padding-left:.8rem">
+      <p class="verse" style="margin:0">${esc(m.anchor.text)}</p>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.2rem" id="anchor-actions">
+      <button class="btn btn-flame btn-sm" onclick="window.lampAnchorReveal()">Reveal</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.lampCloseModal()">Later</button>
+    </div>`);
+  window.lampAnchorReveal = () => {
+    el('anchor-reveal').hidden = false;
+    el('anchor-actions').innerHTML =
+      `<button class="btn btn-flame btn-sm" onclick="window.lampAnchorGrade('${key}',1)">I had it</button>
+       <button class="btn btn-sm" onclick="window.lampAnchorGrade('${key}',0)">Not yet</button>`;
+  };
+};
+window.lampAnchorGrade = function(key, right){
+  const p = P();
+  const a = p.anchors[key] || {s:0, r:0};
+  a.s = right ? Math.min(3, a.s + 1) : 0;
+  a.r = Date.now();
+  p.anchors[key] = a;
+  dirtyAnchor(key);
+  if(right) addOil(OIL.anchor);
+  touchDay();
+  refreshLamps([key]);
+  window.lampCloseModal();
+  toast(right ? (a.s >= 3 ? 'Anchor fast. “Which hope we have as an anchor of the soul.”' : `+${OIL.anchor} oil — anchor step ${a.s}/3`)
+              : (LAMP.settings.kidCopy ? 'Not yet — try again soon.' : 'Not so — begin that ladder again.'));
+};
+
+/* ============================== VIEW ROUTING ============================= */
+let current = 'map';
+const VIEWS = ['map','trim','roads','drill','chain','folio'];
+window.lampView = function(v){
+  current = v;
+  for(const x of VIEWS){
+    el('view-'+x).hidden = (x !== v);
+    el('tab-'+x).setAttribute('aria-selected', String(x === v));
+  }
+  if(v === 'folio') renderFolio();
+  if(v === 'roads') renderRoads();
+  if(v === 'drill') renderDrill();
+  if(v === 'chain') renderChain();
+  if(v === 'trim' && !session){ el('trim-run').style.display = 'none'; el('trim-setup').style.display = 'block'; }
+  window.scrollTo({top:0, behavior:'instant'});
+};
+window.lampSetProfile = function(id){
+  LAMP.active = id;
+  LAMP.p[id] ||= blankProfile();
+  dirtyMeta();
+  renderAll();
+  toast(`Now trimming as ${id}`);
+};
+window.lampToggleAll = function(){
+  const anyOpen = SECTION_ORDER.some(s => collapsed[s] !== true);
+  SECTION_ORDER.forEach(s => collapsed[s] = anyOpen);
+  LAMP.settings.collapsed = collapsed; dirtyMeta();
+  renderMap();
+  el('btn-collapse').textContent = anyOpen ? 'Expand all' : 'Collapse all';
+};
+
+/* ============================ SCOPES & QUESTIONS ======================== */
+function scopeKeys(scope){
+  if(!scope || scope === 'all' || scope === 'due') return CH_KEYS;
+  if(scope === 'read') return CH_KEYS.filter(k => readSet.has(k));
+  if(scope.startsWith('book:')){ const id = scope.slice(5); return CH_KEYS.filter(k => k.startsWith(id + '.')); }
+  if(scope.startsWith('sec:')){ const s = scope.slice(4); return CH_KEYS.filter(k => CH_META.get(k).section === s); }
+  return CH_KEYS;
+}
+function buildQueue(scope, size = SESSION_SIZE){
+  const p = P(), now = Date.now();
+  const keys = scopeKeys(scope);
+  const due  = keys.filter(k => p.ch[k] && p.ch[k].due <= now).sort((a,b) => (p.ch[a].r||0) - (p.ch[b].r||0));
+  let fresh  = keys.filter(k => !p.ch[k]);
+  const rest = keys.filter(k => p.ch[k] && p.ch[k].due > now)
+                   .sort((a,b) => (p.ch[a].b - p.ch[b].b) || ((p.ch[a].r||0) - (p.ch[b].r||0)));
+  if(scope === 'read'){ /* oldest reads first — already canonical order, keep it */ }
+  else if(!scope || !scope.startsWith('book:')) fresh = shuffle(fresh.slice());
+  const out = [];
+  for(const k of due)   { if(out.length >= size) break; out.push({k, learn:false}); }
+  for(const k of fresh) { if(out.length >= size) break; out.push({k, learn:true}); }
+  for(const k of rest)  { if(out.length >= size) break; out.push({k, learn:false}); }
+  return out;
+}
+/* Distractors prefer the same book, then the same section — the gists have to
+   be genuinely confusable or the quiz teaches nothing. */
+function distractors(key, n, pool){
+  const m = CH_META.get(key);
+  const same = (pool || CH_KEYS).filter(k => k !== key && CH_META.get(k).bookId === m.bookId);
+  const sec  = (pool || CH_KEYS).filter(k => k !== key && CH_META.get(k).section === m.section && CH_META.get(k).bookId !== m.bookId);
+  const any  = (pool || CH_KEYS).filter(k => k !== key);
+  const out = [];
+  for(const src of [shuffle(same.slice()), shuffle(sec.slice()), shuffle(any.slice())]){
+    for(const k of src){ if(out.length >= n) break; if(!out.includes(k)) out.push(k); }
+    if(out.length >= n) break;
+  }
+  return out;
+}
+function makeQuestion(item){
+  const key = item.k, m = CH_META.get(key), box = boxOf(key);
+  const dirs = ['ref2gist','gist2ref'];
+  if(box >= 3 && m.anchor) dirs.push('verse2ch');
+  const dir = item.learn ? 'ref2gist' : pick(dirs);
+  const wrong = distractors(key, 3);
+  const opts = shuffle([key, ...wrong]);
+  if(dir === 'ref2gist')
+    return {dir, key, prompt:`${m.book} ${m.ch}`, sub:'Which lamp is this?',
+            opts, label:k => CH_META.get(k).gist};
+  if(dir === 'gist2ref')
+    return {dir, key, prompt:m.gist, sub:'Which chapter?',
+            opts, label:k => `${CH_META.get(k).book} ${CH_META.get(k).ch}`};
+  return {dir, key, prompt:m.anchor.text, sub:'Which chapter holds this verse?',
+          opts, label:k => `${CH_META.get(k).book} ${CH_META.get(k).ch}`, verse:true};
+}
+
+/* ============================== TRIM SESSION ============================ */
+let session = null;
+window.lampStartTrim = function(scope){
+  if(scope === undefined) scope = el('trim-scope').value;
+  if(scope === 'due') scope = 'all';
+  const queue = buildQueue(scope);
+  if(!queue.length){ toast('Nothing to trim in that scope — every lamp is steady.'); return; }
+  session = {queue, i:0, right:0, wrong:0, misses:[], requeued:false, scope, touched:new Set()};
+  sessionActive = true;
+  window.lampView('trim');
+  el('trim-setup').style.display = 'none';
+  el('trim-run').style.display = 'block';
+  stepTrim();
+};
+function endTrim(){
+  const s = session;
+  sessionActive = false;
+  session = null;
+  countSession();
+  checkPlates();
+  renderHeader();
+  renderMap();          // book and section tallies move too, not just the lamps
+  const total = s.right + s.wrong;
+  const pct = total ? Math.round(s.right/total*100) : 0;
+  el('trim-run').innerHTML = `
+    <h2 style="font-size:1.5rem">Lamps trimmed</h2>
+    <p style="font-size:1.05rem;margin:.5rem 0 1rem">${s.right} right of ${total} — ${pct}%.</p>
+    <div class="grid-stats" style="margin-bottom:1rem">
+      <div class="stat" style="background:rgba(42,33,21,.06);border-color:#c3b184"><b style="color:var(--leather)">${mannaShown(P())}</b><span style="color:#6a5c40">Manna streak</span></div>
+      <div class="stat" style="background:rgba(42,33,21,.06);border-color:#c3b184"><b style="color:var(--leather)">${(P().oil||0).toLocaleString()}</b><span style="color:#6a5c40">Oil</span></div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-flame btn-sm" onclick="window.lampStartTrim('${esc(s.scope)}')">Another twelve</button>
+      <button class="btn btn-sm" onclick="window.lampView('map')">Back to the room</button>
+    </div>`;
+  drainQueued();
+}
+function stepTrim(){
+  const s = session;
+  if(!s) return;
+  if(s.i >= s.queue.length){
+    if(!s.requeued && s.misses.length){        // misses requeue once (§5.3)
+      s.requeued = true;
+      s.queue = s.queue.concat(s.misses.map(k => ({k, learn:false})));
+      s.misses = [];
+    }else return endTrim();
+  }
+  const item = s.queue[s.i];
+  if(item.learn && !item.shown){ return showIntro(item); }
+  showQuestion(makeQuestion(item));
+}
+function progressBar(){
+  const s = session;
+  const pct = Math.round(s.i / s.queue.length * 100);
+  return `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1rem">
+      <div class="bar" style="flex:1;background:rgba(42,33,21,.14)"><i style="width:${pct}%"></i></div>
+      <span class="muted" style="font-size:.8rem;white-space:nowrap">${s.i+1} / ${s.queue.length}</span>
+    </div>`;
+}
+function showIntro(item){
+  const m = CH_META.get(item.k);
+  el('trim-run').innerHTML = `${progressBar()}
+    <p class="chip">New lamp</p>
+    <h2 class="q-prompt" style="margin:.6rem 0 .3rem;color:var(--ink)">${esc(m.book)} ${m.ch}</h2>
+    <p style="font-size:1.15rem;margin:.4rem 0 1rem">${esc(m.gist)}</p>
+    ${m.anchor ? `<p class="verse" style="border-left:3px solid var(--gilt);padding-left:.8rem;margin:0 0 1rem">${esc(m.anchor.text)}<br><span class="muted" style="font-size:.82rem">${esc(m.book)} ${esc(m.anchor.cv)}</span></p>` : ''}
+    <button class="btn btn-flame" id="introdone" onclick="window.lampIntroDone()">Got it — ask me</button>`;
+  el('introdone').focus();                       // a whole session must be keyboard-only
+  window.lampIntroDone = () => { item.shown = true; stepTrim(); };
+}
+function showQuestion(q){
+  const s = session;
+  el('trim-run').innerHTML = `${progressBar()}
+    <p class="muted" style="font-size:.82rem;letter-spacing:.09em;text-transform:uppercase">${esc(q.sub)}</p>
+    <p class="${q.verse?'verse':'q-prompt'}" style="margin:.4rem 0 1.1rem;color:var(--ink)">${esc(q.prompt)}</p>
+    <div id="opts">${q.opts.map((k,i) =>
+      `<button class="opt" data-k="${k}" onclick="window.lampAnswer('${k}')"><span class="k">${i+1}</span>${esc(q.label(k))}</button>`).join('')}</div>`;
+  session.q = q;
+  const first = el('opts').querySelector('.opt');
+  if(first) first.focus();
+}
+window.lampAnswer = function(chosen){
+  const s = session; if(!s || !s.q || s.q.done) return;
+  const q = s.q; q.done = true;
+  const right = chosen === q.key;
+  grade(q.key, right);
+  s.touched.add(q.key);
+  if(right) s.right++; else { s.wrong++; if(!s.misses.includes(q.key)) s.misses.push(q.key); }
+  const box = el('opts');
+  box.querySelectorAll('.opt').forEach(b => {
+    b.disabled = true;
+    if(b.dataset.k === q.key) b.classList.add('right');
+    else if(b.dataset.k === chosen) b.classList.add('wrong');
+  });
+  const m = CH_META.get(q.key);
+  const note = right
+    ? `<p style="margin:.9rem 0 0;color:#3f6b3f;font-weight:700">Kindled — box ${boxOf(q.key)}.</p>`
+    : `<p style="margin:.9rem 0 0;color:#a04a38;font-weight:700">${LAMP.settings.kidCopy?'Not yet':'Not so'} — ${esc(m.book)} ${m.ch}: ${esc(m.gist)}</p>`;
+  box.insertAdjacentHTML('afterend', note +
+    `<button class="btn btn-flame" id="nextq" style="margin-top:.9rem" onclick="window.lampNext()">Next</button>`);
+  el('nextq').focus();
+};
+window.lampNext = function(){ if(!session) return; session.i++; stepTrim(); };
+document.addEventListener('keydown', e => {
+  if(!session || !session.q || current !== 'trim') return;
+  if(e.key >= '1' && e.key <= '4' && !session.q.done){
+    const b = el('opts')?.querySelectorAll('.opt')[+e.key - 1];
+    if(b) b.click();
+  }else if(e.key === 'Enter' && session.q.done){ el('nextq')?.click(); }
+});
+
+/* ================================= ROADS ================================ */
+let ROADS = [];
+const STAGES = [
+  {k:'a', name:'Milestones',       hint:'See the words, name the stop.'},
+  {k:'b', name:'Walk the Road',    hint:'Put the stops in order.'},
+  {k:'c', name:'Recite',           hint:'First letters only — say it, then judge yourself.'},
+  {k:'d', name:'References Cold',  hint:'Type the reference from memory.'}
+];
+function roadState(id){ return (P().roads[id] ||= {a:false,b:false,c:false,d:false,doneAwarded:false}); }
+function renderRoads(){
+  const p = P();
+  el('roads-list').innerHTML = `
+    <h2 style="font-size:1.5rem">Roads</h2>
+    <p class="muted" style="font-size:.94rem">A road is a handful of verses walked until they are yours. Four gates each.</p>
+    <hr class="hair">
+    ${ROADS.map(r => {
+      const st = roadState(r.id);
+      const done = STAGES.filter(s => st[s.k]).length;
+      return `<div style="padding:.9rem 0;border-bottom:1px solid rgba(201,163,91,.18)">
+        <div style="display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap">
+          <span class="sec-title">${esc(r.title)}</span>
+          <span class="muted" style="font-size:.8rem">${done}/4 gates · ${r.stops.length} stops</span>
+          ${done===4?'<span class="chip">walked</span>':''}
+        </div>
+        <p class="muted" style="margin:.3rem 0 .7rem;font-size:.9rem">${esc(r.blurb||'')}</p>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          ${STAGES.map((s,i) => {
+            const locked = i > 0 && !st[STAGES[i-1].k];
+            return `<button class="btn btn-sm${st[s.k]?'':' btn-flame'}" ${locked?'disabled':''}
+              onclick="window.lampRoad('${r.id}','${s.k}')" title="${esc(s.hint)}">${st[s.k]?'✓ ':''}${esc(s.name)}</button>`;
+          }).join('')}
+        </div></div>`;
+    }).join('')}`;
+  el('roads-run').style.display = 'none';
+}
+window.lampRoad = function(roadId, stage){
+  const road = ROADS.find(r => r.id === roadId);
+  if(!road) return;
+  sessionActive = true;
+  const host = el('roads-run');
+  host.style.display = 'block';
+  host.scrollIntoView({block:'start'});
+  if(stage === 'a') roadMilestones(road);
+  if(stage === 'b') roadOrder(road);
+  if(stage === 'c') roadRecite(road);
+  if(stage === 'd') roadCold(road);
+};
+function roadFinish(road, stage, passed){
+  sessionActive = false;
+  const st = roadState(road.id);
+  let gained = 0;
+  if(passed && !st[stage]){ st[stage] = true; gained += OIL.roadStage; }
+  const all = STAGES.every(s => st[s.k]);
+  if(all && !st.doneAwarded){ st.doneAwarded = true; gained += OIL.roadDone; }
+  dirtyField('roads');
+  if(gained) addOil(gained);
+  touchDay(); countSession();
+  el('roads-run').innerHTML = `
+    <h2 style="font-size:1.4rem">${esc(road.title)}</h2>
+    <p style="font-size:1.05rem">${passed ? 'Gate passed.' : (LAMP.settings.kidCopy ? 'Not yet — walk it again.' : 'Not yet. Walk it again.')}
+      ${gained ? `<b>+${gained} oil</b>` : ''}</p>
+    ${all ? '<p class="chip">Road walked end to end</p>' : ''}
+    <button class="btn btn-flame btn-sm" style="margin-top:1rem" onclick="window.lampView('roads')">Back to the roads</button>`;
+  renderRoads();
+  el('roads-run').style.display = 'block';
+  drainQueued();
+}
+function roadMilestones(road){
+  let i = 0, misses = 0;
+  const step = () => {
+    if(i >= road.stops.length) return roadFinish(road, 'a', misses === 0);
+    const stop = road.stops[i];
+    const opts = shuffle(road.stops.slice());
+    el('roads-run').innerHTML = `
+      <p class="muted" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.09em">Milestones · ${i+1}/${road.stops.length}</p>
+      <p class="verse" style="margin:.5rem 0 1.1rem;color:var(--ink);font-size:1.1rem">${esc(stop.text)}</p>
+      <div id="ropts">${opts.map(o => `<button class="opt" data-r="${esc(o.ref)}" onclick="window.__rmAns('${esc(o.ref)}')">${esc(o.ref)}</button>`).join('')}</div>`;
+    window.__rmAns = ref => {
+      const right = ref === stop.ref;
+      if(!right) misses++;
+      el('ropts').querySelectorAll('.opt').forEach(b => {
+        b.disabled = true;
+        if(b.dataset.r === stop.ref) b.classList.add('right');
+        else if(b.dataset.r === ref) b.classList.add('wrong');
+      });
+      i++;
+      setTimeout(step, right ? 520 : 1400);
+    };
+  };
+  step();
+}
+function roadOrder(road){
+  const shuffled = shuffle(road.stops.slice());
+  let want = 0, misses = 0;
+  const draw = () => {
+    el('roads-run').innerHTML = `
+      <p class="muted" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.09em">Walk the Road</p>
+      <p style="margin:.4rem 0 1rem;color:var(--ink)">Tap the stops in order, from the first to the last.</p>
+      <div id="rorder">${shuffled.map((o,ix) => `<button class="opt" data-i="${ix}" onclick="window.__roAns(${ix})">
+        <span class="k">${ix+1}</span>${esc(o.ref)} — <span class="muted">${esc(o.hint||'')}</span></button>`).join('')}</div>`;
+  };
+  draw();
+  window.__roAns = ix => {
+    const btn = el('rorder').querySelector(`[data-i="${ix}"]`);
+    if(btn.disabled) return;
+    if(shuffled[ix].ref === road.stops[want].ref){
+      btn.classList.add('right'); btn.disabled = true; want++;
+      if(want >= road.stops.length) return roadFinish(road, 'b', misses === 0);
+    }else{
+      misses++;
+      btn.classList.add('wrong'); el('rorder').classList.add('shake');
+      setTimeout(() => { btn.classList.remove('wrong'); el('rorder').classList.remove('shake'); }, 420);
+    }
+  };
+}
+function roadRecite(road){
+  let i = 0, had = 0;
+  const step = () => {
+    if(i >= road.stops.length) return roadFinish(road, 'c', had === road.stops.length);
+    const stop = road.stops[i];
+    el('roads-run').innerHTML = `
+      <p class="muted" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.09em">Recite · ${i+1}/${road.stops.length}</p>
+      <h3 style="color:var(--ink);font-size:1.2rem;margin:.4rem 0 .8rem">${esc(stop.ref)}</h3>
+      <div class="firstletter">${esc(firstLetters(stop.text))}</div>
+      <div id="rc-reveal" hidden style="margin-top:1rem;border-left:3px solid var(--gilt);padding-left:.8rem">
+        <p class="verse" style="margin:0">${esc(stop.text)}</p></div>
+      <div id="rc-act" style="margin-top:1.1rem"><button class="btn btn-flame btn-sm" onclick="window.__rcReveal()">Reveal</button></div>`;
+    window.__rcReveal = () => {
+      el('rc-reveal').hidden = false;
+      el('rc-act').innerHTML = `<button class="btn btn-flame btn-sm" onclick="window.__rcGrade(1)">I had it</button>
+        <button class="btn btn-sm" onclick="window.__rcGrade(0)">${LAMP.settings.kidCopy?'Not yet':'Not so'}</button>`;
+    };
+    window.__rcGrade = ok => { if(ok) had++; i++; step(); };
+  };
+  step();
+}
+function roadCold(road){
+  let i = 0, misses = 0;
+  const step = () => {
+    if(i >= road.stops.length) return roadFinish(road, 'd', misses === 0);
+    const stop = road.stops[i];
+    el('roads-run').innerHTML = `
+      <p class="muted" style="font-size:.82rem;text-transform:uppercase;letter-spacing:.09em">References Cold · ${i+1}/${road.stops.length}</p>
+      <p class="verse" style="margin:.5rem 0 1rem;color:var(--ink)">${esc(stop.text)}</p>
+      <label class="sr-only" for="rc-in">Reference</label>
+      <input type="text" id="rc-in" placeholder="e.g. Romans 3:23" autocomplete="off">
+      <div style="margin-top:.9rem"><button class="btn btn-flame btn-sm" onclick="window.__rdAns()">Answer</button></div>
+      <p id="rd-note" style="margin-top:.8rem;font-weight:700"></p>`;
+    el('rc-in').focus();
+    el('rc-in').addEventListener('keydown', e => { if(e.key === 'Enter') window.__rdAns(); });
+    window.__rdAns = () => {
+      const v = el('rc-in').value.trim().toLowerCase().replace(/\s+/g,' ').replace(/[.]/g,'');
+      const want = stop.ref.toLowerCase().replace(/\s+/g,' ');
+      const ok = v === want || v === want.replace(/\s/g,'');
+      if(!ok) misses++;
+      el('rd-note').textContent = ok ? 'Right.' : `Not so — ${stop.ref}`;
+      el('rd-note').style.color = ok ? '#3f6b3f' : '#a04a38';
+      i++;
+      setTimeout(step, ok ? 620 : 1500);
+    };
+  };
+  step();
+}
+
+/* =============================== SWORD DRILL ============================ */
+let drill = null;
+function renderDrill(){
+  if(drill) return;
+  const lit = CH_KEYS.filter(k => boxOf(k) > 0);
+  el('drill-panel').innerHTML = `
+    <h2 style="font-size:1.5rem">Sword Drill</h2>
+    <p class="muted" style="font-size:.94rem">Sixty seconds. Only lamps already burning are drawn. Eight or better counts.</p>
+    <hr class="hair">
+    <div class="grid-stats" style="margin-bottom:1rem">
+      <div class="stat"><b>${P().drillBest||0}</b><span>Best</span></div>
+      <div class="stat"><b>${lit.length}</b><span>Lamps in the pool</span></div>
+    </div>
+    ${lit.length < 8
+      ? `<p class="muted">Light at least eight lamps first — <button class="btn btn-flame btn-sm" onclick="window.lampStartTrim('all')">trim a set</button></p>`
+      : `<button class="btn btn-flame" onclick="window.lampDrill()">Draw the sword</button>`}`;
+}
+window.lampDrill = function(){
+  const pool = CH_KEYS.filter(k => boxOf(k) > 0);
+  if(pool.length < 8) return;
+  sessionActive = true;
+  drill = {score:0, end:Date.now() + 60000, pool};
+  drillStep();
+  drill.timer = setInterval(() => {
+    if(Date.now() >= drill.end) return drillEnd();
+    const t = el('drill-time');
+    if(t) t.textContent = Math.max(0, Math.ceil((drill.end - Date.now())/1000)) + 's';
+  }, 200);
+};
+function drillStep(){
+  const key = pick(drill.pool);
+  const m = CH_META.get(key);
+  const opts = shuffle([key, ...distractors(key, 3, drill.pool)]);
+  el('drill-panel').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.8rem">
+      <span class="pill">Score <b id="drill-score" style="color:var(--flame-hi)">${drill.score}</b></span>
+      <span class="pill" id="drill-time">60s</span>
+    </div>
+    <p class="q-prompt" style="margin:.3rem 0 1.1rem">${esc(m.gist)}</p>
+    <div id="dopts">${opts.map((k,i) => `<button class="opt" onclick="window.__dAns('${k}','${key}')"><span class="k">${i+1}</span>${esc(CH_META.get(k).book)} ${CH_META.get(k).ch}</button>`).join('')}</div>`;
+  window.__dAns = (chosen, right) => {
+    if(!drill) return;
+    if(chosen === right) drill.score++;
+    else el('dopts').classList.add('shake');
+    drillStep();
+  };
+}
+function drillEnd(){
+  clearInterval(drill.timer);
+  const score = drill.score;
+  drill = null;
+  sessionActive = false;
+  const counted = score >= 8;
+  let gained = 0;
+  if(counted){
+    gained = score + 2*Math.floor(score/5);
+    addOil(gained);
+    if(score > (P().drillBest||0)){ P().drillBest = score; dirtyField('drillBest'); }
+    touchDay(); countSession();
+  }
+  el('drill-panel').innerHTML = `
+    <h2 style="font-size:1.5rem">Time.</h2>
+    <p style="font-size:1.15rem;margin:.5rem 0">${score} right.
+      ${counted ? `<b>+${gained} oil</b>` : '<span class="muted">Eight or better counts — try again.</span>'}</p>
+    <button class="btn btn-flame btn-sm" onclick="window.lampDrill()">Again</button>
+    <button class="btn btn-sm" onclick="window.lampView('map')">Back to the room</button>`;
+  renderHeader();
+  drainQueued();
+}
+
+/* =============================== CHAPTER CHAIN ========================== */
+let chain = null;
+function renderChain(){
+  if(chain) return;
+  const books = BOOKS.filter(b => b.n >= 4);
+  el('chain-panel').innerHTML = `
+    <h2 style="font-size:1.5rem">Chapter Chain</h2>
+    <p class="muted" style="font-size:.94rem">Put a book's chapters back in order, by their contents alone.</p>
+    <hr class="hair">
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+      <label class="sr-only" for="chain-book">Book</label>
+      <select id="chain-book">${books.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select>
+      <button class="btn btn-flame" onclick="window.lampChain()">Forge the chain</button>
+    </div>`;
+}
+window.lampChain = function(){
+  const id = el('chain-book').value;
+  const b = BOOK_BY_ID.get(id);
+  const all = Array.from({length:b.n}, (_,i) => i+1);
+  const picked = (b.n <= 8 ? all : shuffle(all.slice()).slice(0,8).sort((x,y) => x-y));
+  chain = {book:b, order:picked, want:0, misses:0, items:shuffle(picked.slice())};
+  sessionActive = true;
+  drawChain();
+};
+function drawChain(){
+  const c = chain;
+  el('chain-panel').innerHTML = `
+    <h2 style="font-size:1.4rem">${esc(c.book.name)}</h2>
+    <p class="muted" style="font-size:.9rem;margin:.2rem 0 1rem">Tap them from earliest to latest — ${c.order.length} links.</p>
+    <div id="citems">${c.items.map((ch,ix) => `<button class="opt" data-i="${ix}" onclick="window.__cAns(${ix})">${esc(CH_META.get(c.book.id+'.'+ch).gist)}</button>`).join('')}</div>`;
+  window.__cAns = ix => {
+    const btn = el('citems').querySelector(`[data-i="${ix}"]`);
+    if(!btn || btn.disabled) return;
+    if(c.items[ix] === c.order[c.want]){
+      btn.classList.add('right'); btn.disabled = true;
+      btn.insertAdjacentHTML('beforeend', ` <span class="k">— ${c.book.name} ${c.items[ix]}</span>`);
+      c.want++;
+      if(c.want >= c.order.length) chainEnd();
+    }else{
+      c.misses++;
+      btn.classList.add('wrong'); el('citems').classList.add('shake');
+      setTimeout(() => { btn.classList.remove('wrong'); el('citems').classList.remove('shake'); }, 420);
+    }
+  };
+}
+function chainEnd(){
+  const c = chain;
+  chain = null; sessionActive = false;
+  const gained = Math.max(2, c.order.length - c.misses);
+  addOil(gained); touchDay(); countSession();
+  el('chain-panel').innerHTML = `
+    <h2 style="font-size:1.4rem">Chain forged</h2>
+    <p style="font-size:1.05rem;margin:.5rem 0">${esc(c.book.name)} — ${c.misses} slip${c.misses===1?'':'s'}. <b>+${gained} oil</b></p>
+    <button class="btn btn-flame btn-sm" onclick="window.lampView('chain')">Another book</button>
+    <button class="btn btn-sm" onclick="window.lampView('map')">Back to the room</button>`;
+  renderHeader();
+  drainQueued();
+}
+
+/* ================================= FOLIO ================================ */
+function renderFolio(){
+  const p = P();
+  const oil = p.oil || 0, r = rankOf(oil), nx = nextRank(oil);
+  let lit = 0, c = 0, w = 0, box5 = 0;
+  for(const k in p.ch){ const s = p.ch[k]; if(s.b > 0) lit++; if(s.b === 5) box5++; c += s.c||0; w += s.w||0; }
+  const acc = (c + w) ? Math.round(c/(c+w)*100) : 0;
+
+  /* Year heatmap of study days */
+  const cells = [];
+  const start = new Date(); start.setHours(0,0,0,0); start.setDate(start.getDate() - 363);
+  start.setDate(start.getDate() - start.getDay());
+  for(let d = new Date(start); d <= new Date(); d.setDate(d.getDate()+1)){
+    const key = todayStr(d.getTime()), n = p.days[key] || 0;
+    const a = n === 0 ? .07 : n < 4 ? .3 : n < 10 ? .55 : n < 20 ? .78 : 1;
+    cells.push(`<i style="background:${n?`rgba(245,184,61,${a})`:'rgba(255,255,255,.07)'}" title="${key}: ${n} review${n===1?'':'s'}"></i>`);
+  }
+  /* 30-day due forecast */
+  const fc = new Array(30).fill(0);
+  const now = Date.now();
+  for(const k in p.ch){
+    const d = Math.floor((p.ch[k].due - now)/DAY);
+    if(d < 0) fc[0]++; else if(d < 30) fc[d]++;
+  }
+  const fcMax = Math.max(1, ...fc);
+
+  /* Per-book mastery */
+  const mastery = BOOKS.map(b => {
+    let s = 0; for(let i=1;i<=b.n;i++) s += Math.min(5, ((p.ch[b.id+'.'+i]||{}).b)||0);
+    return {b, pct: Math.round(s/(b.n*5)*100)};
+  }).filter(x => x.pct > 0).sort((a,b) => b.pct - a.pct);
+
+  el('folio-panel').innerHTML = `
+    <h2 style="font-size:1.5rem">The Folio</h2>
+    <div style="display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;margin:.6rem 0 .3rem">
+      <span class="sec-title" style="font-size:1.5rem;color:var(--flame-hi)">${esc(r.n)}</span>
+      <span class="muted">${oil.toLocaleString()} oil</span>
+    </div>
+    ${r.motto ? `<p class="muted" style="font-style:italic;margin:.1rem 0 .8rem">${esc(r.motto)}</p>` : ''}
+    ${nx ? `<div class="bar" style="max-width:26rem"><i style="width:${Math.round((oil-r.oil)/(nx.oil-r.oil)*100)}%"></i></div>
+      <p class="muted" style="font-size:.82rem;margin:.35rem 0 0">${(nx.oil-oil).toLocaleString()} oil to ${esc(nx.n)}</p>`
+     : `<p class="muted" style="font-size:.82rem">The highest rank. “My marks and scars I carry with me.”</p>`}
+    <hr class="hair">
+    <div class="grid-stats">
+      <div class="stat"><b>${lit.toLocaleString()}</b><span>Lamps lit</span></div>
+      <div class="stat"><b>${box5.toLocaleString()}</b><span>Box 5</span></div>
+      <div class="stat"><b>${acc}%</b><span>Lifetime accuracy</span></div>
+      <div class="stat"><b>${p.drillBest||0}</b><span>Drill best</span></div>
+    </div>
+    <hr class="hair">
+    <h3 style="font-size:1.1rem;margin-bottom:.5rem">Days of study</h3>
+    <div class="heat">${cells.join('')}</div>
+    <hr class="hair">
+    <h3 style="font-size:1.1rem;margin-bottom:.5rem">Coming due — the next thirty days</h3>
+    <div class="fc">${fc.map((n,i) => `<i style="height:${Math.round(n/fcMax*100)}%" title="${i===0?'due now':'in '+i+' day(s)'}: ${n}"></i>`).join('')}</div>
+    <p class="muted" style="font-size:.78rem;margin-top:.3rem">Leftmost bar is what is due today. ${fc.reduce((a,b)=>a+b,0)} lamps in the month ahead.</p>
+    <hr class="hair">
+    <h3 style="font-size:1.1rem;margin-bottom:.5rem">Plates <span class="muted" style="font-size:.85rem">(every chapter of a book at box 3 or better)</span></h3>
+    <p style="margin:.3rem 0 1rem">${(p.plates||[]).length
+      ? p.plates.map(id => `<span class="chip" style="margin:0 .3rem .3rem 0">${esc((BOOK_BY_ID.get(id)||{name:id}).name)}</span>`).join('')
+      : '<span class="muted">No plates engraved yet.</span>'}</p>
+    ${mastery.length ? `<h3 style="font-size:1.1rem;margin:.6rem 0 .5rem">Mastery by book</h3>
+      ${mastery.slice(0,25).map(x => `<div class="mastery"><span class="nm">${esc(x.b.name)}</span>
+        <span class="bar"><i style="width:${x.pct}%"></i></span>
+        <span class="muted" style="width:2.6rem;text-align:right">${x.pct}%</span></div>`).join('')}` : ''}
+    <hr class="hair">
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="window.lampExport()">Export JSON</button>
+      <button class="btn btn-sm" onclick="window.lampImportPick()">Import</button>
+      <input type="file" id="import-file" accept="application/json,.json" hidden onchange="window.lampImport(event)">
+    </div>`;
+}
+
+/* ============================= EXPORT / IMPORT ========================== */
+window.lampExport = function(){
+  const blob = new Blob([JSON.stringify({app:'thy-word-is-a-lamp', v:2, exported:new Date().toISOString(), data:LAMP}, null, 1)],
+                        {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lamp-room-${todayStr()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+window.lampImportPick = () => el('import-file').click();
+window.lampImport = function(ev){
+  const f = ev.target.files && ev.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const parsed = JSON.parse(rd.result);
+      const incoming = adoptExport(parsed);
+      if(!incoming) throw new Error('unrecognised file');
+      LAMP = mergeLamp(LAMP, incoming);           // merge by §7 rules, never replace
+      ensureProfiles();
+      dirty.meta = true; markAllDirty(); schedule();
+      renderAll();
+      toast('Imported and merged — nothing was overwritten.', 4000);
+    }catch(e){
+      console.warn('import failed', e);
+      toast('That file could not be read as a Lamp Room export.', 4000);
+    }
+  };
+  rd.readAsText(f);
+  ev.target.value = '';
+};
+/* Accepts a v2 export, a bare v2 state, or a v1 single-file save (§5.12). */
+function adoptExport(parsed){
+  if(!parsed || typeof parsed !== 'object') return null;
+  if(parsed.data && parsed.data.p) return normalize(parsed.data);
+  if(parsed.p && parsed.profiles) return normalize(parsed);
+  const v1 = parsed.thy_word_lamp_v1 || (parsed.cards || parsed.boxes ? parsed : null);
+  if(v1) return fromV1(v1);
+  return null;
+}
+/* v1 was a single-profile localStorage save. Map it losslessly onto "Reader". */
+function fromV1(v1){
+  const p = blankProfile();
+  p.oil = +v1.oil || 0;
+  p.drillBest = +v1.drillBest || +v1.bestDrill || 0;
+  p.plates = Array.isArray(v1.plates) ? v1.plates.slice() : [];
+  if(v1.manna) p.manna = {count:+v1.manna.count||+v1.manna||0, last:v1.manna.last||v1.mannaLast||''};
+  const cards = v1.cards || v1.boxes || v1.ch || {};
+  for(const rawKey in cards){
+    const c = cards[rawKey] || {};
+    const key = v1Key(rawKey);
+    if(!key || !CH_META.has(key)) continue;
+    p.ch[key] = {b: clamp(+c.box || +c.b || 1, 1, 5), due:+c.due || Date.now(),
+                 c:+c.right || +c.c || 0, w:+c.wrong || +c.w || 0, r:+c.last || +c.r || Date.now()};
+  }
+  if(v1.roads) for(const id in v1.roads){
+    const r = v1.roads[id] || {};
+    p.roads[id] = {a:!!r.a, b:!!r.b, c:!!r.c, d:!!r.d, doneAwarded:!!r.doneAwarded};
+  }else if(v1.romanRoad) p.roads.roman = Object.assign({a:0,b:0,c:0,d:0,doneAwarded:0}, v1.romanRoad);
+  return {v:2, profiles:[{id:'Reader', name:'Reader', color:hashColor('Reader')}],
+          active:'Reader', settings:{}, p:{Reader:p}};
+}
+/* v1 keys were seen as "Jas.1", "James 1" or "James-1". Accept all three. */
+function v1Key(raw){
+  if(CH_META.has(raw)) return raw;
+  const m = String(raw).match(/^(.+?)[\s.\-_](\d+)$/);
+  if(!m) return null;
+  const name = m[1].trim();
+  const b = BOOK_BY_NAME.get(name) || BOOK_BY_ID.get(name);
+  return b ? b.id + '.' + m[2] : null;
+}
+
+/* ================================ SETTINGS ============================== */
+window.lampOpenSettings = function(){
+  const s = LAMP.settings;
+  openModal(`
+    <h2 id="modal-title" style="font-size:1.4rem">Settings</h2>
+    <label style="display:flex;gap:.6rem;align-items:center;margin:1rem 0">
+      <input type="checkbox" id="set-motion" ${s.noMotion?'checked':''} onchange="window.lampSet('noMotion',this.checked)">
+      <span>Steady flame — no flicker animation</span></label>
+    <label style="display:flex;gap:.6rem;align-items:center;margin:1rem 0">
+      <input type="checkbox" id="set-kid" ${s.kidCopy?'checked':''} onchange="window.lampSet('kidCopy',this.checked)">
+      <span>Gentler wording <span class="muted">(“Not yet — try again” instead of “Not so”)</span></span></label>
+    <hr class="hair">
+    <p class="muted" style="font-size:.86rem">Readers come from your Bible Progress profiles — add or rename them on the
+      <a href="index.html">tracker</a> and they appear here.</p>
+    <p class="muted" style="font-size:.86rem">${user ? `Signed in as ${esc(user.email||user.uid)}. Lamps sync to your account.`
+      : 'Not signed in — lamps are kept in this browser only.'}</p>
+    <button class="btn btn-flame btn-sm" style="margin-top:.6rem" onclick="window.lampCloseModal()">Done</button>`);
+};
+window.lampSet = function(k, v){
+  LAMP.settings[k] = v;
+  dirtyMeta();
+  document.body.classList.toggle('no-motion', !!LAMP.settings.noMotion);
+};
+
+/* ================================= BOOT ================================= */
+async function loadPacks(){
+  const packs = await Promise.all(PACK_IDS.map(id =>
+    fetch(`content/packs/${id}.json`).then(r => { if(!r.ok) throw new Error(id); return r.json(); })));
+  const byName = new Map();
+  for(const pack of packs){
+    for(const b of pack.books){
+      const book = {id:b.id, name:b.name, section:b.section, testament:pack.testament,
+                    gists:b.gists, n:b.gists.length,
+                    anchors:Object.fromEntries((b.anchors||[]).map(a => [a.cv.split(':')[0], a]))};
+      byName.set(b.name, book);
+    }
+  }
+  /* Canonical order: the packs are authored in it; rebuild by section order. */
+  for(const sec of SECTION_ORDER){
+    for(const pack of packs) for(const b of pack.books){
+      if(b.section !== sec) continue;
+      const book = byName.get(b.name);
+      if(BOOK_BY_ID.has(book.id)) continue;
+      BOOKS.push(book); BOOK_BY_ID.set(book.id, book); BOOK_BY_NAME.set(book.name, book);
+    }
+  }
+  /* Assert canonical counts (PRD §5.11) before a single lamp is drawn. */
+  const bySec = {};
+  for(const b of BOOKS) bySec[b.section] = (bySec[b.section]||0) + b.n;
+  for(const sec in CANON){
+    if(bySec[sec] !== CANON[sec]) throw new Error(`pack count mismatch: ${sec} ${bySec[sec]} ≠ ${CANON[sec]}`);
+  }
+  const total = BOOKS.reduce((a,b) => a + b.n, 0);
+  if(total !== TOTAL_CHAPTERS) throw new Error(`pack count mismatch: ${total} ≠ ${TOTAL_CHAPTERS}`);
+
+  for(const b of BOOKS) for(let c=1;c<=b.n;c++){
+    const key = b.id + '.' + c;
+    CH_KEYS.push(key);
+    CH_META.set(key, {bookId:b.id, book:b.name, ch:c, section:b.section,
+                      gist:b.gists[c-1], anchor:b.anchors[String(c)] || null});
+  }
+}
+async function loadRoads(){
+  try{
+    const r = await fetch('content/roads.json');
+    ROADS = (await r.json()).roads || [];
+  }catch(e){ console.warn('roads unavailable', e); ROADS = []; }
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) LAMP = normalize(JSON.parse(raw));
+  }catch(e){ console.warn('local state unreadable', e); }
+  collapsed = (LAMP.settings && LAMP.settings.collapsed) || {};
+  document.body.classList.toggle('no-motion', !!(LAMP.settings && LAMP.settings.noMotion));
+}
+function fillScopes(){
+  const sel = el('trim-scope');
+  sel.innerHTML =
+    `<option value="all">The whole Bible</option>
+     <option value="read">Only what I've read</option>` +
+    SECTION_ORDER.map(s => `<option value="sec:${esc(s)}">${esc(s)}</option>`).join('') +
+    BOOKS.map(b => `<option value="book:${b.id}">${esc(b.name)}</option>`).join('');
+  el('trim-scope-note').textContent =
+    `${readSet.size.toLocaleString()} chapters marked read in your tracker — “Only what I've read” draws from those first.`;
+}
+
+async function boot(){
+  await loadPacks();
+  if(TEST_MODE){ window.__lampReady = true; return; }   // tests use the pure helpers only
+  loadLocal();
+  ensureProfiles();
+  refreshReadSet();
+  fillScopes();
+  renderHeader();
+  const t0 = performance.now();
+  renderMap();
+  window.__lampRenderMs = performance.now() - t0;   // budget: ≤100 ms for 1,189 lamps
+  loadRoads().then(renderRoads);
+  connect().catch(e => { console.warn('cloud sync unavailable', e); setSync('none','Local'); el('guest-banner').style.display='flex'; });
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  window.__lampReady = true;
+}
+boot().catch(e => {
+  console.error(e);
+  el('map').innerHTML = `<p class="muted">The Lamp Room could not be lit: ${esc(e.message)}. Try reloading.</p>`;
+  window.__lampError = e.message;
+});
+</script>
+</body>
+</html>

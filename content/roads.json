@@ -1,0 +1,96 @@
+{
+ "version": 1,
+ "roads": [
+  {
+   "id": "roman",
+   "title": "The Roman Road",
+   "blurb": "Six stops from Romans, the oldest path from sin to salvation.",
+   "stops": [
+    {
+     "ref": "Romans 3:10",
+     "book": "Romans",
+     "cv": "3:10",
+     "hint": "None righteous",
+     "text": "As it is written, There is none righteous, no, not one:"
+    },
+    {
+     "ref": "Romans 3:23",
+     "book": "Romans",
+     "cv": "3:23",
+     "hint": "All have sinned",
+     "text": "For all have sinned, and come short of the glory of God;"
+    },
+    {
+     "ref": "Romans 5:8",
+     "book": "Romans",
+     "cv": "5:8",
+     "hint": "God commendeth his love",
+     "text": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."
+    },
+    {
+     "ref": "Romans 6:23",
+     "book": "Romans",
+     "cv": "6:23",
+     "hint": "Wages and gift",
+     "text": "For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord."
+    },
+    {
+     "ref": "Romans 10:9",
+     "book": "Romans",
+     "cv": "10:9",
+     "hint": "Confess and believe",
+     "text": "That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved."
+    },
+    {
+     "ref": "Romans 10:13",
+     "book": "Romans",
+     "cv": "10:13",
+     "hint": "Whosoever shall call",
+     "text": "For whosoever shall call upon the name of the Lord shall be saved."
+    }
+   ]
+  },
+  {
+   "id": "comfort",
+   "title": "Comfort Ye",
+   "blurb": "Five anchors for a fearful heart — the assurance road.",
+   "stops": [
+    {
+     "ref": "Isaiah 41:10",
+     "book": "Isaiah",
+     "cv": "41:10",
+     "hint": "Fear thou not",
+     "text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."
+    },
+    {
+     "ref": "John 10:28",
+     "book": "John",
+     "cv": "10:28",
+     "hint": "None shall pluck",
+     "text": "And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand."
+    },
+    {
+     "ref": "Romans 8:38-39",
+     "book": "Romans",
+     "cv": "8:38-39",
+     "hint": "Nor any other creature",
+     "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord."
+    },
+    {
+     "ref": "1 Peter 5:7",
+     "book": "1 Peter",
+     "cv": "5:7",
+     "hint": "Casting all your care",
+     "text": "Casting all your care upon him; for he careth for you."
+    },
+    {
+     "ref": "Hebrews 13:5",
+     "book": "Hebrews",
+     "cv": "13:5",
+     "hint": "Never leave thee",
+     "text": "Let your conversation be without covetousness; and be content with such things as ye have: for he hath said, I will never leave thee, nor forsake thee."
+    }
+   ]
+  }
+ ]
+}
