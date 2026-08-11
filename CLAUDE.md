@@ -6,6 +6,7 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
 
 - **Site**: [bibleprogress.com](https://bibleprogress.com)
 - **Architecture**: Single-file PWA (`index.html` ~15,000 lines). No build process.
+  Companion tools are their own single files (`memorize.html`, `lamp.html`, `horner.html`, …).
 - **Stack**: HTML5, Tailwind CSS (CDN), Chart.js (CDN), Vanilla JS (ES6), Firebase Auth + Firestore
 - **Storage**: localStorage (`kjv_v6_data`) is primary; Firestore is secondary backup
 - **Total Words**: 789,634 (OT: 609,252 | NT: 180,382)
@@ -45,6 +46,7 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Dark Mode**: Settings toggle + triple-click logo easter egg
 - **Easter Eggs**: 7 hidden features (Konami code, profile dot clicks, Psalm 119, etc.)
 - **Accessibility**: 35+ ARIA labels for screen readers
+- **Lamp Room** (`lamp.html`): whole-Bible retention game over all 1,189 chapters — Leitner boxes drawn as lamp brightness, verse roads, sword drill. Reads the tracker's read chapters and profile list one-way; stores its own state in `users/{uid}.lampData`. See `LAMP.md`.
 
 ## Rules
 
@@ -66,9 +68,11 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 
 ## Quick Reference
 
-- **Firebase**: Project `bibleprogress-48cfd`, Firestore per-user docs
+- **Firebase**: Project `bibleprogress-48cfd`, Firestore per-user docs. `users/{uid}` carries one field per app — `appData` (tracker), `trainerData` (languages trainer), `lampData` (Lamp Room). Every writer uses `{merge:true}` and touches only its own field; never write another app's field.
 - **Bible data**: Minified array near top of JS section (66 books with word counts per chapter)
 - **Chapter key format**: `"BookName-ChapterNumber"` (e.g., `"Genesis-1"`, `"Psalms-119"`)
 - **Security functions**: `escapeHtml()`, `isValidHttpsUrl()`, `validateAppData()`, `normalizeAppData()` (deep sanitation of imported/cloud data; toasts escape messages centrally)
+- **Lamp Room data**: `content/packs/*.json` (chapter gists + KJV key-verse anchors, canonical counts asserted at load), `content/roads.json`; chapter keys are `"Gen.1"` style, translated from the tracker's `"Genesis-1"` on read
 - **Deployment**: GitHub Pages from main branch, domain via CNAME
-- **See also**: `SECURITY.md`, `TODO.md`
+- **Tests**: `tests/lamp-sync.test.html` — open in a browser; 30 assertions on the Lamp Room's sync-merge invariants
+- **See also**: `SECURITY.md`, `TODO.md`, `LAMP.md`

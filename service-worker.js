@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
     '/404.html',
     '/learn.html',
     '/chapter-recall.html',
+    '/lamp.html',
     '/bible-books-game.html',
     '/cause-of-god-and-truth.html',
     '/memorize.html',
@@ -32,11 +33,22 @@ const ASSETS_TO_CACHE = [
 
 // Large data files cached only via the explicit "download offline" flow
 // (too heavy for install, and cache.addAll fails atomically if any request fails)
+// Lamp Room content packs are fetched at runtime by the stale-while-revalidate
+// branch below, so they land in the cache on first visit. They are listed here
+// (not in ASSETS_TO_CACHE) so the explicit "download offline" flow grabs them
+// too, without making the atomic install addAll() depend on them.
 const LARGE_DATA_ASSETS = [
     '/kjv_bible.json',
     '/bsb.txt',
     '/biblical-languages-trainer.html',
-    '/bible-explorer.html'
+    '/bible-explorer.html',
+    '/content/roads.json',
+    '/content/packs/nt.json',
+    '/content/packs/ot-law.json',
+    '/content/packs/ot-history.json',
+    '/content/packs/ot-poetry.json',
+    '/content/packs/ot-major.json',
+    '/content/packs/ot-minor.json'
 ];
 
 // CDN resources to cache for offline use (keep URLs in sync with index.html)
