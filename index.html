@@ -10031,20 +10031,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 return { name, total, read, readCh, totalCh, pct: total > 0 ? (read / total * 100) : 0, color: catColors[i] }
             })
 
-            // Projection
-            const remainingWords = WORD_TOTALS.GLOBAL - totalRead
+            // Projection — same calculation the in-app widgets use
+            const exportProj = getFinishProjection(activityMap, totalRead)
             let projectionHtml = ''
-            if (avg30d > 0 && totalRead > 0 && totalRead < WORD_TOTALS.GLOBAL) {
-                const daysLeft = Math.ceil(remainingWords / avg30d)
-                const finishDate = new Date(today)
-                finishDate.setDate(finishDate.getDate() + daysLeft)
-                const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
-                const dateStr = `${monthNames[finishDate.getMonth()]} ${finishDate.getDate()}, ${finishDate.getFullYear()}`
+            if (exportProj.daysLeft !== null && !exportProj.complete && totalRead > 0) {
+                const dateStr = formatFinishDate(exportProj.finishDate, true)
                 projectionHtml = `<div class="projection-card">
                     <div style="font-size:24px;flex-shrink:0;">&#128197;</div>
                     <div>
                         <div style="font-weight:900;font-size:15px;color:#166534;margin-bottom:2px;">Projected Completion: ${dateStr}</div>
-                        <div style="font-size:12px;color:#15803d;font-weight:600;">${daysLeft.toLocaleString()} days remaining at ${avg30d.toLocaleString()} words/day</div>
+                        <div style="font-size:12px;color:#15803d;font-weight:600;">${exportProj.daysLeft.toLocaleString()} days remaining at ${exportProj.paceLabel} words/day (${exportProj.basis})</div>
                     </div>
                 </div>`
             }
@@ -11727,6 +11723,87 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return activityMap;
         }
 
+        // --- FINISH PROJECTION (single source of truth) ---
+        // Every projected finish date in the app — the dashboard widget, the
+        // stats forecast line, the ETA cards, the PDF export — runs through
+        // these helpers, so no two surfaces can quote different dates for the
+        // same reading history.
+        const PROJECTION_WINDOW_DAYS = 30;
+        // One or two days of history isn't a pace — projecting from it produced
+        // dates decades out for brand-new readers.
+        const MIN_PROJECTION_READING_DAYS = 3;
+
+        // "YYYY-MM-DD" -> local midnight. new Date(str) parses it as UTC,
+        // which lands on the previous day west of Greenwich.
+        function parseLocalDateString(dateStr) {
+            const [y, m, d] = String(dateStr).split('-').map(Number);
+            return new Date(y, (m || 1) - 1, d || 1);
+        }
+
+        // Average words per calendar day over the recent window. Rest days are
+        // counted: a reader who reads five days a week finishes at their
+        // seven-day-week pace, not their reading-day pace.
+        function getReadingPace(activityMap) {
+            const map = activityMap || {};
+            const dates = Object.keys(map).sort();
+            if (dates.length < MIN_PROJECTION_READING_DAYS) return { wordsPerDay: 0, basis: '' };
+
+            const today = new Date();
+            let windowWords = 0;
+            for (let i = 0; i < PROJECTION_WINDOW_DAYS; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                windowWords += (map[getLocalDateString(d.getTime())] || 0);
+            }
+            if (windowWords > 0) {
+                return { wordsPerDay: windowWords / PROJECTION_WINDOW_DAYS, basis: `last ${PROJECTION_WINDOW_DAYS} days` };
+            }
+
+            // Nothing read in the window: fall back to the all-time daily
+            // average across elapsed calendar days since the first reading day.
+            const firstDay = parseLocalDateString(dates[0]);
+            const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const elapsedDays = Math.max(1, Math.round((todayMidnight - firstDay) / 86400000) + 1);
+            const totalWords = dates.reduce((sum, key) => sum + (map[key] || 0), 0);
+            return { wordsPerDay: totalWords / elapsedDays, basis: 'all-time average' };
+        }
+
+        // Days from today to finish `remainingWords` at `wordsPerDay`.
+        // null when there is no usable pace yet.
+        function projectDaysNeeded(remainingWords, wordsPerDay) {
+            if (remainingWords <= 0) return 0;
+            if (!(wordsPerDay > 0)) return null;
+            return Math.ceil(remainingWords / wordsPerDay);
+        }
+
+        function projectDateAfterDays(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + days);
+            return d;
+        }
+
+        function formatFinishDate(date, long) {
+            return date.toLocaleDateString('en-US', { month: long ? 'long' : 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // Whole-Bible projection: { wordsPerDay, paceLabel, basis, remaining,
+        // complete, daysLeft, finishDate }. daysLeft/finishDate are null when
+        // there is not enough history to project.
+        function getFinishProjection(activityMap, wordsRead) {
+            const pace = getReadingPace(activityMap);
+            const remaining = Math.max(0, WORD_TOTALS.GLOBAL - wordsRead);
+            const daysLeft = projectDaysNeeded(remaining, pace.wordsPerDay);
+            return {
+                wordsPerDay: pace.wordsPerDay,
+                paceLabel: Math.round(pace.wordsPerDay).toLocaleString(),
+                basis: pace.basis,
+                remaining,
+                complete: remaining <= 0,
+                daysLeft,
+                finishDate: (daysLeft === null || remaining <= 0) ? null : projectDateAfterDays(daysLeft)
+            };
+        }
+
         function calculateStreaks(progressOverride) {
             const activityMap = getReadingActivity(progressOverride);
             const dates = Object.keys(activityMap).sort();
@@ -12491,36 +12568,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const el = document.getElementById('finish-projection')
             if (!el) return
 
-            const remaining = WORD_TOTALS.GLOBAL - wordsRead
-            if (remaining <= 0) {
+            const proj = getFinishProjection(activityMap, wordsRead)
+            if (proj.complete) {
                 el.innerHTML = `<div class="text-lg font-black text-emerald-700">Complete! 🎉</div>
                     <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">You've read the whole Bible</div>`
                 return
             }
 
-            // Prefer pace over the last 30 days; fall back to all-time average
-            const todayStr = getTodaysDate()
-            const cutoff = new Date(Date.now() - 30 * 86400000)
-            const cutoffStr = getLocalDateString(cutoff.getTime())
-            let recentWords = 0
-            Object.keys(activityMap).forEach(dateStr => {
-                if (dateStr >= cutoffStr && dateStr <= todayStr) recentWords += activityMap[dateStr]
-            })
-            const allTimeDays = Object.keys(activityMap).length
-            const wordsPerDay = recentWords > 0 ? recentWords / 30 : (allTimeDays > 0 ? wordsRead / allTimeDays : 0)
-
-            if (wordsPerDay <= 0) {
-                el.innerHTML = '<div class="text-sm text-slate-400 font-bold">Start reading to see your projected finish date</div>'
+            if (proj.daysLeft === null) {
+                el.innerHTML = '<div class="text-sm text-slate-400 font-bold">Read for a few more days to see your projected finish date</div>'
                 return
             }
 
-            const daysLeft = Math.ceil(remaining / wordsPerDay)
-            const finishDate = new Date(Date.now() + daysLeft * 86400000)
-            const dateLabel = finishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-            const paceLabel = Math.round(wordsPerDay).toLocaleString()
-            const basis = recentWords > 0 ? 'last 30 days' : 'all-time average'
+            const dateLabel = formatFinishDate(proj.finishDate, true)
             el.innerHTML = `<div class="text-lg font-black text-indigo-700">${dateLabel}</div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">At ${paceLabel} words/day (${basis}) • ${daysLeft.toLocaleString()} days to go</div>`
+                <div class="text-[10px] text-slate-400 font-bold uppercase mt-1">At ${proj.paceLabel} words/day (${proj.basis}) • ${proj.daysLeft.toLocaleString()} days to go</div>`
         }
 
         // --- CROSS-PLAN HISTORY RENDERING ---
@@ -13216,31 +13278,26 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // 10. Projection widget
             const projEl = document.getElementById('dash-projection-content')
             if (projEl) {
-                const remainingWords = WORD_TOTALS.GLOBAL - totalRead
-                if (avg7d > 0 && totalRead > 0) {
-                    const daysLeft = Math.ceil(remainingWords / avg7d)
-                    const finishDate = new Date(today)
-                    finishDate.setDate(finishDate.getDate() + daysLeft)
-                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-                    const dateStr = `${months[finishDate.getMonth()]} ${finishDate.getDate()}, ${finishDate.getFullYear()}`
+                const dashProj = getFinishProjection(activityMap, totalRead)
+                if (dashProj.daysLeft !== null && !dashProj.complete && totalRead > 0) {
+                    const daysLeft = dashProj.daysLeft
+                    const dateStr = formatFinishDate(dashProj.finishDate, false)
 
                     const otRemaining = WORD_TOTALS.OT - otRead
                     const ntRemaining = WORD_TOTALS.NT - ntRead
-                    const otDays = avg7d > 0 ? Math.ceil(otRemaining / avg7d) : 0
-                    const ntDays = avg7d > 0 ? Math.ceil(ntRemaining / avg7d) : 0
+                    const otDays = projectDaysNeeded(otRemaining, dashProj.wordsPerDay) || 0
+                    const ntDays = projectDaysNeeded(ntRemaining, dashProj.wordsPerDay) || 0
 
                     let projHtml = `<div class="flex items-center gap-3 mb-3">
                         <span class="text-2xl">📅</span>
                         <div>
                             <p class="text-sm font-black text-slate-800">Finish by ${dateStr}</p>
-                            <p class="text-xs text-slate-500">${daysLeft} days at your 7-day pace (${avg7d.toLocaleString()} words/day)</p>
+                            <p class="text-xs text-slate-500">${daysLeft} days at ${dashProj.paceLabel} words/day (${dashProj.basis})</p>
                         </div>
                     </div>`
                     if (otRemaining > 0 || ntRemaining > 0) {
                         projHtml += `<div class="grid grid-cols-2 gap-2 mt-2">`
                         if (otRemaining > 0) {
-                            const otFinish = new Date(today)
-                            otFinish.setDate(otFinish.getDate() + otDays)
                             projHtml += `<div class="bg-amber-50 rounded-lg p-2 text-center">
                                 <div class="text-xs font-black text-amber-700">${otDays}d</div>
                                 <div class="text-[9px] text-amber-500 font-bold">OT Left</div>
@@ -13265,6 +13322,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         projHtml += `</div>`
                     }
                     projEl.innerHTML = projHtml
+                } else if (dashProj.complete) {
+                    projEl.innerHTML = `<p class="text-sm font-black text-emerald-700">Complete! 🎉 You've read the whole Bible.</p>`
                 } else if (totalRead > 0) {
                     projEl.innerHTML = `<p class="text-sm text-slate-500">Keep reading to build your pace data for projections.</p>`
                 } else {
@@ -13457,17 +13516,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const unreadOT = WORD_TOTALS.OT - otRead
             const unreadNT = WORD_TOTALS.NT - ntRead
 
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
             const formatETA = (unreadWords, avgDaily) => {
                 if (unreadWords <= 0) return 'Complete! 🎉'
-                if (avgDaily <= 0) return 'Start reading!'
-                const daysNeeded = Math.ceil(unreadWords / avgDaily)
-                const etaDate = new Date()
-                etaDate.setDate(etaDate.getDate() + daysNeeded)
-                return `~${monthNames[etaDate.getMonth()]} ${etaDate.getDate()}, ${etaDate.getFullYear()}`
+                const daysNeeded = projectDaysNeeded(unreadWords, avgDaily)
+                if (daysNeeded === null) return 'Start reading!'
+                return `~${formatFinishDate(projectDateAfterDays(daysNeeded), false)}`
             }
 
-            const paceAvg = avg30d > 0 ? avg30d : avgAllTime
+            // Same pace the dashboard and forecast use, so the dates agree
+            const paceAvg = getReadingPace(activityMap).wordsPerDay
             document.getElementById('eta-total').textContent = formatETA(unreadTotal, paceAvg)
             document.getElementById('eta-ot').textContent = formatETA(unreadOT, paceAvg)
             document.getElementById('eta-nt').textContent = formatETA(unreadNT, paceAvg)
@@ -13478,8 +13535,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             Object.keys(activityMap).forEach(dateStr => {
                 const words = activityMap[dateStr]
                 if (words > bestDay.words) { bestDay = { words, date: dateStr } }
-                // Group by ISO week
-                const d = new Date(dateStr)
+                // Group by ISO week (parse as local — new Date(dateStr) is UTC
+                // and would bucket western-timezone days into the wrong week)
+                const d = parseLocalDateString(dateStr)
                 const weekStart = new Date(d)
                 weekStart.setDate(d.getDate() - d.getDay())
                 const weekKey = getLocalDateString(weekStart.getTime())
@@ -13492,9 +13550,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             })
 
             document.getElementById('best-day-words').textContent = bestDay.words.toLocaleString()
-            document.getElementById('best-day-date').textContent = bestDay.date ? new Date(bestDay.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
+            document.getElementById('best-day-date').textContent = bestDay.date ? parseLocalDateString(bestDay.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
             document.getElementById('best-week-words').textContent = bestWeek.words.toLocaleString()
-            document.getElementById('best-week-date').textContent = bestWeek.date ? `Week of ${new Date(bestWeek.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''
+            document.getElementById('best-week-date').textContent = bestWeek.date ? `Week of ${parseLocalDateString(bestWeek.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''
         }
 
         // This Week / This Month report card with deltas vs the previous period
@@ -13719,57 +13777,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 }
             }
 
-            // Calculate completion forecast based on realistic reading patterns
+            // Completion forecast — same projection as the dashboard widget and
+            // the ETA cards, so all three quote the same date.
             const forecastEl = document.getElementById('completion-forecast');
             if (forecastEl && unreadWords > 0 && totalReadingDays >= 3) {
-                const today = new Date();
-                const msPerDay = 1000 * 60 * 60 * 24;
+                const forecast = getFinishProjection(activityMap, chartTotalRead);
 
-                // Get all reading dates sorted
-                const allDates = Object.keys(activityMap).sort();
-                const firstReadingDate = allDates.length > 0 ? new Date(allDates[0]) : today;
-                const daysSinceStart = Math.ceil((today - firstReadingDate) / msPerDay);
-
-                // Use a 60-day window for more stable estimates (or days since start if less)
-                let daysInWindow = Math.min(60, Math.max(daysSinceStart, 7));
-                const windowStartDate = new Date(today);
-                windowStartDate.setDate(today.getDate() - daysInWindow);
-
-                // Calculate recent activity within the window
-                let recentWords = 0;
-                let activeDaysInWindow = 0;
-                Object.keys(activityMap).forEach(dateStr => {
-                    const date = new Date(dateStr);
-                    if (date >= windowStartDate && activityMap[dateStr] > 0) {
-                        recentWords += activityMap[dateStr];
-                        activeDaysInWindow++;
-                    }
-                });
-
-                // Calculate words per active reading day and reading frequency
-                const wordsPerActiveDay = activeDaysInWindow > 0 ? recentWords / activeDaysInWindow : 0;
-                const readingFrequency = activeDaysInWindow / daysInWindow; // Fraction of days with reading
-
-                // Only show forecast if there's meaningful activity
-                if (wordsPerActiveDay > 100 && readingFrequency > 0.05) {
-                    // Estimate active days needed to complete
-                    const activeDaysNeeded = Math.ceil(unreadWords / wordsPerActiveDay);
-
-                    // Convert to calendar days based on reading frequency
-                    // Add 20% buffer for realistic estimation (accounts for life interruptions)
-                    const calendarDaysNeeded = Math.ceil((activeDaysNeeded / readingFrequency) * 1.2);
-
-                    // Calculate completion date
-                    const completionDate = new Date();
-                    completionDate.setDate(completionDate.getDate() + calendarDaysNeeded);
-
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    const formattedDate = `${monthNames[completionDate.getMonth()]} ${completionDate.getDate()}, ${completionDate.getFullYear()}`;
-
-                    if (calendarDaysNeeded < 365) {
-                        forecastEl.innerHTML = `📅 At your current pace, you'll finish around <strong>${formattedDate}</strong>`;
+                if (forecast.daysLeft !== null) {
+                    if (forecast.daysLeft < 365) {
+                        forecastEl.innerHTML = `📅 At your current pace, you'll finish around <strong>${formatFinishDate(forecast.finishDate, false)}</strong>`;
                     } else {
-                        const years = (calendarDaysNeeded / 365).toFixed(1);
+                        const years = (forecast.daysLeft / 365).toFixed(1);
                         forecastEl.innerHTML = `📅 At your current pace, you'll finish in about <strong>${years} years</strong>`;
                     }
                 } else {
