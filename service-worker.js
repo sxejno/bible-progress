@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-progress-v12';
+const CACHE_NAME = 'bible-progress-v13';
 // CDN copies live in their own version-independent cache so bumping
 // CACHE_NAME no longer wipes offline CDN resources (old HIGH-priority bug)
 const CDN_CACHE = 'bible-progress-cdn-v1';
@@ -22,10 +22,14 @@ const ASSETS_TO_CACHE = [
     '/privacy.html',
     '/terms.html',
     '/manifest.json',
+    '/favicon.svg',
     '/favicon.png',
     '/favicon.ico',
+    '/apple-touch-icon.png',
     '/icon-192.png',
     '/icon-512.png',
+    '/icon-192-maskable.png',
+    '/icon-512-maskable.png',
     '/fivedayplan.json',
     '/pronunciations.json',
     '/bible_chapter_summaries_concise.json'
