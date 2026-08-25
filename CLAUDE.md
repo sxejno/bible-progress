@@ -75,4 +75,6 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Lamp Room data**: `content/packs/*.json` (chapter gists + KJV key-verse anchors, canonical counts asserted at load), `content/roads.json`; chapter keys are `"Gen.1"` style, translated from the tracker's `"Genesis-1"` on read
 - **Deployment**: GitHub Pages from main branch, domain via CNAME
 - **Tests**: `tests/lamp-sync.test.html` — open in a browser; 30 assertions on the Lamp Room's sync-merge invariants
+- **App icon**: vector source is `build/icon/icon.py` → `build/icon/icon.svg`. Regenerate the shipped set with `python3 build/icon/icon.py && python3 build/icon/build.py` (renders through headless Chromium, then quantises + oxipng). Never hand-edit the root PNGs. Bump `CACHE_NAME` in `service-worker.js` whenever icon files change, or installed PWAs keep the old ones.
+- **Icon tests**: `python3 tests/icons.test.py` — manifest sizes, service-worker precache list, per-page references, and the maskable safe circle
 - **See also**: `SECURITY.md`, `TODO.md`, `LAMP.md`
