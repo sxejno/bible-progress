@@ -41,6 +41,7 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Reading Plans**: Sequential, One Year (OT+NT Daily), M'Cheyne (4/day), Horner (10 rotating lists), Five-Day (weekends off), Custom
 - **Streaks**: Consecutive reading days with 1-day grace, heatmap, milestone celebrations
 - **Bible Reader**: In-app KJV text with verse memorization (star icon)
+- **Reading Helps**: Proper nouns get a hover pronunciation (`PRONUNCIATION_GUIDE`, ~3,900 entries, matched loosely so the KJV's run-together spellings like `Merodachbaladan` hit the guide's `Merodach-Baladan`); words a modern reader misreads get a "Modern Meaning" tooltip, either verse-pinned (`ARCHAIC_WORD_REFERENCE_ENTRIES`, when the sense shifts verse to verse) or whole-Bible (`ARCHAIC_WORD_GLOSSARY`). Verse-pinned wins.
 - **Goals**: Deadline-based reading goals (whole Bible, testament, books, category)
 - **Export**: CSV, Obsidian (MD with YAML frontmatter), PDF, JSON backup — all include full user data
 - **Dark Mode**: Settings toggle + triple-click logo easter egg
