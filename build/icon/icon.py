@@ -20,9 +20,10 @@ CREAM = '#FFF7E6'
 
 # ---- geometry ------------------------------------------------------------
 RING_CX, RING_CY, RING_R, RING_W = 256.0, 262.0, 196.0, 25.0
-GAP_A, GAP_B = 28.0, 66.0          # ring gap (degrees, CCW from east)
+GAP_A, GAP_B = 36.0, 58.0          # ring gap (degrees, CCW from east); ends tuck under the badge
 BADGE_A = 47.0                     # check badge sits in the gap
-BADGE_R = 60.0
+BADGE_D = 174.0                    # badge centre pulled inside the ring line so it barely
+BADGE_R = 52.0                     # overhangs — keeps the art's reach tight for maskable icons
 
 COVER = (128.0, 94.0, 386.0, 412.0)   # x0, y0, x1, y1
 PAGES = (146.0, 112.0, 406.0, 434.0)  # gilt block, offset so its edge shows
@@ -95,7 +96,7 @@ def wordmark():
 
 def build():
     (gx0, gy0), (gx1, gy1) = polar(GAP_B), polar(GAP_A)
-    bx, by = polar(BADGE_A)
+    bx, by = polar(BADGE_A, BADGE_D)
 
     # ring: one long arc that stops either side of the badge
     ring = (f'M{gx0:.1f},{gy0:.1f} A{RING_R},{RING_R} 0 1 0 {gx1:.1f},{gy1:.1f}')
@@ -141,7 +142,7 @@ def build():
 <!-- progress ring -->
 <path d="{ring}" stroke="url(#t)" stroke-width="{RING_W}"/>
 <!-- ribbon bookmark, tucked behind the book -->
-<path d="M226,368 H274 V502 L250,476 226,502 Z" fill="url(#t)" stroke="none"/>
+<path d="M226,368 H274 V488 L250,464 226,488 Z" fill="url(#t)" stroke="none"/>
 <!-- gilt page block -->
 <path d="{rounded(px0, py0, px1, py1, CORNER)}" fill="url(#gv)" stroke="none"/>
 <g stroke="{GOLD_LO}" stroke-width="1.4" opacity=".55" stroke-linecap="butt">{''.join(striations)}</g>
@@ -156,8 +157,8 @@ def build():
 <!-- wordmark -->
 <path d="{wordmark()}" fill="url(#gv)" stroke="none"/>
 <!-- check badge -->
-<circle cx="{bx:.1f}" cy="{by:.1f}" r="{BADGE_R}" fill="#0B4F55" stroke="url(#g)" stroke-width="9"/>
-<path d="M{bx - 24:.1f},{by + 2:.1f} l16,17 l32,-35" stroke="{CREAM}" stroke-width="13"/>
+<circle cx="{bx:.1f}" cy="{by:.1f}" r="{BADGE_R}" fill="#0B4F55" stroke="url(#g)" stroke-width="8"/>
+<path d="M{bx - 21:.1f},{by + 2:.1f} l14,15 l28,-30" stroke="{CREAM}" stroke-width="12"/>
 </g>
 </svg>
 '''
