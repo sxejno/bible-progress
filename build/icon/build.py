@@ -3,15 +3,22 @@
 
     python3 build/icon/icon.py && python3 build/icon/build.py
 
-Renders once at 2048px through headless Chromium, trims to the artwork's alpha
-bounds, then downsamples (Lanczos) into every target. Outputs are re-encoded
-with oxipng at max effort, and the small ones are palette-quantised first.
+Dependencies: pip install numpy pillow playwright fonttools pyoxipng
+
+Renders once at 2048px through headless Chromium, then downsamples (Lanczos)
+into every target. Square targets trim to the artwork's alpha bounds and centre
+that box; maskable targets instead find the artwork's smallest enclosing circle
+and scale it to fill the safe zone exactly, so launchers that crop to a circle
+show as little dead space as the spec allows. Outputs are re-encoded with
+oxipng at max effort, and the small ones are palette-quantised first.
 """
 import io
+import math
 import pathlib
 import re
 import sys
 
+import numpy as np
 import oxipng
 from PIL import Image
 from playwright.sync_api import sync_playwright
@@ -22,16 +29,18 @@ CHROME = pathlib.Path('/opt/pw-browsers/chromium-1194/chrome-linux/chrome')
 SRC = pathlib.Path(__file__).with_name('icon.svg')
 MASTER = 2048
 WHITE = (255, 255, 255, 255)
+SAFE = 0.4      # maskable safe circle: radius as a share of the canvas (centre 80%)
+GUARD = 0.01    # share of the canvas kept between the art and that circle, for
+                # resampling halo — tests/icons.test.py rejects a single pixel over
 
-# name, size, margin (share of the canvas left empty on every side), background
+# name, size, margin (share of the canvas left empty on every side, or
+# 'circle' for the enclosing-circle fit into the maskable safe zone), background
 TARGETS = [
     ('favicon.png', 96, 0.02, None),
     ('icon-192.png', 192, 0.02, None),
     ('icon-512.png', 512, 0.02, None),
-    # 0.18 keeps every pixel inside the maskable safe circle (centre 80%),
-    # allowing for the artwork's corners, not just its width
-    ('icon-192-maskable.png', 192, 0.18, WHITE),
-    ('icon-512-maskable.png', 512, 0.18, WHITE),
+    ('icon-192-maskable.png', 192, 'circle', WHITE),
+    ('icon-512-maskable.png', 512, 'circle', WHITE),
     ('apple-touch-icon.png', 180, 0.06, WHITE),
     ('og-image.png', 512, 0.06, WHITE),   # social cards choke on transparency
 ]
@@ -54,8 +63,45 @@ def render_master() -> Image.Image:
     return Image.open(io.BytesIO(shot)).convert('RGBA')
 
 
-def fit(master: Image.Image, size: int, margin: float, bg):
+def enclosing_circle(master: Image.Image):
+    """Smallest circle around every opaque pixel: (cx, cy, r) in master pixels.
+
+    Bădoiu–Clarkson iteration over the alpha outline — each step walks the
+    centre toward the farthest point by a shrinking fraction, converging on the
+    true minimum enclosing circle to within 1/steps of its radius.
+    """
+    alpha = np.asarray(master)[:, :, 3] > 0
+    inner = np.zeros_like(alpha)
+    inner[1:-1, 1:-1] = (alpha[1:-1, 1:-1] & alpha[:-2, 1:-1] & alpha[2:, 1:-1]
+                         & alpha[1:-1, :-2] & alpha[1:-1, 2:])
+    ys, xs = np.nonzero(alpha & ~inner)
+    pts = np.stack([xs, ys], axis=1).astype(float) + 0.5
+    c = pts.mean(axis=0)
+    steps = 4000
+    for i in range(1, steps + 1):
+        far = pts[np.argmax(((pts - c) ** 2).sum(axis=1))]
+        c += (far - c) / (i + 1)
+    r = math.sqrt(((pts - c) ** 2).sum(axis=1).max())
+    return c[0], c[1], r * (1 + 1 / steps)
+
+
+def fit_circle(master: Image.Image, size: int, bg):
+    """Scale the artwork so its enclosing circle fills the maskable safe zone,
+    and put that circle's centre on the canvas centre."""
+    cx, cy, r = enclosing_circle(master)
+    scale = size * (SAFE - GUARD) / r
+    art = master.resize((max(1, round(master.width * scale)),
+                         max(1, round(master.height * scale))), Image.LANCZOS)
+    canvas = Image.new('RGBA', (size, size), bg or (0, 0, 0, 0))
+    canvas.alpha_composite(art, (round(size / 2 - cx * scale),
+                                 round(size / 2 - cy * scale)))
+    return canvas
+
+
+def fit(master: Image.Image, size: int, margin, bg):
     """Centre the trimmed artwork in a `size` square with `margin` breathing room."""
+    if margin == 'circle':
+        return fit_circle(master, size, bg)
     art = master.crop(master.getbbox())
     inner = round(size * (1 - 2 * margin))
     scale = inner / max(art.size)
