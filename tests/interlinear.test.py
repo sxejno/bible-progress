@@ -40,6 +40,8 @@ for lang, entries in lex.items():
 total_words = total_linked = 0
 missing_numbers = set()
 books_seen = 0
+verse_gid = 0
+seen_occurrences = {'he': {}, 'el': {}}   # number -> set(verse id), rebuilt from the packs
 for bi, book in enumerate(kjv):
     name = book['book']
     lang = 'he' if bi < 39 else 'el'
@@ -60,6 +62,8 @@ for bi, book in enumerate(kjv):
         check(len(verses) == len(chapter['verses']),
               f'{name} {ci + 1}: {len(verses)} verses, KJV has {len(chapter["verses"])}')
         for vi, verse in enumerate(verses):
+            gid = verse_gid
+            verse_gid += 1
             ref = f'{name} {ci + 1}:{vi + 1}'
             check(isinstance(verse, list) and len(verse) == 2, f'{ref}: verse is not [words, segs]')
             words, segs = verse
@@ -69,6 +73,9 @@ for bi, book in enumerate(kjv):
                 check(len(w) == width and all(isinstance(x, str) for x in w), f'{ref}: bad word tuple {w!r}')
                 check(bool(w[0]), f'{ref}: empty surface form')
                 strongs = w[3] if lang == 'he' else w[2]
+                lexical = [n for n in strongs.split('/') if n.isdigit() and int(n) < 9000]
+                if lexical:
+                    seen_occurrences[lang].setdefault(lexical[-1], set()).add(gid)
                 for n in strongs.split('/'):
                     check(n.isdigit(), f'{ref}: bad Strong\'s part {n!r} in {strongs!r}')
                     if n.isdigit() and n not in lex[lang]:
@@ -97,8 +104,24 @@ for bi, book in enumerate(kjv):
 check(books_seen == 66, f'only {books_seen} book packs found')
 check(total_words > 440000, f'too few original words: {total_words}')
 coverage = total_linked / max(1, total_words)
-check(coverage > 0.85, f'alignment coverage {coverage:.1%} is below 85%')
+check(coverage > 0.93, f'alignment coverage {coverage:.1%} is below 93%')
 check(not missing_numbers, f'{len(missing_numbers)} Strong\'s numbers used by words have no lexicon entry, e.g. {sorted(missing_numbers)[:5]}')
+
+# the concordance files list exactly the verses the packs contain
+for lang in ('he', 'el'):
+    occ = json.load(open(os.path.join(IL, f'occurrences-{lang}.json'), encoding='utf-8'))
+    check(set(occ) == set(seen_occurrences[lang]), f'{lang} concordance numbers differ from the packs')
+    bad = 0
+    for num, deltas in occ.items():
+        ids, acc = [], 0
+        for d in deltas:
+            acc += d
+            ids.append(acc)
+        check(all(0 <= i < verse_gid for i in ids), f'{lang} {num}: verse id out of range')
+        if set(ids) != seen_occurrences[lang].get(num, set()):
+            bad += 1
+        check(num in lex[lang], f'{lang} concordance number {num} has no lexicon entry')
+    check(bad == 0, f'{lang} concordance disagrees with the packs for {bad} numbers')
 
 # manifest agrees with the files
 for name, info in manifest['books'].items():
@@ -115,7 +138,7 @@ for f in sorted(os.listdir(IL)):
     if f.endswith('.json'):
         check(f"'/content/interlinear/{f}'" in sw, f'service worker offline list lacks {f}')
 
-print(f'interlinear: {books_seen} books, {total_words} original words, {coverage:.1%} aligned to KJV phrases')
+print(f'interlinear: {books_seen} books, {total_words} original words, {coverage:.1%} aligned to KJV phrases, {verse_gid} verses indexed')
 if failures:
     print(f'FAIL ({len(failures)}):')
     for f in failures[:40]:

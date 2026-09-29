@@ -20,6 +20,8 @@ Outputs (committed):
   content/interlinear/lexicon-he.json    Strong's Hebrew + STEP prefix codes
   content/interlinear/lexicon-el.json    Strong's Greek
   content/interlinear/index.json         manifest with per-book stats
+  content/interlinear/occurrences-*.json Strong's number -> verses that contain it
+                                         (verse ids in kjv_bible.json order, delta-encoded)
 
 Per verse the book files hold two arrays:
   words: original-language words in original order
@@ -211,7 +213,8 @@ def parse_tahot(path, store, prefix_gloss, lemma_gloss):
                     elif g:
                         lemma_gloss[('he', num)][g] += 1
             key = (m.group('b'), int(m.group('c')), int(m.group('v')))
-            store[key].append([hebrew, translit, gloss, '/'.join(str(n) for n in nums), grammar])
+            store[key].append([hebrew, translit, gloss, '/'.join(str(n) for n in nums), grammar,
+                               [int(m.group('n')), 0]])
 
 
 VARIANT_RE = re.compile(r'^(?P<w>.+?) \(T=[^)]*\) (?P<g>.*?) - (?P<s>G\d{4}[A-Za-z]?=[^ ]+(?: \+ G\d{4}[A-Za-z]?=[^ ]+)*) in: (?P<e>.*)$')
@@ -278,9 +281,15 @@ def parse_tagnt(path, store, lemma_gloss, stats):
                             stats['spelling_swapped'] += 1
                             break
                 rows = [greek_row(surface, gloss, sg)]
+            # "#11»12:G4190" links an article or particle to the word it belongs to
+            own = int(m.group('n'))
+            target = 0
+            cj = re.match(r'#(\d+)[«»](\d+)', cols[10].strip()) if len(cols) > 10 else None
+            if cj:
+                target = int(cj.group(2))
             for r in rows:
                 if r[3]:
-                    store[key].append(r)
+                    store[key].append(r + [[own, target]])
             # dictionary form = gloss  -> short lexicon gloss
             if len(cols) > 4 and '=' in cols[4]:
                 lemma, g = cols[4].split('=', 1)
@@ -377,7 +386,7 @@ GLOSS_SKIP = {'the', 'a', 'an', 'of', 'and', 'is', 'are', 'was', 'were', 'be', '
               'they', 'them', 'his', 'her', 'their', 'him', 'i', 'we', 'you', 'me', 'us', 'my', 'our',
               'your', 'obj', 'obj.'}
 WORD_RE = re.compile(r"[a-z']+")
-DEBUG = {'miss': Counter(), 'unlinked': Counter()}
+DEBUG = {'miss': Counter(), 'unlinked': Counter(), 'conjoined': 0}
 
 
 def gloss_pass(orig_words, segs, used, seg_of):
@@ -418,6 +427,52 @@ def gloss_pass(orig_words, segs, used, seg_of):
                 break
 
 
+# Hebrew has no conjoin data, so particles attach to the word that follows them:
+# the object marker, prepositions, the relative, "for", "not", "behold", subject pronouns
+HEB_ATTACH = ('To', 'R', 'Rd', 'Tr', 'Tc', 'Tn', 'Tj', 'Pp', 'C')
+
+
+def hebrew_attaches(morph):
+    parts = [p for p in morph[1:].split('/') if p and not p.startswith('S')]
+    if not parts:
+        return False
+    head = parts[-1]
+    return head[:2] in HEB_ATTACH or (head[:1] in ('R', 'C') and head[:2] not in HEB_POS_TWO)
+
+
+HEB_POS_TWO = ('Rd',)
+
+
+def conjoin_pass(lang, orig_words, segs, used, seg_of):
+    """Attach words the KJV never tags on their own (articles, object markers,
+    prepositions) to the KJV phrase of the word they belong to. Greek uses
+    STEP's conjoin column; Hebrew attaches to the next word."""
+    by_no = {w[5][0]: i for i, w in enumerate(orig_words) if len(w) > 5}
+    added = 0
+    for _round in range(3):
+        progress = False
+        for i, w in enumerate(orig_words):
+            if used[i]:
+                continue
+            j = None
+            if lang == 'el':
+                target = w[5][1] if len(w) > 5 else 0
+                j = by_no.get(target) if target else None
+            elif hebrew_attaches(w[4]) and i + 1 < len(orig_words):
+                j = i + 1
+            if j is None or j == i or not used[j]:
+                continue
+            k = seg_of[j]
+            segs[k]['links'].append(i)
+            used[i] = True
+            seg_of[i] = k
+            added += 1
+            progress = True
+        if not progress:
+            break
+    return added
+
+
 def align(lang, orig_words, segs):
     nums = [set(canon(lang, int(n)) for n in w[3].split('/')) for w in orig_words]
     used = [False] * len(orig_words)
@@ -439,6 +494,7 @@ def align(lang, orig_words, segs):
             cursor = i + 1
             hits += 1
     gloss_pass(orig_words, segs, used, seg_of)
+    DEBUG['conjoined'] += conjoin_pass(lang, orig_words, segs, used, seg_of)
     for s in segs:
         s['links'].sort()
     for i, w in enumerate(orig_words):
@@ -465,6 +521,8 @@ def main():
     verse_counts = defaultdict(lambda: defaultdict(int))
     for (book, ch, vs) in kjv_text:
         verse_counts[book][ch] = max(verse_counts[book][ch], vs)
+    verse_gid = {key: i for i, key in enumerate(kjv_text)}   # kjv_bible.json order
+    occurrences = defaultdict(set)                            # (lang, number) -> verse ids
 
     print('Parsing STEP files ...')
     step = defaultdict(list)
@@ -525,14 +583,16 @@ def main():
                 for w in orig:
                     for n in w[3].split('/'):
                         usage[(lang, int(n))] += 1
+                    main = [n for n in w[3].split('/') if int(n) < 9000]
+                    if main:
+                        occurrences[(lang, int(main[-1]))].add(verse_gid[(name, ch, vs)])
                 out_segs = []
                 for s in segs:
                     seg = [' '.join(s['words']), s['links']]
                     if s['supplied']:
                         seg.append(1)
                     out_segs.append(seg)
-                if lang == 'el':
-                    orig = [[w[0], w[2], w[3], w[4]] for w in orig]
+                orig = [[w[0], w[2], w[3], w[4]] if lang == 'el' else w[:5] for w in orig]
                 verses.append([orig, out_segs])
             chapters.append(verses)
         data = {'book': name, 'lang': lang, 'chapters': chapters}
@@ -600,6 +660,18 @@ def main():
             json.dump(lex, f, ensure_ascii=False, separators=(',', ':'))
         print(f'  {fname}: {len(lex)} entries, {os.path.getsize(os.path.join(OUT, fname)) / 1024:.0f} KB')
 
+    # --- occurrence index: Strong's number -> verses (delta-encoded verse ids) --
+    for lang, fname in (('he', 'occurrences-he.json'), ('el', 'occurrences-el.json')):
+        index = {}
+        for (l, n), ids in occurrences.items():
+            if l != lang:
+                continue
+            ordered = sorted(ids)
+            index[str(n)] = [ordered[0]] + [b - a for a, b in zip(ordered, ordered[1:])]
+        with open(os.path.join(OUT, fname), 'w', encoding='utf-8') as f:
+            json.dump(index, f, separators=(',', ':'))
+        print(f'  {fname}: {len(index)} numbers, {os.path.getsize(os.path.join(OUT, fname)) / 1024:.0f} KB')
+
     t = manifest['totals']
     manifest['totals'] = dict(t)
     manifest['sources'] = [
@@ -614,9 +686,9 @@ def main():
           f'{100 * t["tag_hits"] / max(1, t["tags"]):.1f}% of KJV tags found their word; '
           f'{t["empty"]} verses without original words; {t.get("kjv_missing", 0)} KJV verses missing from CrossWire; '
           f'{casing_miss} verses where CrossWire and kjv_bible.json tokenise differently.')
-    print(f'Book files: {total_bytes / 1024 / 1024:.1f} MB')
+    print(f'Book files: {total_bytes / 1024 / 1024:.1f} MB; {DEBUG["conjoined"]} particles attached to their head word')
     with open(os.path.join(CACHE, 'align-debug.json'), 'w') as f:
-        json.dump({k: v.most_common(300) for k, v in DEBUG.items()}, f, indent=0)
+        json.dump({k: (v.most_common(300) if isinstance(v, Counter) else v) for k, v in DEBUG.items()}, f, indent=0)
 
 
 if __name__ == '__main__':

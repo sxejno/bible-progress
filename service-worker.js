@@ -53,7 +53,7 @@ const LARGE_DATA_ASSETS = [
     '/content/packs/ot-poetry.json',
     '/content/packs/ot-major.json',
     '/content/packs/ot-minor.json',
-    // Interlinear reader packs (one per book + two lexicons), fetched on demand
+    // Interlinear reader packs (one per book, two lexicons, two concordances), fetched on demand
     '/content/interlinear/1chronicles.json',
     '/content/interlinear/1corinthians.json',
     '/content/interlinear/1john.json',
@@ -112,6 +112,8 @@ const LARGE_DATA_ASSETS = [
     '/content/interlinear/nehemiah.json',
     '/content/interlinear/numbers.json',
     '/content/interlinear/obadiah.json',
+    '/content/interlinear/occurrences-el.json',
+    '/content/interlinear/occurrences-he.json',
     '/content/interlinear/philemon.json',
     '/content/interlinear/philippians.json',
     '/content/interlinear/proverbs.json',
