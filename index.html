@@ -363,6 +363,126 @@
             opacity: 1;
             transform: translateX(-50%) translateY(-4px);
         }
+        /* ---- Interlinear reader ---- */
+        .il-verse {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 0.35rem 0.5rem;
+            line-height: 1.3;
+        }
+        .il-seg {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.15rem;
+            padding: 0.15rem 0.2rem;
+            border-radius: 0.5rem;
+        }
+        .il-seg-plain { align-self: flex-start; }
+        .il-kjv {
+            font-size: 1rem;
+            color: #1e293b;
+            max-width: 16rem;
+        }
+        .il-seg-plain .il-kjv { max-width: 100%; }
+        /* the order switch lives in the reader header on wider screens; phones use Settings */
+        .il-layout-switch { display: none; }
+        @media (min-width: 640px) { .il-layout-switch:not(.il-hidden) { display: inline-flex; } }
+        .il-supplied { font-style: italic; color: #64748b; }
+        .il-kjv-ghost { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
+        .il-stack { display: inline-flex; gap: 0.25rem; align-items: flex-start; }
+        .il-word {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.05rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+            background: #f8fafc;
+            text-align: left;
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+        .il-word:hover, .il-word:focus-visible { background: #eef2ff; border-color: #c7d2fe; outline: none; }
+        .il-word-active { background: #e0e7ff; border-color: #818cf8; }
+        .il-word.il-ghost { background: transparent; border-style: dashed; border-color: #e2e8f0; }
+        .il-word.il-ghost .il-orig { color: #64748b; }
+        .il-orig {
+            font-size: 1.35rem;
+            line-height: 1.35;
+            color: #312e81;
+            white-space: nowrap;
+            font-family: "SBL Hebrew", "Ezra SIL", "Taamey Frank CLM", "David CLM", "Noto Serif Hebrew", "Noto Serif", "Times New Roman", Georgia, serif;
+        }
+        .il-orig[lang="el"] { font-family: "Gentium Plus", "SBL Greek", "Cardo", "Noto Serif", "Palatino Linotype", Georgia, serif; font-size: 1.25rem; }
+        .il-tr { font-size: 0.72rem; color: #4f46e5; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; }
+        .il-gloss { font-size: 0.72rem; color: #334155; white-space: nowrap; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+        .il-kjv-under { font-size: 0.72rem; color: #94a3b8; font-style: italic; white-space: nowrap; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+        .il-sn { font-size: 0.62rem; color: #94a3b8; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; }
+        .il-orig-order .il-word { align-items: center; text-align: center; min-width: 3.2rem; }
+        .il-orig-order[dir="rtl"] .il-tr, .il-orig-order[dir="rtl"] .il-gloss, .il-orig-order[dir="rtl"] .il-kjv-under, .il-orig-order[dir="rtl"] .il-sn { direction: ltr; }
+        .il-credit { font-size: 0.7rem; color: #94a3b8; margin-top: 1.5rem; line-height: 1.5; }
+        .il-credit a { color: #6366f1; text-decoration: underline; }
+        .il-toggle-on { background-color: #4f46e5 !important; color: #fff !important; border-color: #4f46e5 !important; }
+        .il-layout-active { background-color: #e0e7ff; color: #3730a3; }
+        .bible-verse.il-mode .verse-number { padding-top: 0.15rem; }
+
+        /* word detail panel: bottom sheet */
+        #il-word-panel {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 42rem;
+            max-height: 62vh;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 1.5rem 1.5rem 0 0;
+            box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.25);
+            border: 1px solid #e2e8f0;
+            z-index: 130;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+            animation: il-sheet-in 0.2s ease-out;
+        }
+        @keyframes il-sheet-in { from { transform: translate(-50%, 1.5rem); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @media (min-width: 900px) {
+            #il-word-panel { left: auto; right: 1.5rem; bottom: 1.5rem; transform: none; max-width: 26rem; border-radius: 1.5rem; max-height: 80vh; }
+            @keyframes il-sheet-in { from { transform: translateY(1rem); opacity: 0; } to { transform: none; opacity: 1; } }
+        }
+        .il-panel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; padding: 1.1rem 1.25rem 0.5rem; position: sticky; top: 0; background: #fff; border-bottom: 1px solid #f1f5f9; }
+        .il-panel-word { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.75rem; }
+        .il-panel-orig { font-size: 2rem; line-height: 1.2; color: #312e81; font-family: "SBL Hebrew", "Ezra SIL", "Noto Serif Hebrew", "Gentium Plus", "Noto Serif", Georgia, serif; }
+        .il-panel-pron { font-size: 1rem; font-weight: 700; color: #4f46e5; }
+        .il-speak { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9999px; background: #eef2ff; color: #4f46e5; align-self: center; }
+        .il-speak:hover { background: #e0e7ff; }
+        .il-panel-body { padding: 0.75rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 0.9rem; }
+        .il-panel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 1rem; }
+        .il-panel-label { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 0.15rem; }
+        .il-panel-value { font-size: 0.85rem; color: #1e293b; line-height: 1.4; }
+        .il-panel-section { border-top: 1px solid #f1f5f9; padding-top: 0.75rem; }
+        .il-parts { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .il-part { display: inline-flex; flex-direction: column; align-items: center; padding: 0.35rem 0.6rem; border-radius: 0.6rem; background: #f8fafc; border: 1px solid #e2e8f0; min-width: 4rem; }
+        .il-part-orig { font-size: 1.15rem; color: #312e81; font-family: "SBL Hebrew", "Ezra SIL", "Noto Serif Hebrew", "Noto Serif", Georgia, serif; }
+        .il-part-meaning { font-size: 0.75rem; color: #334155; }
+        .il-part-kind { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .il-lemma-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 0.75rem; margin-bottom: 0.25rem; }
+        .il-lemma { font-size: 1.5rem; color: #1e1b4b; font-family: "SBL Hebrew", "Ezra SIL", "Noto Serif Hebrew", "Gentium Plus", "Noto Serif", Georgia, serif; }
+        .il-lemma-meta { font-size: 0.8rem; color: #64748b; }
+        .il-pron { color: #4f46e5; font-weight: 700; }
+        .il-short-gloss { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem; }
+        .il-def { font-size: 0.8rem; color: #334155; line-height: 1.45; margin-top: 0.3rem; }
+        .il-def-muted { color: #64748b; }
+        .il-def-label { display: inline-block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #6366f1; margin-right: 0.3rem; vertical-align: 0.05em; }
+        @media (max-width: 640px) {
+            .il-orig { font-size: 1.2rem; }
+            .il-kjv { font-size: 0.95rem; }
+            .il-word { padding: 0.15rem 0.3rem; }
+        }
         .meaning-word {
             position: relative;
             display: inline-flex;
@@ -675,9 +795,18 @@
                     <h2 id="bible-reader-title" class="text-2xl font-black text-slate-900 tracking-tight">Loading...</h2>
                     <p id="bible-reader-subtitle" class="text-sm text-slate-500 mt-1">King James Version</p>
                 </div>
-                <button onclick="window.closeBibleReader()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close Bible reader">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    <div id="interlinear-layout" class="il-layout-switch il-hidden items-center rounded-full border border-slate-200 bg-white p-0.5 text-[11px] font-bold" role="group" aria-label="Interlinear word order">
+                        <button type="button" data-il-layout="kjv" onclick="window.setInterlinearLayout('kjv')" class="px-2.5 py-1 rounded-full text-slate-500 hover:text-indigo-700 transition-colors" aria-pressed="true" title="Read in KJV order, original words beneath">KJV order</button>
+                        <button type="button" data-il-layout="orig" onclick="window.setInterlinearLayout('orig')" class="px-2.5 py-1 rounded-full text-slate-500 hover:text-indigo-700 transition-colors" aria-pressed="false" title="Read in Hebrew or Greek order">Original order</button>
+                    </div>
+                    <button id="interlinear-toggle" type="button" onclick="window.toggleInterlinear()" class="px-3 py-2.5 sm:py-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 text-slate-600 hover:text-indigo-700 text-xs font-black tracking-wide transition-colors flex items-center gap-1.5" aria-pressed="false" aria-label="Toggle interlinear Hebrew and Greek" title="Interlinear: see the Hebrew or Greek under each phrase">
+                        <span class="text-base leading-none font-serif" aria-hidden="true">א</span><span class="hidden sm:inline">Interlinear</span>
+                    </button>
+                    <button onclick="window.closeBibleReader()" class="p-3 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" aria-label="Close Bible reader">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Content -->
@@ -705,6 +834,8 @@
                 </button>
             </div>
         </div>
+        <!-- Interlinear word details (bottom sheet) -->
+        <div id="il-word-panel" class="hidden" role="dialog" aria-label="Word details" aria-live="polite"></div>
     </div>
 
     <header class="sticky top-0 z-50 glass border-b border-indigo-100 shadow-sm">
@@ -1981,6 +2112,25 @@
                         </select>
                     </div>
 
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 mb-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex-1">
+                                <div class="font-bold text-slate-700 text-sm mb-1">Interlinear Hebrew &amp; Greek</div>
+                                <div class="text-xs text-slate-500">Show the original word under each KJV phrase, with an easy pronunciation and Strong's number. Tap a word for its meaning. Loads about 1 MB per book the first time.</div>
+                            </div>
+                            <button onclick="window.toggleInterlinear()" id="interlinear-setting-toggle" class="relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-slate-300 flex-shrink-0" role="switch" aria-checked="false" aria-label="Toggle interlinear Hebrew and Greek">
+                                <span id="interlinear-setting-toggle-circle" class="inline-block h-6 w-6 transform rounded-full bg-white transition-transform translate-x-1 shadow-md"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 mt-3 pt-3 border-t border-slate-200">
+                            <div class="text-xs text-slate-500">Word order</div>
+                            <select id="interlinear-layout-selector" onchange="window.setInterlinearLayout(this.value)" class="bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 py-2 px-3 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer" aria-label="Interlinear word order">
+                                <option value="kjv">KJV order (original words beneath)</option>
+                                <option value="orig">Original order (Hebrew right to left)</option>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="mb-8 pb-8 border-b border-slate-100">
@@ -2937,6 +3087,11 @@
 
         if(!appData.bibleVersion || !['KJV', 'BSB'].includes(appData.bibleVersion)) {
             appData.bibleVersion = 'KJV';
+        }
+        // Interlinear reader preferences (off by default; the data loads per book on demand)
+        appData.interlinearOn = appData.interlinearOn === true;
+        if(!['kjv', 'orig'].includes(appData.interlinearLayout)) {
+            appData.interlinearLayout = 'kjv';
         }
 
         // Migrate existing users to have reading goals (per-profile)
@@ -9304,6 +9459,598 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
         }
 
+        // =====================================================================
+        // Interlinear reader: KJV phrases with the Hebrew / Greek word beneath,
+        // easy pronunciation, Strong's number and a tap-to-open word panel.
+        // Data: content/interlinear/<book>.json (per book, fetched on demand)
+        // and content/interlinear/lexicon-{he,el}.json. Built by
+        // build/interlinear/build.py from STEPBible TAHOT/TAGNT (CC BY 4.0),
+        // the CrossWire KJV tagging and the Open Scriptures Strong's dictionaries.
+        // =====================================================================
+        const interlinearBooks = {};            // book name -> parsed pack
+        const interlinearLexicon = { he: null, el: null };
+        const interlinearFetches = {};          // url -> in-flight promise
+        let interlinearPanelWord = null;        // { bookName, chapter, verse, index }
+
+        const interlinearSlug = (bookName) => bookName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const interlinearLangFor = (bookName) => bible.findIndex(b => b.name === bookName) < 39 ? 'he' : 'el';
+
+        function isInterlinearOn() {
+            return !!appData.interlinearOn;
+        }
+
+        async function fetchInterlinearJson(url) {
+            if (!interlinearFetches[url]) {
+                interlinearFetches[url] = fetch(url).then(r => {
+                    if (!r.ok) throw new Error(`${url}: ${r.status}`);
+                    return r.json();
+                }).catch(err => {
+                    delete interlinearFetches[url];
+                    throw err;
+                });
+            }
+            return interlinearFetches[url];
+        }
+
+        async function loadInterlinearBook(bookName) {
+            if (interlinearBooks[bookName]) return interlinearBooks[bookName];
+            const [pack, lexicon] = await Promise.all([
+                fetchInterlinearJson(`content/interlinear/${interlinearSlug(bookName)}.json`),
+                loadInterlinearLexicon(interlinearLangFor(bookName))
+            ]);
+            if (!pack || !Array.isArray(pack.chapters)) throw new Error('Interlinear pack is malformed');
+            interlinearBooks[bookName] = pack;
+            return pack;
+        }
+
+        async function loadInterlinearLexicon(lang) {
+            if (interlinearLexicon[lang]) return interlinearLexicon[lang];
+            const data = await fetchInterlinearJson(`content/interlinear/lexicon-${lang}.json`);
+            interlinearLexicon[lang] = data && typeof data === 'object' ? data : {};
+            return interlinearLexicon[lang];
+        }
+
+        // Word tuple accessors. Hebrew: [surface, translit, gloss, strongs, morph];
+        // Greek: [surface, gloss, strongs, morph] (transliteration is derived).
+        function interlinearWordFields(word, lang) {
+            if (lang === 'he') {
+                return { surface: word[0] || '', translit: word[1] || '', gloss: word[2] || '', strongs: word[3] || '', morph: word[4] || '' };
+            }
+            return { surface: word[0] || '', translit: '', gloss: word[1] || '', strongs: word[2] || '', morph: word[3] || '' };
+        }
+
+        // The lexical Strong's number of a word (Hebrew prefixes/suffixes are 9xxx)
+        function interlinearMainStrong(strongs) {
+            const parts = String(strongs).split('/').filter(Boolean);
+            const lexical = parts.filter(p => parseInt(p, 10) < 9000);
+            return lexical.length ? lexical[lexical.length - 1] : (parts[0] || '');
+        }
+
+        // Hebrew easy pronunciation from STEP's transliteration: syllables are
+        // dot-separated and the stressed syllable starts with a capital letter.
+        function hebrewEasyPronunciation(translit) {
+            if (!translit) return '';
+            return translit.replace(/-$/, '').split('.').filter(Boolean).map(syl => {
+                const stressed = /[A-Z]/.test(syl.replace(/^['"]/, '')[0] || '');
+                return stressed ? syl.toUpperCase() : syl.toLowerCase();
+            }).join('-');
+        }
+
+        // --- Greek transliteration + easy pronunciation (derived from the letters)
+        const GREEK_LETTERS = {
+            'α': 'a', 'β': 'b', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'ζ': 'z', 'η': 'ē', 'θ': 'th', 'ι': 'i',
+            'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's',
+            'ς': 's', 'τ': 't', 'υ': 'u', 'φ': 'ph', 'χ': 'ch', 'ψ': 'ps', 'ω': 'ō'
+        };
+        const GREEK_VOWELS = 'αεηιουω';
+
+        // Returns { translit, syllables: [{ text, stressed }] }
+        function analyzeGreek(surface) {
+            const cleaned = surface.normalize('NFD').replace(/[.,;·:!?᾽'’"()\[\]¶]/g, '');
+            const letters = [];   // { base, rough, accent }
+            for (const ch of cleaned) {
+                const code = ch.charCodeAt(0);
+                if (code >= 0x0300 && code <= 0x036F) {
+                    const last = letters[letters.length - 1];
+                    if (!last) continue;
+                    if (code === 0x0314) last.rough = true;
+                    if (code === 0x0308) last.diaeresis = true;
+                    if (code === 0x0301 || code === 0x0300 || code === 0x0342) last.accent = true;
+                    continue;
+                }
+                const lower = ch.toLowerCase();
+                if (GREEK_LETTERS[lower]) letters.push({ base: lower, rough: false, accent: false, upper: ch !== lower });
+            }
+            // Group into units: diphthongs stay together, gamma-nasal becomes n
+            const units = [];
+            for (let i = 0; i < letters.length; i++) {
+                const l = letters[i];
+                const next = letters[i + 1];
+                const isVowel = GREEK_VOWELS.includes(l.base);
+                // breathing and accent marks sit on the second vowel of a diphthong;
+                // only a diaeresis keeps two vowels apart
+                if (isVowel && next && GREEK_VOWELS.includes(next.base) && !next.diaeresis &&
+                    ((l.base === 'α' || l.base === 'ε' || l.base === 'ο' || l.base === 'υ') && next.base === 'ι' ||
+                     (l.base === 'α' || l.base === 'ε' || l.base === 'ο' || l.base === 'η') && next.base === 'υ')) {
+                    units.push({ vowel: true, text: l.base + next.base, rough: l.rough || next.rough, accent: l.accent || next.accent, upper: l.upper });
+                    i++;
+                    continue;
+                }
+                if (l.base === 'γ' && next && 'γκξχ'.includes(next.base)) {
+                    units.push({ vowel: false, text: 'ν', upper: l.upper });
+                    continue;
+                }
+                units.push({ vowel: isVowel, text: l.base, rough: l.rough, accent: l.accent, upper: l.upper });
+            }
+            const DIPH = { 'αι': 'ai', 'ει': 'ei', 'οι': 'oi', 'υι': 'ui', 'αυ': 'au', 'ευ': 'eu', 'ου': 'ou', 'ηυ': 'ēu' };
+            const romanize = (u) => {
+                let r = u.vowel ? (DIPH[u.text] || GREEK_LETTERS[u.text]) : GREEK_LETTERS[u.text];
+                if (u.rough) r = u.text === 'ρ' ? 'rh' : 'h' + r;
+                return u.upper ? r.charAt(0).toUpperCase() + r.slice(1) : r;
+            };
+            const translit = units.map(romanize).join('');
+            // Syllables: each vowel unit is a nucleus; a single consonant before it
+            // is its onset; of a cluster, all but the first go with it.
+            const syllables = [];
+            let onset = '';
+            let pendingConsonants = [];
+            units.forEach(u => {
+                if (!u.vowel) { pendingConsonants.push(u); return; }
+                if (syllables.length && pendingConsonants.length > 1) {
+                    syllables[syllables.length - 1].units.push(pendingConsonants.shift());
+                }
+                syllables.push({ units: pendingConsonants.concat([u]), stressed: !!u.accent });
+                pendingConsonants = [];
+            });
+            if (syllables.length) syllables[syllables.length - 1].units.push(...pendingConsonants);
+            else if (pendingConsonants.length) syllables.push({ units: pendingConsonants, stressed: false });
+            void onset;
+            const EASY_VOWEL = { 'a': 'ah', 'e': 'eh', 'ē': 'ay', 'i': 'ee', 'o': 'oh', 'ō': 'oh', 'u': 'oo',
+                'ai': 'eye', 'ei': 'ay', 'oi': 'oy', 'ui': 'wee', 'au': 'ow', 'eu': 'yoo', 'ou': 'oo', 'ēu': 'ayoo' };
+            const EASY_CONS = { 'ph': 'f', 'ch': 'kh', 'x': 'ks', 'g': 'g', 'rh': 'hr' };
+            const easySyllables = syllables.map(s => {
+                const text = s.units.map(u => {
+                    if (u.vowel) {
+                        const base = DIPH[u.text] || GREEK_LETTERS[u.text];
+                        const v = EASY_VOWEL[base] || base;
+                        return u.rough ? 'h' + v : v;
+                    }
+                    let c = GREEK_LETTERS[u.text];
+                    if (u.rough && u.text === 'ρ') c = 'rh';
+                    return EASY_CONS[c] || c;
+                }).join('');
+                return { text: s.stressed ? text.toUpperCase() : text, stressed: s.stressed };
+            });
+            return { translit, easy: easySyllables.map(s => s.text).join('-') };
+        }
+
+        function greekTransliteration(surface) {
+            return analyzeGreek(surface).translit;
+        }
+
+        function greekEasyPronunciation(surface) {
+            return analyzeGreek(surface).easy;
+        }
+
+        function interlinearEasyPronunciation(fields, lang) {
+            return lang === 'he' ? hebrewEasyPronunciation(fields.translit) : greekEasyPronunciation(fields.surface);
+        }
+
+        function interlinearTransliteration(fields, lang) {
+            if (lang === 'he') return fields.translit.replace(/\./g, '·');
+            return greekTransliteration(fields.surface);
+        }
+
+        // --- Grammar decoders -------------------------------------------------
+        const HEB_POS = {
+            'Aa': 'adjective', 'Ac': 'cardinal number', 'Ag': 'gentilic adjective', 'Ao': 'ordinal number',
+            'C': 'conjunction', 'D': 'adverb', 'Nc': 'noun', 'Ng': 'gentilic noun', 'Np': 'proper noun',
+            'Pd': 'demonstrative pronoun', 'Pf': 'indefinite pronoun', 'Pi': 'interrogative pronoun',
+            'Pp': 'personal pronoun', 'Pr': 'relative pronoun', 'R': 'preposition', 'Rd': 'preposition with article',
+            'Sd': 'directional suffix', 'Sh': 'paragogic he', 'Sn': 'paragogic nun', 'Sp': 'pronoun suffix',
+            'Ta': 'particle of affirmation', 'Td': 'definite article', 'Te': 'exhortation particle',
+            'Ti': 'interrogative particle', 'Tj': 'interjection', 'Tm': 'demonstrative particle',
+            'Tn': 'negative particle', 'To': 'object marker', 'Tr': 'relative particle', 'V': 'verb'
+        };
+        const HEB_STEM = {
+            H: { q: 'qal', N: 'niphal', p: 'piel', P: 'pual', h: 'hiphil', H: 'hophal', t: 'hithpael', o: 'polel', O: 'polal',
+                r: 'hithpolel', m: 'poel', M: 'poal', k: 'palel', K: 'pulal', Q: 'qal passive', l: 'pilpel', L: 'polpal',
+                f: 'hithpalpel', D: 'nithpael', j: 'pealal', i: 'pilel', u: 'hothpaal', c: 'tiphil', v: 'hishtaphel',
+                w: 'nithpalel', y: 'nithpoel', z: 'hithpoel' },
+            A: { q: 'peal', Q: 'peil', u: 'hithpeel', p: 'pael', P: 'ithpaal', M: 'hithpaal', a: 'aphel', h: 'haphel',
+                s: 'saphel', e: 'shaphel', H: 'hophal', i: 'ithpeel', t: 'hishtaphel', v: 'ishtaphel', w: 'hithaphel',
+                o: 'polel', z: 'ithpoel', r: 'hithpolel', f: 'hithpalpel', b: 'hephaal', c: 'tiphel', m: 'poel',
+                l: 'palpel', L: 'ithpalpel', O: 'ithpolel', G: 'ittaphal' }
+        };
+        const HEB_VTYPE = { p: 'perfect', q: 'sequential perfect', i: 'imperfect', w: 'sequential imperfect', h: 'cohortative',
+            j: 'jussive', v: 'imperative', r: 'participle', s: 'passive participle', a: 'infinitive absolute', c: 'infinitive construct' };
+        const HEB_PERSON = { '1': '1st person', '2': '2nd person', '3': '3rd person' };
+        const HEB_GENDER = { m: 'masculine', f: 'feminine', c: 'common', b: 'both genders' };
+        const HEB_NUMBER = { s: 'singular', p: 'plural', d: 'dual' };
+        const HEB_STATE = { a: 'absolute', c: 'construct', d: 'determined' };
+
+        function decodeHebrewMorphPart(code, language) {
+            if (!code) return '';
+            const pos = HEB_POS[code.slice(0, 2)] ? code.slice(0, 2) : code.slice(0, 1);
+            const label = HEB_POS[pos];
+            if (!label) return code;
+            const rest = code.slice(pos.length);
+            const bits = [label];
+            if (pos === 'V') {
+                const stem = (HEB_STEM[language] || HEB_STEM.H)[rest[0]];
+                if (stem) bits.push(stem);
+                if (HEB_VTYPE[rest[1]]) bits.push(HEB_VTYPE[rest[1]]);
+                const tail = rest.slice(2);
+                if (HEB_PERSON[tail[0]]) bits.push(HEB_PERSON[tail[0]]);
+                const g = HEB_PERSON[tail[0]] ? tail[1] : tail[0];
+                const n = HEB_PERSON[tail[0]] ? tail[2] : tail[1];
+                const st = HEB_PERSON[tail[0]] ? tail[3] : tail[2];
+                if (HEB_GENDER[g]) bits.push(HEB_GENDER[g]);
+                if (HEB_NUMBER[n]) bits.push(HEB_NUMBER[n]);
+                if (HEB_STATE[st]) bits.push(HEB_STATE[st]);
+            } else if (pos === 'Sp' || pos === 'Pp') {
+                if (HEB_PERSON[rest[0]]) bits.push(HEB_PERSON[rest[0]]);
+                if (HEB_GENDER[rest[1]]) bits.push(HEB_GENDER[rest[1]]);
+                if (HEB_NUMBER[rest[2]]) bits.push(HEB_NUMBER[rest[2]]);
+            } else {
+                if (HEB_GENDER[rest[0]]) bits.push(HEB_GENDER[rest[0]]);
+                if (HEB_NUMBER[rest[1]]) bits.push(HEB_NUMBER[rest[1]]);
+                if (HEB_STATE[rest[2]]) bits.push(HEB_STATE[rest[2]]);
+            }
+            return bits.join(', ');
+        }
+
+        function decodeHebrewMorph(morph) {
+            if (!morph) return '';
+            const language = morph[0] === 'A' ? 'A' : 'H';
+            const parts = morph.replace(/^[HA]/, '').split('/').filter(Boolean);
+            const decoded = parts.map(p => decodeHebrewMorphPart(p, language)).filter(Boolean);
+            return (language === 'A' ? 'Aramaic · ' : '') + decoded.join(' + ');
+        }
+
+        const GRK_POS = { 'N': 'noun', 'A': 'adjective', 'T': 'article', 'V': 'verb', 'P': 'personal pronoun',
+            'R': 'relative pronoun', 'C': 'reciprocal pronoun', 'D': 'demonstrative pronoun', 'K': 'correlative pronoun',
+            'I': 'interrogative pronoun', 'X': 'indefinite pronoun', 'Q': 'correlative or interrogative pronoun',
+            'F': 'reflexive pronoun', 'S': 'possessive pronoun', 'ADV': 'adverb', 'CONJ': 'conjunction',
+            'COND': 'conditional particle', 'PRT': 'particle', 'PREP': 'preposition', 'INJ': 'interjection',
+            'ARAM': 'Aramaic word', 'HEB': 'Hebrew word', 'N-PRI': 'proper noun (indeclinable)',
+            'A-NUI': 'numeral (indeclinable)', 'N-LI': 'letter', 'N-OI': 'noun (indeclinable)' };
+        const GRK_CASE = { N: 'nominative', G: 'genitive', D: 'dative', A: 'accusative', V: 'vocative' };
+        const GRK_NUMBER = { S: 'singular', P: 'plural' };
+        const GRK_GENDER = { M: 'masculine', F: 'feminine', N: 'neuter' };
+        const GRK_TENSE = { P: 'present', I: 'imperfect', F: 'future', A: 'aorist', R: 'perfect', L: 'pluperfect', X: '' };
+        const GRK_VOICE = { A: 'active', M: 'middle', P: 'passive', E: 'middle or passive', D: 'middle deponent',
+            O: 'passive deponent', N: 'middle or passive deponent', Q: 'impersonal active', X: '' };
+        const GRK_MOOD = { I: 'indicative', S: 'subjunctive', O: 'optative', M: 'imperative', N: 'infinitive', P: 'participle', R: 'imperative participle' };
+        const GRK_SUFFIX = { P: 'proper name', T: 'title', L: 'place name', PG: 'people group', LG: 'place name',
+            ATT: 'Attic form', C: 'contracted', K: 'crasis', N: 'negative', S: 'superlative', I: 'interrogative', ABB: 'abbreviated', ARAM: 'Aramaic', HEB: 'Hebrew' };
+
+        function decodeGreekMorphPart(code) {
+            if (!code) return '';
+            if (GRK_POS[code]) return GRK_POS[code];
+            const segs = code.split('-');
+            const pos = segs[0];
+            if (!GRK_POS[pos]) return code;
+            const bits = [GRK_POS[pos]];
+            const rest = segs.slice(1);
+            if (pos === 'V') {
+                let tv = rest.shift() || '';
+                if (tv.startsWith('2')) { bits.push('second'); tv = tv.slice(1); }
+                if (GRK_TENSE[tv[0]]) bits.push(GRK_TENSE[tv[0]]);
+                if (GRK_VOICE[tv[1]]) bits.push(GRK_VOICE[tv[1]]);
+                if (GRK_MOOD[tv[2]]) bits.push(GRK_MOOD[tv[2]]);
+                const agr = rest.shift() || '';
+                if (/^[123][SP]$/.test(agr)) bits.push(`${agr[0]}${agr[0] === '1' ? 'st' : agr[0] === '2' ? 'nd' : 'rd'} person ${GRK_NUMBER[agr[1]]}`);
+                else if (/^[NGDAV][SP][MFN]$/.test(agr)) bits.push(GRK_CASE[agr[0]], GRK_NUMBER[agr[1]], GRK_GENDER[agr[2]]);
+            } else {
+                const agr = rest.shift() || '';
+                let m = agr.match(/^([123])?([NGDAV])([SP])([MFN])?$/);
+                if (m) {
+                    if (m[1]) bits.push(`${m[1]}${m[1] === '1' ? 'st' : m[1] === '2' ? 'nd' : 'rd'} person`);
+                    bits.push(GRK_CASE[m[2]], GRK_NUMBER[m[3]]);
+                    if (m[4]) bits.push(GRK_GENDER[m[4]]);
+                } else if ((m = agr.match(/^([123])([NGDAV])([SP])([MFN])$/))) {
+                    bits.push(GRK_CASE[m[2]], GRK_NUMBER[m[3]], GRK_GENDER[m[4]]);
+                } else if (agr) {
+                    rest.unshift(agr);
+                }
+            }
+            rest.forEach(s => { if (GRK_SUFFIX[s]) bits.push(GRK_SUFFIX[s]); });
+            return bits.filter(Boolean).join(', ');
+        }
+
+        function decodeGreekMorph(morph) {
+            if (!morph) return '';
+            return morph.split('/').map(decodeGreekMorphPart).filter(Boolean).join(' + ');
+        }
+
+        function decodeInterlinearMorph(morph, lang) {
+            return lang === 'he' ? decodeHebrewMorph(morph) : decodeGreekMorph(morph);
+        }
+
+        // --- Rendering ----------------------------------------------------------
+        function interlinearDisplayGloss(gloss) {
+            return gloss.replace(/<obj\.?>/gi, 'obj.').replace(/[<>\[\]]/g, '').replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function renderInterlinearWordButton(bookName, chapterNumber, verseNumber, index, fields, lang, extra = {}) {
+            const number = interlinearMainStrong(fields.strongs);
+            const prefix = lang === 'he' ? 'H' : 'G';
+            const tag = number && parseInt(number, 10) < 9000 ? `${prefix}${number}` : '';
+            const displaySurface = fields.surface.replace(/\//g, '');
+            const pron = interlinearEasyPronunciation(fields, lang);
+            const gloss = interlinearDisplayGloss(fields.gloss);
+            const kjvLine = extra.kjvText !== undefined
+                ? `<span class="il-kjv-under">${extra.kjvText ? escapeHtml(extra.kjvText) : '&nbsp;'}</span>`
+                : '';
+            const glossLine = extra.showGloss ? `<span class="il-gloss">${escapeHtml(gloss) || '&nbsp;'}</span>` : '';
+            const label = `${displaySurface}, ${pron || ''}${gloss ? ', ' + gloss : ''}${tag ? ', ' + tag : ''}`;
+            return `<button type="button" class="il-word${extra.ghost ? ' il-ghost' : ''}"
+                        onclick="event.stopPropagation(); window.showInterlinearWord('${escapeHtml(bookName)}', ${chapterNumber}, ${verseNumber}, ${index})"
+                        aria-label="${escapeHtml(label)}">
+                    <span class="il-orig" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(displaySurface)}</span>
+                    <span class="il-tr">${escapeHtml(pron) || '&nbsp;'}</span>
+                    ${glossLine}${kjvLine}
+                    <span class="il-sn">${escapeHtml(tag) || '&nbsp;'}</span>
+                </button>`;
+        }
+
+        // KJV order: the verse reads as the KJV, each tagged phrase carrying its
+        // original word(s) beneath. Words the tagging skipped sit in place,
+        // dimmed, with their gloss where the KJV phrase would be.
+        function renderInterlinearKjvOrder(bookName, chapterNumber, verseNumber, ilVerse, lang) {
+            const [words, segs] = ilVerse;
+            const linkedSeg = new Array(words.length).fill(-1);
+            segs.forEach((seg, si) => (seg[1] || []).forEach(i => { linkedSeg[i] = si; }));
+            // place each unlinked word after the segment of the nearest linked word before it
+            const ghostsAfter = {};
+            let lastSeg = -1;
+            words.forEach((w, i) => {
+                if (linkedSeg[i] >= 0) { lastSeg = Math.max(lastSeg, linkedSeg[i]); return; }
+                (ghostsAfter[lastSeg] = ghostsAfter[lastSeg] || []).push(i);
+            });
+            const ghostHtml = (list) => (list || []).map(i => {
+                const f = interlinearWordFields(words[i], lang);
+                return `<span class="il-seg il-seg-ghost"><span class="il-kjv il-kjv-ghost">${escapeHtml(interlinearDisplayGloss(f.gloss)) || '·'}</span><span class="il-stack">${renderInterlinearWordButton(bookName, chapterNumber, verseNumber, i, f, lang, { ghost: true })}</span></span>`;
+            }).join('');
+            let html = ghostHtml(ghostsAfter[-1]);
+            segs.forEach((seg, si) => {
+                const [text, links, supplied] = seg;
+                const kjv = `<span class="il-kjv${supplied ? ' il-supplied' : ''}">${escapeHtml(text)}</span>`;
+                if (!links || !links.length) {
+                    html += `<span class="il-seg il-seg-plain">${kjv}</span>`;
+                } else {
+                    const stack = links.map(i => renderInterlinearWordButton(bookName, chapterNumber, verseNumber, i, interlinearWordFields(words[i], lang), lang)).join('');
+                    html += `<span class="il-seg">${kjv}<span class="il-stack" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${stack}</span></span>`;
+                }
+                html += ghostHtml(ghostsAfter[si]);
+            });
+            return `<div class="il-verse il-kjv-order">${html}</div>`;
+        }
+
+        // Original order: Hebrew runs right to left, Greek left to right; each
+        // word shows its gloss and the KJV phrase it became.
+        function renderInterlinearOriginalOrder(bookName, chapterNumber, verseNumber, ilVerse, lang) {
+            const [words, segs] = ilVerse;
+            const kjvFor = new Array(words.length).fill('');
+            segs.forEach(seg => {
+                const links = seg[1] || [];
+                if (links.length) kjvFor[links[links.length - 1]] = seg[0];
+            });
+            const html = words.map((w, i) => renderInterlinearWordButton(bookName, chapterNumber, verseNumber, i,
+                interlinearWordFields(w, lang), lang, { showGloss: true, kjvText: kjvFor[i] })).join('');
+            return `<div class="il-verse il-orig-order" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${html}</div>`;
+        }
+
+        function renderInterlinearVerse(bookName, chapterNumber, verseNumber) {
+            const pack = interlinearBooks[bookName];
+            const ilVerse = pack && pack.chapters[chapterNumber - 1] && pack.chapters[chapterNumber - 1][verseNumber - 1];
+            if (!ilVerse) return null;
+            const lang = pack.lang === 'he' ? 'he' : 'el';
+            return (appData.interlinearLayout === 'orig')
+                ? renderInterlinearOriginalOrder(bookName, chapterNumber, verseNumber, ilVerse, lang)
+                : renderInterlinearKjvOrder(bookName, chapterNumber, verseNumber, ilVerse, lang);
+        }
+
+        function interlinearAttributionHtml(lang) {
+            const text = lang === 'he' ? 'Hebrew text and word glosses' : 'Greek text (Textus Receptus readings) and word glosses';
+            return `<p class="il-credit">${text}: <a href="https://github.com/STEPBible/STEPBible-Data" target="_blank" rel="noopener">STEPBible</a> TAHOT/TAGNT, Tyndale House Cambridge, CC BY 4.0 · KJV tagging: CrossWire Bible Society · Strong's dictionary: Open Scriptures. Alignment to KJV phrases is automatic and can miss.</p>`;
+        }
+
+        // Called from renderBibleChapter. Returns true when the interlinear pack
+        // for this book is ready; otherwise starts loading and re-renders later.
+        function ensureInterlinearLoaded(bookName, chapterNumber) {
+            if (interlinearBooks[bookName]) return true;
+            loadInterlinearBook(bookName).then(() => {
+                if (isInterlinearOn() && currentReaderBook === bookName && currentReaderChapter === chapterNumber) {
+                    renderBibleChapter(bookName, chapterNumber);
+                }
+            }).catch(err => {
+                console.error('Interlinear data failed to load:', err);
+                if (currentReaderBook === bookName) {
+                    const isOffline = !navigator.onLine;
+                    window.showToast(isOffline
+                        ? 'Interlinear data for this book is not saved offline yet.'
+                        : 'Could not load the interlinear data for this book.', 'error');
+                }
+            });
+            return false;
+        }
+
+        function updateInterlinearControls() {
+            const on = isInterlinearOn();
+            const btn = document.getElementById('interlinear-toggle');
+            if (btn) {
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                btn.classList.toggle('il-toggle-on', on);
+            }
+            const layout = document.getElementById('interlinear-layout');
+            if (layout) layout.classList.toggle('il-hidden', !on);
+            document.querySelectorAll('[data-il-layout]').forEach(el => {
+                const active = el.dataset.ilLayout === (appData.interlinearLayout || 'kjv');
+                el.classList.toggle('il-layout-active', active);
+                el.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            const settingToggle = document.getElementById('interlinear-setting-toggle');
+            if (settingToggle) {
+                settingToggle.setAttribute('aria-checked', on ? 'true' : 'false');
+                settingToggle.classList.toggle('bg-indigo-600', on);
+                settingToggle.classList.toggle('bg-slate-300', !on);
+                const circle = document.getElementById('interlinear-setting-toggle-circle');
+                if (circle) {
+                    circle.classList.toggle('translate-x-7', on);
+                    circle.classList.toggle('translate-x-1', !on);
+                }
+            }
+            const settingLayout = document.getElementById('interlinear-layout-selector');
+            if (settingLayout) settingLayout.value = appData.interlinearLayout || 'kjv';
+        }
+
+        window.toggleInterlinear = (force) => {
+            appData.interlinearOn = typeof force === 'boolean' ? force : !appData.interlinearOn;
+            if (!appData.interlinearOn) window.closeInterlinearPanel();
+            window.saveProgress(true);
+            updateInterlinearControls();
+            if (currentReaderBook && currentReaderChapter) renderBibleChapter(currentReaderBook, currentReaderChapter);
+            if (appData.interlinearOn && !interlinearBooks[currentReaderBook]) {
+                window.showToast('Loading Hebrew and Greek…', 'info', 1500);
+            }
+        };
+
+        window.setInterlinearLayout = (layout) => {
+            if (!['kjv', 'orig'].includes(layout)) return;
+            appData.interlinearLayout = layout;
+            window.saveProgress(true);
+            updateInterlinearControls();
+            if (currentReaderBook && currentReaderChapter && isInterlinearOn()) {
+                renderBibleChapter(currentReaderBook, currentReaderChapter);
+            }
+        };
+
+        // --- Word panel --------------------------------------------------------
+        function interlinearVoiceFor(lang) {
+            if (!('speechSynthesis' in window)) return null;
+            const wanted = lang === 'he' ? 'he' : 'el';
+            return window.speechSynthesis.getVoices().find(v => (v.lang || '').toLowerCase().startsWith(wanted)) || null;
+        }
+
+        window.speakInterlinearWord = (text, lang, fallback) => {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const voice = interlinearVoiceFor(lang);
+            const utter = new SpeechSynthesisUtterance(voice ? text : (fallback || text).replace(/-/g, ' '));
+            if (voice) { utter.voice = voice; utter.lang = voice.lang; } else { utter.lang = 'en-US'; }
+            utter.rate = 0.8;
+            window.speechSynthesis.speak(utter);
+        };
+
+        function lexiconEntry(lang, number) {
+            const lex = interlinearLexicon[lang];
+            return (lex && lex[String(parseInt(number, 10))]) || null;
+        }
+
+        function renderInterlinearPanel(bookName, chapterNumber, verseNumber, index) {
+            const pack = interlinearBooks[bookName];
+            const ilVerse = pack && pack.chapters[chapterNumber - 1] && pack.chapters[chapterNumber - 1][verseNumber - 1];
+            if (!ilVerse || !ilVerse[0][index]) return '';
+            const lang = pack.lang === 'he' ? 'he' : 'el';
+            const prefix = lang === 'he' ? 'H' : 'G';
+            const fields = interlinearWordFields(ilVerse[0][index], lang);
+            const surfaceParts = fields.surface.split('/');
+            const glossParts = fields.gloss.split('/');
+            const strongParts = fields.strongs.split('/').filter(Boolean);
+            const morphParts = fields.morph.replace(/^[HA]/, '').split('/');
+            const displaySurface = fields.surface.replace(/\//g, '');
+            const mainNumber = interlinearMainStrong(fields.strongs);
+            const entry = lexiconEntry(lang, mainNumber);
+            const pron = interlinearEasyPronunciation(fields, lang);
+            const translit = interlinearTransliteration(fields, lang);
+            const kjvPhrases = ilVerse[1].filter(seg => (seg[1] || []).includes(index)).map(seg => seg[0]);
+            const speakable = 'speechSynthesis' in window;
+            const speakBtn = speakable ? `<button type="button" class="il-speak" onclick="window.speakInterlinearWord(${JSON.stringify(displaySurface).replace(/"/g, '&quot;')}, '${lang}', ${JSON.stringify(pron).replace(/"/g, '&quot;')})" aria-label="Hear this word" title="Hear it">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M12 6l-4 4H5v4h3l4 4V6z"/></svg>
+                </button>` : '';
+
+            const partsHtml = (lang === 'he' && strongParts.length > 1) ? `
+                <div class="il-panel-section">
+                    <div class="il-panel-label">Word parts</div>
+                    <div class="il-parts">
+                        ${strongParts.map((num, i) => {
+                            const part = lexiconEntry('he', num);
+                            const n = parseInt(num, 10);
+                            const kind = n >= 9000 ? (i === 0 ? 'prefix' : 'suffix') : 'stem';
+                            const meaning = interlinearDisplayGloss(glossParts[i] || (part && part.g) || '');
+                            return `<span class="il-part"><span class="il-part-orig" lang="he" dir="rtl">${escapeHtml(surfaceParts[i] || (part && part.l) || '')}</span><span class="il-part-meaning">${escapeHtml(meaning)}</span><span class="il-part-kind">${kind}${n < 9000 ? ` · H${n}` : ''}</span></span>`;
+                        }).join('')}
+                    </div>
+                </div>` : '';
+
+            const grammar = decodeInterlinearMorph(fields.morph, lang);
+            const entryHtml = entry ? `
+                <div class="il-panel-section">
+                    <div class="il-panel-label">Strong's ${prefix}${parseInt(mainNumber, 10)}${entry.n ? ` · ${entry.n.toLocaleString()}× in the ${lang === 'he' ? 'Hebrew Bible' : 'Greek New Testament'}` : ''}</div>
+                    <div class="il-lemma-row">
+                        <span class="il-lemma" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(entry.l || '')}</span>
+                        <span class="il-lemma-meta">${escapeHtml(entry.x || '')}${entry.p ? ` · <span class="il-pron">${escapeHtml(entry.p)}</span>` : (lang === 'el' && entry.l ? ` · <span class="il-pron">${escapeHtml(greekEasyPronunciation(entry.l))}</span>` : '')}</span>
+                    </div>
+                    ${entry.g ? `<p class="il-short-gloss">${escapeHtml(entry.g)}</p>` : ''}
+                    ${entry.d ? `<p class="il-def"><span class="il-def-label">Strong's definition</span> ${escapeHtml(entry.d)}</p>` : ''}
+                    ${entry.k ? `<p class="il-def"><span class="il-def-label">KJV translates it</span> ${escapeHtml(entry.k)}</p>` : ''}
+                    ${entry.r ? `<p class="il-def il-def-muted"><span class="il-def-label">Origin</span> ${escapeHtml(entry.r)}</p>` : ''}
+                </div>` : '';
+
+            return `
+                <div class="il-panel-head">
+                    <div class="il-panel-word">
+                        <span class="il-panel-orig" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(displaySurface)}</span>
+                        <span class="il-panel-pron">${escapeHtml(pron)}</span>
+                        ${speakBtn}
+                    </div>
+                    <button type="button" onclick="window.closeInterlinearPanel()" class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600" aria-label="Close word details">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="il-panel-body">
+                    <div class="il-panel-grid">
+                        <div><div class="il-panel-label">In ${escapeHtml(bookName)} ${chapterNumber}:${verseNumber}</div><div class="il-panel-value">${escapeHtml(interlinearDisplayGloss(fields.gloss)) || '—'}</div></div>
+                        <div><div class="il-panel-label">KJV renders it</div><div class="il-panel-value">${kjvPhrases.length ? escapeHtml(kjvPhrases.join(' … ')) : '<span class="text-slate-400">not tagged in this verse</span>'}</div></div>
+                        <div><div class="il-panel-label">Transliteration</div><div class="il-panel-value">${escapeHtml(translit) || '—'}</div></div>
+                        <div><div class="il-panel-label">Grammar</div><div class="il-panel-value">${escapeHtml(grammar) || '—'}</div></div>
+                    </div>
+                    ${partsHtml}
+                    ${entryHtml}
+                    ${!entry && mainNumber ? `<div class="il-panel-section"><div class="il-panel-label">Strong's ${prefix}${parseInt(mainNumber, 10)}</div><p class="il-def text-slate-500">No dictionary entry for this number.</p></div>` : ''}
+                </div>`;
+        }
+
+        window.showInterlinearWord = (bookName, chapterNumber, verseNumber, index) => {
+            const panel = document.getElementById('il-word-panel');
+            if (!panel) return;
+            const html = renderInterlinearPanel(bookName, chapterNumber, verseNumber, index);
+            if (!html) return;
+            interlinearPanelWord = { bookName, chapterNumber, verseNumber, index };
+            panel.innerHTML = html;
+            panel.classList.remove('hidden');
+            panel.scrollTop = 0;
+            document.querySelectorAll('.il-word.il-word-active').forEach(el => el.classList.remove('il-word-active'));
+            const verseEl = document.querySelector(`[data-verse-id="${bookName}-${chapterNumber}:${verseNumber}"]`);
+            if (verseEl) {
+                const buttons = verseEl.querySelectorAll('.il-word');
+                buttons.forEach(b => { if (b.getAttribute('onclick').endsWith(`, ${index})`)) b.classList.add('il-word-active'); });
+            }
+            if ('speechSynthesis' in window && !window.speechSynthesis.getVoices().length) {
+                // some browsers populate voices lazily; nothing else to do
+                window.speechSynthesis.onvoiceschanged = () => {};
+            }
+        };
+
+        window.closeInterlinearPanel = () => {
+            const panel = document.getElementById('il-word-panel');
+            if (panel) panel.classList.add('hidden');
+            interlinearPanelWord = null;
+            document.querySelectorAll('.il-word.il-word-active').forEach(el => el.classList.remove('il-word-active'));
+        };
+
 // Open Bible reader modal with specific book and chapter
         let bibleReaderFocusTrapRelease = null;
         window.openBibleReader = async (bookName, chapterNumber) => {
@@ -9369,6 +10116,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         // Close Bible reader modal
         window.closeBibleReader = () => {
             const modal = document.getElementById('bible-reader-modal');
+            window.closeInterlinearPanel();
             modal.classList.add('hidden');
             document.body.style.overflow = '';  // Restore scrolling
             if (bibleReaderFocusTrapRelease) {
@@ -9519,7 +10267,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const readingTime = calculateReadingTime(wordCount);
             const versionLabel = readerVersion === 'BSB' ? 'Berean Standard Bible' : 'King James Version';
             const compareHint = activeReaderVersion && activeReaderVersion !== (appData.bibleVersion || 'KJV') ? ' • quick compare' : '';
-            document.getElementById('bible-reader-subtitle').textContent = `${versionLabel}${compareHint} • ${wordCount} words • ${readingTime}`;
+            const interlinearOn = isInterlinearOn();
+            const interlinearReady = interlinearOn && ensureInterlinearLoaded(bookName, chapterNumber);
+            const interlinearLang = interlinearLangFor(bookName);
+            const interlinearHint = !interlinearOn ? '' : interlinearReady
+                ? ` • KJV interlinear (${interlinearLang === 'he' ? 'Hebrew' : 'Greek'})`
+                : ` • loading ${interlinearLang === 'he' ? 'Hebrew' : 'Greek'}…`;
+            document.getElementById('bible-reader-subtitle').textContent = `${versionLabel}${compareHint}${interlinearHint} • ${wordCount} words • ${readingTime}`;
+            updateInterlinearControls();
+            if (!interlinearOn) window.closeInterlinearPanel();
 
             // Render verses
             let html = '<div class="space-y-3">';
@@ -9529,17 +10285,21 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 const isMemorized = memorizedForProfile.some(v => v.id === verseId);
                 const memorizedClass = isMemorized ? 'bg-amber-50 border-l-4 border-amber-400' : '';
                 const memorizedIcon = isMemorized ? '<span class="text-amber-500 text-sm" title="Memorized">⭐</span>' : '';
+                const interlinearHtml = interlinearReady ? renderInterlinearVerse(bookName, chapterNumber, verseData.verse) : null;
+                const verseBody = interlinearHtml
+                    ? `<div class="flex-1 min-w-0">${interlinearHtml}</div>`
+                    : `<p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text, bookName + ' ' + chapterNumber + ':' + verseData.verse)}</p>`;
                 html += `
-                    <div class="bible-verse flex gap-3 p-2 rounded-lg ${memorizedClass} cursor-pointer hover:bg-indigo-50 transition-colors group"
+                    <div class="bible-verse flex gap-3 p-2 rounded-lg ${memorizedClass} ${interlinearHtml ? 'il-mode' : ''} cursor-pointer hover:bg-indigo-50 transition-colors group"
                          onclick="window.toggleVerseSelection('${verseId}', this)"
                          data-verse-id="${verseId}"
                          data-verse-text="${escapeHtml(verseData.text)}"
                          data-verse-ref="${bookName} ${chapterNumber}:${verseData.verse}">
-                        <span class="verse-number text-sm font-bold text-indigo-600 flex items-center gap-1">
+                        <span class="verse-number text-sm font-bold text-indigo-600 flex items-${interlinearHtml ? 'start' : 'center'} gap-1">
                             ${verseData.verse}
                             ${memorizedIcon}
                         </span>
-                        <p class="flex-1 text-slate-800 leading-relaxed">${addPronunciationIndicators(verseData.text, bookName + ' ' + chapterNumber + ':' + verseData.verse)}</p>
+                        ${verseBody}
                         <button onclick="event.stopPropagation(); window.toggleMemorizeVerse('${verseId}', '${bookName} ${chapterNumber}:${verseData.verse}', \`${verseData.text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)"
                                 class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg ${isMemorized ? 'text-amber-500 hover:bg-amber-100' : 'text-slate-400 hover:bg-slate-100'}"
                                 title="${isMemorized ? 'Remove from memorization' : 'Add to memorization'}">
@@ -9549,9 +10309,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 `;
             });
             html += '</div>';
+            if (interlinearReady) html += interlinearAttributionHtml(interlinearLang);
 
             const versesContainer = document.getElementById('bible-reader-verses');
             versesContainer.onpointerdown = (event) => {
+                if (isInterlinearOn()) return;   // the interlinear always shows the KJV; no quick compare
                 const verseEl = event.target.closest('[data-verse-ref]');
                 if (!verseEl) return;
                 if (quickCompareTimeout) clearTimeout(quickCompareTimeout);
@@ -9651,6 +10413,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (modal.classList.contains('hidden')) return;
 
             if (e.key === 'Escape') {
+                if (interlinearPanelWord) { window.closeInterlinearPanel(); return; }
                 window.closeBibleReader();
             } else if (e.key === 'ArrowLeft') {
                 window.navigateBibleChapter(-1);
@@ -9907,6 +10670,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 window.renderProfileSyncSettings();
                 updateDefaultTabSelector();
             updateBibleVersionSelector();
+            updateInterlinearControls();
             }
             else {
                 const view = document.getElementById('view-books');
