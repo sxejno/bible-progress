@@ -9,6 +9,7 @@ A word-weighted Bible reading tracker. Unlike trackers that treat every chapter 
 - **Word-weighted progress** — True completion percentage based on 789,634 total KJV words
 - **Built-in Bible reader** — Read KJV text with pronunciation guides, chapter summaries, and mark-as-read in one flow
 - **Interlinear Hebrew & Greek** — Flip a switch to see the original word under each KJV phrase, with an easy pronunciation and Strong's number; tap any word for its grammar, meaning, and how the KJV translates it elsewhere
+- **Strong's concordance** — Search by number, English meaning, or Hebrew/Greek letters and see every verse that carries the word, then jump straight to it in the reader
 - **6 reading plans** — Sequential, One Year (OT+NT daily), M'Cheyne (365-day), Horner (10-list rotation), Five-Day (weekends off), and Custom
 - **Reading streaks** — Streak tracking with heatmap, milestones, and grace period
 - **Multi-profile** — Separate profiles for family members or different reading goals

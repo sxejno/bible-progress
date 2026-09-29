@@ -431,6 +431,41 @@
         .il-layout-active { background-color: #e0e7ff; color: #3730a3; }
         .bible-verse.il-mode .verse-number { padding-top: 0.15rem; }
 
+        .il-word.il-same { background: #fef3c7; border-color: #fcd34d; }
+        .il-word.il-word-hit { background: #fde68a; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); }
+        .il-uses-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0 0.5rem; }
+        .il-chip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.65rem; border-radius: 9999px; background: #f1f5f9; color: #334155; font-size: 0.72rem; font-weight: 700; border: 1px solid transparent; }
+        button.il-chip:hover:not(:disabled) { background: #e0e7ff; color: #3730a3; }
+        button.il-chip:disabled { opacity: 0.4; cursor: default; }
+        .il-chip-on { background: #4f46e5; color: #fff; }
+        .il-chip-on:hover { background: #4338ca !important; color: #fff !important; }
+        .il-chip-same { background: #fef3c7; color: #92400e; }
+        .il-chip-action { background: #eef2ff; color: #4338ca; }
+        .il-chip-n { font-weight: 500; opacity: 0.75; }
+        .il-chip-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.5rem 0 0.75rem; }
+        .il-badge { display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; font-weight: 700; color: #4f46e5; background: #eef2ff; border-radius: 0.4rem; padding: 0.1rem 0.4rem; letter-spacing: 0.04em; }
+        .il-badge-lg { font-size: 0.95rem; padding: 0.2rem 0.6rem; }
+        .il-back { font-size: 0.8rem; font-weight: 700; color: #4f46e5; margin-right: 0.5rem; padding: 0.2rem 0.5rem; border-radius: 0.5rem; }
+        .il-back:hover { background: #eef2ff; }
+        .il-panel-title { align-items: center; }
+        .il-search-form { display: flex; gap: 0.5rem; }
+        .il-search-input { flex: 1; min-width: 0; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.55rem 0.8rem; font-size: 0.9rem; outline: none; }
+        .il-search-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+        .il-search-go { background: #4f46e5; color: #fff; font-weight: 700; font-size: 0.8rem; border-radius: 0.75rem; padding: 0 1rem; }
+        .il-search-go:hover { background: #4338ca; }
+        .il-search-hint { font-size: 0.75rem; color: #64748b; line-height: 1.45; margin-top: 0.5rem; }
+        .il-occ-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.75rem; margin-bottom: 0.25rem; }
+        .il-occ-list { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem; }
+        .il-occ { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; text-align: left; width: 100%; padding: 0.5rem 0.65rem; border-radius: 0.7rem; background: #f8fafc; border: 1px solid #e2e8f0; font: inherit; color: inherit; cursor: pointer; }
+        .il-occ:hover { background: #eef2ff; border-color: #c7d2fe; }
+        .il-occ-ref { font-size: 0.72rem; font-weight: 800; color: #4f46e5; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem; }
+        .il-occ-lemma { font-size: 1.05rem; font-weight: 400; color: #1e1b4b; font-family: "SBL Hebrew", "Ezra SIL", "Noto Serif Hebrew", "Gentium Plus", "Noto Serif", Georgia, serif; }
+        .il-occ-pron { font-weight: 600; color: #6366f1; }
+        .il-occ-text { font-size: 0.82rem; color: #334155; line-height: 1.45; }
+        .il-occ-count { color: #94a3b8; font-size: 0.72rem; }
+        mark.il-mark { background: #fde68a; color: inherit; border-radius: 0.2rem; padding: 0 0.1rem; }
+        .il-pager { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+
         /* word detail panel: bottom sheet */
         #il-word-panel {
             position: fixed;
@@ -800,6 +835,9 @@
                         <button type="button" data-il-layout="kjv" onclick="window.setInterlinearLayout('kjv')" class="px-2.5 py-1 rounded-full text-slate-500 hover:text-indigo-700 transition-colors" aria-pressed="true" title="Read in KJV order, original words beneath">KJV order</button>
                         <button type="button" data-il-layout="orig" onclick="window.setInterlinearLayout('orig')" class="px-2.5 py-1 rounded-full text-slate-500 hover:text-indigo-700 transition-colors" aria-pressed="false" title="Read in Hebrew or Greek order">Original order</button>
                     </div>
+                    <button id="interlinear-search-btn" type="button" onclick="window.openInterlinearSearch()" class="hidden p-2.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 text-slate-500 hover:text-indigo-700 transition-colors" aria-label="Search by Strong's number or word" title="Strong's search: every verse that carries a word">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"></path></svg>
+                    </button>
                     <button id="interlinear-toggle" type="button" onclick="window.toggleInterlinear()" class="px-3 py-2.5 sm:py-2 rounded-full border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 text-slate-600 hover:text-indigo-700 text-xs font-black tracking-wide transition-colors flex items-center gap-1.5" aria-pressed="false" aria-label="Toggle interlinear Hebrew and Greek" title="Interlinear: see the Hebrew or Greek under each phrase">
                         <span class="text-base leading-none font-serif" aria-hidden="true">א</span><span class="hidden sm:inline">Interlinear</span>
                     </button>
@@ -9785,7 +9823,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 : '';
             const glossLine = extra.showGloss ? `<span class="il-gloss">${escapeHtml(gloss) || '&nbsp;'}</span>` : '';
             const label = `${displaySurface}, ${pron || ''}${gloss ? ', ' + gloss : ''}${tag ? ', ' + tag : ''}`;
-            return `<button type="button" class="il-word${extra.ghost ? ' il-ghost' : ''}"
+            return `<button type="button" class="il-word${extra.ghost ? ' il-ghost' : ''}" data-sn="${escapeHtml(tag)}" data-idx="${index}"
                         onclick="event.stopPropagation(); window.showInterlinearWord('${escapeHtml(bookName)}', ${chapterNumber}, ${verseNumber}, ${index})"
                         aria-label="${escapeHtml(label)}">
                     <span class="il-orig" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(displaySurface)}</span>
@@ -9886,6 +9924,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
             const layout = document.getElementById('interlinear-layout');
             if (layout) layout.classList.toggle('il-hidden', !on);
+            const searchBtn = document.getElementById('interlinear-search-btn');
+            if (searchBtn) searchBtn.classList.toggle('hidden', !on);
             document.querySelectorAll('[data-il-layout]').forEach(el => {
                 const active = el.dataset.ilLayout === (appData.interlinearLayout || 'kjv');
                 el.classList.toggle('il-layout-active', active);
@@ -9986,9 +10026,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>` : '';
 
             const grammar = decodeInterlinearMorph(fields.morph, lang);
+            const tag = mainNumber && parseInt(mainNumber, 10) < 9000 ? `${prefix}${parseInt(mainNumber, 10)}` : '';
+            const sameCount = tag ? document.querySelectorAll(`#bible-reader-verses .il-word[data-sn="${tag}"]`).length : 0;
+            const usesHtml = tag ? `
+                    <div class="il-uses-row">
+                        ${sameCount > 1 ? `<span class="il-chip il-chip-same">${sameCount}× in this chapter</span>` : ''}
+                        ${entry && entry.n ? `<button type="button" class="il-chip il-chip-action" onclick="window.showStrongsOccurrences('${lang}', ${parseInt(mainNumber, 10)}, { back: 'word' })">See all ${entry.n.toLocaleString()} uses →</button>` : ''}
+                    </div>` : '';
             const entryHtml = entry ? `
                 <div class="il-panel-section">
                     <div class="il-panel-label">Strong's ${prefix}${parseInt(mainNumber, 10)}${entry.n ? ` · ${entry.n.toLocaleString()}× in the ${lang === 'he' ? 'Hebrew Bible' : 'Greek New Testament'}` : ''}</div>
+                    ${usesHtml}
                     <div class="il-lemma-row">
                         <span class="il-lemma" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(entry.l || '')}</span>
                         <span class="il-lemma-meta">${escapeHtml(entry.x || '')}${entry.p ? ` · <span class="il-pron">${escapeHtml(entry.p)}</span>` : (lang === 'el' && entry.l ? ` · <span class="il-pron">${escapeHtml(greekEasyPronunciation(entry.l))}</span>` : '')}</span>
@@ -10023,24 +10071,25 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 </div>`;
         }
 
+        // The panel shows one of three views: a word card, the search box, or a
+        // list of every verse that carries a Strong's number.
         window.showInterlinearWord = (bookName, chapterNumber, verseNumber, index) => {
             const panel = document.getElementById('il-word-panel');
             if (!panel) return;
             const html = renderInterlinearPanel(bookName, chapterNumber, verseNumber, index);
             if (!html) return;
-            interlinearPanelWord = { bookName, chapterNumber, verseNumber, index };
+            interlinearPanelWord = { view: 'word', bookName, chapterNumber, verseNumber, index };
             panel.innerHTML = html;
             panel.classList.remove('hidden');
             panel.scrollTop = 0;
-            document.querySelectorAll('.il-word.il-word-active').forEach(el => el.classList.remove('il-word-active'));
+            // mark the tapped word and every other word in the chapter with the same number
+            document.querySelectorAll('.il-word.il-word-active, .il-word.il-same').forEach(el => el.classList.remove('il-word-active', 'il-same'));
             const verseEl = document.querySelector(`[data-verse-id="${bookName}-${chapterNumber}:${verseNumber}"]`);
-            if (verseEl) {
-                const buttons = verseEl.querySelectorAll('.il-word');
-                buttons.forEach(b => { if (b.getAttribute('onclick').endsWith(`, ${index})`)) b.classList.add('il-word-active'); });
-            }
-            if ('speechSynthesis' in window && !window.speechSynthesis.getVoices().length) {
-                // some browsers populate voices lazily; nothing else to do
-                window.speechSynthesis.onvoiceschanged = () => {};
+            const tapped = verseEl && verseEl.querySelector(`.il-word[data-idx="${index}"]`);
+            if (tapped) {
+                tapped.classList.add('il-word-active');
+                const tag = tapped.dataset.sn;
+                if (tag) document.querySelectorAll(`#bible-reader-verses .il-word[data-sn="${tag}"]`).forEach(el => { if (el !== tapped) el.classList.add('il-same'); });
             }
         };
 
@@ -10048,8 +10097,214 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const panel = document.getElementById('il-word-panel');
             if (panel) panel.classList.add('hidden');
             interlinearPanelWord = null;
-            document.querySelectorAll('.il-word.il-word-active').forEach(el => el.classList.remove('il-word-active'));
+            document.querySelectorAll('.il-word.il-word-active, .il-word.il-same').forEach(el => el.classList.remove('il-word-active', 'il-same'));
         };
+
+        function interlinearPanelShell(title, body, back) {
+            const backBtn = back ? `<button type="button" class="il-back" onclick="${back}" aria-label="Back">‹ Back</button>` : '';
+            return `
+                <div class="il-panel-head">
+                    <div class="il-panel-word il-panel-title">${backBtn}${title}</div>
+                    <button type="button" onclick="window.closeInterlinearPanel()" class="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600" aria-label="Close">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="il-panel-body">${body}</div>`;
+        }
+
+        function openInterlinearPanelWith(html, state) {
+            const panel = document.getElementById('il-word-panel');
+            if (!panel) return;
+            interlinearPanelWord = state;
+            panel.innerHTML = html;
+            panel.classList.remove('hidden');
+            panel.scrollTop = 0;
+        }
+
+        // --- Strong's search -------------------------------------------------------
+        const stripMarks = (str) => (str || '').normalize('NFD').replace(/[̀-֑ͯ-ׇ]/g, '').toLowerCase();
+
+        window.openInterlinearSearch = (query = '') => {
+            const body = `
+                <form class="il-search-form" onsubmit="event.preventDefault(); window.runInterlinearSearch(this.q.value)">
+                    <input name="q" type="search" class="il-search-input" value="${escapeHtml(query)}" placeholder="H2617, G26, mercy, agape, חסד…" autocomplete="off" aria-label="Strong's number or word">
+                    <button type="submit" class="il-search-go">Search</button>
+                </form>
+                <p class="il-search-hint">Type a Strong's number (H2617 or G26), an English meaning, a transliteration, or Hebrew / Greek letters. Pick a word to list every verse that carries it.</p>
+                <div id="il-search-results"></div>`;
+            openInterlinearPanelWith(interlinearPanelShell('Strong\'s search', body), { view: 'search', query });
+            const input = document.querySelector('#il-word-panel .il-search-input');
+            if (input) {
+                input.focus();
+                // re-run a word search so its list is back; a bare number would jump straight to results again
+                if (query && !/^[HhGg]?\s*0*\d{1,4}$/.test(query)) window.runInterlinearSearch(query);
+            }
+        };
+
+        window.runInterlinearSearch = async (raw) => {
+            const box = document.getElementById('il-search-results');
+            const q = (raw || '').trim();
+            if (!box || !q) return;
+            box.innerHTML = '<p class="il-search-hint">Searching…</p>';
+            const numeric = q.match(/^([HhGg])?\s*0*(\d{1,4})$/);
+            if (numeric) {
+                const lang = numeric[1] ? (numeric[1].toLowerCase() === 'h' ? 'he' : 'el') : interlinearLangFor(currentReaderBook || 'Genesis');
+                return window.showStrongsOccurrences(lang, parseInt(numeric[2], 10), { back: 'search', query: q });
+            }
+            await Promise.all([loadInterlinearLexicon('he'), loadInterlinearLexicon('el')]);
+            const needle = stripMarks(q);
+            const hits = [];
+            for (const lang of ['he', 'el']) {
+                const lex = interlinearLexicon[lang] || {};
+                for (const num in lex) {
+                    if (parseInt(num, 10) >= 9000 && lang === 'he') continue;
+                    const e = lex[num];
+                    const fields = [e.g, e.x, e.p, e.l, e.k].map(stripMarks);
+                    let score = 0;
+                    fields.forEach((f, fi) => {
+                        if (!f) return;
+                        const words = f.split(/[^a-zא-תα-ω']+/).filter(Boolean);
+                        if (f === needle) score = Math.max(score, 6);
+                        else if (words.includes(needle)) score = Math.max(score, fi < 3 ? 5 : 3);
+                        else if (words.some(w => w.startsWith(needle))) score = Math.max(score, fi < 3 ? 3 : 2);
+                        else if (f.includes(needle)) score = Math.max(score, 1);
+                    });
+                    if (score) hits.push({ lang, num: parseInt(num, 10), e, score: score * 100 + Math.log10((e.n || 0) + 1) });
+                }
+            }
+            hits.sort((a, b) => b.score - a.score);
+            const top = hits.slice(0, 40);
+            if (!top.length) { box.innerHTML = `<p class="il-search-hint">Nothing matched “${escapeHtml(q)}”.</p>`; return; }
+            box.innerHTML = `<div class="il-occ-list">${top.map(h => `
+                <button type="button" class="il-occ" onclick="window.showStrongsOccurrences('${h.lang}', ${h.num}, { back: 'search', query: ${JSON.stringify(q).replace(/"/g, '&quot;')} })">
+                    <span class="il-occ-ref"><span class="il-badge">${h.lang === 'he' ? 'H' : 'G'}${h.num}</span> <span class="il-occ-lemma" lang="${h.lang}" dir="${h.lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(h.e.l || '')}</span> <span class="il-occ-pron">${escapeHtml(h.e.p || (h.lang === 'el' && h.e.l ? greekEasyPronunciation(h.e.l) : h.e.x || ''))}</span></span>
+                    <span class="il-occ-text">${escapeHtml(h.e.g || h.e.d || '')}${h.e.n ? ` <span class="il-occ-count">· ${h.e.n.toLocaleString()}×</span>` : ''}</span>
+                </button>`).join('')}</div>
+                ${hits.length > top.length ? `<p class="il-search-hint">${hits.length - top.length} more matches. Narrow the search to see them.</p>` : ''}`;
+        };
+
+        // --- Every verse that carries a Strong's number -----------------------------
+        const interlinearOccurrences = { he: null, el: null };
+        let kjvVerseTable = null;
+        const OCC_PAGE = 40;
+
+        async function loadInterlinearOccurrences(lang) {
+            if (interlinearOccurrences[lang]) return interlinearOccurrences[lang];
+            const raw = await fetchInterlinearJson(`content/interlinear/occurrences-${lang}.json`);
+            interlinearOccurrences[lang] = raw && typeof raw === 'object' ? raw : {};
+            return interlinearOccurrences[lang];
+        }
+
+        async function getKjvVerseTable() {
+            if (kjvVerseTable) return kjvVerseTable;
+            const data = await loadBibleText('KJV');
+            if (!data) throw new Error('KJV text unavailable');
+            const table = [];
+            data.forEach(b => b.chapters.forEach(c => c.verses.forEach(v => table.push({ book: b.book, chapter: c.chapter, verse: v.verse, text: v.text }))));
+            kjvVerseTable = table;
+            return table;
+        }
+
+        function highlightedVerseHtml(bookName, chapter, verse, number, fallbackText) {
+            const pack = interlinearBooks[bookName];
+            const ilVerse = pack && pack.chapters[chapter - 1] && pack.chapters[chapter - 1][verse - 1];
+            if (!ilVerse) return escapeHtml(fallbackText);
+            const lang = pack.lang === 'he' ? 'he' : 'el';
+            const [words, segs] = ilVerse;
+            const hitWord = new Set(words.map((w, i) => parseInt(interlinearMainStrong(interlinearWordFields(w, lang).strongs), 10) === number ? i : -1).filter(i => i >= 0));
+            if (!hitWord.size) return escapeHtml(fallbackText);
+            return segs.map(seg => {
+                const hit = (seg[1] || []).some(i => hitWord.has(i));
+                const text = escapeHtml(seg[0]);
+                return hit ? `<mark class="il-mark">${text}</mark>` : text;
+            }).join(' ');
+        }
+
+        window.showStrongsOccurrences = async (lang, number, opts = {}) => {
+            const page = opts.page || 0;
+            const filterBook = opts.book || null;
+            const prefix = lang === 'he' ? 'H' : 'G';
+            const state = { view: 'results', lang, number, page, book: filterBook, back: opts.back, query: opts.query };
+            const backCall = opts.back === 'word' && interlinearPanelWord && interlinearPanelWord.view === 'word'
+                ? `window.showInterlinearWord('${escapeHtml(interlinearPanelWord.bookName)}', ${interlinearPanelWord.chapterNumber}, ${interlinearPanelWord.verseNumber}, ${interlinearPanelWord.index})`
+                : opts.back === 'search' ? `window.openInterlinearSearch(${JSON.stringify(opts.query || '').replace(/"/g, '&quot;')})` : `window.openInterlinearSearch()`;
+            const wordBack = interlinearPanelWord && interlinearPanelWord.view === 'word' ? interlinearPanelWord : (interlinearPanelWord && interlinearPanelWord.wordState);
+            state.wordState = wordBack;
+            const title = `<span class="il-badge il-badge-lg">${prefix}${number}</span>`;
+            openInterlinearPanelWith(interlinearPanelShell(title, '<p class="il-search-hint">Loading…</p>', backCall), state);
+            try {
+                const [occ, table, lex] = await Promise.all([loadInterlinearOccurrences(lang), getKjvVerseTable(), loadInterlinearLexicon(lang)]);
+                if (!interlinearPanelWord || interlinearPanelWord.view !== 'results' || interlinearPanelWord.number !== number) return;
+                const entry = lex[String(number)] || {};
+                const deltas = occ[String(number)] || [];
+                const ids = [];
+                deltas.reduce((acc, d) => { const v = acc + d; ids.push(v); return v; }, 0);
+                const refs = ids.map(id => table[id]).filter(Boolean);
+                const perBook = new Map();
+                refs.forEach(r => perBook.set(r.book, (perBook.get(r.book) || 0) + 1));
+                const shown = filterBook ? refs.filter(r => r.book === filterBook) : refs;
+                const slice = shown.slice(page * OCC_PAGE, (page + 1) * OCC_PAGE);
+                // packs for the books on this page give the highlighted phrase
+                await Promise.all([...new Set(slice.map(r => r.book))].map(b => loadInterlinearBook(b).catch(() => null)));
+                if (!interlinearPanelWord || interlinearPanelWord.view !== 'results' || interlinearPanelWord.number !== number) return;
+                const optsJson = (extra) => JSON.stringify({ back: opts.back, query: opts.query, ...extra }).replace(/"/g, '&quot;');
+                const pron = entry.p || (lang === 'el' && entry.l ? greekEasyPronunciation(entry.l) : '');
+                const head = `
+                    <div class="il-occ-head">
+                        <span class="il-lemma" lang="${lang}" dir="${lang === 'he' ? 'rtl' : 'ltr'}">${escapeHtml(entry.l || '')}</span>
+                        <span class="il-lemma-meta">${escapeHtml(entry.x || '')}${pron ? ` · <span class="il-pron">${escapeHtml(pron)}</span>` : ''}</span>
+                        ${entry.g ? `<span class="il-short-gloss">${escapeHtml(entry.g)}</span>` : ''}
+                        <span class="il-panel-label">${refs.length.toLocaleString()} verse${refs.length === 1 ? '' : 's'} · ${(entry.n || refs.length).toLocaleString()} occurrence${entry.n === 1 ? '' : 's'}</span>
+                    </div>`;
+                const chips = perBook.size > 1 ? `<div class="il-chip-row">
+                        <button type="button" class="il-chip${!filterBook ? ' il-chip-on' : ''}" onclick="window.showStrongsOccurrences('${lang}', ${number}, ${optsJson({})})">All ${refs.length.toLocaleString()}</button>
+                        ${[...perBook.entries()].map(([b, n]) => `<button type="button" class="il-chip${filterBook === b ? ' il-chip-on' : ''}" onclick="window.showStrongsOccurrences('${lang}', ${number}, ${optsJson({ book: b })})">${escapeHtml(b)} <span class="il-chip-n">${n}</span></button>`).join('')}
+                    </div>` : '';
+                const list = slice.length ? `<div class="il-occ-list">${slice.map(r => `
+                    <button type="button" class="il-occ" onclick="window.jumpToStrongsVerse('${escapeHtml(r.book)}', ${r.chapter}, ${r.verse}, '${prefix}${number}')">
+                        <span class="il-occ-ref">${escapeHtml(r.book)} ${r.chapter}:${r.verse}</span>
+                        <span class="il-occ-text">${highlightedVerseHtml(r.book, r.chapter, r.verse, number, r.text)}</span>
+                    </button>`).join('')}</div>` : '<p class="il-search-hint">No verses found for this number.</p>';
+                const pages = Math.ceil(shown.length / OCC_PAGE);
+                const pager = pages > 1 ? `<div class="il-pager">
+                        <button type="button" class="il-chip" ${page === 0 ? 'disabled' : ''} onclick="window.showStrongsOccurrences('${lang}', ${number}, ${optsJson({ book: filterBook, page: page - 1 })})">‹ Previous</button>
+                        <span class="il-search-hint">${page * OCC_PAGE + 1}–${Math.min(shown.length, (page + 1) * OCC_PAGE)} of ${shown.length.toLocaleString()}</span>
+                        <button type="button" class="il-chip" ${page + 1 >= pages ? 'disabled' : ''} onclick="window.showStrongsOccurrences('${lang}', ${number}, ${optsJson({ book: filterBook, page: page + 1 })})">Next ›</button>
+                    </div>` : '';
+                const panel = document.getElementById('il-word-panel');
+                panel.innerHTML = interlinearPanelShell(title, head + chips + list + pager, backCall);
+                panel.scrollTop = 0;
+            } catch (err) {
+                console.error('Strong\'s search failed:', err);
+                const panel = document.getElementById('il-word-panel');
+                if (panel) panel.innerHTML = interlinearPanelShell(title, `<p class="il-search-hint">${navigator.onLine ? 'Could not load the concordance data.' : 'The concordance is not saved offline yet.'}</p>`, backCall);
+            }
+        };
+
+        // Jump to a verse from the results and light up the word there
+        let interlinearFocus = null;   // { verseId, tag }
+        window.jumpToStrongsVerse = async (bookName, chapter, verse, tag) => {
+            interlinearFocus = { verseId: `${bookName}-${chapter}:${verse}`, tag };
+            if (!isInterlinearOn()) {
+                appData.interlinearOn = true;
+                window.saveProgress(true);
+                updateInterlinearControls();
+            }
+            await window.openBibleReaderAtVerse(bookName, chapter, verse);
+            applyInterlinearFocus();
+        };
+
+        function applyInterlinearFocus() {
+            if (!interlinearFocus) return;
+            const verseEl = document.querySelector(`[data-verse-id="${interlinearFocus.verseId}"]`);
+            if (!verseEl) return;
+            const hits = verseEl.querySelectorAll(`.il-word[data-sn="${interlinearFocus.tag}"]`);
+            if (!hits.length) return;   // interlinear not rendered yet; the re-render calls again
+            document.querySelectorAll('.il-word.il-word-hit').forEach(el => el.classList.remove('il-word-hit'));
+            hits.forEach(el => el.classList.add('il-word-hit'));
+            verseEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            interlinearFocus = null;
+        }
 
 // Open Bible reader modal with specific book and chapter
         let bibleReaderFocusTrapRelease = null;
@@ -10345,6 +10600,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // Update mark as read button
             updateMarkReadButton();
+
+            // A jump from the Strong's results lights up the word once the stacks exist
+            if (interlinearReady) applyInterlinearFocus();
         }
 
         // Update navigation button states

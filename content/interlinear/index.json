@@ -4,468 +4,468 @@
    "file": "genesis.json",
    "lang": "he",
    "words": 20612,
-   "aligned": 83.1,
-   "bytes": 1645397
+   "aligned": 95.8,
+   "bytes": 1651356
   },
   "Exodus": {
    "file": "exodus.json",
    "lang": "he",
    "words": 16713,
-   "aligned": 82.4,
-   "bytes": 1356644
+   "aligned": 96.0,
+   "bytes": 1361844
   },
   "Leviticus": {
    "file": "leviticus.json",
    "lang": "he",
    "words": 11950,
-   "aligned": 79.0,
-   "bytes": 979888
+   "aligned": 95.5,
+   "bytes": 984439
   },
   "Numbers": {
    "file": "numbers.json",
    "lang": "he",
    "words": 16412,
-   "aligned": 84.4,
-   "bytes": 1350887
+   "aligned": 95.9,
+   "bytes": 1355239
   },
   "Deuteronomy": {
    "file": "deuteronomy.json",
    "lang": "he",
    "words": 14294,
-   "aligned": 81.7,
-   "bytes": 1172512
+   "aligned": 95.7,
+   "bytes": 1177208
   },
   "Joshua": {
    "file": "joshua.json",
    "lang": "he",
    "words": 10051,
-   "aligned": 83.5,
-   "bytes": 820894
+   "aligned": 96.0,
+   "bytes": 823952
   },
   "Judges": {
    "file": "judges.json",
    "lang": "he",
    "words": 9884,
-   "aligned": 82.6,
-   "bytes": 804473
+   "aligned": 96.2,
+   "bytes": 807702
   },
   "Ruth": {
    "file": "ruth.json",
    "lang": "he",
    "words": 1293,
-   "aligned": 83.3,
-   "bytes": 105177
+   "aligned": 95.9,
+   "bytes": 105564
   },
   "1 Samuel": {
    "file": "1samuel.json",
    "lang": "he",
    "words": 13262,
-   "aligned": 83.5,
-   "bytes": 1069520
+   "aligned": 95.7,
+   "bytes": 1073377
   },
   "2 Samuel": {
    "file": "2samuel.json",
    "lang": "he",
    "words": 11038,
-   "aligned": 83.9,
-   "bytes": 881645
+   "aligned": 95.7,
+   "bytes": 884803
   },
   "1 Kings": {
    "file": "1kings.json",
    "lang": "he",
    "words": 13140,
-   "aligned": 84.0,
-   "bytes": 1053716
+   "aligned": 96.0,
+   "bytes": 1057544
   },
   "2 Kings": {
    "file": "2kings.json",
    "lang": "he",
    "words": 12279,
-   "aligned": 84.2,
-   "bytes": 989196
+   "aligned": 96.8,
+   "bytes": 992938
   },
   "1 Chronicles": {
    "file": "1chronicles.json",
    "lang": "he",
    "words": 10745,
-   "aligned": 88.5,
-   "bytes": 889921
+   "aligned": 97.2,
+   "bytes": 892033
   },
   "2 Chronicles": {
    "file": "2chronicles.json",
    "lang": "he",
    "words": 13311,
-   "aligned": 86.1,
-   "bytes": 1112499
+   "aligned": 96.7,
+   "bytes": 1115906
   },
   "Ezra": {
    "file": "ezra.json",
    "lang": "he",
    "words": 3753,
-   "aligned": 92.5,
-   "bytes": 318684
+   "aligned": 98.2,
+   "bytes": 319202
   },
   "Nehemiah": {
    "file": "nehemiah.json",
    "lang": "he",
    "words": 5319,
-   "aligned": 86.7,
-   "bytes": 452326
+   "aligned": 96.8,
+   "bytes": 453605
   },
   "Esther": {
    "file": "esther.json",
    "lang": "he",
    "words": 3045,
-   "aligned": 85.7,
-   "bytes": 250396
+   "aligned": 96.8,
+   "bytes": 251242
   },
   "Job": {
    "file": "job.json",
    "lang": "he",
    "words": 8343,
-   "aligned": 85.7,
-   "bytes": 695437
+   "aligned": 95.6,
+   "bytes": 697126
   },
   "Psalms": {
    "file": "psalms.json",
    "lang": "he",
    "words": 19586,
-   "aligned": 87.6,
-   "bytes": 1674674
+   "aligned": 94.5,
+   "bytes": 1677437
   },
   "Proverbs": {
    "file": "proverbs.json",
    "lang": "he",
    "words": 6915,
-   "aligned": 92.6,
-   "bytes": 583487
+   "aligned": 97.1,
+   "bytes": 584119
   },
   "Ecclesiastes": {
    "file": "ecclesiastes.json",
    "lang": "he",
    "words": 2987,
-   "aligned": 83.1,
-   "bytes": 235162
+   "aligned": 93.0,
+   "bytes": 235849
   },
   "Song of Solomon": {
    "file": "songofsolomon.json",
    "lang": "he",
    "words": 1249,
-   "aligned": 86.6,
-   "bytes": 108389
+   "aligned": 95.8,
+   "bytes": 108641
   },
   "Isaiah": {
    "file": "isaiah.json",
    "lang": "he",
    "words": 16930,
-   "aligned": 87.0,
-   "bytes": 1422116
+   "aligned": 95.9,
+   "bytes": 1425562
   },
   "Jeremiah": {
    "file": "jeremiah.json",
    "lang": "he",
    "words": 21832,
-   "aligned": 82.4,
-   "bytes": 1761489
+   "aligned": 95.9,
+   "bytes": 1768547
   },
   "Lamentations": {
    "file": "lamentations.json",
    "lang": "he",
    "words": 1540,
-   "aligned": 88.3,
-   "bytes": 130423
+   "aligned": 95.6,
+   "bytes": 130675
   },
   "Ezekiel": {
    "file": "ezekiel.json",
    "lang": "he",
    "words": 18729,
-   "aligned": 82.4,
-   "bytes": 1566660
+   "aligned": 95.6,
+   "bytes": 1572463
   },
   "Daniel": {
    "file": "daniel.json",
    "lang": "he",
    "words": 5919,
-   "aligned": 89.8,
-   "bytes": 501103
+   "aligned": 98.3,
+   "bytes": 502316
   },
   "Hosea": {
    "file": "hosea.json",
    "lang": "he",
    "words": 2381,
-   "aligned": 84.7,
-   "bytes": 199204
+   "aligned": 96.1,
+   "bytes": 199811
   },
   "Joel": {
    "file": "joel.json",
    "lang": "he",
    "words": 957,
-   "aligned": 88.3,
-   "bytes": 80045
+   "aligned": 95.9,
+   "bytes": 80218
   },
   "Amos": {
    "file": "amos.json",
    "lang": "he",
    "words": 2042,
-   "aligned": 86.5,
-   "bytes": 165959
+   "aligned": 97.4,
+   "bytes": 166471
   },
   "Obadiah": {
    "file": "obadiah.json",
    "lang": "he",
    "words": 291,
-   "aligned": 84.2,
-   "bytes": 24539
+   "aligned": 94.2,
+   "bytes": 24607
   },
   "Jonah": {
    "file": "jonah.json",
    "lang": "he",
    "words": 688,
-   "aligned": 81.7,
-   "bytes": 55184
+   "aligned": 95.6,
+   "bytes": 55413
   },
   "Micah": {
    "file": "micah.json",
    "lang": "he",
    "words": 1396,
-   "aligned": 87.5,
-   "bytes": 117980
+   "aligned": 96.3,
+   "bytes": 118261
   },
   "Nahum": {
    "file": "nahum.json",
    "lang": "he",
    "words": 558,
-   "aligned": 89.2,
-   "bytes": 48523
+   "aligned": 95.9,
+   "bytes": 48605
   },
   "Habakkuk": {
    "file": "habakkuk.json",
    "lang": "he",
    "words": 671,
-   "aligned": 86.6,
-   "bytes": 56555
+   "aligned": 95.4,
+   "bytes": 56688
   },
   "Zephaniah": {
    "file": "zephaniah.json",
    "lang": "he",
    "words": 767,
-   "aligned": 87.7,
-   "bytes": 63524
+   "aligned": 96.9,
+   "bytes": 63684
   },
   "Haggai": {
    "file": "haggai.json",
    "lang": "he",
    "words": 600,
-   "aligned": 86.0,
-   "bytes": 48093
+   "aligned": 97.0,
+   "bytes": 48254
   },
   "Zechariah": {
    "file": "zechariah.json",
    "lang": "he",
    "words": 3128,
-   "aligned": 83.5,
-   "bytes": 256120
+   "aligned": 95.1,
+   "bytes": 256980
   },
   "Malachi": {
    "file": "malachi.json",
    "lang": "he",
    "words": 876,
-   "aligned": 82.9,
-   "bytes": 71241
+   "aligned": 96.3,
+   "bytes": 71523
   },
   "Matthew": {
    "file": "matthew.json",
    "lang": "el",
    "words": 18787,
-   "aligned": 94.7,
-   "bytes": 1047853
+   "aligned": 98.1,
+   "bytes": 1049335
   },
   "Mark": {
    "file": "mark.json",
    "lang": "el",
    "words": 11662,
-   "aligned": 94.8,
-   "bytes": 655929
+   "aligned": 97.9,
+   "bytes": 656741
   },
   "Luke": {
    "file": "luke.json",
    "lang": "el",
    "words": 19968,
-   "aligned": 94.6,
-   "bytes": 1120120
+   "aligned": 97.9,
+   "bytes": 1121675
   },
   "John": {
    "file": "john.json",
    "lang": "el",
    "words": 15953,
-   "aligned": 94.8,
-   "bytes": 867819
+   "aligned": 98.1,
+   "bytes": 869067
   },
   "Acts": {
    "file": "acts.json",
    "lang": "el",
    "words": 18835,
-   "aligned": 94.3,
-   "bytes": 1071540
+   "aligned": 97.3,
+   "bytes": 1072869
   },
   "Romans": {
    "file": "romans.json",
    "lang": "el",
    "words": 7227,
-   "aligned": 93.6,
-   "bytes": 406111
+   "aligned": 97.5,
+   "bytes": 406761
   },
   "1 Corinthians": {
    "file": "1corinthians.json",
    "lang": "el",
    "words": 6945,
-   "aligned": 93.9,
-   "bytes": 392350
+   "aligned": 97.4,
+   "bytes": 392907
   },
   "2 Corinthians": {
    "file": "2corinthians.json",
    "lang": "el",
    "words": 4526,
-   "aligned": 94.1,
-   "bytes": 258009
+   "aligned": 97.2,
+   "bytes": 258335
   },
   "Galatians": {
    "file": "galatians.json",
    "lang": "el",
    "words": 2261,
-   "aligned": 94.8,
-   "bytes": 129645
+   "aligned": 97.6,
+   "bytes": 129788
   },
   "Ephesians": {
    "file": "ephesians.json",
    "lang": "el",
    "words": 2473,
-   "aligned": 95.4,
-   "bytes": 137129
+   "aligned": 98.3,
+   "bytes": 137293
   },
   "Philippians": {
    "file": "philippians.json",
    "lang": "el",
    "words": 1649,
-   "aligned": 94.8,
-   "bytes": 93777
+   "aligned": 98.1,
+   "bytes": 93903
   },
   "Colossians": {
    "file": "colossians.json",
    "lang": "el",
    "words": 1628,
-   "aligned": 96.0,
-   "bytes": 90866
+   "aligned": 98.3,
+   "bytes": 90950
   },
   "1 Thessalonians": {
    "file": "1thessalonians.json",
    "lang": "el",
    "words": 1501,
-   "aligned": 93.8,
-   "bytes": 83896
+   "aligned": 96.8,
+   "bytes": 84004
   },
   "2 Thessalonians": {
    "file": "2thessalonians.json",
    "lang": "el",
    "words": 840,
-   "aligned": 94.6,
-   "bytes": 46881
+   "aligned": 98.1,
+   "bytes": 46948
   },
   "1 Timothy": {
    "file": "1timothy.json",
    "lang": "el",
    "words": 1637,
-   "aligned": 95.1,
-   "bytes": 97632
+   "aligned": 98.2,
+   "bytes": 97747
   },
   "2 Timothy": {
    "file": "2timothy.json",
    "lang": "el",
    "words": 1272,
-   "aligned": 95.0,
-   "bytes": 74188
+   "aligned": 98.0,
+   "bytes": 74272
   },
   "Titus": {
    "file": "titus.json",
    "lang": "el",
    "words": 678,
-   "aligned": 95.0,
-   "bytes": 40510
+   "aligned": 98.4,
+   "bytes": 40561
   },
   "Philemon": {
    "file": "philemon.json",
    "lang": "el",
    "words": 348,
-   "aligned": 94.8,
-   "bytes": 19567
+   "aligned": 98.3,
+   "bytes": 19593
   },
   "Hebrews": {
    "file": "hebrews.json",
    "lang": "el",
    "words": 5015,
-   "aligned": 93.8,
-   "bytes": 292872
+   "aligned": 97.6,
+   "bytes": 293316
   },
   "James": {
    "file": "james.json",
    "lang": "el",
    "words": 1767,
-   "aligned": 93.5,
-   "bytes": 100298
+   "aligned": 96.8,
+   "bytes": 100427
   },
   "1 Peter": {
    "file": "1peter.json",
    "lang": "el",
    "words": 1722,
-   "aligned": 93.3,
-   "bytes": 101743
+   "aligned": 97.7,
+   "bytes": 101922
   },
   "2 Peter": {
    "file": "2peter.json",
    "lang": "el",
    "words": 1105,
-   "aligned": 93.8,
-   "bytes": 65868
+   "aligned": 97.8,
+   "bytes": 65978
   },
   "1 John": {
    "file": "1john.json",
    "lang": "el",
    "words": 2187,
-   "aligned": 94.3,
-   "bytes": 116047
+   "aligned": 98.1,
+   "bytes": 116250
   },
   "2 John": {
    "file": "2john.json",
    "lang": "el",
    "words": 249,
-   "aligned": 96.8,
-   "bytes": 13561
+   "aligned": 99.6,
+   "bytes": 13578
   },
   "3 John": {
    "file": "3john.json",
    "lang": "el",
    "words": 218,
-   "aligned": 91.3,
-   "bytes": 12618
+   "aligned": 95.0,
+   "bytes": 12638
   },
   "Jude": {
    "file": "jude.json",
    "lang": "el",
    "words": 452,
-   "aligned": 91.6,
-   "bytes": 27000
+   "aligned": 96.9,
+   "bytes": 27060
   },
   "Revelation": {
    "file": "revelation.json",
    "lang": "el",
    "words": 10022,
-   "aligned": 95.4,
-   "bytes": 539279
+   "aligned": 98.4,
+   "bytes": 540019
   }
  },
  "totals": {
   "words": 446413,
-  "linked": 391477,
+  "linked": 431049,
   "tags": 358248,
   "tag_hits": 354838
  },
