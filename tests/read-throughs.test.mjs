@@ -397,6 +397,48 @@ try {
         check('no page errors (touch)', errors.length === 0, errors.join(' || '))
         await ctx.close()
     }
+
+    // ---------- 6. Sync rules mirror only the reads the source removes ----------
+    {
+        const { page, errors, ctx } = await newPage(browser)
+        const now = Date.now()
+        const t1 = now - 30 * DAY, t2 = now - 20 * DAY, start = now - 10 * DAY, t4 = now - 2 * DAY, own = now - 3 * DAY
+        // Source A is on read-through #2 and mirrors marks to B, which is still on #1.
+        // Genesis 1-3 were synced in round 1 (same timestamps); Genesis 4 was synced in round 2.
+        const d = baseData('A', { profileSyncRules: { A: 'B' }, profilePlans: { A: 'SEQUENTIAL', B: 'SEQUENTIAL' } })
+        d.profiles.A = { 'Genesis-1': t2, 'Genesis-2': t1, 'Genesis-3': t1, 'Genesis-4': t4 }
+        d.profiles.B = { 'Genesis-1': t2, 'Genesis-2': t1, 'Genesis-3': t1, 'Genesis-4': t4, 'Genesis-5': own }
+        d.readHistory = { A: { 'Genesis-1': String(t1) }, B: { 'Genesis-1': String(t1) } }
+        d.readThroughStarts = { A: [start] }
+        await seed(page, d)
+        await page.evaluate(() => { window.setTab('ALL'); window.openBook(0) })
+        await page.waitForSelector('button[data-chapter="Genesis-5"]')
+
+        // A marks Genesis 5; B already has its own read, so B keeps it as is
+        await page.click('button[data-chapter="Genesis-5"]')
+        await flush(page)
+        let st = await data(page)
+        check('sync skips a target read it already has', st.profiles.B['Genesis-5'] === own && !st.readHistory.B?.['Genesis-5'])
+        // A unmarks Genesis 5; B's own read is not A's, so it stays
+        await page.click('button[data-chapter="Genesis-5"]')
+        await flush(page)
+        st = await data(page)
+        check("unmark leaves the target's own read", st.profiles.B['Genesis-5'] === own)
+
+        // A resets Genesis: only A's read-through #2 reads (Genesis 4) leave B
+        await page.click('button:has-text("Reset Book")')
+        await page.waitForSelector('#custom-modal-overlay')
+        await page.locator('#custom-modal-overlay button:has-text("Reset")').click()
+        await flush(page)
+        st = await data(page)
+        check('reset removes the mirrored round-2 read from the target', st.profiles.B['Genesis-4'] === undefined)
+        check("reset keeps the target's earlier reads", st.profiles.B['Genesis-1'] === t2 && st.readHistory.B['Genesis-1'] === String(t1) &&
+            st.profiles.B['Genesis-2'] === t1 && st.profiles.B['Genesis-3'] === t1 && st.profiles.B['Genesis-5'] === own,
+            JSON.stringify({ B: st.profiles.B, h: st.readHistory.B }))
+        check('reset keeps the source round-1 reads', st.profiles.A['Genesis-1'] === t2 && st.profiles.A['Genesis-2'] === t1)
+        check('no page errors (sync rules)', errors.length === 0, errors.join(' || '))
+        await ctx.close()
+    }
 } finally {
     await browser.close()
     server.close()
