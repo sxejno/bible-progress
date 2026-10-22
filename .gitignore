@@ -4,3 +4,6 @@ node_modules/
 
 # Interlinear build inputs (downloaded by build/interlinear/build.py)
 build/interlinear/cache/
+
+# Browser test vendor cache (downloaded by tests/read-throughs.test.mjs)
+tests/.cache/

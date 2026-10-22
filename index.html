@@ -86,6 +86,9 @@
         /* Subtle hover lift for books */
         .book-card { transition: all 0.2s ease-out; }
         .book-card:hover { transform: translateY(-3px); }
+
+        /* Chapter tiles support long-press: no iOS callout or text selection */
+        .chapter-toggle { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
         
         /* Animation */
         .animate-in { animation: fadeIn 0.4s ease-out; }
@@ -1069,7 +1072,7 @@
                     <div class="flex items-center gap-5">
                         <div class="text-center">
                             <div id="dashboard-total-progress" class="text-xl font-black text-indigo-600">0%</div>
-                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Complete</div>
+                            <div id="dashboard-total-progress-label" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Complete</div>
                         </div>
                         <div class="w-px h-12 bg-slate-200"></div>
                         <div class="text-center">
@@ -1231,7 +1234,7 @@
                 <div class="w-full lg:w-5/12 relative min-h-[300px] flex items-center justify-center">
                     <canvas id="mainDonutChart"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Read</span>
+                        <span id="stats-donut-label" class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Read</span>
                         <span id="stats-page-total-percent" class="text-4xl font-black text-indigo-900">0%</span>
                         <div class="mt-3 flex flex-col gap-1 items-center">
                             <span id="stats-words-count" class="text-xs text-slate-500 font-semibold text-center">0 / 789,634 words</span>
@@ -1246,6 +1249,20 @@
                     <div id="legend-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-left"></div>
                 </div>
             </div>
+            <!-- Read-throughs: shown once a reader finishes, restarts or re-reads -->
+            <div id="read-throughs-section" class="hidden mb-12">
+                <div class="flex items-center justify-between mb-6 px-2 gap-3">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Read-Throughs</h3>
+                    <button id="read-throughs-start-btn" onclick="window.startNewReadThrough()" class="px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-xl transition-all shadow-sm bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100">Start read-through #2</button>
+                </div>
+                <div class="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-xl shadow-indigo-100/40 border border-indigo-50">
+                    <div id="read-throughs-lifetime" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"></div>
+                    <div id="read-throughs-list" class="space-y-3"></div>
+                    <div id="read-throughs-most-read" class="mt-6"></div>
+                    <p class="text-xs text-slate-400 mt-6 text-center">Long-press (or right-click) a chapter in any book to mark it read again or see every date you read it.</p>
+                </div>
+            </div>
+
             <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 px-2">Category Breakdown</h3>
             <div id="category-stats-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
@@ -2208,6 +2225,20 @@
                     </div>
                 </div>
 
+                <div class="mb-8 pb-8 border-b border-slate-100">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Read-Throughs</h3>
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="min-w-0">
+                                <div id="settings-read-through-title" class="font-bold text-slate-700 text-sm mb-1">Read-through #1</div>
+                                <div id="settings-read-through-detail" class="text-xs text-slate-500">0% read</div>
+                            </div>
+                            <button onclick="window.startNewReadThrough()" id="settings-read-through-btn" class="flex-shrink-0 px-4 py-2 rounded-xl bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold text-sm hover:bg-indigo-200 transition-colors" aria-label="Start a new read-through">Start #2</button>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-3">A new read-through starts your chapter grid, reading plan and progress bars again at 0%. Your heatmap, streaks and every earlier read stay. To re-read a single chapter, long-press it in any book.</p>
+                    </div>
+                </div>
+
                 <div class="mb-8">
                     <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Data Management</h3>
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -2338,6 +2369,7 @@
                 </div>
                 
                 <div id="chapter-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 sm:gap-4"></div>
+                <p id="chapter-grid-hint" class="text-[11px] font-semibold text-slate-400 text-center mt-6">Tap a chapter to mark it read. Long-press or right-click to read it again or see every date you read it.</p>
 
                 <div class="mt-12 pt-8 border-t border-slate-100 flex flex-col sm:flex-row justify-center gap-4">
                     <button onclick="window.toggleAllInBook(true)" class="text-xs font-black text-emerald-600 uppercase tracking-widest hover:bg-emerald-50 px-6 py-3 rounded-full transition-colors border border-transparent hover:border-emerald-100" aria-label="Mark all chapters in book as finished">Mark Book Finished</button>
@@ -3017,6 +3049,53 @@
                     });
                 });
             }
+
+            // Re-read history: { profile: { "Book-1": "ts,ts,..." } }
+            const isPlainObject = (v) => v && typeof v === 'object' && !Array.isArray(v);
+            const CHAPTER_KEY_RE = /^.{1,40}-\d{1,3}$/;
+            if(data.readHistory !== undefined) {
+                if(!isPlainObject(data.readHistory)) data.readHistory = {};
+                Object.keys(data.readHistory).forEach(profileName => {
+                    const hist = data.readHistory[profileName];
+                    if(!isPlainObject(hist)) { delete data.readHistory[profileName]; return; }
+                    Object.keys(hist).forEach(key => {
+                        if(!CHAPTER_KEY_RE.test(key)) { delete hist[key]; return; }
+                        const val = hist[key];
+                        const list = Array.isArray(val)
+                            ? val.filter(n => typeof n === 'number' && Number.isFinite(n) && n > 0)
+                            : parseReadList(val);
+                        hist[key] = formatReadList(capReads(sortUnique(list)));
+                    });
+                });
+            }
+
+            // Read-through starts: { profile: [ms, ...] } (negative = an undone start)
+            if(data.readThroughStarts !== undefined) {
+                if(!isPlainObject(data.readThroughStarts)) data.readThroughStarts = {};
+                Object.keys(data.readThroughStarts).forEach(profileName => {
+                    const list = data.readThroughStarts[profileName];
+                    if(!Array.isArray(list)) { delete data.readThroughStarts[profileName]; return; }
+                    data.readThroughStarts[profileName] = [...new Set(list)]
+                        .filter(n => typeof n === 'number' && Number.isFinite(n) && n !== 0)
+                        .slice(-500);
+                });
+            }
+
+            // Single-read tombstones: { profile: { "Book-1": { readTs: deletedAt } } }
+            if(data.deletedReads !== undefined) {
+                if(!isPlainObject(data.deletedReads)) data.deletedReads = {};
+                Object.keys(data.deletedReads).forEach(profileName => {
+                    const dels = data.deletedReads[profileName];
+                    if(!isPlainObject(dels)) { delete data.deletedReads[profileName]; return; }
+                    Object.keys(dels).forEach(key => {
+                        const entry = dels[key];
+                        if(!CHAPTER_KEY_RE.test(key) || !isPlainObject(entry)) { delete dels[key]; return; }
+                        Object.keys(entry).forEach(ts => {
+                            if(!/^\d{1,16}$/.test(ts) || typeof entry[ts] !== 'number') delete entry[ts];
+                        });
+                    });
+                });
+            }
             return data;
         }
 
@@ -3185,6 +3264,9 @@
                 }
             });
         });
+        // Keep each re-read chapter's latest read and history consistent
+        purgeOldReadDeletions(appData);
+        reconcileReadHistory(appData);
 
         // If "Default" is active/default but other profiles exist, switch away from it
         const allProfileNames = Object.keys(appData.profiles);
@@ -3315,7 +3397,7 @@
                 // chapter timestamp so existing users don't get a spurious +1
                 // (delayed credit is safer than overcounting)
                 const counts = appData.hornerCycleCount[profileId]
-                const prog = getProgress()
+                const prog = getRawProgress()
                 appData.hornerCycleLastAt[profileId] = PLAN_HORNER.map((listBooks, i) => {
                     if (!counts[i]) return 0
                     let maxTs = 0
@@ -3337,7 +3419,7 @@
             const listIndex = getHornerListForChapter(chapterId)
             if (listIndex < 0) return
             const listBooks = PLAN_HORNER[listIndex]
-            const currentProg = getProgress()
+            const currentProg = getRawProgress()
 
             // Every chapter in the list must be read; track the oldest timestamp
             let minTs = Infinity
@@ -3430,12 +3512,202 @@
             }
         }
 
-        // --- HELPER FOR CURRENT PROGRESS ---
-        function getProgress() {
-            return appData.profiles[appData.activeProfileId] || {};
+        // --- READ HISTORY & READ-THROUGHS ---
+        // A chapter can be read many times. profiles[id][key] keeps the latest
+        // read, so the Lamp Room and Horner analytics need no changes. Earlier
+        // reads live in readHistory[id][key] as an ascending, comma-separated
+        // string of ms timestamps. It is a string, not an array, because
+        // Firestore indexes every array element and heavy re-readers would hit
+        // the per-document index limit.
+        // readThroughStarts[id] lists when each new read-through began. The
+        // first read-through has no entry. Undoing a start adds its negative
+        // (-ts), so the undo survives the union merge across devices.
+        // Function declarations (not consts) so the load-time migrations and
+        // normalizeAppData, which run earlier in this script, can call them.
+        function parseReadList(str) {
+            if (typeof str !== 'string' || !str) return []
+            const out = []
+            str.split(',').forEach(part => {
+                const n = Number(part)
+                if (Number.isFinite(n) && n > 0) out.push(n)
+            })
+            return out
         }
-        function setProgress(newProg) {
-            appData.profiles[appData.activeProfileId] = newProg;
+        function formatReadList(list) { return list.join(',') }
+        function sortUnique(list) { return [...new Set(list)].sort((a, b) => a - b) }
+        // Bound one chapter's history (keeps the newest reads)
+        function capReads(list) { return list.length > 5000 ? list.slice(-5000) : list }
+
+        function getReadThroughStarts(profileId = appData.activeProfileId) {
+            const raw = appData.readThroughStarts && appData.readThroughStarts[profileId]
+            if (!Array.isArray(raw) || raw.length === 0) return []
+            const undone = new Set(raw.filter(n => n < 0).map(n => -n))
+            return sortUnique(raw.filter(n => n > 0 && !undone.has(n)))
+        }
+        // When the current read-through began (0 = still on the first one)
+        function getReadThroughStart(profileId = appData.activeProfileId) {
+            const starts = getReadThroughStarts(profileId)
+            return starts.length ? starts[starts.length - 1] : 0
+        }
+        function getReadThroughNumber(profileId = appData.activeProfileId) {
+            return getReadThroughStarts(profileId).length + 1
+        }
+
+        // --- HELPER FOR CURRENT PROGRESS ---
+        // Every chapter's latest read, across all read-throughs
+        function getRawProgress(profileId = appData.activeProfileId) {
+            return appData.profiles[profileId] || {};
+        }
+        // Chapters read in the current read-through. Grid, plans, goals and
+        // progress bars all use this view. Before a second read-through starts
+        // it is the raw progress object itself.
+        function getProgress(profileId = appData.activeProfileId) {
+            const raw = getRawProgress(profileId)
+            const start = getReadThroughStart(profileId)
+            if (!start) return raw
+            const view = {}
+            for (const key in raw) {
+                if (typeof raw[key] === 'number' && raw[key] >= start) view[key] = raw[key]
+            }
+            return view
+        }
+        function isReadThisRound(profileId, key) {
+            const ts = getRawProgress(profileId)[key]
+            return typeof ts === 'number' && ts > 0 && ts >= getReadThroughStart(profileId)
+        }
+
+        // Earlier reads of one chapter, oldest first (the latest read excluded)
+        function getEarlierReads(profileId, key) {
+            const hist = appData.readHistory && appData.readHistory[profileId]
+            return hist ? parseReadList(hist[key]) : []
+        }
+        function setEarlierReads(profileId, key, list) {
+            if (!appData.readHistory) appData.readHistory = {}
+            if (!appData.readHistory[profileId]) appData.readHistory[profileId] = {}
+            const hist = appData.readHistory[profileId]
+            // Keep an emptied entry as "" instead of deleting it. The cloud save
+            // merges maps, so a deleted key would never clear in Firestore.
+            if (list.length || Object.prototype.hasOwnProperty.call(hist, key)) hist[key] = formatReadList(list)
+        }
+        // Every read of one chapter, oldest first
+        function getChapterReads(profileId, key) {
+            const reads = getEarlierReads(profileId, key)
+            const latest = getRawProgress(profileId)[key]
+            if (typeof latest === 'number' && latest > 0) reads.push(latest)
+            return reads
+        }
+        // Every read in a profile as [chapterKey, timestamp] pairs, re-reads included
+        function getAllReads(profileId = appData.activeProfileId) {
+            const out = []
+            const raw = getRawProgress(profileId)
+            for (const key in raw) {
+                if (typeof raw[key] === 'number' && raw[key] > 0) out.push([key, raw[key]])
+            }
+            const hist = appData.readHistory && appData.readHistory[profileId]
+            if (hist) {
+                for (const key in hist) parseReadList(hist[key]).forEach(ts => out.push([key, ts]))
+            }
+            return out
+        }
+
+        // Record a read. A chapter already read in this read-through keeps its
+        // read unless `again` is set (an explicit re-read). Returns true if recorded.
+        function recordChapterRead(profileId, key, ts, again = false) {
+            const prof = appData.profiles[profileId]
+            if (!prof) return false
+            const prev = prof[key]
+            if (typeof prev === 'number' && prev > 0) {
+                if (!again && prev >= getReadThroughStart(profileId)) return false
+                if (ts <= prev) ts = prev + 1 // keep reads distinct and ascending
+                setEarlierReads(profileId, key, sortUnique([...getEarlierReads(profileId, key), prev]))
+            }
+            prof[key] = ts
+            clearChapterDeletion(profileId, key)
+            clearReadDeletion(profileId, key, ts)
+            return true
+        }
+
+        // Remove the latest read. The read before it, if any, becomes the latest.
+        // Returns the removed timestamp, or null if the chapter was unread.
+        function removeLatestRead(profileId, key) {
+            const prof = appData.profiles[profileId]
+            if (!prof || typeof prof[key] !== 'number') return null
+            const removed = prof[key]
+            const earlier = getEarlierReads(profileId, key)
+            if (earlier.length) {
+                prof[key] = earlier.pop()
+                setEarlierReads(profileId, key, earlier)
+                recordReadDeletion(profileId, key, removed)
+            } else {
+                delete prof[key]
+                recordChapterDeletion(profileId, key)
+            }
+            return removed
+        }
+
+        // Remove every read in the current read-through (earlier rounds stay)
+        function removeRoundReads(profileId, key) {
+            let removed = 0
+            while (isReadThisRound(profileId, key)) {
+                if (removeLatestRead(profileId, key) === null) break
+                removed++
+            }
+            return removed
+        }
+
+        // Snapshot one chapter's reads so an action can be undone exactly
+        function snapshotChapterReads(profileId, key) {
+            return { latest: getRawProgress(profileId)[key], earlier: getEarlierReads(profileId, key) }
+        }
+        function restoreChapterReads(profileId, key, snap) {
+            const prof = appData.profiles[profileId]
+            if (!prof || !snap) return
+            const current = getChapterReads(profileId, key)
+            if (snap.latest === undefined) {
+                delete prof[key]
+                if (current.length) recordChapterDeletion(profileId, key)
+            } else {
+                prof[key] = snap.latest
+                clearChapterDeletion(profileId, key)
+                // Tombstone the reads this undo drops so sync can't bring them back
+                const keep = new Set([...snap.earlier, snap.latest])
+                current.forEach(ts => { if (!keep.has(ts)) recordReadDeletion(profileId, key, ts) })
+                keep.forEach(ts => clearReadDeletion(profileId, key, ts))
+            }
+            setEarlierReads(profileId, key, snap.earlier)
+        }
+
+        // Rebuild each re-read chapter from all its known reads. Reads removed by
+        // a tombstone are dropped; the newest left becomes the latest read and
+        // the rest stay as history. Runs after load, cloud merge and import.
+        function reconcileReadHistory(data) {
+            if (!data || !data.profiles) return
+            if (!data.readHistory || typeof data.readHistory !== 'object') data.readHistory = {}
+            const history = data.readHistory
+            const deletedReads = (data.deletedReads && typeof data.deletedReads === 'object') ? data.deletedReads : {}
+            const has = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k)
+            const pids = new Set([...Object.keys(history), ...Object.keys(deletedReads)])
+            pids.forEach(pid => {
+                const prof = data.profiles[pid]
+                if (!prof || typeof prof !== 'object') { delete history[pid]; return }
+                const hist = (history[pid] && typeof history[pid] === 'object') ? history[pid] : {}
+                const chDels = (data.deletedChapters && data.deletedChapters[pid]) || {}
+                const rDels = deletedReads[pid] || {}
+                const keys = new Set([...Object.keys(hist), ...Object.keys(rDels)])
+                keys.forEach(key => {
+                    let reads = parseReadList(hist[key])
+                    if (typeof prof[key] === 'number' && prof[key] > 0) reads.push(prof[key])
+                    if (typeof chDels[key] === 'number') reads = reads.filter(ts => ts > chDels[key])
+                    const gone = rDels[key]
+                    if (gone && typeof gone === 'object') reads = reads.filter(ts => !has(gone, String(ts)))
+                    reads = capReads(sortUnique(reads))
+                    if (reads.length) prof[key] = reads[reads.length - 1]
+                    else delete prof[key]
+                    if (reads.length > 1 || has(hist, key)) hist[key] = formatReadList(reads.slice(0, -1))
+                })
+                if (Object.keys(hist).length) history[pid] = hist
+                else delete history[pid]
+            })
         }
 
         // --- CHAPTER DELETION TOMBSTONES ---
@@ -3453,6 +3725,96 @@
             if(appData.deletedChapters && appData.deletedChapters[profileId]) {
                 delete appData.deletedChapters[profileId][chapterKey];
             }
+        }
+
+        // Removing one read of a chapter that has others can't use a chapter
+        // tombstone, which drops every read up to its time. Record the exact
+        // read instead: deletedReads[id][key][readTs] = deletion time.
+        // Purged after 30 days, like chapter tombstones.
+        function recordReadDeletion(profileId, chapterKey, readTs) {
+            if(!appData.deletedReads) appData.deletedReads = {};
+            if(!appData.deletedReads[profileId]) appData.deletedReads[profileId] = {};
+            const dels = appData.deletedReads[profileId];
+            if(!dels[chapterKey] || typeof dels[chapterKey] !== 'object') dels[chapterKey] = {};
+            dels[chapterKey][String(readTs)] = Date.now();
+        }
+        function clearReadDeletion(profileId, chapterKey, readTs) {
+            const dels = appData.deletedReads && appData.deletedReads[profileId];
+            if(dels && dels[chapterKey] && typeof dels[chapterKey] === 'object') {
+                delete dels[chapterKey][String(readTs)];
+            }
+        }
+
+        // Drop read tombstones older than 30 days. A function declaration with a
+        // literal TTL so the load-time migration can call it too.
+        function purgeOldReadDeletions(data) {
+            if(!data || !data.deletedReads || typeof data.deletedReads !== 'object') return;
+            const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+            const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
+            Object.keys(data.deletedReads).forEach(pid => {
+                const dels = data.deletedReads[pid];
+                if(!isObj(dels)) { delete data.deletedReads[pid]; return; }
+                Object.keys(dels).forEach(key => {
+                    if(!isObj(dels[key])) { delete dels[key]; return; }
+                    Object.keys(dels[key]).forEach(ts => {
+                        if(typeof dels[key][ts] !== 'number' || dels[key][ts] < cutoff) delete dels[key][ts];
+                    });
+                    if(Object.keys(dels[key]).length === 0) delete dels[key];
+                });
+                if(Object.keys(dels).length === 0) delete data.deletedReads[pid];
+            });
+        }
+
+        // Cloud merge for re-read history: union both sides' history, read
+        // tombstones and read-through starts, then rebuild each chapter.
+        function mergeReadHistoryInto(data, localHistory, localStarts, localDeletedReads) {
+            const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
+            // Read tombstones: newest deletion time wins; purge after 30 days
+            if(!isObj(data.deletedReads)) data.deletedReads = {};
+            if(isObj(localDeletedReads)) {
+                Object.keys(localDeletedReads).forEach(pid => {
+                    const src = localDeletedReads[pid];
+                    if(!isObj(src)) return;
+                    if(!isObj(data.deletedReads[pid])) data.deletedReads[pid] = {};
+                    const dst = data.deletedReads[pid];
+                    Object.keys(src).forEach(key => {
+                        if(!isObj(src[key])) return;
+                        if(!isObj(dst[key])) dst[key] = {};
+                        Object.keys(src[key]).forEach(ts => {
+                            const at = src[key][ts];
+                            if(typeof at === 'number' && !(dst[key][ts] >= at)) dst[key][ts] = at;
+                        });
+                    });
+                });
+            }
+            purgeOldReadDeletions(data);
+
+            // History: union per chapter
+            if(!isObj(data.readHistory)) data.readHistory = {};
+            if(isObj(localHistory)) {
+                Object.keys(localHistory).forEach(pid => {
+                    const src = localHistory[pid];
+                    if(!isObj(src)) return;
+                    if(!isObj(data.readHistory[pid])) data.readHistory[pid] = {};
+                    const dst = data.readHistory[pid];
+                    Object.keys(src).forEach(key => {
+                        dst[key] = formatReadList(sortUnique([...parseReadList(dst[key]), ...parseReadList(src[key])]));
+                    });
+                });
+            }
+
+            // Read-through starts (and their undo markers): union
+            if(!isObj(data.readThroughStarts)) data.readThroughStarts = {};
+            if(isObj(localStarts)) {
+                Object.keys(localStarts).forEach(pid => {
+                    if(!Array.isArray(localStarts[pid])) return;
+                    const cloud = Array.isArray(data.readThroughStarts[pid]) ? data.readThroughStarts[pid] : [];
+                    data.readThroughStarts[pid] = [...new Set([...cloud, ...localStarts[pid]])]
+                        .filter(n => typeof n === 'number' && Number.isFinite(n) && n !== 0);
+                });
+            }
+
+            reconcileReadHistory(data);
         }
 
         // --- AUTH LOGIC ---
@@ -3656,6 +4018,9 @@
             const localProfileSyncRules = appData.profileSyncRules
             const localProfileColors = appData.profileColors
             const localDeletedChapters = appData.deletedChapters
+            const localReadHistory = appData.readHistory
+            const localReadThroughStarts = appData.readThroughStarts
+            const localDeletedReads = appData.deletedReads
             appData = cloudData;
             // Union deletion tombstones from both sides, newest per chapter wins
             if (!appData.deletedChapters) appData.deletedChapters = {}
@@ -3738,6 +4103,10 @@
                     if (Object.keys(dels).length === 0) delete appData.deletedChapters[pid]
                 })
             }
+
+            // Re-read history and read-through starts: union both sides, then
+            // rebuild each re-read chapter honoring both kinds of tombstone
+            mergeReadHistoryInto(appData, localReadHistory, localReadThroughStarts, localDeletedReads)
 
             // Merge per-profile metadata: restore local entries missing from cloud
             if (localProfilePlans) {
@@ -3943,6 +4312,7 @@
             else if(window.activeTab === 'STATS') window.renderStatsPage();
             else if(window.activeTab === 'PLAN') { window.renderDailyPlan(); window.renderGoals(); }
             else if(window.activeTab === 'ABOUT') { }
+            else if(window.activeTab === 'SETTINGS') { renderReadThroughSettings(); }
             else { window.renderBookGrid(); window.renderSubdivisionStats(); }
             window.updateStats();
         }
@@ -4115,7 +4485,7 @@
 			const saveToLocalStorage = () => {
 				try {
 					localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData));
-					localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getProgress()));
+					localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getRawProgress()));
 					log('💾 Saved to localStorage');
 				} catch (e) {
 					// Handle quota exceeded or other localStorage errors
@@ -4427,6 +4797,9 @@
                 if(appData.hornerCycleCount) delete appData.hornerCycleCount[name];
                 if(appData.hornerCycleLastAt) delete appData.hornerCycleLastAt[name];
                 if(appData.profileColors) delete appData.profileColors[name];
+                if(appData.readHistory) delete appData.readHistory[name];
+                if(appData.readThroughStarts) delete appData.readThroughStarts[name];
+                if(appData.deletedReads) delete appData.deletedReads[name];
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
@@ -4566,6 +4939,14 @@
                 appData.profileColors[newName] = appData.profileColors[oldName];
                 delete appData.profileColors[oldName];
             }
+
+            // Move re-read history, read-through starts and read tombstones
+            ['readHistory', 'readThroughStarts', 'deletedReads'].forEach(field => {
+                if(appData[field] && appData[field][oldName]) {
+                    appData[field][newName] = appData[field][oldName];
+                    delete appData[field][oldName];
+                }
+            });
 
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
@@ -10929,6 +11310,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 updateDefaultTabSelector();
             updateBibleVersionSelector();
             updateInterlinearControls();
+            renderReadThroughSettings();
             }
             else {
                 const view = document.getElementById('view-books');
@@ -11099,86 +11481,90 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             setTimeout(() => button.classList.remove('checkbox-celebrate'), 500);
         };
 
-        window.toggleChapter = (id, event) => {
-            const prog = getProgress();
-            // Unmark by deleting so "unread" is always `undefined` — `false` slipped
-            // past Firestore merge (numbers-only) and confused read-ahead detection.
-            const wasRead = !!prog[id];
-            const timestamp = wasRead ? null : Date.now();
-            if (wasRead) {
-                delete prog[id];
-                recordChapterDeletion(appData.activeProfileId, id);
-            } else {
-                prog[id] = timestamp;
-                clearChapterDeletion(appData.activeProfileId, id);
-            }
-            setProgress(prog);
+        // Profile that mirrors the active profile's marks, if a sync rule exists
+        function getSyncTargetProfile(profileId = appData.activeProfileId) {
+            const target = appData.profileSyncRules && appData.profileSyncRules[profileId];
+            return target && appData.profiles[target] ? target : null;
+        }
 
+        // Mirror an unmark on a sync target: drop its read in its own current
+        // read-through (the old behavior deleted the target's chapter outright)
+        function removeSyncedRead(targetProfile, chapterId) {
+            if (isReadThisRound(targetProfile, chapterId)) removeLatestRead(targetProfile, chapterId);
+        }
+
+        // Plan marks: a plan only offers a chapter it needs read, so a chapter
+        // read before today counts as a re-read (Horner rotations, M'Cheyne's
+        // second New Testament pass). One already read today in this
+        // read-through is left alone, so a double tap doesn't count twice.
+        function recordPlanRead(profileId, chapterId, timestamp) {
+            const prev = getRawProgress(profileId)[chapterId];
+            if (isReadThisRound(profileId, chapterId) && prev > 1 && getLocalDateString(prev) === getTodaysDate()) return false;
+            return recordChapterRead(profileId, chapterId, timestamp, true);
+        }
+
+        // Horner bookkeeping after a chapter is marked read
+        function noteHornerRead(chapterId) {
+            if (activePlan !== 'HORNER') return;
+            const listIndex = getHornerListForChapter(chapterId);
+            if (listIndex < 0) return;
+            markHornerListComplete(listIndex);
+            checkHornerCycleCompletion(chapterId);
+        }
+
+        // Save and re-render after a progress change. saveProgress → refreshUI
+        // already renders the active tab; only render the others if we're
+        // elsewhere (avoids a duplicate full rebuild per tap).
+        function refreshAfterProgressChange() {
             // Reset comeback card flag so dashboard re-evaluates fresh
             if (typeof comebackCardActive !== 'undefined') comebackCardActive = false;
+            window.saveProgress(true);
+            window.renderChapterGrid();
+            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
+            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
+        }
+
+        window.toggleChapter = (id, event) => {
+            const profileId = appData.activeProfileId;
+            // A chapter read only in an earlier read-through counts as unread here,
+            // so a tap records a new read instead of erasing the old one.
+            // Unmarking removes only the latest read; "unread" stays `undefined`.
+            const wasRead = isReadThisRound(profileId, id);
+            const timestamp = wasRead ? null : Date.now();
+            const syncTarget = getSyncTargetProfile(profileId);
+            if (wasRead) {
+                removeLatestRead(profileId, id);
+                if (syncTarget) removeSyncedRead(syncTarget, id);
+            } else {
+                recordChapterRead(profileId, id, timestamp);
+                if (syncTarget) recordChapterRead(syncTarget, id, timestamp);
+            }
 
             // Show celebration animation when marking as read
             if (timestamp && event) {
                 window.createConfetti(event);
             }
 
-            // Apply cross-profile sync if rule exists — propagate both marks and unmarks
-            if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
-                const targetProfile = appData.profileSyncRules[appData.activeProfileId];
-                if(appData.profiles[targetProfile]) {
-                    if (timestamp) {
-                        appData.profiles[targetProfile][id] = timestamp;
-                        clearChapterDeletion(targetProfile, id);
-                    } else {
-                        delete appData.profiles[targetProfile][id];
-                        recordChapterDeletion(targetProfile, id);
-                    }
-                }
-            }
-
             // If using Horner plan, track daily completion and cycle count
-            if(activePlan === 'HORNER') {
-                const listIndex = getHornerListForChapter(id);
-                if(listIndex >= 0) {
-                    if(timestamp) {
-                        markHornerListComplete(listIndex);
-                        checkHornerCycleCompletion(id);
-                    } else {
-                        // Chapter was unmarked - remove list from today's completed lists
-                        resetHornerDailyProgressIfNeeded();
-                        const profileId = appData.activeProfileId;
-                        const idx = appData.hornerDailyProgress[profileId].completedLists.indexOf(listIndex);
-                        if(idx !== -1) {
-                            appData.hornerDailyProgress[profileId].completedLists.splice(idx, 1);
-                        }
-                    }
-                }
-            }
+            if (timestamp) noteHornerRead(id);
+            else noteHornerUnread(id);
 
-            window.saveProgress(true);
-            window.renderChapterGrid();
-            // saveProgress → refreshUI already rendered the active tab; only render
-            // the others if we're elsewhere (avoids a duplicate full rebuild per tap)
-            if (window.activeTab !== 'PLAN' && typeof window.renderDailyPlan === 'function') window.renderDailyPlan();
-            if (window.activeTab !== 'DASHBOARD' && typeof window.renderDashboard === 'function') window.renderDashboard();
+            refreshAfterProgressChange();
         };
 
         // Mark multiple chapters as read (for daily plans with chapter ranges)
         window.markChaptersAsRead = (bookName, chapters, event, buttonEl = null) => {
-            const prog = getProgress();
             const timestamp = Date.now();
 
             // Snapshot the state this tap will change so the toast can offer Undo
             const undoProfileId = appData.activeProfileId;
-            const undoSyncTarget = appData.profileSyncRules && appData.profileSyncRules[undoProfileId] &&
-                appData.profiles[appData.profileSyncRules[undoProfileId]]
-                ? appData.profileSyncRules[undoProfileId] : null;
+            const undoSyncTarget = getSyncTargetProfile(undoProfileId);
             const undoPrev = {};
             const undoPrevTarget = {};
             chapters.forEach(chapterNum => {
                 const chapterId = `${bookName}-${chapterNum}`;
-                undoPrev[chapterId] = prog[chapterId];
-                if (undoSyncTarget) undoPrevTarget[chapterId] = appData.profiles[undoSyncTarget][chapterId];
+                undoPrev[chapterId] = snapshotChapterReads(undoProfileId, chapterId);
+                if (undoSyncTarget) undoPrevTarget[chapterId] = snapshotChapterReads(undoSyncTarget, chapterId);
             });
             const undoHornerDaily = activePlan === 'HORNER' && appData.hornerDailyProgress && appData.hornerDailyProgress[undoProfileId]
                 ? JSON.parse(JSON.stringify(appData.hornerDailyProgress[undoProfileId])) : null;
@@ -11188,20 +11574,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Reset comeback card flag so dashboard re-evaluates fresh
             if (typeof comebackCardActive !== 'undefined') comebackCardActive = false;
 
-            // Mark all chapters in the range
+            // Mark all chapters in the range (earlier reads move to history)
             chapters.forEach(chapterNum => {
                 const chapterId = `${bookName}-${chapterNum}`;
-                prog[chapterId] = timestamp;
-                clearChapterDeletion(appData.activeProfileId, chapterId);
-
-                // Apply cross-profile sync if rule exists
-                if(appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]) {
-                    const targetProfile = appData.profileSyncRules[appData.activeProfileId];
-                    if(appData.profiles[targetProfile]) {
-                        appData.profiles[targetProfile][chapterId] = timestamp;
-                        clearChapterDeletion(targetProfile, chapterId);
-                    }
-                }
+                recordPlanRead(undoProfileId, chapterId, timestamp);
+                if (undoSyncTarget) recordPlanRead(undoSyncTarget, chapterId, timestamp);
 
                 // If using Horner plan, track daily completion
                 if(activePlan === 'HORNER') {
@@ -11211,8 +11588,6 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                 }
             });
-
-            setProgress(prog);
 
             // If using Horner plan, check for cycle completion after all chapters saved
             if(activePlan === 'HORNER' && chapters.length > 0) {
@@ -11237,17 +11612,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     label: 'Undo',
                     onAction: () => {
                         const restore = (profileId, prev) => {
-                            const p = appData.profiles[profileId];
-                            if (!p) return;
-                            Object.keys(prev).forEach(chapterId => {
-                                if (prev[chapterId] === undefined) {
-                                    delete p[chapterId];
-                                    recordChapterDeletion(profileId, chapterId);
-                                } else {
-                                    p[chapterId] = prev[chapterId];
-                                    clearChapterDeletion(profileId, chapterId);
-                                }
-                            });
+                            Object.keys(prev).forEach(chapterId => restoreChapterReads(profileId, chapterId, prev[chapterId]));
                         };
                         restore(undoProfileId, undoPrev);
                         if (undoSyncTarget) restore(undoSyncTarget, undoPrevTarget);
@@ -11272,33 +11637,29 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             resetHornerDailyProgressIfNeeded();
             const profileId = appData.activeProfileId;
             const completedLists = appData.hornerDailyProgress[profileId].completedLists;
-            const prog = getProgress();
+            // Horner rotates on every chapter's latest read, across read-throughs
+            const prog = getRawProgress(profileId);
             const timestamp = Date.now();
-            const marked = [];
+            const syncTarget = getSyncTargetProfile(profileId);
+            const picks = [];
 
+            // Pick every list's next chapter before marking any, so one list's
+            // mark can't shift another list's pick
             PLAN_HORNER.forEach((listBooks, listIdx) => {
                 if (completedLists.includes(listIdx)) return;
                 const next = getNextHornerChapter(listIdx, prog);
-                if (!next) return;
-                const chapterId = `${next.book}-${next.chapter}`;
-                prog[chapterId] = timestamp;
-                clearChapterDeletion(profileId, chapterId);
+                if (next) picks.push({ listIdx, chapterId: `${next.book}-${next.chapter}` });
+            });
 
-                // Apply cross-profile sync if rule exists
-                if(appData.profileSyncRules && appData.profileSyncRules[profileId]) {
-                    const targetProfile = appData.profileSyncRules[profileId];
-                    if(appData.profiles[targetProfile]) {
-                        appData.profiles[targetProfile][chapterId] = timestamp;
-                        clearChapterDeletion(targetProfile, chapterId);
-                    }
-                }
-
+            const marked = [];
+            picks.forEach(({ listIdx, chapterId }) => {
+                recordPlanRead(profileId, chapterId, timestamp);
+                if (syncTarget) recordPlanRead(syncTarget, chapterId, timestamp);
                 markHornerListComplete(listIdx);
                 marked.push(chapterId);
             });
 
             if (marked.length === 0) return;
-            setProgress(prog);
             marked.forEach(chapterId => checkHornerCycleCompletion(chapterId));
 
             // Reset comeback card flag so dashboard re-evaluates fresh
@@ -11320,48 +11681,401 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const book = bible[activeBookIdx];
 
             // Add confirmation for resetting book progress
+            const profileId = appData.activeProfileId;
             if (!val) {
-                const readChapters = book.ch.filter((_, i) => getProgress()[`${book.name}-${i+1}`]).length;
+                const readChapters = book.ch.filter((_, i) => isReadThisRound(profileId, `${book.name}-${i+1}`)).length;
                 if (readChapters > 0) {
+                    const roundNum = getReadThroughNumber(profileId);
+                    const scope = roundNum > 1
+                        ? ` for read-through #${roundNum}. Reads from earlier read-throughs stay in your history.`
+                        : '.';
                     const confirmReset = await window.showConfirm(
-                        `Reset ${book.name}?`,
-                        `This will unmark ${readChapters} chapter${readChapters !== 1 ? 's' : ''} as unread. This action cannot be undone.`,
+                        `Reset ${escapeHtml(book.name)}?`,
+                        `This will unmark ${readChapters} chapter${readChapters !== 1 ? 's' : ''}${scope} This action cannot be undone.`,
                         'Reset'
                     );
                     if (!confirmReset) return;
                 }
             }
 
-            const prog = getProgress();
             const timestamp = val ? Date.now() : null;
-            const syncTarget = appData.profileSyncRules && appData.profileSyncRules[appData.activeProfileId]
-                ? appData.profileSyncRules[appData.activeProfileId]
-                : null;
+            const syncTarget = getSyncTargetProfile(profileId);
             book.ch.forEach((_, i) => {
                 const chapterId = `${book.name}-${i+1}`;
+                // Marking skips chapters already read this read-through; resetting
+                // removes this read-through's reads and keeps earlier ones
                 if (val) {
-                    prog[chapterId] = timestamp;
-                    clearChapterDeletion(appData.activeProfileId, chapterId);
+                    recordChapterRead(profileId, chapterId, timestamp);
+                    if (syncTarget) recordChapterRead(syncTarget, chapterId, timestamp);
                 } else {
-                    delete prog[chapterId];
-                    recordChapterDeletion(appData.activeProfileId, chapterId);
-                }
-
-                // Apply cross-profile sync if rule exists
-                if(syncTarget && appData.profiles[syncTarget]) {
-                    if (val) {
-                        appData.profiles[syncTarget][chapterId] = timestamp;
-                        clearChapterDeletion(syncTarget, chapterId);
-                    } else {
-                        delete appData.profiles[syncTarget][chapterId];
-                        recordChapterDeletion(syncTarget, chapterId);
-                    }
+                    removeRoundReads(profileId, chapterId);
+                    if (syncTarget) removeRoundReads(syncTarget, chapterId);
                 }
             });
-            setProgress(prog);
             window.saveProgress(true);
             window.renderChapterGrid();
         };
+
+        // --- READ-THROUGHS: SUMMARIES, NEW ROUNDS, CHAPTER MENU ---
+        const TOTAL_CHAPTER_COUNT = bible.reduce((sum, b) => sum + b.ch.length, 0);
+        const chapterKeyLabel = (key) => key.replace(/-(\d+)$/, ' $1');
+        // Legacy reads migrated from `true` carry timestamp 1 and have no real date
+        const formatReadDate = (ts) => ts > 1
+            ? new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : 'Before dates were tracked';
+
+        // One entry per read-through, oldest first: { number, start, end,
+        // chapters, words, percent, complete, firstRead, completedAt, current }.
+        // A read belongs to the read-through whose start it follows.
+        function getReadThroughSummaries(profileId = appData.activeProfileId) {
+            const bounds = [0, ...getReadThroughStarts(profileId)];
+            const rounds = bounds.map(() => ({ firstRead: 0, chapters: new Map() }));
+            getAllReads(profileId).forEach(([key, ts]) => {
+                let i = bounds.length - 1;
+                while (i > 0 && ts < bounds[i]) i--;
+                const r = rounds[i];
+                const seen = r.chapters.get(key);
+                if (seen === undefined || ts < seen) r.chapters.set(key, ts);
+                if (ts > 1 && (!r.firstRead || ts < r.firstRead)) r.firstRead = ts;
+            });
+            return rounds.map((r, i) => {
+                let words = 0, completedAt = 0, chapters = 0;
+                r.chapters.forEach((ts, key) => {
+                    const w = getWordCountForChapter(key);
+                    if (!w) return;
+                    words += w;
+                    chapters++;
+                    if (ts > completedAt) completedAt = ts;
+                });
+                const complete = words >= WORD_TOTALS.GLOBAL;
+                return {
+                    number: i + 1,
+                    start: bounds[i],
+                    end: i + 1 < bounds.length ? bounds[i + 1] : null,
+                    chapters,
+                    words,
+                    percent: Math.min(100, words / WORD_TOTALS.GLOBAL * 100),
+                    complete,
+                    firstRead: r.firstRead || null,
+                    completedAt: complete && completedAt > 1 ? completedAt : null,
+                    current: i === bounds.length - 1
+                };
+            });
+        }
+
+        // Lifetime totals across every read: words, chapter reads, re-read
+        // chapters and the five most-read chapters
+        function getLifetimeReadStats(profileId = appData.activeProfileId) {
+            const counts = new Map();
+            let words = 0, reads = 0;
+            getAllReads(profileId).forEach(([key, ts]) => {
+                const w = getWordCountForChapter(key);
+                if (!w) return;
+                words += w;
+                reads++;
+                const c = counts.get(key) || { count: 0, last: 0 };
+                c.count++;
+                if (ts > c.last) c.last = ts;
+                counts.set(key, c);
+            });
+            const reread = [...counts.entries()].filter(([, c]) => c.count > 1);
+            const mostRead = reread
+                .sort((a, b) => b[1].count - a[1].count || b[1].last - a[1].last)
+                .slice(0, 5)
+                .map(([key, c]) => ({ key, count: c.count }));
+            return { words, reads, bibles: words / WORD_TOTALS.GLOBAL, rereadChapters: reread.length, mostRead };
+        }
+
+        // Read-throughs card on the Stats tab. Hidden until a reader finishes,
+        // starts a second read-through or re-reads a chapter.
+        function renderReadThroughsCard() {
+            const section = document.getElementById('read-throughs-section');
+            if (!section) return;
+            const rounds = getReadThroughSummaries();
+            const life = getLifetimeReadStats();
+            const current = rounds[rounds.length - 1];
+            const relevant = rounds.length > 1 || current.complete || life.rereadChapters > 0;
+            section.classList.toggle('hidden', !relevant);
+            if (!relevant) return;
+
+            const btn = document.getElementById('read-throughs-start-btn');
+            if (btn) {
+                btn.textContent = `Start read-through #${rounds.length + 1}`;
+                btn.className = current.complete
+                    ? 'px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-xl transition-all shadow-md bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'px-4 py-2 text-xs font-bold uppercase tracking-wide rounded-xl transition-all shadow-sm bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100';
+            }
+
+            const completed = rounds.filter(r => r.complete).length;
+            const tile = (value, label) => `<div class="bg-slate-50 rounded-2xl p-3 text-center border border-slate-100">
+                <div class="text-xl font-black text-indigo-900">${value}</div>
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wide mt-0.5">${label}</div>
+            </div>`;
+            document.getElementById('read-throughs-lifetime').innerHTML =
+                tile(completed, completed === 1 ? 'Bible finished' : 'Bibles finished') +
+                tile(life.bibles.toFixed(2), "Bibles' worth read") +
+                tile(life.words.toLocaleString(), 'Lifetime words') +
+                tile(life.rereadChapters.toLocaleString(), 'Chapters re-read');
+
+            document.getElementById('read-throughs-list').innerHTML = rounds.slice().reverse().map(r => {
+                const status = r.complete ? 'Complete' : (r.current ? 'In progress' : 'Stopped early');
+                const pill = r.complete ? 'bg-emerald-100 text-emerald-700' : (r.current ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-600');
+                const bar = r.complete ? 'bg-emerald-500' : (r.current ? 'bg-indigo-500' : 'bg-slate-400');
+                const pct = r.complete ? '100' : Math.min(99.9, r.percent).toFixed(1);
+                let dates;
+                if (r.complete && r.firstRead && r.completedAt) {
+                    const days = Math.max(1, Math.round((r.completedAt - r.firstRead) / 86400000) + 1);
+                    dates = `${formatReadDate(r.firstRead)} – ${formatReadDate(r.completedAt)} · ${days.toLocaleString()} day${days !== 1 ? 's' : ''}`;
+                } else if (r.firstRead) {
+                    dates = `Started ${formatReadDate(r.firstRead)}`;
+                } else if (r.start) {
+                    dates = `Started ${formatReadDate(r.start)}`;
+                } else {
+                    dates = 'No dated reads yet';
+                }
+                return `<div class="p-4 rounded-2xl border ${r.current ? 'border-indigo-200 bg-indigo-50/40' : 'border-slate-100 bg-slate-50'}">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                            <span class="text-sm font-black text-slate-800">Read-through #${r.number}</span>
+                            <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${pill}">${status}</span>
+                        </div>
+                        <span class="text-sm font-black text-slate-700">${pct}%</span>
+                    </div>
+                    <div class="h-2 bg-white rounded-full overflow-hidden mb-2 border border-slate-100"><div class="h-full ${bar} rounded-full" style="width:${pct}%"></div></div>
+                    <div class="text-[11px] text-slate-500 font-semibold">${dates} · ${r.chapters.toLocaleString()} / ${TOTAL_CHAPTER_COUNT.toLocaleString()} chapters</div>
+                </div>`;
+            }).join('');
+
+            const mostEl = document.getElementById('read-throughs-most-read');
+            mostEl.innerHTML = life.mostRead.length ? `<div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Most-read chapters</div>
+                <div class="flex flex-wrap gap-2">${life.mostRead.map(m => {
+                    const [, bookName, num] = /^(.+)-(\d+)$/.exec(m.key) || [];
+                    return `<button onclick="window.openBibleReader('${escapeHtml(bookName || '')}', ${parseInt(num, 10) || 1})" class="px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition-colors">${escapeHtml(chapterKeyLabel(m.key))} <span class="text-indigo-400">×${m.count}</span></button>`;
+                }).join('')}</div>` : '';
+        }
+
+        // Read-throughs row in Settings
+        function renderReadThroughSettings() {
+            const title = document.getElementById('settings-read-through-title');
+            const detail = document.getElementById('settings-read-through-detail');
+            const btn = document.getElementById('settings-read-through-btn');
+            if (!title || !detail || !btn) return;
+            const rounds = getReadThroughSummaries();
+            const current = rounds[rounds.length - 1];
+            const done = rounds.filter(r => r.complete).length;
+            title.textContent = `Read-through #${current.number}`;
+            detail.textContent = `${current.complete ? 'Complete' : current.percent.toFixed(1) + '% read'}` +
+                (done > 0 ? ` · ${done} finished Bible${done !== 1 ? 's' : ''}` : '');
+            btn.textContent = `Start #${rounds.length + 1}`;
+        }
+
+        // Start the next read-through. Nothing is deleted: the grid, plans,
+        // goals and progress bars start counting from now, and every earlier
+        // read stays in history, the heatmap and streaks.
+        window.startNewReadThrough = async () => {
+            const profileId = appData.activeProfileId;
+            const rounds = getReadThroughSummaries(profileId);
+            const current = rounds[rounds.length - 1];
+            const next = rounds.length + 1;
+            if (current.chapters === 0) {
+                await window.showAlert(`Read-through #${current.number} is empty`, `Read a chapter in read-through #${current.number} before starting another one.`, 'info');
+                return;
+            }
+            const unfinished = current.complete ? '' :
+                `\n\nRead-through #${current.number} is ${current.percent.toFixed(1)}% done. It stays in your history as it stands.`;
+            const ok = await window.showConfirm(
+                `Start read-through #${next}?`,
+                `Your chapter grid, reading plan and progress bars start again at 0%.\n\nNothing is lost: your heatmap, streaks, read counts and every earlier read stay.${unfinished}`,
+                'Start'
+            );
+            if (!ok) return;
+
+            const startTs = Date.now();
+            const setStarts = (list) => {
+                if (!appData.readThroughStarts) appData.readThroughStarts = {};
+                appData.readThroughStarts[profileId] = list;
+            };
+            const prevStarts = Array.isArray(appData.readThroughStarts && appData.readThroughStarts[profileId])
+                ? appData.readThroughStarts[profileId] : [];
+            setStarts([...prevStarts, startTs]);
+            // Let today's plan recompute from day one of the new read-through
+            const resetPlanPin = () => {
+                if (appData.dailyPlanProgress) appData.dailyPlanProgress[profileId] = { date: '', plan: '', chapters: [] };
+            };
+            resetPlanPin();
+            window.saveProgress(true);
+            refreshUI();
+            window.renderChapterGrid();
+
+            window.showMicroToast(`Read-through #${next} started 📖`, 8000, {
+                label: 'Undo',
+                onAction: () => {
+                    // A negative entry cancels the start, and survives the sync union
+                    const list = Array.isArray(appData.readThroughStarts[profileId]) ? appData.readThroughStarts[profileId] : [];
+                    setStarts([...list, -startTs]);
+                    resetPlanPin();
+                    window.saveProgress(true);
+                    refreshUI();
+                    window.renderChapterGrid();
+                    window.showMicroToast(`Back to read-through #${next - 1}`);
+                }
+            });
+        };
+
+        // Horner bookkeeping after a read is removed: a list whose chapter is no
+        // longer read today drops out of today's completed lists
+        function noteHornerUnread(chapterId) {
+            if (activePlan !== 'HORNER') return;
+            const listIndex = getHornerListForChapter(chapterId);
+            if (listIndex < 0) return;
+            const ts = getRawProgress()[chapterId];
+            if (typeof ts === 'number' && getLocalDateString(ts) === getTodaysDate()) return;
+            resetHornerDailyProgressIfNeeded();
+            const lists = appData.hornerDailyProgress[appData.activeProfileId].completedLists;
+            const idx = lists.indexOf(listIndex);
+            if (idx !== -1) lists.splice(idx, 1);
+        }
+
+        // Explicit re-read (long-press menu): always records a new read
+        window.readChapterAgain = (chapterId) => {
+            const profileId = appData.activeProfileId;
+            const ts = Date.now();
+            if (!recordChapterRead(profileId, chapterId, ts, true)) return;
+            const syncTarget = getSyncTargetProfile(profileId);
+            if (syncTarget) recordChapterRead(syncTarget, chapterId, ts, true);
+            noteHornerRead(chapterId);
+            refreshAfterProgressChange();
+            const count = getChapterReads(profileId, chapterId).length;
+            window.showMicroToast(`${chapterKeyLabel(chapterId)} marked read${count > 1 ? ` · ×${count}` : ''} ✅`);
+        };
+
+        // Remove the latest read; an earlier read becomes the latest again
+        window.removeLatestChapterRead = (chapterId) => {
+            const profileId = appData.activeProfileId;
+            const removed = removeLatestRead(profileId, chapterId);
+            if (removed === null) return;
+            const syncTarget = getSyncTargetProfile(profileId);
+            if (syncTarget) removeSyncedRead(syncTarget, chapterId);
+            noteHornerUnread(chapterId);
+            refreshAfterProgressChange();
+            window.showMicroToast(`Removed the ${formatReadDate(removed)} read of ${chapterKeyLabel(chapterId)}`, 3000);
+        };
+
+        // Long-press / right-click menu for a chapter: read counts, every read
+        // date, and actions to read again, remove the latest read or open it
+        window.openChapterMenu = (chapterId) => {
+            if (document.getElementById('chapter-menu-overlay')) return;
+            const match = /^(.+)-(\d+)$/.exec(chapterId || '');
+            if (!match) return;
+            const bookName = match[1];
+            const chapterNum = parseInt(match[2], 10);
+            const book = bible.find(b => b.name === bookName);
+            if (!book || chapterNum < 1 || chapterNum > book.ch.length) return;
+
+            const profileId = appData.activeProfileId;
+            const reads = getChapterReads(profileId, chapterId);
+            const bounds = [0, ...getReadThroughStarts(profileId)];
+            const roundOf = (ts) => { let i = bounds.length - 1; while (i > 0 && ts < bounds[i]) i--; return i + 1; };
+            const roundNum = bounds.length;
+            const readThisRound = isReadThisRound(profileId, chapterId);
+            const label = `${bookName} ${chapterNum}`;
+            const countText = reads.length === 0 ? 'Not read yet' : (reads.length === 1 ? 'Read once' : `Read ${reads.length} times`);
+            const roundText = roundNum > 1
+                ? (readThisRound ? ` · read in read-through #${roundNum}` : (reads.length ? ` · not yet in read-through #${roundNum}` : ''))
+                : '';
+            const SHOWN = 12;
+            const recent = reads.slice().reverse();
+            const datesHtml = recent.length ? `<ul class="mt-4 max-h-52 overflow-y-auto divide-y divide-slate-100 rounded-xl border border-slate-100 bg-slate-50/60">
+                ${recent.slice(0, SHOWN).map((ts, i) => `<li class="flex items-center justify-between px-3 py-2 text-xs">
+                    <span class="font-bold text-slate-700">${formatReadDate(ts)}${i === 0 ? ' <span class="text-[9px] font-black uppercase tracking-wider text-indigo-500 ml-1">Latest</span>' : ''}</span>
+                    ${roundNum > 1 ? `<span class="text-[10px] font-bold text-slate-400">Read-through #${roundOf(ts)}</span>` : ''}
+                </li>`).join('')}
+                ${recent.length > SHOWN ? `<li class="px-3 py-2 text-[11px] text-slate-400 font-semibold">+${recent.length - SHOWN} earlier</li>` : ''}
+            </ul>` : '';
+
+            const overlay = document.createElement('div');
+            overlay.id = 'chapter-menu-overlay';
+            overlay.className = 'fixed inset-0 z-[200] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4';
+            overlay.style.animation = 'fadeIn 0.2s ease-out';
+            overlay.innerHTML = `
+                <div class="glass bg-white border-2 border-indigo-200 rounded-2xl shadow-2xl p-6 max-w-sm w-full" role="dialog" aria-modal="true" aria-labelledby="chapter-menu-title">
+                    <h3 id="chapter-menu-title" class="text-xl font-black text-slate-900">${escapeHtml(label)}</h3>
+                    <p class="text-sm font-semibold text-slate-500 mt-1">${countText}${roundText}</p>
+                    ${datesHtml}
+                    <div class="mt-5 flex flex-col gap-2">
+                        <button data-action="again" class="w-full px-4 py-3 rounded-xl bg-indigo-600 text-white text-sm font-black hover:bg-indigo-700 shadow-md transition-colors">${readThisRound ? 'Read again' : 'Mark as read'}</button>
+                        ${reads.length ? `<button data-action="remove" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">Remove latest read <span class="font-semibold text-slate-400">(${formatReadDate(reads[reads.length - 1])})</span></button>` : ''}
+                        <button data-action="open" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">Open in reader</button>
+                        <button data-action="close" class="w-full px-4 py-2 rounded-xl text-slate-400 text-xs font-bold uppercase tracking-wide hover:text-slate-600 transition-colors">Close</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            const close = window.enhanceDynamicModal(overlay);
+            // Ignore pointer taps in the first moment: the finger that long-pressed
+            // may lift over the new menu. Keyboard clicks (detail 0) always count.
+            const openedAt = Date.now();
+            overlay.addEventListener('click', (e) => {
+                if (e.detail !== 0 && Date.now() - openedAt < 400) return;
+                if (e.target === overlay) { close(); return; }
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                close();
+                if (action === 'again') window.readChapterAgain(chapterId);
+                else if (action === 'remove') window.removeLatestChapterRead(chapterId);
+                else if (action === 'open') window.openBibleReader(bookName, chapterNum);
+            });
+        };
+
+        // Long-press on a chapter tile opens its menu. Right-click, the
+        // context-menu key and Shift+F10 fire `contextmenu` and open it too.
+        (function setupChapterLongPress() {
+            const grid = document.getElementById('chapter-grid');
+            if (!grid) return;
+            const LONG_PRESS_MS = 500;
+            const MOVE_TOLERANCE_PX = 10;
+            let timer = null, startX = 0, startY = 0;
+            let suppressClickUntil = 0;
+            const cancel = () => { clearTimeout(timer); timer = null; };
+            const tileFrom = (target) => target && target.closest ? target.closest('button[data-chapter]') : null;
+
+            grid.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                const tile = tileFrom(e.target);
+                if (!tile) return;
+                cancel();
+                startX = e.clientX;
+                startY = e.clientY;
+                const chapterId = tile.dataset.chapter;
+                timer = setTimeout(() => {
+                    timer = null;
+                    // Swallow the click that ends this press so it doesn't also toggle
+                    suppressClickUntil = Date.now() + 1000;
+                    try { if (navigator.vibrate) navigator.vibrate(12); } catch (_) { /* unsupported */ }
+                    window.openChapterMenu(chapterId);
+                }, LONG_PRESS_MS);
+            });
+            grid.addEventListener('pointermove', (e) => {
+                if (timer && (Math.abs(e.clientX - startX) > MOVE_TOLERANCE_PX || Math.abs(e.clientY - startY) > MOVE_TOLERANCE_PX)) cancel();
+            });
+            ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => grid.addEventListener(type, cancel));
+            // Capture phase: runs before the tile's own onclick and can stop it
+            grid.addEventListener('click', (e) => {
+                if (Date.now() < suppressClickUntil && tileFrom(e.target)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    suppressClickUntil = 0;
+                }
+            }, true);
+            grid.addEventListener('contextmenu', (e) => {
+                const tile = tileFrom(e.target);
+                if (!tile) return;
+                e.preventDefault();
+                cancel();
+                suppressClickUntil = Date.now() + 1000;
+                window.openChapterMenu(tile.dataset.chapter);
+            });
+        })();
 
         const getExportDateStamp = () => new Date().toISOString().split('T')[0];
         const formatExportDateTime = (timestamp) => {
@@ -11382,19 +12096,31 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
             return str;
         };
+        // `progress` is the profile's current read-through (what the app shows);
+        // re-reads and earlier read-throughs are exported in their own sections
         const getExportProfiles = () => {
             if (!appData || !appData.profiles) return [];
             return Object.keys(appData.profiles).map(profileName => ({
                 name: profileName,
-                progress: appData.profiles[profileName] || {}
+                progress: getProgress(profileName)
             }));
         };
         const getExportProfilesFiltered = (selectedNames) => {
             if (!selectedNames || !appData || !appData.profiles) return getExportProfiles()
             return selectedNames
                 .filter(name => appData.profiles[name])
-                .map(name => ({ name, progress: appData.profiles[name] || {} }))
+                .map(name => ({ name, progress: getProgress(name) }))
         };
+        // Read-through rows for exports: { number, status, started, finished, days, chapters, percent }
+        const getExportReadThroughs = (profileName) => getReadThroughSummaries(profileName).map(r => ({
+            number: r.number,
+            status: r.complete ? 'Complete' : (r.current ? 'In progress' : 'Stopped early'),
+            started: r.firstRead || r.start || null,
+            finished: r.completedAt,
+            days: r.complete && r.firstRead && r.completedAt ? Math.max(1, Math.round((r.completedAt - r.firstRead) / 86400000) + 1) : '',
+            chapters: r.chapters,
+            percent: r.complete ? '100.0' : Math.min(99.9, r.percent).toFixed(1)
+        }));
         const downloadExportFile = (content, filename, type) => {
             const blob = new Blob([content], { type });
             const url = URL.createObjectURL(blob);
@@ -11431,18 +12157,31 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // --- Reading Progress ---
             rows.push(['=== READING PROGRESS ===']);
-            rows.push(['Profile', 'Book', 'Chapter', 'Testament', 'Category', 'Word Count', 'Status', 'Read Timestamp', 'Read Date']);
+            rows.push(['Profile', 'Book', 'Chapter', 'Testament', 'Category', 'Word Count', 'Status', 'Read Timestamp', 'Read Date', 'Times Read', 'All Read Dates']);
             exportProfiles.forEach(profile => {
                 bible.forEach(book => {
                     book.ch.forEach((wc, idx) => {
                         const chapterId = `${book.name}-${idx + 1}`;
+                        // Status and date cover the current read-through
                         const timestamp = profile.progress[chapterId];
+                        const allReads = getChapterReads(profile.name, chapterId);
                         rows.push([
                             profile.name, book.name, idx + 1, book.testament, book.cat || '',
                             wc, timestamp ? 'Read' : 'Unread',
-                            formatExportDateTime(timestamp), formatExportDate(timestamp)
+                            formatExportDateTime(timestamp), formatExportDate(timestamp),
+                            allReads.length, allReads.map(ts => ts > 1 ? formatExportDate(ts) : 'undated').join('; ')
                         ]);
                     });
+                });
+            });
+
+            // --- Read-Throughs ---
+            rows.push([]);
+            rows.push(['=== READ-THROUGHS ===']);
+            rows.push(['Profile', 'Read-Through', 'Status', 'Started', 'Finished', 'Days', 'Chapters', 'Percent']);
+            exportProfiles.forEach(profile => {
+                getExportReadThroughs(profile.name).forEach(r => {
+                    rows.push([profile.name, r.number, r.status, formatExportDate(r.started), formatExportDate(r.finished), r.days, r.chapters, r.percent]);
                 });
             });
 
@@ -11524,7 +12263,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             rows.push([
                                 profileName, goal.name || '', goal.type || '',
                                 getGoalTypeLabel(goal), goal.deadline || '',
-                                formatExportDate(goal.createdDate)
+                                formatExportDate(goal.createdAt || goal.createdDate)
                             ]);
                         });
                     });
@@ -11586,7 +12325,17 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     });
                 });
                 const pct = totalWords > 0 ? (readWords / totalWords * 100).toFixed(2) : '0.00';
+                const obsRounds = getExportReadThroughs(profile.name);
+                content += `**Read-Through:** #${obsRounds.length}\n`;
                 content += `**Progress:** ${readChapters}/${totalChapters} chapters (${pct}% by word count)\n\n`;
+                if (obsRounds.length > 1 || obsRounds[0].status === 'Complete') {
+                    content += `### Read-Throughs\n\n`;
+                    obsRounds.slice().reverse().forEach(r => {
+                        const span = r.finished ? `${formatExportDate(r.started)} → ${formatExportDate(r.finished)} (${r.days} days)` : (r.started ? `started ${formatExportDate(r.started)}` : '');
+                        content += `- **#${r.number}** — ${r.status}, ${r.percent}%${span ? ` — ${span}` : ''}\n`;
+                    });
+                    content += '\n';
+                }
 
                 // Memorized verses for this profile
                 const memorized = (appData.memorizedVerses && appData.memorizedVerses[profile.name]) || [];
@@ -11604,7 +12353,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if(goals.length > 0) {
                     content += `### Reading Goals\n\n`;
                     goals.forEach(goal => {
-                        const { percent } = calculateGoalProgress(goal);
+                        const { percent } = calculateGoalProgress(goal, profile.name);
                         const isComplete = percent >= 99.999;
                         const deadlineStr = goal.deadline ? ` | Deadline: ${goal.deadline}` : '';
                         const statusIcon = isComplete ? '✅' : '🎯';
@@ -11636,7 +12385,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             const timestamp = profile.progress[chapterId];
                             const status = timestamp ? 'x' : ' ';
                             const dateNote = timestamp ? ` ✦ ${formatExportDate(timestamp)}` : '';
-                            content += `- [${status}] Chapter ${idx + 1}${dateNote}\n`;
+                            const timesRead = getChapterReads(profile.name, chapterId).length;
+                            const countNote = timesRead > 1 ? ` ✦ read ${timesRead}×` : '';
+                            content += `- [${status}] Chapter ${idx + 1}${dateNote}${countNote}\n`;
                         });
                         content += '\n';
                     });
@@ -11690,9 +12441,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 let completedBooks = 0;
                 bible.forEach(book => { if (book.ch.every((_, i) => profile.progress[`${book.name}-${i+1}`])) completedBooks++ });
 
+                const pdfRounds = getExportReadThroughs(profile.name);
                 bodyContent += `<h2>${escapeHtml(profile.name)}</h2>`;
                 bodyContent += `<div class="summary-grid">
-                    <div class="summary-item"><span class="summary-val" style="color:#4f46e5;">${pct}%</span><span class="summary-lbl">Complete</span></div>
+                    <div class="summary-item"><span class="summary-val" style="color:#4f46e5;">${pct}%</span><span class="summary-lbl">${pdfRounds.length > 1 ? `Read-through #${pdfRounds.length}` : 'Complete'}</span></div>
                     <div class="summary-item"><span class="summary-val">${readChapters}/${totalChapters}</span><span class="summary-lbl">Chapters</span></div>
                     <div class="summary-item"><span class="summary-val">${completedBooks}/66</span><span class="summary-lbl">Books</span></div>
                     <div class="summary-item"><span class="summary-val">${planLabel}</span><span class="summary-lbl">Plan</span></div>
@@ -11704,6 +12456,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         const c = activePlanObj.config
                         bodyContent += `<p style="text-align:center;color:#6366f1;font-size:12px;margin:-8px 0 8px;">${escapeHtml(activePlanObj.name)}: ${c.ot} OT + ${c.nt} NT + ${c.psalms} Psalms + ${c.proverbs} Proverbs daily</p>`
                     }
+                }
+                if (pdfRounds.length > 1 || pdfRounds[0].status === 'Complete') {
+                    bodyContent += `<h3>Read-Throughs</h3>`;
+                    pdfRounds.slice().reverse().forEach(r => {
+                        const span = r.finished ? `${formatExportDate(r.started)} &rarr; ${formatExportDate(r.finished)} (${r.days} days)` : (r.started ? `started ${formatExportDate(r.started)}` : '');
+                        bodyContent += `<div class="book-row"><span class="book-name">#${r.number} &middot; ${r.status}</span><span class="book-prog">${r.percent}%${span ? ` &middot; ${span}` : ''}</span></div>`;
+                    });
                 }
                 bodyContent += `<div class="testament-row">
                     <div class="testament-bar"><span class="testament-name">Old Testament</span><div class="bar-bg"><div class="bar-fill" style="width:${otPct}%;background:#f59e0b;"></div></div><span class="bar-pct">${otPct}%</span></div>
@@ -11726,7 +12485,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 if(goals.length > 0) {
                     bodyContent += `<h3>Reading Goals</h3>`;
                     goals.forEach(goal => {
-                        const { percent } = calculateGoalProgress(goal);
+                        const { percent } = calculateGoalProgress(goal, profile.name);
                         const isComplete = percent >= 99.999;
                         const deadlineStr = goal.deadline ? ` &mdash; due ${goal.deadline}` : '';
                         const barColor = isComplete ? '#16a34a' : '#6366f1';
@@ -11814,9 +12573,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             let allProfilesHtml = ''
 
             selectedNames.forEach((profileName, profileIdx) => {
-            const currentProg = appData.profiles[profileName] || {}
-            const activityMap = getReadingActivity(currentProg)
-            const streaks = calculateStreaks(currentProg)
+            // Totals cover the current read-through; activity covers every read
+            const currentProg = getProgress(profileName)
+            const activityMap = getReadingActivity(profileName)
+            const streaks = calculateStreaks(profileName)
             const profilePlan = (appData.profilePlans && appData.profilePlans[profileName]) || 'SEQUENTIAL'
 
             // Calculate totals
@@ -11907,7 +12667,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (profileGoals.length > 0) {
                 goalsHtml = `<div class="section"><div class="section-title">Reading Goals</div>`
                 profileGoals.forEach(goal => {
-                    const { percent } = calculateGoalProgress(goal, currentProg)
+                    const { percent } = calculateGoalProgress(goal, profileName)
                     const isComplete = percent >= 99.999
                     const goalName = escapeHtml(goal.name || getGoalTypeLabel(goal))
                     const deadlineStr = goal.deadline ? `Due: ${goal.deadline}` : ''
@@ -12251,6 +13011,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                                 throw new Error("Invalid data structure");
                             }
                             appData.profiles[appData.activeProfileId] = data;
+                            // The legacy file replaces this profile's reads, so clear its old
+                            // re-read history (to "", so the cloud copy clears too)
+                            const oldHist = appData.readHistory && appData.readHistory[appData.activeProfileId];
+                            if(oldHist) Object.keys(oldHist).forEach(k => { oldHist[k] = ''; });
                             log(`✅ Restored legacy single profile data to "${appData.activeProfileId}"`);
                         } else {
                             throw new Error("Invalid data structure");
@@ -12322,8 +13086,13 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return appData.goals[pid];
         }
 
-        function calculateGoalProgress(goal, progressOverride) {
-            const prog = progressOverride || getProgress();
+        // A goal counts reads from the read-through it was set in onward. A goal
+        // set during read-through #2 starts at 0% even after a finished Bible;
+        // a goal from read-through #1 keeps its progress after a restart.
+        function calculateGoalProgress(goal, profileId = appData.activeProfileId) {
+            const prog = getRawProgress(profileId);
+            const createdAt = typeof goal.createdAt === 'number' ? goal.createdAt : 0;
+            const goalStart = getReadThroughStarts(profileId).filter(s => s <= createdAt).pop() || 0;
             let totalWords = 0;
             let readWords = 0;
 
@@ -12332,8 +13101,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             matchingBooks.forEach(book => {
                 book.ch.forEach((wc, idx) => {
                     totalWords += wc;
-                    const key = book.name + '-' + (idx + 1);
-                    if(prog[key]) readWords += wc;
+                    const ts = prog[book.name + '-' + (idx + 1)];
+                    if(typeof ts === 'number' && ts > 0 && ts >= goalStart) readWords += wc;
                 });
             });
 
@@ -12794,6 +13563,16 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             })
         }
 
+        // Plan finished: offer the next read-through, which restarts the plan at day one
+        function getPlanFinishedHtml(message) {
+            const next = getReadThroughNumber() + 1;
+            return `<div class="text-center p-8 bg-white/10 rounded-2xl">
+                <div class="font-bold text-lg">${escapeHtml(message)}</div>
+                <p class="text-sm text-indigo-100 mt-2 leading-relaxed">Start read-through #${next} to begin this plan again from day one. Every earlier read stays in your history.</p>
+                <button onclick="window.startNewReadThrough()" class="mt-4 px-5 py-2.5 bg-white text-indigo-700 rounded-xl text-sm font-black hover:bg-indigo-50 shadow-md transition-colors">Start read-through #${next}</button>
+            </div>`;
+        }
+
         window.renderDailyPlan = () => {
             const list = document.getElementById('daily-plan-list');
             const footerMsg = document.getElementById('plan-footer-msg');
@@ -12829,7 +13608,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'SEQUENTIAL', computeFn);
 
-                if (nextChapters.length === 0) { list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`; return; }
+                if (nextChapters.length === 0) { list.innerHTML = getPlanFinishedHtml('🎉 You have finished the entire Bible!'); return; }
             }
 
             else if (activePlan === 'ONE_YEAR') {
@@ -12874,7 +13653,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'ONE_YEAR', computeFn);
 
                 if (nextChapters.length === 0) {
-                    list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 You have finished the entire Bible!</div>`;
+                    list.innerHTML = getPlanFinishedHtml('🎉 You have finished the entire Bible!');
                     return;
                 }
 
@@ -12938,7 +13717,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
                 const pinned = getPinnedDailyChapters(appData.activeProfileId, 'MCHEYNE', computeFn)
                 if (pinned.length === 0) {
-                    list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 M'Cheyne Plan Completed!</div>`;
+                    list.innerHTML = getPlanFinishedHtml("🎉 M'Cheyne Plan Completed!");
                     return;
                 }
 
@@ -12955,6 +13734,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 ensureHornerCycleCount()
                 const cycleCounts = appData.hornerCycleCount[appData.activeProfileId]
                 const completedLists = appData.hornerDailyProgress[appData.activeProfileId].completedLists;
+                // Horner rotates on every chapter's latest read, across read-throughs
+                const hornerProg = getRawProgress();
 
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     const isListCompleteToday = completedLists.includes(listIdx);
@@ -12971,7 +13752,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             if(!appBook) continue;
                             for(let c=0; c<appBook.ch.length; c++) {
                                 const chapterId = `${appBook.name}-${c+1}`;
-                                const timestamp = currentProg[chapterId];
+                                const timestamp = hornerProg[chapterId];
 
                                 // Check if this chapter was read today
                                 if(timestamp && getLocalDateString(timestamp) === todayStr) {
@@ -12999,7 +13780,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     // Next chapter in the rotation (also covers the edge case where a
                     // list was marked complete but today's timestamp couldn't be found)
                     if(!foundForList) {
-                        const next = getNextHornerChapter(listIdx, currentProg);
+                        const next = getNextHornerChapter(listIdx, hornerProg);
                         if(next) {
                             nextChapters.push({
                                 book: next.book,
@@ -13136,7 +13917,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         }
                     }
                     if (!anyUnread) {
-                        list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 Five-Day Plan Completed!</div>`;
+                        list.innerHTML = getPlanFinishedHtml('🎉 Five-Day Plan Completed!');
                     } else {
                         list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">No reading scheduled for today</div>`;
                     }
@@ -13217,7 +13998,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     nextChapters = getPinnedDailyChapters(appData.activeProfileId, 'CUSTOM', computeFn)
 
                     if (nextChapters.length === 0) {
-                        list.innerHTML = `<div class="text-center p-8 bg-white/10 rounded-2xl font-bold text-lg">🎉 Custom plan completed!</div>`
+                        list.innerHTML = getPlanFinishedHtml('🎉 Custom plan completed!')
                         return
                     }
                     const customAllDone = nextChapters.every(ch => ch.isComplete)
@@ -13388,20 +14169,41 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const book = bible[activeBookIdx];
             if (!book) return; // no book opened yet (e.g. marking from the plan tab)
             const grid = document.getElementById('chapter-grid');
+            const profileId = appData.activeProfileId;
             const currentProg = getProgress();
+            const rawProg = getRawProgress();
+            const roundNum = getReadThroughNumber();
             let readInBook = 0;
             let readWordsInBook = 0;
             grid.innerHTML = book.ch.map((words, cIdx) => {
                 const id = `${book.name}-${cIdx + 1}`;
-                const isRead = currentProg[id];
+                const isRead = !!currentProg[id];
+                // Read in an earlier read-through but not yet in this one
+                const readEarlier = !isRead && typeof rawProg[id] === 'number' && rawProg[id] > 0;
+                const readCount = getChapterReads(profileId, id).length;
                 if (isRead) {
                     readInBook++;
                     readWordsInBook += words;
                 }
+                const tileClass = isRead
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95'
+                    : readEarlier
+                        ? 'bg-indigo-50 text-indigo-400 border-dashed border-indigo-200 hover:border-indigo-400 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'
+                        : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1';
+                const numClass = isRead ? 'text-white' : (readEarlier ? 'text-indigo-400 group-hover:text-indigo-600' : 'text-slate-700 group-hover:text-indigo-600');
+                const wordsClass = isRead ? 'text-indigo-200' : (readEarlier ? 'text-indigo-300' : 'text-slate-400');
+                const stateText = isRead
+                    ? (roundNum > 1 ? `read in read-through #${roundNum}` : 'read')
+                    : (readEarlier ? 'read in an earlier read-through, not yet in this one' : 'not read');
+                const countText = readCount > 1 ? `, read ${readCount} times` : '';
+                const countBadge = readCount > 1
+                    ? `<span class="absolute top-1.5 left-2.5 z-10 pointer-events-none text-[10px] font-black ${isRead ? 'text-indigo-100' : 'text-indigo-500'}" aria-hidden="true">×${readCount}</span>`
+                    : '';
                 return `<div class="relative group">
-                    <button onclick="window.toggleChapter('${id}', event)" class="h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${isRead ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200 scale-95' : 'bg-white text-slate-300 border-slate-100 hover:border-indigo-300 hover:text-indigo-600 hover:shadow-lg hover:-translate-y-1'}" aria-label="Chapter ${cIdx + 1}, ${words} words, ${isRead ? 'read' : 'not read'}" aria-pressed="${isRead}">
-                        <span class="text-xl sm:text-2xl font-black ${isRead ? 'text-white' : 'text-slate-700 group-hover:text-indigo-600'}">${cIdx + 1}</span>
-                        <span class="text-[9px] font-bold uppercase tracking-wider ${isRead ? 'text-indigo-200' : 'text-slate-400'}">${words}w</span>
+                    ${countBadge}
+                    <button data-chapter="${id}" onclick="window.toggleChapter('${id}', event)" class="chapter-toggle h-20 w-full rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${tileClass}" aria-label="Chapter ${cIdx + 1}, ${words} words, ${stateText}${countText}" aria-pressed="${isRead}" aria-describedby="chapter-grid-hint">
+                        <span class="text-xl sm:text-2xl font-black ${numClass}">${cIdx + 1}</span>
+                        <span class="text-[9px] font-bold uppercase tracking-wider ${wordsClass}">${words}w</span>
                     </button>
                     <button onclick="event.stopPropagation(); window.openBibleReader('${escapeHtml(book.name)}', ${cIdx + 1})" title="Read chapter" class="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm md:opacity-0 md:group-hover:opacity-100 z-10" aria-label="Read ${escapeHtml(book.name)} chapter ${cIdx + 1}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -13458,7 +14260,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             document.getElementById('ot-progress-bar').style.width = (otRead / WORD_TOTALS.OT * 100) + '%';
             document.getElementById('nt-percent').innerText = getPerc(ntRead, WORD_TOTALS.NT) + '%';
             document.getElementById('nt-progress-bar').style.width = (ntRead / WORD_TOTALS.NT * 100) + '%';
-            document.getElementById('books-completed-stat').innerText = `${finishedBooks} OF 66 BOOKS READ`;
+            const roundNum = getReadThroughNumber();
+            document.getElementById('books-completed-stat').innerText = roundNum > 1
+                ? `READ-THROUGH #${roundNum} · ${finishedBooks} OF 66 BOOKS`
+                : `${finishedBooks} OF 66 BOOKS READ`;
 
             // Update header streak badge
             updateHeaderStreakBadge();
@@ -13563,21 +14368,33 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return chapterWordCounts.get(chapterKey) || 0;
         }
 
-        function getReadingActivity(progressOverride) {
-            // Returns a map of date string (YYYY-MM-DD) to word count
-            const currentProg = progressOverride || getProgress();
+        function getReadingActivity(profileId = appData.activeProfileId) {
+            // Returns a map of date string (YYYY-MM-DD) to word count. Counts every
+            // read, re-reads and earlier read-throughs included, so starting a new
+            // read-through never erases a reading day.
             const activityMap = {};
 
-            Object.keys(currentProg).forEach(chapterKey => {
-                const timestamp = currentProg[chapterKey];
-                if(timestamp && typeof timestamp === 'number') {
-                    const dateStr = getLocalDateString(timestamp);
-                    const wordCount = getWordCountForChapter(chapterKey);
-                    activityMap[dateStr] = (activityMap[dateStr] || 0) + wordCount;
-                }
+            getAllReads(profileId).forEach(([chapterKey, timestamp]) => {
+                const dateStr = getLocalDateString(timestamp);
+                const wordCount = getWordCountForChapter(chapterKey);
+                activityMap[dateStr] = (activityMap[dateStr] || 0) + wordCount;
             });
 
             return activityMap;
+        }
+
+        // Reads per local day: { 'YYYY-MM-DD': { words, chapters } }, re-reads
+        // included. Skips legacy boolean→1 migration values (no real date).
+        function getDailyReadTotals(profileId = appData.activeProfileId) {
+            const daily = {};
+            getAllReads(profileId).forEach(([chapterKey, ts]) => {
+                if (ts <= 1) return;
+                const dateStr = getLocalDateString(ts);
+                if (!daily[dateStr]) daily[dateStr] = { words: 0, chapters: 0 };
+                daily[dateStr].words += getWordCountForChapter(chapterKey);
+                daily[dateStr].chapters++;
+            });
+            return daily;
         }
 
         // --- FINISH PROJECTION (single source of truth) ---
@@ -13661,8 +14478,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             };
         }
 
-        function calculateStreaks(progressOverride) {
-            const activityMap = getReadingActivity(progressOverride);
+        function calculateStreaks(profileId = appData.activeProfileId) {
+            const activityMap = getReadingActivity(profileId);
             const dates = Object.keys(activityMap).sort();
 
             if(dates.length === 0) {
@@ -14402,13 +15219,12 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const allDates = Object.keys(activityMap).sort()
             const totalDays = allDates.length || 1
 
-            Object.entries(currentProg).forEach(([key, ts]) => {
-                if (typeof ts !== 'number') return
-                const parts = key.split('-')
-                const book = bible.find(b => b.name === parts[0])
-                if (!book) return
-                const words = book.ch[parseInt(parts[1], 10) - 1] || 0
-                if (book.testament === 'OT') otWords += words
+            // Pace counts every read (re-reads included) over every reading day
+            const testamentOf = {}
+            bible.forEach(b => { testamentOf[b.name] = b.testament })
+            getAllReads().forEach(([key]) => {
+                const words = getWordCountForChapter(key)
+                if (testamentOf[key.slice(0, key.lastIndexOf('-'))] === 'OT') otWords += words
                 else ntWords += words
             })
 
@@ -14417,7 +15233,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             if (paceOtEl) paceOtEl.textContent = Math.round(otWords / totalDays).toLocaleString()
             if (paceNtEl) paceNtEl.textContent = Math.round(ntWords / totalDays).toLocaleString()
 
-            renderFinishProjection(activityMap, otWords + ntWords)
+            // The finish projection needs words left in the current read-through
+            let roundWords = 0
+            Object.keys(currentProg).forEach(key => { roundWords += getWordCountForChapter(key) })
+            renderFinishProjection(activityMap, roundWords)
         }
 
         // Project a whole-Bible finish date from recent reading pace
@@ -14583,6 +15402,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                 resetHornerDailyProgressIfNeeded()
                 ensureHornerCycleCount()
                 const dashCycles = appData.hornerCycleCount[appData.activeProfileId]
+                // Horner rotates on every chapter's latest read, across read-throughs
+                const hornerProg = getRawProgress()
                 PLAN_HORNER.forEach((listBooks, listIdx) => {
                     const isComplete = appData.hornerDailyProgress[appData.activeProfileId]?.completedLists?.includes(listIdx)
                     const cc = dashCycles[listIdx] || 0
@@ -14593,7 +15414,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             const appBook = bible.find(b => b.name === bName)
                             if (!appBook) continue
                             for (let c = 0; c < appBook.ch.length; c++) {
-                                const ts = currentProg[`${appBook.name}-${c+1}`]
+                                const ts = hornerProg[`${appBook.name}-${c+1}`]
                                 if (ts && getLocalDateString(ts) === todayStr) {
                                     chapters.push({ book: appBook.name, chapter: c+1, words: appBook.ch[c], label: `${appBook.name} ${c+1}`, isComplete: true, badge: `L${listIdx+1}${cl}` })
                                     found = true; break
@@ -14603,7 +15424,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                         }
                     }
                     if (!found) {
-                        const next = getNextHornerChapter(listIdx, currentProg)
+                        const next = getNextHornerChapter(listIdx, hornerProg)
                         if (next) chapters.push({ book: next.book, chapter: next.chapter, words: next.words, label: `${next.book} ${next.chapter}`, isComplete: false, badge: `L${listIdx+1}${next.isNewCycle ? ' ↻' : ''}${cl}` })
                     }
                 })
@@ -14729,15 +15550,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         window.renderDashboard = () => {
             const currentProg = getProgress()
+            const roundStart = getReadThroughStart()
 
-            // 1. Find last read chapter and determine next chapter
+            // 1. Find last read chapter and determine next chapter. "Days since
+            // last read" spans read-throughs; the next-chapter fallback stays
+            // inside the current one.
             let lastReadKey = null, lastReadTime = 0
-            Object.entries(currentProg).forEach(([key, ts]) => {
+            Object.entries(getRawProgress()).forEach(([key, ts]) => {
                 if (typeof ts === 'number' && ts > lastReadTime) {
                     lastReadTime = ts
                     lastReadKey = key
                 }
             })
+            const lastRoundKey = lastReadTime >= roundStart ? lastReadKey : null
 
             // 2. Get today's plan chapters
             const planChapters = getDashboardPlanChapters()
@@ -14746,9 +15571,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Set continue reading target
             if (firstUnread) {
                 dashboardNextChapter = { book: firstUnread.book, chapter: firstUnread.chapter }
-            } else if (lastReadKey) {
+            } else if (lastRoundKey) {
                 // Find the next chapter after the last read
-                const parts = lastReadKey.split('-')
+                const parts = lastRoundKey.split('-')
                 const bookName = parts[0]
                 const chNum = parseInt(parts[1], 10)
                 const bookIdx = bible.findIndex(b => b.name === bookName)
@@ -14828,7 +15653,14 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const planItemsEl = document.getElementById('dashboard-plan-items')
 
             if (planChapters.length === 0) {
-                planItemsEl.innerHTML = '<div class="text-center text-sm text-slate-400 font-bold py-4">All caught up! 🎉</div>'
+                // A finished Bible restarts the plan with the next read-through
+                const finishedRound = activePlan !== 'HORNER' && getReadThroughSummaries().slice(-1)[0].complete
+                planItemsEl.innerHTML = finishedRound
+                    ? `<div class="text-center py-4">
+                        <div class="text-sm text-slate-500 font-bold">Plan finished! 🎉</div>
+                        <button onclick="window.startNewReadThrough()" class="mt-3 px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-black uppercase tracking-wide hover:bg-indigo-100 transition-colors">Start read-through #${getReadThroughNumber() + 1}</button>
+                    </div>`
+                    : '<div class="text-center text-sm text-slate-400 font-bold py-4">All caught up! 🎉</div>'
             } else {
                 planItemsEl.innerHTML = planChapters.map(ch => {
                     const badgeHtml = ch.badge ? `<span class="text-[9px] font-bold text-indigo-500 bg-indigo-50 px-1.5 py-0.5 rounded ml-2">${escapeHtml(ch.badge)}</span>` : ''
@@ -14903,12 +15735,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             }
             const avgPrev7d = Math.round(prev7days.reduce((s, v) => s + v, 0) / 7)
 
-            // 7. Today's Activity card
+            // 7. Today's Activity card (re-reads count)
+            const dailyTotals = getDailyReadTotals()
             const todayWords = activityMap[todayStr2] || 0
-            let todayChapters = 0
-            Object.entries(currentProg).forEach(([key, ts]) => {
-                if (typeof ts === 'number' && ts > 1 && getLocalDateString(ts) === todayStr2) todayChapters++
-            })
+            const todayChapters = dailyTotals[todayStr2] ? dailyTotals[todayStr2].chapters : 0
 
             document.getElementById('dash-today-words').textContent = todayWords > 999 ? (todayWords / 1000).toFixed(1) + 'k' : todayWords.toLocaleString()
             document.getElementById('dash-today-chapters').textContent = todayChapters
@@ -14926,6 +15756,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
             // 8. Progress + Velocity widget
             document.getElementById('dashboard-total-progress').textContent = getPerc(totalRead, WORD_TOTALS.GLOBAL) + '%'
+            const progressLabelEl = document.getElementById('dashboard-total-progress-label')
+            if (progressLabelEl) {
+                const roundNum = getReadThroughNumber()
+                progressLabelEl.textContent = roundNum > 1 ? `Read-through #${roundNum}` : 'Complete'
+            }
             document.getElementById('dashboard-velocity').textContent = avg7d.toLocaleString()
 
             // Velocity trend indicator
@@ -14970,9 +15805,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     lastWeekWords += activityMap[dateStr] || 0
                 }
 
-                // Count chapters this week (exclude migrated boolean timestamps)
-                Object.entries(currentProg).forEach(([key, ts]) => {
-                    if (typeof ts === 'number' && ts > 1) {
+                // Count chapters this week, re-reads included (exclude migrated boolean timestamps)
+                getAllReads().forEach(([key, ts]) => {
+                    if (ts > 1) {
                         const daysDiff = Math.floor((today - new Date(ts)) / 86400000)
                         if (daysDiff < 7) thisWeekChapters++
                     }
@@ -15180,7 +16015,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     }
                     projEl.innerHTML = projHtml
                 } else if (dashProj.complete) {
-                    projEl.innerHTML = `<p class="text-sm font-black text-emerald-700">Complete! 🎉 You've read the whole Bible.</p>`
+                    const nextRound = getReadThroughNumber() + 1
+                    projEl.innerHTML = `<p class="text-sm font-black text-emerald-700">Complete! 🎉 You've read the whole Bible.</p>
+                        <button onclick="window.startNewReadThrough()" class="mt-3 w-full px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-black uppercase tracking-wide hover:bg-indigo-700 shadow-md transition-colors">Start read-through #${nextRound}</button>`
                 } else if (totalRead > 0) {
                     projEl.innerHTML = `<p class="text-sm text-slate-500">Keep reading to build your pace data for projections.</p>`
                 } else {
@@ -15204,7 +16041,9 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const totalReadingDays = Object.keys(activityMap).length
             if (dashReadingDays) dashReadingDays.textContent = totalReadingDays.toLocaleString()
             if (dashLongest) dashLongest.textContent = streaks.longest || 0
-            const avgWordsPerDay = totalReadingDays > 0 ? Math.round(totalRead / totalReadingDays) : 0
+            // Average over every read (re-reads included), matching the day count
+            const lifetimeWords = Object.values(activityMap).reduce((s, v) => s + v, 0)
+            const avgWordsPerDay = totalReadingDays > 0 ? Math.round(lifetimeWords / totalReadingDays) : 0
             if (dashAvgWords) dashAvgWords.textContent = avgWordsPerDay > 999 ? (avgWordsPerDay / 1000).toFixed(1) + 'k' : avgWordsPerDay.toLocaleString()
         }
 
@@ -15414,17 +16253,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 
         // This Week / This Month report card with deltas vs the previous period
         function renderPeriodReport() {
-            const progress = getProgress()
-            // Bucket read chapters by local day: { 'YYYY-MM-DD': { words, chapters } }
-            const daily = {}
-            Object.keys(progress).forEach(chapterKey => {
-                const ts = progress[chapterKey]
-                if (typeof ts !== 'number' || ts <= 1) return // skip legacy boolean→1 migration values
-                const dateStr = getLocalDateString(ts)
-                if (!daily[dateStr]) daily[dateStr] = { words: 0, chapters: 0 }
-                daily[dateStr].words += getWordCountForChapter(chapterKey)
-                daily[dateStr].chapters++
-            })
+            // Bucket every read (re-reads included) by local day
+            const daily = getDailyReadTotals()
 
             // Anchor from the local "today" string; build dates from parts to avoid
             // the new Date('YYYY-MM-DD') UTC-midnight pitfall
@@ -15599,8 +16429,20 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             // Update all stat cards
             document.getElementById('total-reading-days').innerText = totalReadingDays;
             document.getElementById('avg-chapters-day').innerText = ''; // Removed to reduce clutter
-            document.getElementById('total-words-read').innerText = chartTotalRead.toLocaleString();
-            document.getElementById('year-chapters').innerText = ''; // Removed to reduce clutter
+            // Total Words is lifetime (re-reads included), like Total Days. Once it
+            // differs from the current read-through, show that figure beneath.
+            const lifetimeWords = Object.values(activityMap).reduce((s, v) => s + v, 0);
+            document.getElementById('total-words-read').innerText = lifetimeWords.toLocaleString();
+            document.getElementById('year-chapters').innerText = lifetimeWords > chartTotalRead
+                ? `${chartTotalRead.toLocaleString()} this read-through` : '';
+            const donutLabel = document.getElementById('stats-donut-label');
+            if (donutLabel) {
+                const roundNum = getReadThroughNumber();
+                donutLabel.innerText = roundNum > 1 ? `Read-through #${roundNum}` : 'Total Read';
+            }
+
+            // Read-throughs card (rounds, lifetime totals, most-read chapters)
+            renderReadThroughsCard();
 
             // Calculate and display time remaining statistics with more precision
             const wpm = appData.wordsPerMinute || 250;
@@ -15852,7 +16694,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
         window.addEventListener('beforeunload', () => {
             try {
                 localStorage.setItem(CONFIG.STORAGE_KEY_DATA, JSON.stringify(appData))
-                localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getProgress()))
+                localStorage.setItem(CONFIG.STORAGE_KEY_PROGRESS, JSON.stringify(getRawProgress()))
             } catch(e) { /* quota errors are non-fatal here */ }
         });
 
@@ -16058,13 +16900,19 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				if (bookChaptersRead === book.ch.length) finishedBooks++;
 			});
 			
-			if(finishedBooks === 66 && !localStorage.getItem(`bibleCompleted_${appData.activeProfileId}`)) {
-				localStorage.setItem(`bibleCompleted_${appData.activeProfileId}`, 'true');
-				setTimeout(() => celebrateBibleCompletion(), 1000);
+			// Celebrate once per read-through. Read-through #1 keeps the original
+			// key so readers who already saw the celebration don't see it again.
+			const roundNum = getReadThroughNumber();
+			const completedKey = roundNum > 1
+				? `bibleCompleted_${appData.activeProfileId}_${roundNum}`
+				: `bibleCompleted_${appData.activeProfileId}`;
+			if(finishedBooks === 66 && !localStorage.getItem(completedKey)) {
+				localStorage.setItem(completedKey, 'true');
+				setTimeout(() => celebrateBibleCompletion(roundNum), 1000);
 			}
 		};
 
-		function celebrateBibleCompletion() {
+		function celebrateBibleCompletion(roundNum = 1) {
 			// Confetti effect
 			const confetti = document.createElement('div');
 			confetti.className = 'fixed inset-0 z-[300] pointer-events-none';
@@ -16086,11 +16934,15 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
 				modal.innerHTML = `
 					<div class="bg-white rounded-[3rem] p-12 max-w-2xl text-center shadow-2xl modal-in">
 						<div class="text-8xl mb-6">✨📖✨</div>
-						<h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">BIBLE COMPLETE!</h1>
-						<p class="text-2xl font-bold text-slate-700 mb-6">All 66 books. 789,634 words. One amazing accomplishment!</p>
+						<h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">${roundNum > 1 ? `READ-THROUGH #${roundNum} COMPLETE!` : 'BIBLE COMPLETE!'}</h1>
+						<p class="text-2xl font-bold text-slate-700 mb-6">${roundNum > 1 ? `You've now read the whole Bible ${roundNum} times. 789,634 words, again!` : 'All 66 books. 789,634 words. One amazing accomplishment!'}</p>
 						<p class="text-lg text-slate-600 mb-4">"Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."</p>
 						<p class="text-sm font-bold text-indigo-600 mb-8">- 2 Timothy 2:15</p>
-						<button onclick="this.closest('.fixed')._close()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg text-lg">Continue in the Word 📖</button>
+						<div class="flex flex-col sm:flex-row gap-3 justify-center">
+							<button onclick="this.closest('.fixed')._close()" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg text-lg">Continue in the Word 📖</button>
+							<button onclick="this.closest('.fixed')._close(); window.startNewReadThrough()" class="px-8 py-3 bg-white border-2 border-indigo-200 text-indigo-700 rounded-xl font-bold hover:bg-indigo-50 text-lg">Start read-through #${roundNum + 1}</button>
+						</div>
+						<p class="text-xs text-slate-400 mt-4">Starting again resets your grid and plan to 0%. Every read so far stays in your history.</p>
 					</div>
 				`;
 				document.body.appendChild(modal);

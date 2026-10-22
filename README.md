@@ -12,6 +12,7 @@ A word-weighted Bible reading tracker. Unlike trackers that treat every chapter 
 - **Strong's concordance** — Search by number, English meaning, or Hebrew/Greek letters and see every verse that carries the word, then jump straight to it in the reader
 - **6 reading plans** — Sequential, One Year (OT+NT daily), M'Cheyne (365-day), Horner (10-list rotation), Five-Day (weekends off), and Custom
 - **Reading streaks** — Streak tracking with heatmap, milestones, and grace period
+- **Re-reads & read-throughs** — Finished the Bible? Start read-through #2: your grid and plan start over while every earlier read stays in your heatmap, streaks and history. Long-press any chapter to mark it read again and see every date you read it
 - **Multi-profile** — Separate profiles for family members or different reading goals
 - **Cloud sync** — Optional Google/email sign-in via Firebase; local-first by default
 - **Verse memorization** — Spaced repetition tools for scripture memory
