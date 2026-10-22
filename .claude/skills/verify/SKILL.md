@@ -31,7 +31,7 @@ Playwright (`playwright` is installed globally; browser at `/opt/pw-browsers`).
    - Firebase app/auth/firestore/analytics: tiny ES-module stubs exporting the
      names index.html imports (`initializeApp`, `getAuth`, `onAuthStateChanged`
      → call back with `null`, `getFirestore`, `getDoc` → `{ exists: () => false }`,
-     `onSnapshot` → unsubscribe fn, etc.)
+     `onSnapshot` → unsubscribe fn, `deleteField` → any object, etc.)
    (`registry.npmjs.org` is allowlisted; jsdelivr/unpkg are not.)
 
 ## Driving the app

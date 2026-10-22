@@ -61,10 +61,22 @@ const firebaseStub = (user) => ({
     auth: `export const getAuth = () => ({}); export const signInWithPopup = async () => {}; export const signInWithEmailAndPassword = async () => {};
            export const createUserWithEmailAndPassword = async () => {}; export class GoogleAuthProvider {}; export const signOut = async () => {};
            export const onAuthStateChanged = (a, cb) => { setTimeout(() => cb(${user ? JSON.stringify(user) : 'null'}), 0); return () => {} }`,
+    // window.__cloud is the stored doc. setDoc follows Firestore's set-with-merge
+    // rules: maps merge key by key, an empty map replaces the stored map, and
+    // deleteField() removes the key (a map holding only deletes creates nothing).
+    // __pushCloud() sends the stored doc as a snapshot.
     firestore: `export const getFirestore = () => ({}); export const doc = (...a) => ({ path: a.slice(1).join('/') });
-           export const setDoc = async (ref, data) => { window.__setDocs = (window.__setDocs || 0) + 1; window.__lastSetDoc = JSON.parse(JSON.stringify(data)) };
+           export const deleteField = () => ({ __deleteField: true });
+           const isMap = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && !v.__deleteField;
+           const mergeInto = (dst, src) => { for (const k of Object.keys(src)) { const v = src[k];
+               if (v && v.__deleteField) delete dst[k];
+               else if (isMap(v) && Object.keys(v).length) { const sub = isMap(dst[k]) ? dst[k] : {}; mergeInto(sub, v); if (isMap(dst[k]) || Object.keys(sub).length) dst[k] = sub }
+               else dst[k] = JSON.parse(JSON.stringify(v)) } };
+           export const setDoc = async (ref, data, opts) => { window.__setDocs = (window.__setDocs || 0) + 1; window.__lastSetDoc = JSON.parse(JSON.stringify(data));
+               if (opts && opts.merge) { window.__cloud = window.__cloud || {}; mergeInto(window.__cloud, data) } else window.__cloud = JSON.parse(JSON.stringify(data)) };
            export const getDoc = async () => ({ exists: () => false });
-           export const onSnapshot = (ref, cb) => { window.__pushSnapshot = (appData) => cb({ exists: () => true, data: () => ({ appData }) }); return () => {} }`,
+           export const onSnapshot = (ref, cb) => { const push = (appData) => cb({ exists: () => true, data: () => ({ appData }) });
+               window.__pushSnapshot = push; window.__pushCloud = () => push(JSON.parse(JSON.stringify(window.__cloud.appData))); return () => {} }`,
     analytics: `export const getAnalytics = () => ({}); export const logEvent = () => {}`
 })
 
@@ -395,6 +407,90 @@ try {
         await page.waitForTimeout(300)
         check('drag does not open menu', (await page.locator('#chapter-menu-overlay').count()) === 0)
         check('no page errors (touch)', errors.length === 0, errors.join(' || '))
+        await ctx.close()
+    }
+
+    // ---------- 6. Deletes reach the cloud (stub applies Firestore's merge rules) ----------
+    {
+        const user = { uid: 'u1', email: 't@example.com', photoURL: null }
+        const { page, errors, ctx } = await newPage(browser, user)
+        const now = Date.now()
+        const d = baseData('Main')
+        d.profiles.Main = { 'Genesis-1': now - 3 * DAY, 'Genesis-2': now - 2 * DAY }
+        d.profiles.Kids = { 'Exodus-1': now - 2 * DAY }
+        d.profilePlans.Kids = 'SEQUENTIAL'
+        d.lastModified = now - 60000
+        await seed(page, d)
+        await page.waitForFunction(() => typeof window.__pushCloud === 'function')
+        const cloud = () => page.evaluate(() => JSON.parse(JSON.stringify(window.__cloud.appData)))
+        const cloudFlush = () => page.waitForTimeout(3600) // debounced cloud save is 3 s
+        // The cloud starts as a copy of local data
+        await page.evaluate((c) => { window.__cloud = { appData: { ...c, lastModified: Date.now() } }; window.__pushCloud() }, d)
+        await page.waitForTimeout(300)
+
+        // Unmark: the chapter key must leave the cloud, not just local data
+        await page.evaluate(() => { window.setTab('ALL'); window.openBook(0) })
+        await page.click('button[data-chapter="Genesis-1"]')
+        await cloudFlush()
+        let c = await cloud()
+        check('unmark deletes the chapter in the cloud', c.profiles.Main['Genesis-1'] === undefined && typeof c.deletedChapters?.Main?.['Genesis-1'] === 'number', JSON.stringify({ p: c.profiles.Main, t: c.deletedChapters }))
+
+        // Cloud data the old code left behind: stale keys plus tombstones past
+        // their 30 days. The tombstones must still apply before they are purged.
+        await page.evaluate((a) => {
+            const c = window.__cloud.appData, D = 86400000
+            c.profiles.Main['Genesis-4'] = a - 40 * D; c.deletedChapters.Main['Genesis-4'] = a - 31 * D
+            c.profiles.Kids['Exodus-2'] = a - 40 * D; c.deletedChapters.Kids = { 'Exodus-2': a - 31 * D }
+            c.profiles.Main['Numbers-1'] = a - 40 * D; c.readHistory = { Main: { 'Numbers-1': String(a - 50 * D) } }
+            c.deletedReads = { Main: { 'Numbers-1': { [String(a - 40 * D)]: a - 31 * D } } }
+            c.lastModified = a + 5000
+            window.__pushCloud()
+        }, now)
+        await page.waitForTimeout(300)
+        let st = await data(page)
+        check('expired chapter tombstones still apply', st.profiles.Main['Genesis-4'] === undefined && st.profiles.Kids['Exodus-2'] === undefined &&
+            !st.deletedChapters.Main['Genesis-4'] && !st.deletedChapters.Kids, JSON.stringify({ g4: st.profiles.Main['Genesis-4'], e2: st.profiles.Kids['Exodus-2'], t: st.deletedChapters }))
+        check('expired read tombstone still applies', st.profiles.Main['Numbers-1'] === now - 50 * DAY && !st.readHistory.Main['Numbers-1'] && !st.deletedReads?.Main, JSON.stringify({ n1: st.profiles.Main['Numbers-1'], h: st.readHistory.Main, r: st.deletedReads }))
+        // Another device tombstones a Kids chapter this device has not seen yet
+        await page.evaluate((a) => { window.__cloud.appData.deletedChapters.Kids['Exodus-3'] = a }, now)
+        await page.click('button[data-chapter="Genesis-3"]')
+        await cloudFlush()
+        c = await cloud()
+        check('next save deletes the stale chapters in the cloud', c.profiles.Main['Genesis-4'] === undefined && c.profiles.Kids['Exodus-2'] === undefined)
+        check('next save deletes expired tombstones in the cloud', !c.deletedChapters.Main['Genesis-4'] && !c.deletedChapters.Kids['Exodus-2'] &&
+            Object.keys(c.deletedReads?.Main?.['Numbers-1'] || {}).length === 0, JSON.stringify({ t: c.deletedChapters, r: c.deletedReads }))
+        check('save keeps a tombstone this device never saw', c.deletedChapters.Kids['Exodus-3'] === now && typeof c.deletedChapters.Main['Genesis-1'] === 'number', JSON.stringify(c.deletedChapters))
+        check('other reads stay in the cloud', typeof c.profiles.Main['Genesis-2'] === 'number' && typeof c.profiles.Main['Genesis-3'] === 'number' && c.profiles.Main['Numbers-1'] === now - 50 * DAY)
+
+        // Delete a profile: gone from the cloud, with a tombstone
+        await page.evaluate(() => { window.showPrompt = async () => 'Kids'; return window.deleteProfile('Kids') })
+        await page.waitForTimeout(500)
+        c = await cloud()
+        check('deleted profile leaves the cloud', !c.profiles.Kids && !c.profilePlans.Kids && !c.deletedChapters.Kids && typeof c.deletedProfiles?.Kids === 'number', JSON.stringify({ p: Object.keys(c.profiles), t: c.deletedProfiles }))
+        // A device that still has the profile writes it back. Its merge write
+        // can't remove the tombstone, which it never saw.
+        await page.evaluate((a) => {
+            const c = window.__cloud.appData
+            c.profiles.Kids = { 'Exodus-1': a - 2 * 86400000 }; c.profilePlans.Kids = 'SEQUENTIAL'; c.lastModified = Date.now() + 10000
+            window.__pushCloud()
+        }, now)
+        await page.waitForTimeout(300)
+        st = await data(page)
+        check('deleted profile stays deleted when a stale device writes it back', !st.profiles.Kids && !st.profilePlans.Kids && typeof st.deletedProfiles?.Kids === 'number', JSON.stringify(Object.keys(st.profiles)))
+        await page.click('button[data-chapter="Genesis-5"]')
+        await cloudFlush()
+        c = await cloud()
+        check('next save deletes it from the cloud again', !c.profiles.Kids && !c.profilePlans.Kids, JSON.stringify(Object.keys(c.profiles)))
+
+        // Re-create the name: it must outrank the old tombstone
+        await page.evaluate(() => { window.showPrompt = async () => 'Kids'; return window.createNewProfile() })
+        await page.waitForTimeout(2600) // switchProfile holds snapshots for 2 s
+        await page.evaluate(() => { window.__cloud.appData.lastModified = Date.now() + 20000; window.__pushCloud() })
+        await page.waitForTimeout(300)
+        st = await data(page)
+        c = await cloud()
+        check('re-created profile survives its old tombstone', !!st.profiles.Kids && !!c.profiles.Kids && typeof c.deletedProfiles.Kids === 'number', JSON.stringify(Object.keys(st.profiles)))
+        check('no page errors (cloud deletes)', errors.length === 0, errors.join(' || '))
         await ctx.close()
     }
 } finally {

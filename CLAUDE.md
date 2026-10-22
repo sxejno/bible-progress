@@ -29,6 +29,8 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
     readHistory: { [id]: { "Genesis-1": "ts,ts,..." } },  // earlier reads per chapter: ascending ms, comma-separated string (profiles keeps the latest)
     readThroughStarts: { [id]: [timestamp_ms, ...] },  // when each new read-through began; -ts marks an undone start
     deletedReads: { [id]: { "Genesis-1": { "<readTs>": deletion_timestamp_ms } } },  // single-read tombstones (purged after 30 days)
+    deletedProfiles: { [id]: deletion_timestamp_ms },  // profile tombstones (delete or rename-away); never purged
+    profileCreatedAt: { [id]: timestamp_ms },  // (re)creation time; a profile is deleted only if its tombstone is newer
     showReadingTime: boolean,
     wordsPerMinute: number
 }
@@ -36,7 +38,9 @@ Word-weighted KJV Bible reading tracker. Progress by word count, not just chapte
 
 Progress values are **timestamps** (not booleans). Auto-migrated on load.
 Day boundaries (streaks, heatmap, daily plan reset) use the **device-local timezone**, computed at render time via `getLocalDateString()`.
-Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mark, purged after 30 days) so cloud sync can propagate deletions instead of resurrecting them.
+Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mark, purged after 30 days) so cloud sync can propagate deletions instead of resurrecting them. The merge applies every tombstone, expired ones included, before it purges any.
+
+**Cloud deletes.** `setDoc(..., { merge: true })` merges maps key by key, so a key deleted locally stays in Firestore, and an empty map replaces the whole cloud map. Every cloud write goes through `writeAppDataToCloud()`: it diffs `appData` against `cloudBaseline` (the last merged snapshot plus this device's writes since) and sends `deleteField()` for keys this device removed. Keys it never saw stay untouched. Never call `setDoc` with `appData` directly. Deleting or renaming a profile records `deletedProfiles`; the merge drops a profile whose tombstone is newer than its `profileCreatedAt` (`dropDeletedProfiles()`). Add any new per-profile map to `PROFILE_FIELDS`.
 
 **Re-reads and read-throughs.** A chapter can be read many times. `profiles` keeps each chapter's latest read (so `lamp.html` and `horner.html` need nothing new); earlier reads go to `readHistory` as a string, not an array, because Firestore indexes every array element. `getProgress()` returns the **current read-through** (latest read ≥ the newest `readThroughStarts` entry); grid, plans, goals and progress bars use it. `getRawProgress()` is every chapter's latest read (Horner rotation uses it). `getAllReads()` lists every read, re-reads included; heatmap, streaks, pace and weekly stats use it, so a new read-through never erases a reading day. Write progress only through `recordChapterRead()` / `removeLatestRead()` / `removeRoundReads()` — never assign `profiles[id][key]` directly. Removing one of several reads records a `deletedReads` tombstone; removing a chapter's only read records a `deletedChapters` tombstone. Cloud merge unions history, read tombstones and starts, then `reconcileReadHistory()` rebuilds each chapter. Goals count reads from the read-through they were created in (`goal.createdAt`).
 
@@ -85,6 +89,6 @@ Un-marking a chapter records a tombstone in `deletedChapters` (cleared on re-mar
 - **Tests**: `tests/lamp-sync.test.html` — open in a browser; 30 assertions on the Lamp Room's sync-merge invariants
 - **App icon**: vector source is `build/icon/icon.py` → `build/icon/icon.svg`. Regenerate the shipped set with `python3 build/icon/icon.py && python3 build/icon/build.py` (renders through headless Chromium, then quantises + oxipng). Never hand-edit the root PNGs. Bump `CACHE_NAME` in `service-worker.js` whenever icon files change, or installed PWAs keep the old ones.
 - **Icon tests**: `python3 tests/icons.test.py` — manifest sizes, service-worker precache list, per-page references, and the maskable safe circle
-- **Read-through tests**: `NODE_PATH=$(npm root -g) node tests/read-throughs.test.mjs` — headless Chromium, 50 checks: long-press/right-click/touch menu, read again, remove latest, round start + undo, plans restarting, goals per round, Reset Book keeping earlier rounds, cloud merge of history and tombstones (stubbed Firestore snapshot), Horner re-reads, CSV export. Serves the repo itself and caches Tailwind/Chart.js stand-ins in `tests/.cache/` (gitignored)
+- **Read-through tests**: `NODE_PATH=$(npm root -g) node tests/read-throughs.test.mjs` — headless Chromium, 62 checks: long-press/right-click/touch menu, read again, remove latest, round start + undo, plans restarting, goals per round, Reset Book keeping earlier rounds, cloud merge of history and tombstones (stubbed Firestore snapshot), Horner re-reads, CSV export, and cloud deletes (the stub applies Firestore's set-with-merge rules: unmarks and deleted profiles leave the cloud, expired tombstones still apply, unseen keys survive). Serves the repo itself and caches Tailwind/Chart.js stand-ins in `tests/.cache/` (gitignored)
 - **Interlinear tests**: `python3 tests/interlinear.test.py` — every KJV verse has a pack entry, word indices are in range, Strong's numbers resolve in the lexicons, alignment coverage stays above 93%, the concordance files match the packs verse for verse, and the service worker lists every pack
 - **See also**: `SECURITY.md`, `TODO.md`, `LAMP.md`

@@ -2429,7 +2429,7 @@
         // --- FIREBASE IMPORTS ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
         // --- APPLICATION CONFIGURATION ---
@@ -3096,6 +3096,15 @@
                     });
                 });
             }
+
+            // Profile tombstones and creation times: { profile: ms }
+            ['deletedProfiles', 'profileCreatedAt'].forEach(field => {
+                if(data[field] === undefined) return;
+                if(!isPlainObject(data[field])) { data[field] = {}; return; }
+                Object.keys(data[field]).forEach(name => {
+                    if(typeof data[field][name] !== 'number' || !Number.isFinite(data[field][name])) delete data[field][name];
+                });
+            });
             return data;
         }
 
@@ -3264,9 +3273,10 @@
                 }
             });
         });
-        // Keep each re-read chapter's latest read and history consistent
-        purgeOldReadDeletions(appData);
+        // Keep each re-read chapter's latest read and history consistent, then
+        // drop read tombstones past their 30 days (applied first, so none is lost)
         reconcileReadHistory(appData);
+        purgeOldReadDeletions(appData);
 
         // If "Default" is active/default but other profiles exist, switch away from it
         const allProfileNames = Object.keys(appData.profiles);
@@ -3769,7 +3779,7 @@
         // tombstones and read-through starts, then rebuild each chapter.
         function mergeReadHistoryInto(data, localHistory, localStarts, localDeletedReads) {
             const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
-            // Read tombstones: newest deletion time wins; purge after 30 days
+            // Read tombstones: newest deletion time wins
             if(!isObj(data.deletedReads)) data.deletedReads = {};
             if(isObj(localDeletedReads)) {
                 Object.keys(localDeletedReads).forEach(pid => {
@@ -3787,7 +3797,6 @@
                     });
                 });
             }
-            purgeOldReadDeletions(data);
 
             // History: union per chapter
             if(!isObj(data.readHistory)) data.readHistory = {};
@@ -3815,6 +3824,155 @@
             }
 
             reconcileReadHistory(data);
+            // Purge only after the rebuild, so an expired tombstone still drops
+            // its read when a stale copy of that read arrives
+            purgeOldReadDeletions(data);
+        }
+
+        // Drop chapter tombstones older than 30 days. Call it only after the
+        // tombstones have been applied (see processCloudSnapshot).
+        function purgeOldChapterDeletions(data) {
+            if(!data || !data.deletedChapters || typeof data.deletedChapters !== 'object') return;
+            const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+            Object.keys(data.deletedChapters).forEach(pid => {
+                const dels = data.deletedChapters[pid];
+                if(!dels || typeof dels !== 'object' || Array.isArray(dels)) { delete data.deletedChapters[pid]; return; }
+                Object.keys(dels).forEach(key => {
+                    if(typeof dels[key] !== 'number' || dels[key] < cutoff) delete dels[key];
+                });
+                if(Object.keys(dels).length === 0) delete data.deletedChapters[pid];
+            });
+        }
+
+        // --- PROFILE TOMBSTONES ---
+        // Deleting or renaming a profile records deletedProfiles[name] = time.
+        // Without it, a device that still has the profile puts it back on the
+        // next sync. Creating a profile records profileCreatedAt[name] = time,
+        // so a name can be reused: the newer of the two wins on every device.
+        // Profile tombstones are never purged; there are only ever a few.
+        const PROFILE_FIELDS = ['profiles', 'profilePlans', 'hornerDailyProgress', 'dailyPlanProgress',
+            'memorizedVerses', 'goals', 'customPlans', 'hornerCycleCount', 'hornerCycleLastAt', 'profileColors',
+            'planHistory', 'readHistory', 'readThroughStarts', 'deletedReads', 'deletedChapters', 'profileCreatedAt'];
+        function recordProfileDeletion(name) {
+            if(!appData.deletedProfiles) appData.deletedProfiles = {};
+            appData.deletedProfiles[name] = Date.now();
+            if(appData.profileCreatedAt) delete appData.profileCreatedAt[name];
+        }
+        function recordProfileCreation(name) {
+            if(!appData.profileCreatedAt) appData.profileCreatedAt = {};
+            appData.profileCreatedAt[name] = Date.now();
+        }
+        function isProfileDeleted(data, name) {
+            const deletedAt = data.deletedProfiles && data.deletedProfiles[name];
+            if(typeof deletedAt !== 'number') return false;
+            const createdAt = data.profileCreatedAt && data.profileCreatedAt[name];
+            return !(typeof createdAt === 'number' && createdAt > deletedAt);
+        }
+        // Remove one profile's entry from every per-profile map
+        function removeProfileData(data, name) {
+            PROFILE_FIELDS.forEach(field => {
+                if(data[field] && typeof data[field] === 'object') delete data[field][name];
+            });
+            const rules = data.profileSyncRules;
+            if(rules && typeof rules === 'object') {
+                delete rules[name];
+                Object.keys(rules).forEach(source => {
+                    if(rules[source] === name) delete rules[source];
+                });
+            }
+        }
+        // After a cloud merge: drop every profile whose tombstone wins
+        function dropDeletedProfiles(data) {
+            if(!data.deletedProfiles || typeof data.deletedProfiles !== 'object') return;
+            const dead = Object.keys(data.deletedProfiles).filter(name => isProfileDeleted(data, name));
+            if(dead.length === 0) return;
+            // Two devices deleting each other's last profile must not leave none:
+            // keep the active one alive by re-creating it
+            const live = Object.keys(data.profiles).filter(name => !dead.includes(name));
+            if(live.length === 0) {
+                const keep = data.profiles[data.activeProfileId] ? data.activeProfileId : Object.keys(data.profiles)[0];
+                if(keep) {
+                    if(!data.profileCreatedAt || typeof data.profileCreatedAt !== 'object') data.profileCreatedAt = {};
+                    data.profileCreatedAt[keep] = Date.now();
+                    dead.splice(dead.indexOf(keep), 1);
+                }
+            }
+            dead.forEach(name => removeProfileData(data, name));
+        }
+
+        // --- CLOUD WRITES ---
+        // Saves use setDoc(..., { merge: true }), which merges maps key by key.
+        // That has two traps. A key deleted locally (an unmarked chapter, a
+        // deleted profile, a purged tombstone) stays in Firestore and returns on
+        // the next snapshot. And an empty map replaces the whole cloud map,
+        // wiping keys another device added.
+        // cloudBaseline is what this device believes the cloud holds: the last
+        // snapshot it merged, plus its own writes since. Each save sends the
+        // local values, skips maps with nothing to add or delete, and sends
+        // deleteField() for every key the baseline has and local data lacks.
+        // Keys this device never saw stay untouched. So a map gone locally
+        // loses only its known keys; a removed profile's maps and maps already
+        // empty are deleted whole.
+        let cloudBaseline = null;
+        const DELETE_FIELD = deleteField(); // one shared sentinel, so applyCloudPayload can spot it
+        const isCloudMap = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && v !== DELETE_FIELD;
+        // level: 'root' (appData itself), 'byProfile' (a map keyed by profile
+        // name, one of PROFILE_FIELDS) or 'inner' (anything deeper)
+        function buildCloudPayload(local, base, level = 'root') {
+            const has = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k);
+            const childLevel = (key) => level === 'root' && PROFILE_FIELDS.includes(key) ? 'byProfile' : 'inner';
+            const out = {};
+            Object.keys(local).forEach(key => {
+                const value = local[key];
+                if(value === undefined || FORBIDDEN_KEYS.includes(key)) return;
+                const known = base && has(base, key) ? base[key] : undefined;
+                if(isCloudMap(value) && isCloudMap(known)) {
+                    const sub = buildCloudPayload(value, known, childLevel(key));
+                    if(Object.keys(sub).length) out[key] = sub;
+                } else {
+                    out[key] = value;
+                }
+            });
+            if(!base) return out;
+            Object.keys(base).forEach(key => {
+                if(FORBIDDEN_KEYS.includes(key) || (has(local, key) && local[key] !== undefined)) return;
+                const known = base[key];
+                const profileGone = level === 'byProfile' && !(appData.profiles && appData.profiles[key]);
+                if(!isCloudMap(known) || Object.keys(known).length === 0 || profileGone) {
+                    out[key] = DELETE_FIELD;
+                } else {
+                    const sub = buildCloudPayload({}, known, childLevel(key));
+                    if(Object.keys(sub).length) out[key] = sub;
+                }
+            });
+            return out;
+        }
+        // Apply a payload to the baseline the way Firestore applies it to the
+        // stored doc: maps merge, deletes remove, a map of only deletes creates
+        // nothing. Keeps maps emptied key by key, so a later save can remove them.
+        function applyCloudPayload(base, payload) {
+            Object.keys(payload).forEach(key => {
+                const value = payload[key];
+                if(value === DELETE_FIELD) {
+                    delete base[key];
+                } else if(isCloudMap(value) && Object.keys(value).length) {
+                    const sub = isCloudMap(base[key]) ? base[key] : {};
+                    applyCloudPayload(sub, value);
+                    if(isCloudMap(base[key]) || Object.keys(sub).length) base[key] = sub;
+                } else {
+                    // Copy arrays and empty maps, so the baseline never shares objects with appData
+                    base[key] = typeof value === 'object' && value !== null ? JSON.parse(JSON.stringify(value)) : value;
+                }
+            });
+            return base;
+        }
+        function writeAppDataToCloud() {
+            if(!currentUser) return Promise.resolve();
+            const payload = buildCloudPayload(appData, cloudBaseline);
+            // setDoc reads the payload before it returns, so later edits can't leak in
+            const write = setDoc(doc(db, "users", currentUser.uid), { appData: payload }, { merge: true });
+            cloudBaseline = applyCloudPayload(cloudBaseline || {}, payload);
+            return write;
         }
 
         // --- AUTH LOGIC ---
@@ -3971,23 +4129,26 @@
                 syncStatus.setAttribute('aria-label', "Local Only");
                 syncStatus.innerHTML = '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>';
                 if(unsubscribe) unsubscribe();
+                cloudBaseline = null;
             }
         });
 
         function processCloudSnapshot(docSnap) {
             if (!docSnap.exists()) {
-                if (currentUser) {
-                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
-                }
+                // Nothing in the cloud yet: write everything
+                cloudBaseline = null;
+                writeAppDataToCloud();
                 return;
             }
             const cloudData = docSnap.data().appData || {};
             if (!(Object.keys(cloudData).length > 0 && validateAppData(cloudData))) {
-                if (currentUser) {
-                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
-                }
+                cloudBaseline = null;
+                writeAppDataToCloud();
                 return;
             }
+            // The cloud copy exactly as stored, before sanitizing, so the next
+            // save can delete what this merge drops (tombstoned or invalid keys)
+            const cloudRaw = JSON.parse(JSON.stringify(cloudData));
             normalizeAppData(cloudData);
 
             // Conflict guard: if the snapshot is older than local state (e.g. a stale
@@ -3996,11 +4157,10 @@
             if (typeof cloudData.lastModified === 'number' && typeof appData.lastModified === 'number' &&
                 cloudData.lastModified < appData.lastModified) {
                 log('⏭️ Skipping stale cloud snapshot (older than local state)');
-                if (currentUser) {
-                    setDoc(doc(db, "users", currentUser.uid), { appData: appData }, { merge: true });
-                }
+                writeAppDataToCloud();
                 return;
             }
+            cloudBaseline = cloudRaw;
             const localLastModified = appData.lastModified;
             // Preserve today's local daily plan chapters before overwriting appData.
             // The onSnapshot can fire before saveProgress() has synced the cache
@@ -4021,7 +4181,20 @@
             const localReadHistory = appData.readHistory
             const localReadThroughStarts = appData.readThroughStarts
             const localDeletedReads = appData.deletedReads
+            const localDeletedProfiles = appData.deletedProfiles
+            const localProfileCreatedAt = appData.profileCreatedAt
             appData = cloudData;
+            // Profile tombstones and creation times: union, newest per name wins
+            const unionNewest = (field, local) => {
+                if (!local || typeof local !== 'object') return
+                if (!appData[field] || typeof appData[field] !== 'object') appData[field] = {}
+                Object.keys(local).forEach(name => {
+                    const ts = local[name]
+                    if (typeof ts === 'number' && !(appData[field][name] >= ts)) appData[field][name] = ts
+                })
+            }
+            unionNewest('deletedProfiles', localDeletedProfiles)
+            unionNewest('profileCreatedAt', localProfileCreatedAt)
             // Union deletion tombstones from both sides, newest per chapter wins
             if (!appData.deletedChapters) appData.deletedChapters = {}
             if (localDeletedChapters) {
@@ -4083,30 +4256,25 @@
 
             // Apply deletion tombstones to the merged result: drop any read
             // timestamp at or before its tombstone (deleted on some device after
-            // it was read), and purge tombstones older than 30 days to bound growth
-            {
-                const TOMBSTONE_TTL_MS = 30 * 24 * 60 * 60 * 1000
-                const tombstoneCutoff = Date.now() - TOMBSTONE_TTL_MS
-                Object.keys(appData.deletedChapters).forEach(pid => {
-                    const dels = appData.deletedChapters[pid]
-                    if (!dels || typeof dels !== 'object') { delete appData.deletedChapters[pid]; return }
-                    const prof = appData.profiles && appData.profiles[pid]
-                    Object.keys(dels).forEach(chKey => {
-                        if (typeof dels[chKey] !== 'number' || dels[chKey] < tombstoneCutoff) {
-                            delete dels[chKey]
-                            return
-                        }
-                        if (prof && typeof prof[chKey] === 'number' && prof[chKey] <= dels[chKey]) {
-                            delete prof[chKey]
-                        }
-                    })
-                    if (Object.keys(dels).length === 0) delete appData.deletedChapters[pid]
+            // it was read). Expired tombstones still apply here; they are purged
+            // only afterwards, or a stale cloud copy of the chapter would return.
+            Object.keys(appData.deletedChapters).forEach(pid => {
+                const dels = appData.deletedChapters[pid]
+                const prof = appData.profiles && appData.profiles[pid]
+                if (!dels || typeof dels !== 'object' || !prof) return
+                Object.keys(dels).forEach(chKey => {
+                    if (typeof dels[chKey] === 'number' && typeof prof[chKey] === 'number' && prof[chKey] <= dels[chKey]) {
+                        delete prof[chKey]
+                    }
                 })
-            }
+            })
 
             // Re-read history and read-through starts: union both sides, then
             // rebuild each re-read chapter honoring both kinds of tombstone
             mergeReadHistoryInto(appData, localReadHistory, localReadThroughStarts, localDeletedReads)
+            // Now drop chapter tombstones older than 30 days to bound growth.
+            // The next save deletes them, and the chapters they removed, in the cloud.
+            purgeOldChapterDeletions(appData)
 
             // Merge per-profile metadata: restore local entries missing from cloud
             if (localProfilePlans) {
@@ -4210,6 +4378,10 @@
                 })
             }
 
+            // A profile deleted on any device stays deleted, even if this device
+            // (or the cloud) still had it and the merges above restored it
+            dropDeletedProfiles(appData)
+
             // Ensure data integrity
             if(!appData.profilePlans) {
                 appData.profilePlans = {};
@@ -4260,9 +4432,12 @@
                 });
             });
 
-            // Ensure active profile exists
+            // Ensure active and default profiles exist
             if(!appData.profiles[appData.activeProfileId]) {
                 appData.activeProfileId = Object.keys(appData.profiles)[0];
+            }
+            if(!appData.profiles[appData.defaultProfileId]) {
+                appData.defaultProfileId = appData.activeProfileId;
             }
 
             // Reset daily progress if needed after loading from cloud
@@ -4276,6 +4451,7 @@
         }
 
         async function initCloudSync(uid) {
+            cloudBaseline = null; // nothing seen from this account's cloud copy yet
             const userDocRef = doc(db, "users", uid);
             unsubscribe = onSnapshot(userDocRef, (docSnap) => {
                 // Queue sync if user is actively editing — process after cooldown
@@ -4512,8 +4688,7 @@
 			const saveToFirebase = () => {
 				if (!currentUser) return;
 
-				const userDocRef = doc(db, "users", currentUser.uid);
-				setDoc(userDocRef, { appData: appData }, { merge: true })
+				writeAppDataToCloud()
 					.then(() => {
 						log('☁️ Saved to Firebase');
 						if(syncStatus) {
@@ -4762,6 +4937,8 @@
             // Initialize goals for new profile
             if(!appData.goals) appData.goals = {};
             appData.goals[sanitized] = [];
+            // Outranks any older tombstone if this name was deleted before
+            recordProfileCreation(sanitized);
 
             window.switchProfile(sanitized);
             window.showToast(`Profile "${sanitized}" created`, 'success', 3000);
@@ -4787,36 +4964,14 @@
             );
 
             if(userInput === name) {
-                delete appData.profiles[name];
-                delete appData.profilePlans[name];
-                delete appData.hornerDailyProgress[name];
-                if(appData.dailyPlanProgress) delete appData.dailyPlanProgress[name];
-                if(appData.memorizedVerses) delete appData.memorizedVerses[name];
-                if(appData.goals) delete appData.goals[name];
-                if(appData.customPlans) delete appData.customPlans[name];
-                if(appData.hornerCycleCount) delete appData.hornerCycleCount[name];
-                if(appData.hornerCycleLastAt) delete appData.hornerCycleLastAt[name];
-                if(appData.profileColors) delete appData.profileColors[name];
-                if(appData.readHistory) delete appData.readHistory[name];
-                if(appData.readThroughStarts) delete appData.readThroughStarts[name];
-                if(appData.deletedReads) delete appData.deletedReads[name];
+                // Every per-profile map and any sync rule naming this profile
+                removeProfileData(appData, name);
+                // Tombstone, so other devices drop it instead of restoring it
+                recordProfileDeletion(name);
 
                 // If this was the default profile, set default to the active profile
                 if(appData.defaultProfileId === name) {
                     appData.defaultProfileId = appData.activeProfileId;
-                }
-
-                // Clean up sync rules involving this profile
-                if(appData.profileSyncRules) {
-                    // Remove if this profile is a source
-                    delete appData.profileSyncRules[name];
-
-                    // Remove if this profile is a target
-                    Object.keys(appData.profileSyncRules).forEach(sourceProfile => {
-                        if(appData.profileSyncRules[sourceProfile] === name) {
-                            delete appData.profileSyncRules[sourceProfile];
-                        }
-                    });
                 }
 
                 window.saveProgress(true); // Immediate save
@@ -4940,13 +5095,18 @@
                 delete appData.profileColors[oldName];
             }
 
-            // Move re-read history, read-through starts and read tombstones
-            ['readHistory', 'readThroughStarts', 'deletedReads'].forEach(field => {
+            // Move re-read history, read-through starts, plan history and tombstones
+            ['readHistory', 'readThroughStarts', 'deletedReads', 'deletedChapters', 'planHistory'].forEach(field => {
                 if(appData[field] && appData[field][oldName]) {
                     appData[field][newName] = appData[field][oldName];
                     delete appData[field][oldName];
                 }
             });
+
+            // Other devices must drop the old name, and keep the new one even if
+            // it was once deleted
+            recordProfileDeletion(oldName);
+            recordProfileCreation(newName);
 
             window.saveProgress(true); // Immediate save
             renderProfileList(); // Re-render the list
@@ -12996,6 +13156,10 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                             if(!appData.profiles[appData.activeProfileId]) {
                                 appData.activeProfileId = Object.keys(appData.profiles)[0];
                             }
+
+                            // A restore is newer than any deletion another device
+                            // still remembers, so restored profiles stay
+                            Object.keys(appData.profiles).forEach(recordProfileCreation);
 
                             // Log restore details for debugging
                             const profileCount = Object.keys(appData.profiles).length;
