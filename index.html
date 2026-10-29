@@ -3645,14 +3645,30 @@
             return removed
         }
 
-        // Remove every read in the current read-through (earlier rounds stay)
+        // Remove every read in the current read-through (earlier rounds stay).
+        // Returns the removed timestamps.
         function removeRoundReads(profileId, key) {
-            let removed = 0
+            const removed = []
             while (isReadThisRound(profileId, key)) {
-                if (removeLatestRead(profileId, key) === null) break
-                removed++
+                const ts = removeLatestRead(profileId, key)
+                if (ts === null) break
+                removed.push(ts)
             }
             return removed
+        }
+
+        // Remove one specific read, wherever it sits. Returns true if found.
+        function removeReadAt(profileId, key, ts) {
+            const prof = appData.profiles[profileId]
+            if (!prof) return false
+            if (prof[key] === ts) return removeLatestRead(profileId, key) !== null
+            const earlier = getEarlierReads(profileId, key)
+            const idx = earlier.indexOf(ts)
+            if (idx === -1) return false
+            earlier.splice(idx, 1)
+            setEarlierReads(profileId, key, earlier)
+            recordReadDeletion(profileId, key, ts)
+            return true
         }
 
         // Snapshot one chapter's reads so an action can be undone exactly
@@ -11487,10 +11503,11 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             return target && appData.profiles[target] ? target : null;
         }
 
-        // Mirror an unmark on a sync target: drop its read in its own current
-        // read-through (the old behavior deleted the target's chapter outright)
-        function removeSyncedRead(targetProfile, chapterId) {
-            if (isReadThisRound(targetProfile, chapterId)) removeLatestRead(targetProfile, chapterId);
+        // Mirror removed reads on a sync target. Synced marks share the source's
+        // timestamp, so drop exactly those reads. A read the target recorded on
+        // its own stays, and the target's read-through boundary doesn't matter.
+        function removeSyncedReads(targetProfile, chapterId, removedTimestamps) {
+            removedTimestamps.forEach(ts => removeReadAt(targetProfile, chapterId, ts));
         }
 
         // Plan marks: a plan only offers a chapter it needs read, so a chapter
@@ -11533,8 +11550,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const timestamp = wasRead ? null : Date.now();
             const syncTarget = getSyncTargetProfile(profileId);
             if (wasRead) {
-                removeLatestRead(profileId, id);
-                if (syncTarget) removeSyncedRead(syncTarget, id);
+                const removed = removeLatestRead(profileId, id);
+                if (syncTarget && removed !== null) removeSyncedReads(syncTarget, id, [removed]);
             } else {
                 recordChapterRead(profileId, id, timestamp);
                 if (syncTarget) recordChapterRead(syncTarget, id, timestamp);
@@ -11708,8 +11725,8 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
                     recordChapterRead(profileId, chapterId, timestamp);
                     if (syncTarget) recordChapterRead(syncTarget, chapterId, timestamp);
                 } else {
-                    removeRoundReads(profileId, chapterId);
-                    if (syncTarget) removeRoundReads(syncTarget, chapterId);
+                    const removed = removeRoundReads(profileId, chapterId);
+                    if (syncTarget) removeSyncedReads(syncTarget, chapterId, removed);
                 }
             });
             window.saveProgress(true);
@@ -11955,7 +11972,7 @@ const bible = [{"name":"Genesis","testament":"OT","ch":[797,632,695,632,505,579,
             const removed = removeLatestRead(profileId, chapterId);
             if (removed === null) return;
             const syncTarget = getSyncTargetProfile(profileId);
-            if (syncTarget) removeSyncedRead(syncTarget, chapterId);
+            if (syncTarget) removeSyncedReads(syncTarget, chapterId, [removed]);
             noteHornerUnread(chapterId);
             refreshAfterProgressChange();
             window.showMicroToast(`Removed the ${formatReadDate(removed)} read of ${chapterKeyLabel(chapterId)}`, 3000);
