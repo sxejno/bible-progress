@@ -336,6 +336,33 @@ try {
         await ctx.close()
     }
 
+    // Concurrent latest reads deliberately use newest-wins, not a union.
+    // Exercise both local/cloud orderings through the actual snapshot path.
+    for (const local_newer of [false, true]) {
+        const { page, errors, ctx } = await newPage(browser, { uid: 'concurrent', email: 't@example.com' })
+        const now = Date.now(), old = now - 10 * DAY
+        const earlier = now - 2 * DAY, newer = now - DAY
+        const d = baseData('Sync')
+        d.profiles.Sync = { 'Genesis-1': local_newer ? newer : earlier }
+        d.readHistory = { Sync: { 'Genesis-1': String(old) } }
+        d.readThroughStarts = { Sync: [now - 3 * DAY] }
+        d.lastModified = now - 60000
+        await seed(page, d)
+        await page.waitForFunction(() => typeof window.__pushSnapshot === 'function')
+        const cloud = structuredClone(d)
+        cloud.profiles.Sync['Genesis-1'] = local_newer ? earlier : newer
+        cloud.lastModified = now + 5000
+        for (let repeat = 0; repeat < 2; repeat++) {
+            await page.evaluate(c => window.__pushSnapshot(c), cloud)
+            await flush(page)
+            const st = await data(page)
+            check(`concurrent re-reads keep only newer latest (local_newer=${local_newer}, repeat=${repeat})`,
+                st.profiles.Sync['Genesis-1'] === newer && st.readHistory.Sync['Genesis-1'] === String(old))
+        }
+        check(`no page errors (concurrent local_newer=${local_newer})`, errors.length === 0, errors.join(' || '))
+        await ctx.close()
+    }
+
     // ---------- 4. Horner keeps rotating and counts re-reads ----------
     {
         const { page, errors, ctx } = await newPage(browser)
@@ -395,6 +422,67 @@ try {
         await page.waitForTimeout(300)
         check('drag does not open menu', (await page.locator('#chapter-menu-overlay').count()) === 0)
         check('no page errors (touch)', errors.length === 0, errors.join(' || '))
+        await ctx.close()
+    }
+
+    // ---------- 6. Sync rules mirror only the reads the source removes ----------
+    {
+        const { page, errors, ctx } = await newPage(browser, { uid: 'reset-sync', email: 't@example.com' })
+        const now = Date.now()
+        const t1 = now - 30 * DAY, t2 = now - 20 * DAY, start = now - 10 * DAY, t4 = now - 2 * DAY, own = now - 3 * DAY
+        // Source A is on read-through #2 and mirrors marks to B, which is still on #1.
+        // Genesis 1-3 were synced in round 1 (same timestamps); Genesis 4 was synced in round 2.
+        const d = baseData('A', { profileSyncRules: { A: 'B' }, profilePlans: { A: 'SEQUENTIAL', B: 'SEQUENTIAL' } })
+        d.profiles.A = { 'Genesis-1': t2, 'Genesis-2': t1, 'Genesis-3': t1, 'Genesis-4': t4 }
+        d.profiles.B = { 'Genesis-1': t2, 'Genesis-2': t1, 'Genesis-3': t1, 'Genesis-4': t4, 'Genesis-5': own }
+        d.readHistory = { A: { 'Genesis-1': String(t1) }, B: { 'Genesis-1': String(t1) } }
+        // Target's newer independent read must also survive removing a mirrored history entry.
+        d.profiles.A['Genesis-6'] = t4
+        d.profiles.B['Genesis-6'] = now - DAY
+        d.readHistory.A['Genesis-6'] = String(t1)
+        d.readHistory.B['Genesis-6'] = `${t1},${t4}`
+        d.readThroughStarts = { A: [start] }
+        d.lastModified = now - 60000
+        const stale = structuredClone(d)
+        stale.lastModified = now + DAY
+        await seed(page, d)
+        await page.evaluate(() => { window.setTab('ALL'); window.openBook(0) })
+        await page.waitForSelector('button[data-chapter="Genesis-5"]')
+
+        // A marks Genesis 5; B already has its own read, so B keeps it as is
+        await page.click('button[data-chapter="Genesis-5"]')
+        await flush(page)
+        let st = await data(page)
+        check('sync skips a target read it already has', st.profiles.B['Genesis-5'] === own && !st.readHistory.B?.['Genesis-5'])
+        // A unmarks Genesis 5; B's own read is not A's, so it stays
+        await page.click('button[data-chapter="Genesis-5"]')
+        await flush(page)
+        st = await data(page)
+        check("unmark leaves the target's own read", st.profiles.B['Genesis-5'] === own)
+
+        // A resets Genesis: only A's read-through #2 reads (Genesis 4) leave B
+        await page.click('button:has-text("Reset Book")')
+        await page.waitForSelector('#custom-modal-overlay')
+        await page.locator('#custom-modal-overlay button:has-text("Reset")').click()
+        await flush(page)
+        st = await data(page)
+        check('reset removes the mirrored round-2 read from the target', st.profiles.B['Genesis-4'] === undefined)
+        check("reset keeps the target's earlier reads", st.profiles.B['Genesis-1'] === t2 && st.readHistory.B['Genesis-1'] === String(t1) &&
+            st.profiles.B['Genesis-2'] === t1 && st.profiles.B['Genesis-3'] === t1 && st.profiles.B['Genesis-5'] === own,
+            JSON.stringify({ B: st.profiles.B, h: st.readHistory.B }))
+        check('reset keeps the source round-1 reads', st.profiles.A['Genesis-1'] === t2 && st.profiles.A['Genesis-2'] === t1)
+        check('reset removes a mirrored history entry but keeps independent latest',
+            st.profiles.B['Genesis-6'] === now - DAY && st.readHistory.B['Genesis-6'] === String(t1) &&
+            !!st.deletedReads.B['Genesis-6'][String(t4)])
+        await page.waitForFunction(() => typeof window.__pushSnapshot === 'function')
+        await page.evaluate(c => window.__pushSnapshot(c), stale)
+        await flush(page)
+        st = await data(page)
+        check('stale cloud snapshot cannot resurrect reset reads or erase unrelated reads',
+            st.profiles.B['Genesis-4'] === undefined && st.profiles.B['Genesis-5'] === own &&
+            st.profiles.B['Genesis-1'] === t2 && st.readHistory.B['Genesis-1'] === String(t1) &&
+            st.profiles.B['Genesis-6'] === now - DAY && st.readHistory.B['Genesis-6'] === String(t1))
+        check('no page errors (sync rules)', errors.length === 0, errors.join(' || '))
         await ctx.close()
     }
 } finally {
